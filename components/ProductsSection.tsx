@@ -156,7 +156,6 @@ function ProductCard({ product, index }: { product: ProductCard; index: number }
       size: "Standard",
       price: priceNum,
       wcProductId: product.id,
-      quantity: 1,
     });
     openCart();
     setAdded(true);
