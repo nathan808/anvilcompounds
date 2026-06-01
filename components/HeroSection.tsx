@@ -97,10 +97,10 @@ export default function HeroSection() {
               className="font-display font-800 leading-[0.92] mb-6"
               style={{ fontSize: "clamp(3.5rem, 8vw, 7rem)" }}
             >
-              <span className="block text-white">Purity</span>
-              <span className="block text-white">Proven.</span>
+              <span className="block text-white">Independently</span>
+              <span className="block text-white">Verified.</span>
               <span className="block glow-text" style={{ color: "#4D94F0" }}>
-                Not Promised.
+                Every Batch.
               </span>
             </motion.h1>
 

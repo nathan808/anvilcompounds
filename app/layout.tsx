@@ -26,7 +26,7 @@ const dmMono = DM_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Anvil Compounds — Purity Proven. Not Promised.",
+  title: "Anvil Compounds — Independently Verified. Every Batch.",
   description:
     "Research-grade peptides independently tested to 99%+ purity. Triple verification: HPLC, Mass Spectrometry & Endotoxin Screening. Ships same day from Southern California.",
   keywords: "research peptides, BPC-157, Semaglutide, Tirzepatide, research compounds, HPLC tested peptides",
