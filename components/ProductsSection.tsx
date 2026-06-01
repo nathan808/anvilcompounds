@@ -5,11 +5,20 @@ import { motion, useInView } from "framer-motion";
 import Image from "next/image";
 import type { ProductCard } from "@/lib/woocommerce";
 
+const SLUG_MAP: Record<string, string> = {
+  "BPC-157": "bpc-157",
+  "Semaglutide": "semaglutide",
+  "Tirzepatide": "tirzepatide",
+  "KGLOW": "kglow",
+  "GHK-Cu": "ghk-cu",
+  "Retatrutide": "retatrutide",
+  "TB-500": "tb-500",
+  "MOTS-c": "mots-c",
+  "Bacteriostatic Water": "bac-water",
+};
+
 function slugifyProductName(name: string): string {
-  return name
-    .toLowerCase()
-    .replace(/\s+/g, "-")
-    .replace(/[^a-z0-9-]/g, "");
+  return SLUG_MAP[name] ?? name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
 }
 
 const FALLBACK_PRODUCTS: ProductCard[] = [
@@ -88,6 +97,45 @@ const FALLBACK_PRODUCTS: ProductCard[] = [
     badge: "Cutting Edge",
     badgeColor: "bg-rose-600/20 text-rose-300 border-rose-600/30",
     icon: "⬟",
+    permalink: "#",
+    image: null,
+  },
+  {
+    id: 6,
+    name: "TB-500",
+    category: "Repair & Recovery",
+    description: "Synthetic analogue of Thymosin Beta-4, studied in cell migration, actin dynamics, and tissue modeling research models.",
+    price: "$45",
+    purity: "99%+",
+    badge: "Recovery",
+    badgeColor: "bg-amber-600/20 text-amber-300 border-amber-600/30",
+    icon: "◉",
+    permalink: "#",
+    image: null,
+  },
+  {
+    id: 7,
+    name: "MOTS-c",
+    category: "Metabolic",
+    description: "Mitochondrial-derived peptide studied in mitochondrial-nuclear communication, glucose metabolism, and cellular stress response.",
+    price: "$55",
+    purity: "99%+",
+    badge: "Metabolic",
+    badgeColor: "bg-violet-600/20 text-violet-300 border-violet-600/30",
+    icon: "⬥",
+    permalink: "#",
+    image: null,
+  },
+  {
+    id: 8,
+    name: "Bacteriostatic Water",
+    category: "Research Supplies",
+    description: "0.9% benzyl alcohol sterile water. Standard reconstitution solvent for lyophilized peptide research. 30mL multi-use vial.",
+    price: "$25",
+    purity: "Sterility Certified",
+    badge: "Essential Supply",
+    badgeColor: "bg-slate-600/20 text-slate-300 border-slate-600/30",
+    icon: "◎",
     permalink: "#",
     image: null,
   },

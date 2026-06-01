@@ -17,6 +17,7 @@ export interface Product {
   wcProductId: number;
   purity: string;
   icon: string;
+  isSupply?: boolean;
   whatItIs: string;
   molecularProfile: string;
   researchFocusAreas: string[];
@@ -303,6 +304,124 @@ export const products: Product[] = [
       "Pickart L. The human tri-peptide GHK and tissue remodeling. J Biomater Sci Polym Ed, 2008.",
     ],
     relatedSlugs: ["bpc-157", "kglow", "retatrutide"],
+  },
+  {
+    slug: "tb-500",
+    name: "TB-500",
+    category: "Peptide Research · Repair & Recovery",
+    descriptor: "Thymosin beta-4 synthetic fragment · Lyophilized · Research grade",
+    price: "$45.00",
+    priceNumber: 45,
+    priceUnit: "/ vial",
+    sizes: ["5mg", "10mg"],
+    wcUrl: "https://anvilcompounds.shop/tb500/",
+    wcProductId: 0,
+    purity: "99%+",
+    icon: "◉",
+    whatItIs:
+      "TB-500 is a synthetic analogue of the naturally occurring peptide Thymosin Beta-4 (TB4), a 43-amino acid protein found in virtually all human and animal cells. The TB-500 fragment corresponds to a key active region of TB4 and is studied as a research tool in cell migration, actin dynamics, and tissue modeling research.",
+    molecularProfile:
+      "TB-500 is a 17-amino acid fragment with molecular formula C44H77N13O15S and a molecular weight of approximately 1099.24 g/mol. Synthesized via SPPS and supplied lyophilized. The fragment contains the actin-binding domain considered central to TB4 research models.",
+    researchFocusAreas: [
+      "Actin dynamics and cytoskeletal organization research",
+      "Cell migration signaling model studies",
+      "Angiogenesis and endothelial cell research",
+      "Inflammatory signaling pathway modulation research",
+    ],
+    properties: {
+      "CAS Number": "77591-33-4",
+      "Molecular Formula": "C44H77N13O15S",
+      "Molecular Weight": "1099.24 g/mol",
+      Appearance: "White lyophilized powder",
+      Sequence: "Ac-Lys-Thr-Thr-Thr-Lys-Gly-Asp-Ile-Glu-Lys-Phe-Leu-Lys-Glu-Leu-Arg-Met",
+      Storage: "-20°C · Sealed · Protected from light",
+      "Shelf Life": "24 months from manufacture date",
+      "Vial Format": "Lyophilized · Sealed glass vial",
+      Terms: "RUO only. Not for human, animal, diagnostic, or household use.",
+    },
+    citations: [
+      "Goldstein AL et al. Thymosin beta4: a multi-functional regenerative peptide. Expert Opinion on Biological Therapy, 2012. Reviews TB4 fragment biology and research applications.",
+      "Ho EN et al. Simultaneous detection of TB-500 and its prohormone thymosin beta-4 in equine plasma by liquid chromatography-mass spectrometry. J Chromatogr A, 2012.",
+      "Mora CA et al. Anti-inflammatory activity of thymosin beta-4 is mediated by transcriptional enhancement of ANXA1 and KLF2. J Innate Immun, 2016.",
+    ],
+    relatedSlugs: ["bpc-157", "ghk-cu", "mots-c"],
+  },
+  {
+    slug: "bac-water",
+    name: "Bacteriostatic Water",
+    category: "Research Supplies",
+    descriptor: "0.9% benzyl alcohol · Sterile · 30mL multi-use vial",
+    price: "$25.00",
+    priceNumber: 25,
+    priceUnit: "/ vial",
+    sizes: ["30mL × 1", "30mL × 3"],
+    wcUrl: "https://anvilcompounds.shop/bac-water/",
+    wcProductId: 0,
+    purity: "Sterility Certified",
+    icon: "◎",
+    isSupply: true,
+    whatItIs:
+      "Bacteriostatic water (BW) is sterile water for injection containing 0.9% benzyl alcohol as a preservative. The benzyl alcohol component inhibits microbial growth, allowing the vial to be used multiple times without contamination over a defined period. It is the standard reconstitution solvent used in peptide research laboratories for lyophilized peptide preparation prior to in vitro use.",
+    molecularProfile:
+      "Bacteriostatic water is an aqueous solution containing water for injection (WFI) meeting sterility requirements and benzyl alcohol (C7H8O) at 0.9% w/v concentration. Supplied in sealed 30mL multi-use glass vials. No active peptide or pharmaceutical ingredient — used as a diluent and reconstitution solvent only.",
+    researchFocusAreas: [
+      "Standard reconstitution solvent for lyophilized peptide research",
+      "Multi-use vial format for repeated aliquoting in laboratory settings",
+      "Benzyl alcohol preservation system for in vitro solution stability",
+      "Compatible with all Anvil Compounds lyophilized research peptides",
+    ],
+    properties: {
+      Composition: "Water for injection + 0.9% benzyl alcohol",
+      "CAS (benzyl alcohol)": "100-51-6",
+      Appearance: "Clear colorless sterile solution",
+      Volume: "30mL per vial",
+      "Vial Format": "Sealed multi-use glass vial with rubber stopper",
+      Storage: "Room temperature · Protected from light",
+      Terms: "For laboratory diluent use only. Not for human or animal injection.",
+    },
+    citations: [],
+    relatedSlugs: ["bpc-157", "tb-500", "ghk-cu"],
+  },
+  {
+    slug: "mots-c",
+    name: "MOTS-c",
+    category: "Peptide Research · Metabolic",
+    descriptor: "Mitochondrial-derived peptide · Lyophilized · Research grade",
+    price: "$55.00",
+    priceNumber: 55,
+    priceUnit: "/ vial",
+    sizes: ["5mg", "10mg"],
+    wcUrl: "https://anvilcompounds.shop/motsc/",
+    wcProductId: 0,
+    purity: "99%+",
+    icon: "⬥",
+    whatItIs:
+      "MOTS-c (Mitochondrial Open Reading Frame of the 12S rRNA-c) is a 16-amino acid peptide encoded within the mitochondrial genome. It is classified as a mitochondrial-derived peptide (MDP) and is studied as a research tool in mitochondrial-nuclear communication, glucose metabolism signaling, and cellular stress response models.",
+    molecularProfile:
+      "MOTS-c has the molecular formula C110H196N44O31S2 with a molecular weight of approximately 2174.12 g/mol. It is synthesized via SPPS and supplied as a white lyophilized powder. As a mitochondrially-encoded peptide it represents a distinct class of signaling molecules compared to nuclear-genome-derived peptides.",
+    researchFocusAreas: [
+      "Mitochondrial-nuclear retrograde signaling research",
+      "Glucose metabolism and insulin signaling pathway studies",
+      "Cellular stress response and AMPK pathway modulation research",
+      "Aging biology and metabolic homeostasis models",
+    ],
+    properties: {
+      "CAS Number": "1627580-64-6",
+      "Molecular Formula": "C110H196N44O31S2",
+      "Molecular Weight": "2174.12 g/mol",
+      Appearance: "White lyophilized powder",
+      Sequence: "Met-Arg-Trp-Gln-Glu-Met-Gly-Tyr-Ile-Phe-Tyr-Pro-Arg-Lys-Leu-Arg",
+      Storage: "-20°C · Sealed · Protected from light",
+      "Shelf Life": "24 months from manufacture date",
+      "Vial Format": "Lyophilized · Sealed glass vial",
+      Terms: "RUO only. Not for human, animal, diagnostic, or household use.",
+    },
+    citations: [
+      "Lee C et al. The mitochondrial-derived peptide MOTS-c promotes metabolic homeostasis and reduces obesity and insulin resistance. Cell Metab, 2015. Original discovery paper.",
+      "Reynolds JC et al. MOTS-c is an exercise-induced mitochondrial-encoded regulator of age-dependent physical decline and muscle homeostasis. Nature Commun, 2021.",
+      "Bhatt S et al. Emerging role of mitochondria-derived peptides in inflammation. Curr Opin Physiol, 2022.",
+    ],
+    relatedSlugs: ["ghk-cu", "bpc-157", "retatrutide"],
   },
 ];
 
