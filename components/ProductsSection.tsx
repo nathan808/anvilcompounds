@@ -1,9 +1,10 @@
 "use client";
 
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, useCallback } from "react";
 import { motion, useInView } from "framer-motion";
 import Image from "next/image";
 import type { ProductCard } from "@/lib/woocommerce";
+import { useCart } from "@/lib/cartContext";
 
 const SLUG_MAP: Record<string, string> = {
   "BPC-157": "bpc-157",
@@ -144,6 +145,23 @@ const FALLBACK_PRODUCTS: ProductCard[] = [
 function ProductCard({ product, index }: { product: ProductCard; index: number }) {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-80px" });
+  const { addItem, openCart } = useCart();
+  const [added, setAdded] = useState(false);
+
+  const handleAddToCart = useCallback(() => {
+    const priceNum = parseFloat(product.price.replace(/[^0-9.]/g, "")) || 0;
+    addItem({
+      slug: slugifyProductName(product.name),
+      name: product.name,
+      size: "Standard",
+      price: priceNum,
+      wcProductId: product.id,
+      quantity: 1,
+    });
+    openCart();
+    setAdded(true);
+    setTimeout(() => setAdded(false), 2000);
+  }, [product, addItem, openCart]);
 
   return (
     <motion.div
@@ -221,14 +239,16 @@ function ProductCard({ product, index }: { product: ProductCard; index: number }
               >
                 View
               </a>
-              <a
-                href={product.permalink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex-1 text-center px-3 py-2 bg-blue-600/20 hover:bg-blue-600 border border-blue-600/30 hover:border-blue-500 text-blue-300 hover:text-white text-sm font-display font-600 rounded-lg transition-all duration-300"
+              <button
+                onClick={handleAddToCart}
+                className={`flex-1 text-center px-3 py-2 border text-sm font-display font-600 rounded-lg transition-all duration-300 ${
+                  added
+                    ? "bg-green-600/20 border-green-500/40 text-green-300"
+                    : "bg-blue-600/20 hover:bg-blue-600 border-blue-600/30 hover:border-blue-500 text-blue-300 hover:text-white"
+                }`}
               >
-                Order
-              </a>
+                {added ? "✓ Added" : "Add to Cart"}
+              </button>
             </div>
           </div>
         </div>
