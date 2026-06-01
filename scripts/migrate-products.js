@@ -205,15 +205,29 @@ async function wcJson(endpoint, options = {}) {
   return json;
 }
 
+function decodeHtml(str) {
+  return str.replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#039;/g, "'");
+}
+
 /** Get or create a WC category by name, returns { id } */
 async function ensureCategory(name) {
-  const cats = await wcJson(`/products/categories?search=${encodeURIComponent(name)}&per_page=10`);
-  const existing = cats.find((c) => c.name === name);
+  // WC returns HTML-encoded names (&amp; etc.) — decode before comparing
+  const cats = await wcJson(`/products/categories?per_page=100`);
+  const existing = cats.find((c) => decodeHtml(c.name) === name);
   if (existing) return existing;
-  return wcJson("/products/categories", {
-    method: "POST",
-    body: JSON.stringify({ name }),
-  });
+
+  try {
+    return await wcJson("/products/categories", {
+      method: "POST",
+      body: JSON.stringify({ name }),
+    });
+  } catch (err) {
+    // Already exists but wasn't matched — re-fetch and try again
+    const retry = await wcJson(`/products/categories?per_page=100`);
+    const found = retry.find((c) => decodeHtml(c.name) === name);
+    if (found) return found;
+    throw err;
+  }
 }
 
 /** Search for a product by name (slug match), returns null if not found */
