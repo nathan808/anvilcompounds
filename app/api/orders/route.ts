@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { items, billing, notes } = body;
+    const { items, billing, notes, ruoConfirmed, customer_id } = body;
 
     const url = process.env.WC_URL;
     const key = process.env.WC_CONSUMER_KEY;
@@ -20,10 +20,14 @@ export async function POST(req: NextRequest) {
       quantity: item.quantity,
     }));
 
+    const ip =
+      req.headers.get("x-forwarded-for")?.split(",")[0].trim() ?? "unknown";
+
     const payload = {
       payment_method: "bacs",
       payment_method_title: "Manual Payment (Zelle / ACH / Crypto)",
       status: "pending",
+      customer_id: customer_id ?? 0,
       billing: {
         first_name: billing.firstName,
         last_name: billing.lastName,
@@ -48,6 +52,11 @@ export async function POST(req: NextRequest) {
       },
       line_items: lineItems,
       customer_note: notes ?? "",
+      meta_data: [
+        { key: "_ruo_confirmed", value: ruoConfirmed ? "yes" : "no" },
+        { key: "_ruo_confirmed_at", value: new Date().toISOString() },
+        { key: "_ruo_confirmed_ip", value: ip },
+      ],
     };
 
     const wcRes = await fetch(`${url}/wp-json/wc/v3/orders`, {

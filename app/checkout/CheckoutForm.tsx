@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, FormEvent } from "react";
+import { useState, FormEvent, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/lib/cartContext";
+import { useAuth } from "@/lib/authContext";
 
 const US_STATES = [
   "AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA",
@@ -22,6 +23,7 @@ interface Field {
 
 export default function CheckoutForm() {
   const { items, subtotal, clearCart } = useCart();
+  const { user } = useAuth();
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -30,6 +32,17 @@ export default function CheckoutForm() {
     firstName: "", lastName: "", email: "", phone: "",
     address1: "", address2: "", city: "", state: "CA", zip: "", notes: "",
   });
+
+  useEffect(() => {
+    if (user) {
+      setForm((p) => ({
+        ...p,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+      }));
+    }
+  }, [user]);
 
   const set = (k: string, v: string) => setForm((p) => ({ ...p, [k]: v }));
 
@@ -44,7 +57,7 @@ export default function CheckoutForm() {
       const res = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ items, billing: form, notes: form.notes }),
+        body: JSON.stringify({ items, billing: form, notes: form.notes, ruoConfirmed: confirmed }),
       });
       const data = await res.json();
       if (!res.ok || data.error) throw new Error(data.error ?? "Unknown error");
@@ -155,7 +168,7 @@ export default function CheckoutForm() {
           </div>
         </div>
         <p className="font-body text-sm text-white/45 leading-relaxed">
-          I confirm all products are purchased for legitimate <strong className="text-white/70">in vitro laboratory research purposes only</strong> — not for human or veterinary use. I am 21 years of age or older. *
+          I confirm that all products purchased are for <strong className="text-white/70">research use only</strong> and not for human or veterinary consumption. I am 21 years of age or older. *
         </p>
       </label>
 

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Syne, DM_Sans, DM_Mono } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/lib/cartContext";
+import { AuthProvider } from "@/lib/authContext";
 import AgeGate from "@/components/AgeGate";
 
 const syne = Syne({
@@ -40,10 +41,12 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth">
       <body className={`${syne.variable} ${dmSans.variable} ${dmMono.variable} font-body`}>
-        <CartProvider>
-          <AgeGate />
-          {children}
-        </CartProvider>
+        <AuthProvider>
+          <CartProvider>
+            <AgeGate />
+            {children}
+          </CartProvider>
+        </AuthProvider>
       </body>
     </html>
   );

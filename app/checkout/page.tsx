@@ -1,9 +1,12 @@
 "use client";
 
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import CheckoutForm from "./CheckoutForm";
 import { useCart } from "@/lib/cartContext";
+import { useAuth } from "@/lib/authContext";
 import Link from "next/link";
 
 const PAYMENT_METHODS = [
@@ -15,6 +18,16 @@ const PAYMENT_METHODS = [
 
 export default function CheckoutPage() {
   const { items, subtotal } = useCart();
+  const { isAuthenticated, hydrated, user } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (hydrated && !isAuthenticated) {
+      router.replace("/account?redirect=/checkout");
+    }
+  }, [hydrated, isAuthenticated, router]);
+
+  if (!hydrated || !isAuthenticated) return null;
 
   return (
     <>
@@ -38,7 +51,10 @@ export default function CheckoutPage() {
             </div>
             <h1 className="font-display font-800 text-white text-4xl">Reserve Your Order</h1>
             <p className="font-body text-white/40 mt-2">
-              Complete checkout to reserve your order. Payment instructions will be sent via email.
+              Checking out as <span className="text-white/60">{user?.email}</span> ·{" "}
+              <button onClick={() => { router.push("/account"); }} className="text-blue-400/70 hover:text-blue-400 transition-colors text-sm underline underline-offset-2">
+                Not you?
+              </button>
             </p>
           </div>
 

@@ -8,14 +8,26 @@ export default function AgeGate() {
   const [remember, setRemember] = useState(false);
 
   useEffect(() => {
-    const permanent = localStorage.getItem("anvil_age_verified");
     const session = sessionStorage.getItem("anvil_age_verified");
-    if (!permanent && !session) setShow(true);
+    if (session) return;
+    const stored = localStorage.getItem("anvil_age_verified");
+    if (stored) {
+      try {
+        const { expires } = JSON.parse(stored);
+        if (Date.now() < expires) return;
+        localStorage.removeItem("anvil_age_verified");
+      } catch {
+        localStorage.removeItem("anvil_age_verified");
+      }
+    }
+    setShow(true);
   }, []);
 
   const confirm = () => {
+    const THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000;
+    const record = JSON.stringify({ ts: Date.now(), expires: Date.now() + THIRTY_DAYS });
     if (remember) {
-      localStorage.setItem("anvil_age_verified", "1");
+      localStorage.setItem("anvil_age_verified", record);
     } else {
       sessionStorage.setItem("anvil_age_verified", "1");
     }
