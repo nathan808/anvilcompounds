@@ -1,0 +1,195 @@
+[
+  {
+    "key": "group_anvil_product_details",
+    "title": "Anvil Product Details",
+    "fields": [
+      {
+        "key": "field_anvil_subtitle",
+        "label": "Subtitle",
+        "name": "subtitle",
+        "type": "text",
+        "instructions": "Short descriptor line shown under the product name. E.g. 'Pentadecapeptide fragment · Lyophilized · Research grade'",
+        "required": 0,
+        "placeholder": "e.g. Lyophilized · Research grade"
+      },
+      {
+        "key": "field_anvil_trust_badges",
+        "label": "Trust Badges",
+        "name": "trust_badges",
+        "type": "repeater",
+        "instructions": "Exactly 4 short trust indicators shown below the header",
+        "required": 0,
+        "min": 4,
+        "max": 4,
+        "layout": "table",
+        "sub_fields": [
+          {
+            "key": "field_anvil_trust_badge_text",
+            "label": "Badge",
+            "name": "badge",
+            "type": "text",
+            "placeholder": "e.g. 99%+ purity"
+          }
+        ]
+      },
+      {
+        "key": "field_anvil_what_it_is_subtitle",
+        "label": "What It Is — Subtitle",
+        "name": "what_it_is_subtitle",
+        "type": "text",
+        "instructions": "Heading shown inside the 'What it is' section. E.g. 'BPC-157 | Research Use Only'",
+        "placeholder": "Product Name | Research Use Only"
+      },
+      {
+        "key": "field_anvil_what_it_is_body",
+        "label": "What It Is — Body",
+        "name": "what_it_is_body",
+        "type": "wysiwyg",
+        "instructions": "Main descriptive paragraph for the product",
+        "toolbar": "basic",
+        "media_upload": 0
+      },
+      {
+        "key": "field_anvil_composition_body",
+        "label": "Composition",
+        "name": "composition_body",
+        "type": "wysiwyg",
+        "instructions": "Molecular profile or composition section. Leave blank to hide this section.",
+        "toolbar": "basic",
+        "media_upload": 0
+      },
+      {
+        "key": "field_anvil_research_applications",
+        "label": "Research Applications",
+        "name": "research_applications",
+        "type": "repeater",
+        "instructions": "Bulleted list of research use areas",
+        "required": 0,
+        "layout": "table",
+        "sub_fields": [
+          {
+            "key": "field_anvil_research_application_text",
+            "label": "Application",
+            "name": "application",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "key": "field_anvil_documentation_heading",
+        "label": "Documentation Section Heading",
+        "name": "documentation_section_heading",
+        "type": "text",
+        "instructions": "Heading for the COA/documentation section",
+        "default_value": "Documentation & Quality"
+      },
+      {
+        "key": "field_anvil_documentation_metrics",
+        "label": "Documentation Metrics",
+        "name": "documentation_metrics",
+        "type": "repeater",
+        "instructions": "4-column metrics grid (e.g. Purity, Identity, Endotoxin, Lot ID)",
+        "min": 1,
+        "max": 4,
+        "layout": "table",
+        "sub_fields": [
+          {
+            "key": "field_anvil_doc_metric_label",
+            "label": "Label",
+            "name": "label",
+            "type": "text",
+            "placeholder": "e.g. Purity"
+          },
+          {
+            "key": "field_anvil_doc_metric_value",
+            "label": "Value",
+            "name": "value",
+            "type": "text",
+            "placeholder": "e.g. 99.4%"
+          }
+        ]
+      },
+      {
+        "key": "field_anvil_documentation_file",
+        "label": "COA File (PDF)",
+        "name": "documentation_file",
+        "type": "file",
+        "instructions": "Upload the Certificate of Analysis PDF. Leave blank if not yet available.",
+        "return_format": "url",
+        "library": "uploadedTo",
+        "mime_types": "pdf"
+      },
+      {
+        "key": "field_anvil_documentation_caption",
+        "label": "Documentation Caption",
+        "name": "documentation_caption",
+        "type": "textarea",
+        "instructions": "Small caption shown below the documentation section",
+        "rows": 2
+      },
+      {
+        "key": "field_anvil_properties_table",
+        "label": "Properties Table",
+        "name": "properties_table",
+        "type": "repeater",
+        "instructions": "Key/value rows for the properties table (CAS number, MW, sequence, storage, etc.)",
+        "layout": "table",
+        "sub_fields": [
+          {
+            "key": "field_anvil_prop_label",
+            "label": "Label",
+            "name": "label",
+            "type": "text",
+            "placeholder": "e.g. CAS Number"
+          },
+          {
+            "key": "field_anvil_prop_value",
+            "label": "Value",
+            "name": "value",
+            "type": "text",
+            "placeholder": "e.g. 137525-51-0"
+          }
+        ]
+      },
+      {
+        "key": "field_anvil_shipping_type",
+        "label": "Shipping Type",
+        "name": "shipping_type",
+        "type": "select",
+        "instructions": "Controls which shipping info block is shown. Use 'ambient' for Bacteriostatic Water only.",
+        "choices": {
+          "standard": "Standard (cold-chain, ice packs)",
+          "ambient": "Ambient (no cold-chain required)"
+        },
+        "default_value": "standard",
+        "return_format": "value"
+      },
+      {
+        "key": "field_anvil_related_products_override",
+        "label": "Related Products Override",
+        "name": "related_products_override",
+        "type": "relationship",
+        "instructions": "Optional: manually select up to 3 related products. Leave blank to auto-select by category.",
+        "post_type": ["product"],
+        "min": 0,
+        "max": 3,
+        "return_format": "id"
+      }
+    ],
+    "location": [
+      [
+        {
+          "param": "post_type",
+          "operator": "==",
+          "value": "product"
+        }
+      ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "active": true
+  }
+]
