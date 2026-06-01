@@ -45,6 +45,18 @@ export interface ProductCard {
   image: string | null;
 }
 
+const PRODUCT_PAGE_URLS: Record<string, string> = {
+  "BPC-157":              "https://anvilcompounds.shop/product/bpc-157/",
+  "Semaglutide":          "https://anvilcompounds.shop/semaglutide/",
+  "Tirzepatide":          "https://anvilcompounds.shop/tirzepatide/",
+  "Retatrutide":          "https://anvilcompounds.shop/reta/",
+  "KGLOW":                "https://anvilcompounds.shop/klow/",
+  "GHK-Cu":               "https://anvilcompounds.shop/ghkcu/",
+  "TB-500":               "https://anvilcompounds.shop/tb500/",
+  "Bacteriostatic Water": "https://anvilcompounds.shop/bac-water/",
+  "MOTS-c":               "https://anvilcompounds.shop/motsc/",
+};
+
 export function mapProduct(product: WCProduct, index: number): ProductCard {
   const badge = BADGES[index % BADGES.length];
   return {
@@ -57,7 +69,7 @@ export function mapProduct(product: WCProduct, index: number): ProductCard {
     badge:       getAttribute(product, "Badge")  ?? badge.label,
     badgeColor:  badge.color,
     icon:        ICONS[index % ICONS.length],
-    permalink:   product.permalink,
+    permalink:   PRODUCT_PAGE_URLS[product.name] ?? product.permalink,
     image:       product.images[0]?.src ?? null,
   };
 }

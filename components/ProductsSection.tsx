@@ -32,7 +32,7 @@ const FALLBACK_PRODUCTS: ProductCard[] = [
     badge: "Bestseller",
     badgeColor: "bg-blue-600/20 text-blue-300 border-blue-600/30",
     icon: "⬡",
-    permalink: "#",
+    permalink: "https://anvilcompounds.shop/product/bpc-157/",
     image: null,
   },
   {
@@ -45,7 +45,7 @@ const FALLBACK_PRODUCTS: ProductCard[] = [
     badge: "High Demand",
     badgeColor: "bg-indigo-600/20 text-indigo-300 border-indigo-600/30",
     icon: "◈",
-    permalink: "#",
+    permalink: "https://anvilcompounds.shop/semaglutide/",
     image: null,
   },
   {
@@ -58,7 +58,7 @@ const FALLBACK_PRODUCTS: ProductCard[] = [
     badge: "Advanced",
     badgeColor: "bg-cyan-600/20 text-cyan-300 border-cyan-600/30",
     icon: "◇",
-    permalink: "#",
+    permalink: "https://anvilcompounds.shop/tirzepatide/",
     image: null,
   },
   {
@@ -71,7 +71,7 @@ const FALLBACK_PRODUCTS: ProductCard[] = [
     badge: "Exclusive Blend",
     badgeColor: "bg-purple-600/20 text-purple-300 border-purple-600/30",
     icon: "✦",
-    permalink: "#",
+    permalink: "https://anvilcompounds.shop/klow/",
     image: null,
   },
   {
@@ -84,7 +84,7 @@ const FALLBACK_PRODUCTS: ProductCard[] = [
     badge: "Entry Point",
     badgeColor: "bg-teal-600/20 text-teal-300 border-teal-600/30",
     icon: "⬢",
-    permalink: "#",
+    permalink: "https://anvilcompounds.shop/ghkcu/",
     image: null,
   },
   {
@@ -97,7 +97,7 @@ const FALLBACK_PRODUCTS: ProductCard[] = [
     badge: "Cutting Edge",
     badgeColor: "bg-rose-600/20 text-rose-300 border-rose-600/30",
     icon: "⬟",
-    permalink: "#",
+    permalink: "https://anvilcompounds.shop/reta/",
     image: null,
   },
   {
@@ -110,7 +110,7 @@ const FALLBACK_PRODUCTS: ProductCard[] = [
     badge: "Recovery",
     badgeColor: "bg-amber-600/20 text-amber-300 border-amber-600/30",
     icon: "◉",
-    permalink: "#",
+    permalink: "https://anvilcompounds.shop/tb500/",
     image: null,
   },
   {
@@ -123,7 +123,7 @@ const FALLBACK_PRODUCTS: ProductCard[] = [
     badge: "Metabolic",
     badgeColor: "bg-violet-600/20 text-violet-300 border-violet-600/30",
     icon: "⬥",
-    permalink: "#",
+    permalink: "https://anvilcompounds.shop/motsc/",
     image: null,
   },
   {
@@ -136,7 +136,7 @@ const FALLBACK_PRODUCTS: ProductCard[] = [
     badge: "Essential Supply",
     badgeColor: "bg-slate-600/20 text-slate-300 border-slate-600/30",
     icon: "◎",
-    permalink: "#",
+    permalink: "https://anvilcompounds.shop/bac-water/",
     image: null,
   },
 ];

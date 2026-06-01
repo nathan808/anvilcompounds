@@ -38,7 +38,7 @@ export const products: Product[] = [
     priceNumber: 35,
     priceUnit: "/ vial",
     sizes: ["5mg", "10mg"],
-    wcUrl: "https://anvilcompounds.shop/product-page-draft/",
+    wcUrl: "https://anvilcompounds.shop/product/bpc-157/",
     wcProductId: 332,
     purity: "99.4%",
     icon: "⬡",
