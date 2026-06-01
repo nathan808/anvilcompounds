@@ -3,7 +3,7 @@ import Link from "next/link";
 import { getProductBySlug, getRelatedProducts, products } from "@/lib/productData";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import SizeSelector from "./SizeSelector";
+import AddToCartButton from "./AddToCartButton";
 
 // Generate static params for all products
 export async function generateStaticParams() {
@@ -193,26 +193,14 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
                   </div>
                 </div>
 
-                {/* Size selector — client component */}
-                {product.sizes.length > 0 && (
-                  <div className="mb-8">
-                    <p className="font-mono text-xs text-white/40 tracking-widest uppercase mb-3">Select Size</p>
-                    <SizeSelector sizes={product.sizes} />
-                  </div>
-                )}
-
-                {/* CTA */}
-                <a
-                  href={product.wcUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block w-full text-center py-4 bg-blue-600 hover:bg-blue-500 text-white font-display font-700 text-base rounded-xl transition-all duration-300 hover:shadow-xl hover:shadow-blue-600/30 hover:-translate-y-0.5 mb-3"
-                >
-                  Add to Cart
-                </a>
-                <p className="text-center font-mono text-[10px] text-white/20 tracking-wide">
-                  RUO only · Not for human or veterinary use · 21+ required
-                </p>
+                {/* Add to cart — client component */}
+                <AddToCartButton
+                  slug={product.slug}
+                  name={product.name}
+                  sizes={product.sizes}
+                  priceNumber={product.priceNumber}
+                  wcProductId={product.wcProductId}
+                />
               </div>
             </div>
           </section>

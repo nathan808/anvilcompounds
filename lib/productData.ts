@@ -10,9 +10,11 @@ export interface Product {
   category: string;
   descriptor: string;
   price: string;
+  priceNumber: number;
   priceUnit: string;
   sizes: string[];
   wcUrl: string;
+  wcProductId: number;
   purity: string;
   icon: string;
   whatItIs: string;
@@ -32,9 +34,11 @@ export const products: Product[] = [
     category: "Peptide Research · Repair & Recovery",
     descriptor: "Pentadecapeptide fragment · Lyophilized · Research grade",
     price: "$35.00",
+    priceNumber: 35,
     priceUnit: "/ vial",
     sizes: ["5mg", "10mg"],
     wcUrl: "https://anvilcompounds.shop/product-page-draft/",
+    wcProductId: 332,
     purity: "99.4%",
     icon: "⬡",
     whatItIs:
@@ -71,9 +75,11 @@ export const products: Product[] = [
     category: "Peptide Research · GLP-Class",
     descriptor: "GLP-1 receptor agonist · Lyophilized · Research grade",
     price: "$45.00",
+    priceNumber: 45,
     priceUnit: "/ vial",
     sizes: ["2mg", "5mg"],
     wcUrl: "https://anvilcompounds.shop/semaglutide/",
+    wcProductId: 334,
     purity: "99.2%",
     icon: "◈",
     whatItIs:
@@ -110,9 +116,11 @@ export const products: Product[] = [
     category: "Peptide Research · GLP-Class",
     descriptor: "Dual GIP/GLP-1 receptor agonist · Lyophilized · Research grade",
     price: "$70.00",
+    priceNumber: 70,
     priceUnit: "/ vial",
     sizes: ["5mg", "10mg"],
     wcUrl: "https://anvilcompounds.shop/tirzepatide/",
+    wcProductId: 333,
     purity: "99.1%",
     icon: "◇",
     whatItIs:
@@ -149,9 +157,11 @@ export const products: Product[] = [
     category: "Peptide Research · GLP-Class",
     descriptor: "Triple incretin receptor agonist · Lyophilized · Research grade",
     price: "$85.00",
+    priceNumber: 85,
     priceUnit: "/ vial",
     sizes: ["5mg", "10mg"],
     wcUrl: "https://anvilcompounds.shop/reta/",
+    wcProductId: 337,
     purity: "99.0%",
     icon: "⬟",
     whatItIs:
@@ -188,9 +198,11 @@ export const products: Product[] = [
     category: "Peptide Research · Repair & Recovery",
     descriptor: "4-peptide blend · Lyophilized · 80mg per vial · Research grade",
     price: "$100.00",
+    priceNumber: 100,
     priceUnit: "/ vial · 80mg blend",
     sizes: [],
     wcUrl: "https://anvilcompounds.shop/klow/",
+    wcProductId: 335,
     purity: "99.3%",
     icon: "✦",
     isBlend: true,
@@ -257,9 +269,11 @@ export const products: Product[] = [
     category: "Peptide Research · Cosmetic & Longevity",
     descriptor: "Copper tripeptide-1 · Lyophilized · Research grade",
     price: "$30.00",
+    priceNumber: 30,
     priceUnit: "/ vial",
     sizes: ["50mg", "100mg"],
     wcUrl: "https://anvilcompounds.shop/ghkcu/",
+    wcProductId: 336,
     purity: "99.5%",
     icon: "⬢",
     whatItIs:

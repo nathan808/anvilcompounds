@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Syne, DM_Sans, DM_Mono } from "next/font/google";
 import "./globals.css";
+import { CartProvider } from "@/lib/cartContext";
 
 const syne = Syne({
   subsets: ["latin"],
@@ -38,7 +39,9 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth">
       <body className={`${syne.variable} ${dmSans.variable} ${dmMono.variable} font-body`}>
-        {children}
+        <CartProvider>
+          {children}
+        </CartProvider>
       </body>
     </html>
   );
