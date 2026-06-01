@@ -25,11 +25,14 @@ export interface WCProduct {
   name: string;
   short_description: string;
   price: string;
+  permalink: string;
   categories: Array<{ name: string }>;
   attributes: Array<{ name: string; options: string[] }>;
+  images: Array<{ src: string; alt: string }>;
 }
 
 export interface ProductCard {
+  id: number;
   name: string;
   category: string;
   description: string;
@@ -38,11 +41,14 @@ export interface ProductCard {
   badge: string;
   badgeColor: string;
   icon: string;
+  permalink: string;
+  image: string | null;
 }
 
 export function mapProduct(product: WCProduct, index: number): ProductCard {
   const badge = BADGES[index % BADGES.length];
   return {
+    id:          product.id,
     name:        product.name,
     category:    product.categories[0]?.name ?? "Research Compound",
     description: stripHtml(product.short_description) || "Research-grade compound with full COA documentation.",
@@ -51,6 +57,8 @@ export function mapProduct(product: WCProduct, index: number): ProductCard {
     badge:       getAttribute(product, "Badge")  ?? badge.label,
     badgeColor:  badge.color,
     icon:        ICONS[index % ICONS.length],
+    permalink:   product.permalink,
+    image:       product.images[0]?.src ?? null,
   };
 }
 
