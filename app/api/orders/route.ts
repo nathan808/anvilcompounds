@@ -63,7 +63,7 @@ export async function POST(req: NextRequest) {
     const payload = {
       payment_method: "bacs",
       payment_method_title: "Manual Payment (Zelle / ACH / Crypto)",
-      status: "pending",
+      status: "on-hold",
       customer_id: customer_id ?? 0,
       billing: {
         first_name: billing.firstName,
