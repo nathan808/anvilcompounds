@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useCart } from "@/lib/cartContext";
 
 interface Props {
@@ -24,7 +25,8 @@ export default function AddToCartButton({ slug, name, sizes, priceNumber, wcProd
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
+      {/* Size selector */}
       {sizes.length > 0 && (
         <div>
           <p className="font-mono text-xs text-white/40 tracking-widest uppercase mb-3">Select Size</p>
@@ -46,6 +48,17 @@ export default function AddToCartButton({ slug, name, sizes, priceNumber, wcProd
         </div>
       )}
 
+      {/* Urgency */}
+      <div className="flex items-center gap-2 py-2 px-3 rounded-lg bg-blue-600/8 border border-blue-600/15">
+        <svg className="w-3.5 h-3.5 text-blue-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <p className="font-mono text-[10px] text-blue-400/80 tracking-wide">
+          Order before <strong className="text-blue-400">12PM PST</strong> for same-day dispatch
+        </p>
+      </div>
+
+      {/* Main CTA */}
       <button
         onClick={handleAdd}
         className={`block w-full text-center py-4 font-display font-700 text-base rounded-xl transition-all duration-300 ${
@@ -56,6 +69,30 @@ export default function AddToCartButton({ slug, name, sizes, priceNumber, wcProd
       >
         {added ? "✓ Added to Order" : "Add to Cart"}
       </button>
+
+      {/* Express checkout */}
+      <Link
+        href="/checkout"
+        className="flex items-center justify-center gap-2 w-full py-3 border border-blue-600/30 hover:border-blue-500/60 text-blue-400 hover:text-blue-300 font-display font-600 text-sm rounded-xl transition-all duration-300 hover:bg-blue-600/5"
+        onClick={handleAdd}
+      >
+        <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+        </svg>
+        Proceed to Secure Checkout →
+      </Link>
+
+      {/* Payment methods */}
+      <div className="flex items-center justify-center gap-4 pt-1">
+        {[["⚡", "Zelle"], ["💚", "CashApp"], ["🍎", "Apple Cash"], ["₿", "Crypto"]].map(([icon, label]) => (
+          <div key={label} className="flex items-center gap-1">
+            <span className="text-xs">{icon}</span>
+            <span className="font-mono text-[9px] text-white/30 tracking-wide">{label}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* RUO */}
       <p className="text-center font-mono text-[10px] text-white/20 tracking-wide">
         RUO only · Not for human or veterinary use · 21+ required
       </p>

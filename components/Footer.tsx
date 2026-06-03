@@ -35,7 +35,7 @@ export default function Footer() {
             </p>
             <a
               href="mailto:support@anvilcompounds.shop"
-              className="flex items-center gap-2 text-blue-400 hover:text-blue-300 font-mono text-xs tracking-wider transition-colors animated-underline"
+              className="flex items-center gap-2 text-blue-400 hover:text-blue-300 font-mono text-xs tracking-wider transition-colors animated-underline mb-3"
             >
               <svg viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
                 <path d="M3 4a2 2 0 00-2 2v1.161l8.441 4.221a1.25 1.25 0 001.118 0L19 7.162V6a2 2 0 00-2-2H3z" />
@@ -43,6 +43,13 @@ export default function Footer() {
               </svg>
               support@anvilcompounds.shop
             </a>
+            <div className="flex items-center gap-2 font-mono text-xs text-white/30 tracking-wider">
+              <svg className="w-3.5 h-3.5 text-white/20 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              Southern California, USA
+            </div>
           </div>
 
           {/* Link columns */}

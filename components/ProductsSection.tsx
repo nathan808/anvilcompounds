@@ -1,10 +1,23 @@
 "use client";
 
-import { useRef, useEffect, useState, useCallback } from "react";
+import { useRef, useEffect, useState, useCallback, useMemo } from "react";
 import { motion, useInView } from "framer-motion";
 import Image from "next/image";
 import type { ProductCard } from "@/lib/woocommerce";
 import { useCart } from "@/lib/cartContext";
+
+// Size variants shown on catalog cards
+const PRODUCT_SIZES: Record<string, string[]> = {
+  "BPC-157":            ["5mg", "10mg"],
+  "Semaglutide":        ["2mg", "5mg"],
+  "Tirzepatide":        ["5mg", "10mg"],
+  "Retatrutide":        ["5mg", "10mg"],
+  "KGLOW":              ["80mg blend"],
+  "GHK-Cu":             ["50mg", "100mg"],
+  "TB-500":             ["5mg", "10mg"],
+  "MOTS-c":             ["5mg", "10mg"],
+  "Bacteriostatic Water": ["30mL × 1", "30mL × 3"],
+};
 
 const SLUG_MAP: Record<string, string> = {
   "BPC-157": "bpc-157",
@@ -201,6 +214,15 @@ function ProductCard({ product, index }: { product: ProductCard; index: number }
             <span className="font-mono text-xs text-blue-400/70 tracking-widest uppercase">
               {product.category}
             </span>
+            {PRODUCT_SIZES[product.name] && (
+              <div className="flex flex-wrap gap-1 mt-1.5">
+                {PRODUCT_SIZES[product.name].map((s) => (
+                  <span key={s} className="font-mono text-[9px] text-white/35 bg-white/5 border border-white/8 rounded px-1.5 py-0.5 tracking-wider">
+                    {s}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
 
           <p className="font-body text-sm text-white/45 leading-relaxed mb-5 flex-grow">
@@ -293,10 +315,22 @@ export default function ProductsSection() {
       .finally(() => setLoading(false));
   }, []);
 
-  const filtered = products.filter((p) =>
-    p.name.toLowerCase().includes(search.toLowerCase()) ||
-    p.category.toLowerCase().includes(search.toLowerCase())
-  );
+  const filtered = useMemo(() => {
+    const base = products.filter((p) =>
+      p.name.toLowerCase().includes(search.toLowerCase()) ||
+      p.category.toLowerCase().includes(search.toLowerCase())
+    );
+    // Pin bestseller (BPC-157) first, then sort remaining by price descending
+    const bestseller = base.find((p) => p.name === "BPC-157");
+    const rest = base
+      .filter((p) => p.name !== "BPC-157")
+      .sort((a, b) => {
+        const priceA = parseFloat(a.price.replace(/[^0-9.]/g, "")) || 0;
+        const priceB = parseFloat(b.price.replace(/[^0-9.]/g, "")) || 0;
+        return priceB - priceA;
+      });
+    return bestseller ? [bestseller, ...rest] : rest;
+  }, [products, search]);
 
   return (
     <section id="catalog" className="relative bg-navy-950 py-24 md:py-32">
@@ -379,7 +413,7 @@ export default function ProductsSection() {
         </div>
 
         {/* Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-5">
           {loading
             ? Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)
             : filtered.length > 0
@@ -387,7 +421,7 @@ export default function ProductsSection() {
                   <ProductCard key={product.name} product={product} index={i} />
                 ))
               : (
-                <div className="col-span-3 text-center py-16 text-white/30 font-body">
+                <div className="col-span-2 md:col-span-3 text-center py-16 text-white/30 font-body">
                   No compounds match &ldquo;{search}&rdquo;
                 </div>
               )

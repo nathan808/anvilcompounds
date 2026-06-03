@@ -191,8 +191,38 @@ export default function CheckoutForm() {
             </svg>
             Reserving Order...
           </>
-        ) : "Reserve My Order →"}
+        ) : (
+          <>
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+            Continue to Secure Checkout →
+          </>
+        )}
       </button>
+
+      {/* Trust row */}
+      <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-1 pt-1">
+        {[
+          ["🚚", "Same-day dispatch by 12PM PST"],
+          ["🔒", "Secure, encrypted checkout"],
+          ["📦", "Discreet packaging"],
+        ].map(([icon, text]) => (
+          <span key={text as string} className="flex items-center gap-1 font-mono text-[10px] text-white/30 tracking-wide">
+            <span>{icon}</span>{text}
+          </span>
+        ))}
+      </div>
+      <p className="text-center font-mono text-[9px] text-white/20 tracking-wide">
+        By completing your order you agree to our{" "}
+        <a href="/privacy-policy-page" target="_blank" className="underline underline-offset-2 hover:text-white/40 transition-colors">
+          Privacy Policy
+        </a>
+        {" "}and{" "}
+        <a href="/terms-of-use-page" target="_blank" className="underline underline-offset-2 hover:text-white/40 transition-colors">
+          Terms of Use
+        </a>
+      </p>
     </form>
   );
 }

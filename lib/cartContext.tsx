@@ -33,14 +33,25 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     try {
-      const stored = localStorage.getItem("anvil_cart");
-      if (stored) setItems(JSON.parse(stored));
+      const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
+      const savedAt = localStorage.getItem("anvil_cart_saved_at");
+      const isExpired = savedAt && Date.now() - parseInt(savedAt) > THIRTY_DAYS_MS;
+      if (isExpired) {
+        localStorage.removeItem("anvil_cart");
+        localStorage.removeItem("anvil_cart_saved_at");
+      } else {
+        const stored = localStorage.getItem("anvil_cart");
+        if (stored) setItems(JSON.parse(stored));
+      }
     } catch {}
     setHydrated(true);
   }, []);
 
   useEffect(() => {
-    if (hydrated) localStorage.setItem("anvil_cart", JSON.stringify(items));
+    if (hydrated) {
+      localStorage.setItem("anvil_cart", JSON.stringify(items));
+      localStorage.setItem("anvil_cart_saved_at", Date.now().toString());
+    }
   }, [items, hydrated]);
 
   const addItem = (item: Omit<CartItem, "quantity">) => {
