@@ -14,13 +14,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
     }
 
-    const { items, billing, notes, ruoConfirmed, customer_id } = body as {
+    const { items, billing, notes, ruoConfirmed, customer_id, paymentMethod } = body as {
       items: { wcProductId: number; quantity: number; name: string; size: string; price: number }[];
       billing: Record<string, string>;
       notes?: string;
       ruoConfirmed?: boolean;
       customer_id?: number;
+      paymentMethod?: "manual" | "crypto";
     };
+
+    const isCrypto = paymentMethod === "crypto";
 
     console.log(`[orders:${requestId}] Request body:`, JSON.stringify({
       itemCount: items?.length,
@@ -60,10 +63,18 @@ export async function POST(req: NextRequest) {
     const ip = req.headers.get("x-forwarded-for")?.split(",")[0].trim() ?? "unknown";
     const auth = Buffer.from(`${key}:${secret}`).toString("base64");
 
+    // ── Crypto discount ──────────────────────────────────────────────────────
+    const itemsSubtotal = (items ?? []).reduce(
+      (sum, i) => sum + i.price * i.quantity, 0
+    );
+    const discountAmount = isCrypto
+      ? (itemsSubtotal * 0.1).toFixed(2)
+      : "0";
+
     const payload = {
-      payment_method: "bacs",
-      payment_method_title: "Manual Payment (Zelle / ACH / Crypto)",
-      status: "on-hold",
+      payment_method:       isCrypto ? "nowpayments" : "bacs",
+      payment_method_title: isCrypto ? "Pay with Cryptocurrency" : "Manual Payment (Zelle / ACH / Apple Cash)",
+      status:               isCrypto ? "pending" : "on-hold",
       customer_id: customer_id ?? 0,
       billing: {
         first_name: billing.firstName,
@@ -88,6 +99,12 @@ export async function POST(req: NextRequest) {
         country:    "US",
       },
       line_items: lineItems,
+      fee_lines: isCrypto ? [{
+        name: "Crypto Discount (10%)",
+        total: `-${discountAmount}`,
+        tax_class: "",
+        tax_status: "none",
+      }] : [],
       customer_note: notes ?? "",
       meta_data: [
         { key: "_ruo_confirmed",    value: ruoConfirmed ? "yes" : "no" },
@@ -135,11 +152,20 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const order = JSON.parse(wcBody) as { id: number; number: string };
-    console.log(`[orders:${requestId}] SUCCESS: order created — id:${order.id} number:${order.number}`);
+    const order = JSON.parse(wcBody) as {
+      id: number;
+      number: string;
+      payment_url?: string;
+    };
+    console.log(`[orders:${requestId}] SUCCESS: order created — id:${order.id} number:${order.number} paymentUrl:${order.payment_url ?? "none"}`);
     console.log(`[orders:${requestId}] ── END ────────────────────────────────`);
 
-    return NextResponse.json({ orderId: order.id, orderNumber: order.number });
+    return NextResponse.json({
+      orderId:    order.id,
+      orderNumber: order.number,
+      paymentUrl:  order.payment_url ?? null,
+      isCrypto,
+    });
 
   } catch (err) {
     console.error(`[orders:${requestId}] UNHANDLED ERROR:`, err);

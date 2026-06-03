@@ -10,6 +10,8 @@ export interface OrderDetail {
   firstName: string;
   lastName: string;
   lineItems: { name: string; quantity: number; total: string }[];
+  paymentMethod: string;
+  paymentUrl: string | null;
 }
 
 export async function GET(
@@ -44,24 +46,28 @@ export async function GET(
     status: string;
     total: string;
     currency: string;
+    payment_method: string;
+    payment_url?: string;
     billing: { email: string; first_name: string; last_name: string };
     line_items: { name: string; quantity: number; total: string }[];
   };
 
   const detail: OrderDetail = {
-    id:         o.id,
-    number:     o.number,
-    status:     o.status,
-    total:      o.total,
-    currency:   o.currency ?? "USD",
-    email:      o.billing.email,
-    firstName:  o.billing.first_name,
-    lastName:   o.billing.last_name,
-    lineItems:  o.line_items.map((li) => ({
+    id:            o.id,
+    number:        o.number,
+    status:        o.status,
+    total:         o.total,
+    currency:      o.currency ?? "USD",
+    email:         o.billing.email,
+    firstName:     o.billing.first_name,
+    lastName:      o.billing.last_name,
+    lineItems:     o.line_items.map((li) => ({
       name:     li.name,
       quantity: li.quantity,
       total:    li.total,
     })),
+    paymentMethod: o.payment_method ?? "",
+    paymentUrl:    o.payment_url ?? null,
   };
 
   return NextResponse.json(detail);
