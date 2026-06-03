@@ -315,7 +315,7 @@ export const products: Product[] = [
     priceUnit: "/ vial",
     sizes: ["5mg", "10mg"],
     wcUrl: "https://anvilcompounds.shop/tb500/",
-    wcProductId: 0,
+    wcProductId: 354,
     purity: "99%+",
     icon: "◉",
     whatItIs:
@@ -356,7 +356,7 @@ export const products: Product[] = [
     priceUnit: "/ vial",
     sizes: ["30mL × 1", "30mL × 3"],
     wcUrl: "https://anvilcompounds.shop/bac-water/",
-    wcProductId: 0,
+    wcProductId: 349,
     purity: "Sterility Certified",
     icon: "◎",
     isSupply: true,
@@ -392,7 +392,7 @@ export const products: Product[] = [
     priceUnit: "/ vial",
     sizes: ["5mg", "10mg"],
     wcUrl: "https://anvilcompounds.shop/motsc/",
-    wcProductId: 0,
+    wcProductId: 346,
     purity: "99%+",
     icon: "⬥",
     whatItIs:

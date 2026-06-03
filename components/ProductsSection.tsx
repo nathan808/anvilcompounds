@@ -24,7 +24,7 @@ function slugifyProductName(name: string): string {
 
 const FALLBACK_PRODUCTS: ProductCard[] = [
   {
-    id: 0,
+    id: 332,
     name: "BPC-157",
     category: "Repair & Recovery",
     description: "Body Protection Compound — a pentadecapeptide with notable tissue healing and regenerative properties under research conditions.",
@@ -37,7 +37,7 @@ const FALLBACK_PRODUCTS: ProductCard[] = [
     image: null,
   },
   {
-    id: 1,
+    id: 334,
     name: "Semaglutide",
     category: "GLP-1 Receptor Agonist",
     description: "A glucagon-like peptide-1 receptor agonist studied for its metabolic and appetite-regulating mechanisms.",
@@ -50,7 +50,7 @@ const FALLBACK_PRODUCTS: ProductCard[] = [
     image: null,
   },
   {
-    id: 2,
+    id: 333,
     name: "Tirzepatide",
     category: "Dual GIP/GLP-1 Agonist",
     description: "A dual incretin receptor agonist binding both GIP and GLP-1 receptors, under active clinical research.",
@@ -63,7 +63,7 @@ const FALLBACK_PRODUCTS: ProductCard[] = [
     image: null,
   },
   {
-    id: 3,
+    id: 335,
     name: "KGLOW",
     category: "4-Peptide Blend",
     description: "A curated blend of four research-grade peptides, independently tested as a combined formulation.",
@@ -76,7 +76,7 @@ const FALLBACK_PRODUCTS: ProductCard[] = [
     image: null,
   },
   {
-    id: 4,
+    id: 336,
     name: "GHK-Cu",
     category: "Copper Tripeptide-1",
     description: "A naturally occurring copper complex with extensive research into cellular remodeling and tissue response.",
@@ -89,7 +89,7 @@ const FALLBACK_PRODUCTS: ProductCard[] = [
     image: null,
   },
   {
-    id: 5,
+    id: 337,
     name: "Retatrutide",
     category: "Triple Incretin Agonist",
     description: "A triple receptor agonist targeting GIP, GLP-1, and glucagon receptors — at the frontier of current metabolic research.",
@@ -102,7 +102,7 @@ const FALLBACK_PRODUCTS: ProductCard[] = [
     image: null,
   },
   {
-    id: 6,
+    id: 354,
     name: "TB-500",
     category: "Repair & Recovery",
     description: "Synthetic analogue of Thymosin Beta-4, studied in cell migration, actin dynamics, and tissue modeling research models.",
@@ -115,7 +115,7 @@ const FALLBACK_PRODUCTS: ProductCard[] = [
     image: null,
   },
   {
-    id: 7,
+    id: 346,
     name: "MOTS-c",
     category: "Metabolic",
     description: "Mitochondrial-derived peptide studied in mitochondrial-nuclear communication, glucose metabolism, and cellular stress response.",
@@ -128,7 +128,7 @@ const FALLBACK_PRODUCTS: ProductCard[] = [
     image: null,
   },
   {
-    id: 8,
+    id: 349,
     name: "Bacteriostatic Water",
     category: "Research Supplies",
     description: "0.9% benzyl alcohol sterile water. Standard reconstitution solvent for lyophilized peptide research. 30mL multi-use vial.",
