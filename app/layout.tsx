@@ -39,7 +39,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="scroll-smooth">
+    <html lang="en" className="scroll-smooth" data-theme="light">
       <body className={`${syne.variable} ${dmSans.variable} ${dmMono.variable} font-body`}>
         <AuthProvider>
           <CartProvider>
