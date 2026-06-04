@@ -20,6 +20,7 @@ export default function Navbar() {
     { label: "Catalog", href: "/#catalog" },
     { label: "How We Test", href: "/#testing" },
     { label: "Why Anvil", href: "/#trust" },
+    { label: "Journal", href: "/blog" },
     { label: "About", href: "/about" },
     { label: "FAQ", href: "/faq" },
     { label: "Contact", href: "/#footer" },

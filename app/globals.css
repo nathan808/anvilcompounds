@@ -133,6 +133,66 @@ body {
   animation: float 4s ease-in-out infinite;
 }
 
+/* ── Blog post body prose styles ─────────────────────────────────────────── */
+/* Applied to .prose-anvil wrapping WordPress content.rendered HTML          */
+.prose-anvil {
+  color: rgba(255, 255, 255, 0.65);
+  font-family: var(--font-dm-sans), sans-serif;
+  font-size: 1rem;
+  line-height: 1.8;
+}
+.prose-anvil p { margin-bottom: 1.5rem; }
+.prose-anvil h2 {
+  font-family: var(--font-syne), sans-serif;
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: #ffffff;
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+  line-height: 1.2;
+}
+.prose-anvil h3 {
+  font-family: var(--font-syne), sans-serif;
+  font-weight: 600;
+  font-size: 1.2rem;
+  color: rgba(255,255,255,0.9);
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+}
+.prose-anvil strong { color: rgba(255,255,255,0.85); font-weight: 600; }
+.prose-anvil em { color: rgba(255,255,255,0.6); font-style: italic; }
+.prose-anvil a { color: #4D94F0; text-decoration: underline; text-underline-offset: 3px; }
+.prose-anvil a:hover { color: #93c5fd; }
+.prose-anvil ul, .prose-anvil ol { margin-bottom: 1.5rem; padding-left: 1.5rem; }
+.prose-anvil li { margin-bottom: 0.5rem; }
+.prose-anvil ul li { list-style-type: disc; }
+.prose-anvil ol li { list-style-type: decimal; }
+.prose-anvil blockquote {
+  border-left: 3px solid #1D6ADB;
+  padding-left: 1.25rem;
+  margin: 1.5rem 0;
+  color: rgba(255,255,255,0.5);
+  font-style: italic;
+}
+.prose-anvil hr {
+  border: none;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  margin: 2.5rem 0;
+}
+.prose-anvil img { border-radius: 0.75rem; max-width: 100%; margin: 1.5rem 0; }
+/* WordPress adds .wp-block-* classes — reset padding/margins injected by theme */
+.prose-anvil [class^="wp-block-"] { all: unset; display: block; }
+.prose-anvil figure { margin: 1.5rem 0; }
+.prose-anvil figcaption { font-size: 0.75rem; color: rgba(255,255,255,0.3); text-align: center; margin-top: 0.5rem; }
+
+/* Light theme prose adjustments */
+[data-theme="light"] .prose-anvil { color: rgba(4,9,26,0.70); }
+[data-theme="light"] .prose-anvil h2 { color: #04091A; }
+[data-theme="light"] .prose-anvil h3 { color: rgba(4,9,26,0.85); }
+[data-theme="light"] .prose-anvil strong { color: rgba(4,9,26,0.90); }
+[data-theme="light"] .prose-anvil blockquote { color: rgba(4,9,26,0.50); }
+[data-theme="light"] .prose-anvil a { color: #1D6ADB; }
+
 /* Number tick animation */
 @keyframes countUp {
   from { opacity: 0; transform: translateY(20px); }
