@@ -20,6 +20,9 @@ export async function POST(req: NextRequest) {
       "X-API-KEY": apiKey,
     };
 
+    // systemName must be top-level (lowercase, hyphenated), not inside fields
+    const systemName = body.event.toLowerCase().replace(/\s+/g, "-");
+
     await fetch(`${OMNISEND_API}/events`, {
       method: "POST",
       headers,
@@ -27,6 +30,7 @@ export async function POST(req: NextRequest) {
         email: body.email ?? "",
         eventName: body.event,
         eventVersion: "v2",
+        systemName,
         fields: body.payload ?? {},
       }),
     });

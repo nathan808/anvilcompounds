@@ -149,7 +149,7 @@ export async function POST(req: NextRequest) {
       const omnisendBase = "https://api.omnisend.com/v3";
 
       Promise.allSettled([
-        // 1. "Order Placed" event
+        // 1. "Order Placed" event — systemName must be top-level (Omnisend requirement)
         fetch(`${omnisendBase}/events`, {
           method: "POST",
           headers: omnisendHeaders,
@@ -157,6 +157,7 @@ export async function POST(req: NextRequest) {
             email: billing.email,
             eventName: "Order Placed",
             eventVersion: "v2",
+            systemName: "order-placed",
             fields: {
               orderId: String(order.id),
               orderNumber: String(order.number),
@@ -164,13 +165,6 @@ export async function POST(req: NextRequest) {
               orderTotal: (items as { price: number; quantity: number }[])
                 .reduce((s, i) => s + i.price * i.quantity, 0)
                 .toFixed(2),
-              lineItems: (items as { name: string; wcProductId: number; price: number; quantity: number }[])
-                .map((i) => ({
-                  productId: String(i.wcProductId),
-                  title: i.name,
-                  price: i.price,
-                  quantity: i.quantity,
-                })),
             },
           }),
         }),
