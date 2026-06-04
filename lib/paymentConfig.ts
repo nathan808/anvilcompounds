@@ -5,22 +5,22 @@
 
 export const PAYMENT_DETAILS = {
   zelle: {
-    handle: "TO_BE_CONFIGURED",          // e.g. "payments@anvilcompounds.shop"
+    handle: process.env.ZELLE_ADDRESS ?? "TO_BE_CONFIGURED",
     recipientName: "Anvil Compounds LLC",
     timeline: "Confirmed within 1–4 hours during business hours.",
   },
   cashapp: {
-    cashtag: "TO_BE_CONFIGURED",         // e.g. "$AnvilCompounds"
+    cashtag: process.env.CASHAPP_HANDLE ? `$${process.env.CASHAPP_HANDLE}` : "TO_BE_CONFIGURED",
     recipientName: "Anvil Compounds LLC",
     timeline: "Confirmed within 1–4 hours during business hours.",
   },
   applecash: {
-    phone: "TO_BE_CONFIGURED",           // e.g. "+1 (800) 000-0000"
+    phone: "TO_BE_CONFIGURED",           // add APPLE_CASH_PHONE env var when ready
     recipientName: "Anvil Compounds LLC",
     timeline: "Confirmed within 1–4 hours during business hours.",
   },
   ach: {
-    bankName: "TO_BE_CONFIGURED",        // e.g. "Mercury Bank"
+    bankName: "TO_BE_CONFIGURED",
     routingNumber: "TO_BE_CONFIGURED",
     accountNumber: "TO_BE_CONFIGURED",
     accountType: "Checking",
@@ -30,7 +30,7 @@ export const PAYMENT_DETAILS = {
   },
   crypto: {
     provider: "NOWPayments",
-    note: "AUTO_GENERATED_BY_NOWPAYMENTS", // wallet address is generated per order
+    note: "AUTO_GENERATED_BY_NOWPAYMENTS",
     supportedCoins: "USDC, USDT, BTC, ETH",
     timeline: "Confirmed after 1–3 network confirmations (typically under 30 min).",
     discount: "10% off your next order",

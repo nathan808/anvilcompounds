@@ -139,6 +139,57 @@ export async function POST(req: NextRequest) {
     console.log(`[orders:${requestId}] SUCCESS: order created — id:${order.id} number:${order.number}`);
     console.log(`[orders:${requestId}] ── END ────────────────────────────────`);
 
+    // ── Fire Omnisend events (fire-and-forget — never fails the order) ──────
+    const omnisendKey = process.env.OMNISEND_API_KEY;
+    if (omnisendKey) {
+      const omnisendHeaders = {
+        "Content-Type": "application/json",
+        "X-API-KEY": omnisendKey,
+      };
+      const omnisendBase = "https://api.omnisend.com/v3";
+
+      Promise.allSettled([
+        // 1. "Order Placed" event
+        fetch(`${omnisendBase}/events`, {
+          method: "POST",
+          headers: omnisendHeaders,
+          body: JSON.stringify({
+            email: billing.email,
+            eventName: "Order Placed",
+            eventVersion: "v2",
+            fields: {
+              orderId: String(order.id),
+              orderNumber: String(order.number),
+              currency: "USD",
+              orderTotal: (items as { price: number; quantity: number }[])
+                .reduce((s, i) => s + i.price * i.quantity, 0)
+                .toFixed(2),
+              lineItems: (items as { name: string; wcProductId: number; price: number; quantity: number }[])
+                .map((i) => ({
+                  productId: String(i.wcProductId),
+                  title: i.name,
+                  price: i.price,
+                  quantity: i.quantity,
+                })),
+            },
+          }),
+        }),
+        // 2. Upsert contact with "customer" tag
+        fetch(`${omnisendBase}/contacts`, {
+          method: "POST",
+          headers: omnisendHeaders,
+          body: JSON.stringify({
+            email: billing.email,
+            firstName: billing.firstName ?? "",
+            lastName: billing.lastName ?? "",
+            tags: ["customer"],
+            status: "subscribed",
+            statusDate: new Date().toISOString(),
+          }),
+        }),
+      ]).catch(() => {});
+    }
+
     return NextResponse.json({ orderId: order.id, orderNumber: order.number });
 
   } catch (err) {

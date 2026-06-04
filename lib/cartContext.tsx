@@ -66,6 +66,23 @@ export function CartProvider({ children }: { children: ReactNode }) {
       }
       return [...prev, { ...item, quantity: 1 }];
     });
+
+    // Fire-and-forget Omnisend "Added to Cart" event — never blocks cart
+    fetch("/api/track", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        event: "Added to Cart",
+        payload: {
+          productName: item.name,
+          productId: String(item.wcProductId),
+          sku: item.slug,
+          size: item.size,
+          price: item.price,
+          currency: "USD",
+        },
+      }),
+    }).catch(() => {});
   };
 
   const removeItem = (slug: string, size: string) => {
