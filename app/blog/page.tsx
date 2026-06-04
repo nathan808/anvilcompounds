@@ -22,7 +22,7 @@ async function getPosts(): Promise<PostCard[]> {
     });
     if (!res.ok) return [];
     const data = await res.json();
-    return Array.isArray(data) ? data : [];
+    return Array.isArray(data?.posts) ? data.posts : [];
   } catch {
     return [];
   }
@@ -39,7 +39,7 @@ function PostCard({ post }: { post: PostCard }) {
         {post.featuredImage ? (
           <Image
             src={post.featuredImage}
-            alt={post.featuredImageAlt || post.title}
+            alt={post.title}
             fill
             className="object-cover transition-transform duration-500 group-hover:scale-105"
           />

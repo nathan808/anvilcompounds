@@ -20,7 +20,8 @@ async function getPost(slug: string): Promise<PostFull | null> {
       next: { revalidate: 3600 },
     });
     if (!res.ok) return null;
-    return res.json();
+    const data = await res.json();
+    return data?.post ?? null;
   } catch {
     return null;
   }
@@ -33,7 +34,7 @@ async function getAllPosts(): Promise<PostCard[]> {
     });
     if (!res.ok) return [];
     const data = await res.json();
-    return Array.isArray(data) ? data : [];
+    return Array.isArray(data?.posts) ? data.posts : [];
   } catch {
     return [];
   }
@@ -172,7 +173,7 @@ export default async function BlogPostPage({
               <div className="relative w-full h-64 md:h-96 rounded-2xl overflow-hidden">
                 <Image
                   src={post.featuredImage}
-                  alt={post.featuredImageAlt || post.title}
+                  alt={post.title}
                   fill
                   className="object-cover"
                   priority
