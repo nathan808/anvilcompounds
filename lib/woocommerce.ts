@@ -4,62 +4,88 @@ import type { ProductPageData } from "@/components/ProductPageTemplate";
 
 const SLUG_TO_WC_ID: Record<string, number> = {
   "bpc-157":    332,
-  "semaglutide": 334,
-  "tirzepatide": 333,
-  "retatrutide": 337,
-  "kglow":      335,
+  "t1rz":       333,
+  "r3ta":       337,
+  "klow":       335,
   "ghk-cu":     336,
   "tb-500":     354,
   "mots-c":     346,
   "bac-water":  349,
+  // New SKUs — DRAFT until COA + images are live
+  "nad-plus":              443,
+  "tesamorelin":           445,
+  "cjc-1295-ipamorelin":   446,
+  "5-amino-1mq":           450,
+  "wolverine":             447,
+  "glow":                  449,
 };
 
 const SLUG_TO_NAME: Record<string, string> = {
   "bpc-157":    "BPC-157",
-  "semaglutide": "Semaglutide",
-  "tirzepatide": "Tirzepatide",
-  "retatrutide": "Retatrutide",
-  "kglow":      "KGLOW",
+  "t1rz":       "T1rz",
+  "r3ta":       "R3ta",
+  "klow":       "KLOW",
   "ghk-cu":     "GHK-Cu",
   "tb-500":     "TB-500",
   "mots-c":     "MOTS-c",
   "bac-water":  "Bacteriostatic Water",
+  "nad-plus":              "NAD+",
+  "tesamorelin":           "Tesamorelin",
+  "cjc-1295-ipamorelin":   "CJC-1295 + Ipamorelin",
+  "5-amino-1mq":           "5-Amino-1MQ",
+  "wolverine":             "Wolverine — BPC-157 + TB-500",
+  "glow":                  "GLOW",
 };
 
 const SLUG_TO_CATEGORY: Record<string, string> = {
-  "bpc-157":    "Repair & Recovery",
-  "semaglutide": "GLP-1 Class",
-  "tirzepatide": "GLP-1 Class",
-  "retatrutide": "GLP-1 Class",
-  "kglow":      "Repair & Recovery",
-  "ghk-cu":     "Cosmetic & Longevity",
-  "tb-500":     "Repair & Recovery",
-  "mots-c":     "Metabolic",
+  "bpc-157":    "Repair & Recovery Research",
+  "t1rz":       "Metabolic Research",
+  "r3ta":       "Metabolic Research",
+  "klow":       "Longevity & Cosmetic Research",
+  "ghk-cu":     "Longevity & Cosmetic Research",
+  "tb-500":     "Repair & Recovery Research",
+  "mots-c":     "Metabolic Research",
   "bac-water":  "Research Supplies",
+  "nad-plus":              "Metabolic Research",
+  "tesamorelin":           "Growth Pathway Research",
+  "cjc-1295-ipamorelin":   "Growth Pathway Research",
+  "5-amino-1mq":           "Metabolic Research",
+  "wolverine":             "Repair & Recovery Research",
+  "glow":                  "Longevity & Cosmetic Research",
 };
 
 const SLUG_TO_ICON: Record<string, string> = {
   "bpc-157":    "⬡",
-  "semaglutide": "◈",
-  "tirzepatide": "◇",
-  "retatrutide": "⬟",
-  "kglow":      "✦",
+  "t1rz":       "◇",
+  "r3ta":       "⬟",
+  "klow":       "✦",
   "ghk-cu":     "⬢",
   "tb-500":     "◉",
   "mots-c":     "⬥",
   "bac-water":  "◎",
+  "nad-plus":              "◑",
+  "tesamorelin":           "◍",
+  "cjc-1295-ipamorelin":   "⬦",
+  "5-amino-1mq":           "◆",
+  "wolverine":             "⬧",
+  "glow":                  "✧",
 };
 
 const RELATED_MAP: Record<string, string[]> = {
-  "bpc-157":    ["ghk-cu", "semaglutide", "tirzepatide"],
-  "semaglutide": ["tirzepatide", "retatrutide", "bpc-157"],
-  "tirzepatide": ["retatrutide", "semaglutide", "bpc-157"],
-  "retatrutide": ["tirzepatide", "semaglutide", "bpc-157"],
-  "kglow":      ["bpc-157", "ghk-cu", "semaglutide"],
-  "ghk-cu":     ["bpc-157", "kglow", "retatrutide"],
-  "tb-500":     ["bpc-157", "ghk-cu", "mots-c"],
-  "mots-c":     ["ghk-cu", "bpc-157", "retatrutide"],
+  "bpc-157":    ["tb-500", "wolverine", "glow"],
+  "t1rz":       ["r3ta", "mots-c", "5-amino-1mq"],
+  "r3ta":       ["t1rz", "mots-c", "nad-plus"],
+  "klow":       ["glow", "ghk-cu", "bpc-157"],
+  "ghk-cu":     ["glow", "klow", "bpc-157"],
+  "tb-500":     ["bpc-157", "wolverine", "glow"],
+  "mots-c":     ["nad-plus", "5-amino-1mq", "r3ta"],
   "bac-water":  ["bpc-157", "tb-500", "ghk-cu"],
+  "nad-plus":            ["5-amino-1mq", "mots-c", "tesamorelin"],
+  "tesamorelin":         ["cjc-1295-ipamorelin", "nad-plus", "mots-c"],
+  "cjc-1295-ipamorelin": ["tesamorelin", "nad-plus", "mots-c"],
+  "5-amino-1mq":         ["nad-plus", "mots-c", "t1rz"],
+  "wolverine":           ["bpc-157", "tb-500", "glow"],
+  "glow":                ["klow", "ghk-cu", "wolverine"],
 };
 
 const FALLBACK_TRUST_BADGES = ["99%+ purity", "Endotoxin screened", "COA verified", "Same-day shipping"];
@@ -205,16 +231,23 @@ export async function getProductPageData(slug: string): Promise<ProductPageData 
 const ICONS = ["⬡", "◈", "◇", "✦", "⬢", "⬟"];
 
 const BADGES = [
-  { label: "Bestseller",     color: "bg-blue-600/20 text-blue-300 border-blue-600/30" },
-  { label: "High Demand",    color: "bg-indigo-600/20 text-indigo-300 border-indigo-600/30" },
-  { label: "Advanced",       color: "bg-cyan-600/20 text-cyan-300 border-cyan-600/30" },
-  { label: "Exclusive Blend",color: "bg-purple-600/20 text-purple-300 border-purple-600/30" },
-  { label: "Entry Point",    color: "bg-teal-600/20 text-teal-300 border-teal-600/30" },
-  { label: "Cutting Edge",   color: "bg-rose-600/20 text-rose-300 border-rose-600/30" },
+  { label: "Bestseller",     color: "bg-blue-600/70 text-blue-100 border-blue-500/50" },
+  { label: "High Demand",    color: "bg-indigo-600/70 text-indigo-100 border-indigo-500/50" },
+  { label: "Advanced",       color: "bg-cyan-600/70 text-cyan-100 border-cyan-500/50" },
+  { label: "Exclusive Blend",color: "bg-purple-600/70 text-purple-100 border-purple-500/50" },
+  { label: "Entry Point",    color: "bg-teal-600/70 text-teal-100 border-teal-500/50" },
+  { label: "Cutting Edge",   color: "bg-rose-600/70 text-rose-100 border-rose-500/50" },
 ];
 
 function stripHtml(html: string): string {
-  return html.replace(/<[^>]*>/g, "").trim();
+  return html
+    .replace(/<[^>]*>/g, "")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#039;/g, "'")
+    .trim();
 }
 
 function getAttribute(product: WCProduct, name: string): string | undefined {
@@ -250,15 +283,15 @@ export interface ProductCard {
 }
 
 const PRODUCT_PAGE_URLS: Record<string, string> = {
-  "BPC-157":              "https://anvilcompounds.shop/product/bpc-157/",
-  "Semaglutide":          "https://anvilcompounds.shop/semaglutide/",
-  "Tirzepatide":          "https://anvilcompounds.shop/tirzepatide/",
-  "Retatrutide":          "https://anvilcompounds.shop/reta/",
-  "KGLOW":                "https://anvilcompounds.shop/klow/",
-  "GHK-Cu":               "https://anvilcompounds.shop/ghkcu/",
-  "TB-500":               "https://anvilcompounds.shop/tb500/",
-  "Bacteriostatic Water": "https://anvilcompounds.shop/bac-water/",
-  "MOTS-c":               "https://anvilcompounds.shop/motsc/",
+  "BPC-157":                      "https://anvilcompounds.shop/product/bpc-157/",
+  "T1rz":                         "https://anvilcompounds.shop/product/t1rz/",
+  "R3ta":                         "https://anvilcompounds.shop/product/r3ta/",
+  "KLOW":                         "https://anvilcompounds.shop/product/klow/",
+  "GHK-Cu":                       "https://anvilcompounds.shop/product/ghk-cu/",
+  "TB-500":                       "https://anvilcompounds.shop/product/tb-500/",
+  "Bacteriostatic Water":         "https://anvilcompounds.shop/product/bac-water/",
+  "MOTS-c":                       "https://anvilcompounds.shop/product/mots-c/",
+  "Wolverine — BPC-157 + TB-500": "https://anvilcompounds.shop/product/wolverine/",
 };
 
 export function mapProduct(product: WCProduct, index: number): ProductCard {
@@ -266,7 +299,7 @@ export function mapProduct(product: WCProduct, index: number): ProductCard {
   return {
     id:          product.id,
     name:        product.name,
-    category:    product.categories[0]?.name ?? "Research Compound",
+    category:    stripHtml(product.categories[0]?.name ?? "Research Compound"),
     description: stripHtml(product.short_description) || "Research-grade compound with full COA documentation.",
     price:       product.price ? `$${product.price}` : "—",
     purity:      getAttribute(product, "Purity") ?? "99%+",

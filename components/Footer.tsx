@@ -2,11 +2,38 @@
 
 import { motion } from "framer-motion";
 
+const POLICY_PAGES = [
+  { label: "Privacy Policy",  href: "/legal/privacy-policy" },
+  { label: "Terms of Use",    href: "/legal/terms-of-use" },
+  { label: "Cookie Policy",   href: "/legal/cookie-policy" },
+  { label: "Return Policy",   href: "/legal/return-policy" },
+  { label: "Shipping Policy", href: "/legal/shipping-policy" },
+];
+
 export default function Footer() {
-  const links = {
-    Catalog: ["BPC-157", "Semaglutide", "Tirzepatide", "KGLOW", "GHK-Cu", "Retatrutide"],
-    "Testing": ["How We Test", "HPLC Process", "Mass Spectrometry", "Endotoxin Screening", "COA Verification"],
-    "Company": ["About Anvil", "Why Anvil", "SoCal Shipping", "Research Policy", "Age Verification"],
+  const links: Record<string, { label: string; href: string }[]> = {
+    Catalog: [
+      { label: "BPC-157",      href: "/products/bpc-157" },
+      { label: "Semaglutide",  href: "/products/semaglutide" },
+      { label: "Tirzepatide",  href: "/products/tirzepatide" },
+      { label: "KGLOW",        href: "/products/kglow" },
+      { label: "GHK-Cu",       href: "/products/ghk-cu" },
+      { label: "Retatrutide",  href: "/products/retatrutide" },
+    ],
+    Testing: [
+      { label: "How We Test",          href: "/#testing" },
+      { label: "HPLC Process",         href: "/#testing" },
+      { label: "Mass Spectrometry",    href: "/#testing" },
+      { label: "Endotoxin Screening",  href: "/#testing" },
+      { label: "COA Verification",     href: "/#testing" },
+    ],
+    Company: [
+      { label: "About Anvil",      href: "/about" },
+      { label: "Why Anvil",        href: "/#trust" },
+      { label: "Research Journal", href: "/blog" },
+      { label: "FAQ",              href: "/faq" },
+      { label: "Contact",          href: "/#footer" },
+    ],
   };
 
   return (
@@ -16,7 +43,8 @@ export default function Footer() {
 
       <div className="max-w-7xl mx-auto px-6">
         {/* Main footer content */}
-        <div className="py-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
+        <div className="py-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-10">
+
           {/* Brand column */}
           <div className="lg:col-span-2">
             <div className="flex items-center gap-3 mb-5">
@@ -33,22 +61,29 @@ export default function Footer() {
               Research-grade compounds independently verified to 99%+ purity through triple-method
               testing. Based in Southern California.
             </p>
+
+            {/* Contact */}
             <a
               href="mailto:support@anvilcompounds.shop"
-              className="flex items-center gap-2 text-blue-400 hover:text-blue-300 font-mono text-xs tracking-wider transition-colors animated-underline mb-3"
+              className="flex items-center gap-2 text-blue-400 hover:text-blue-300 font-mono text-xs tracking-wider transition-colors animated-underline mb-4"
             >
-              <svg viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+              <svg viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 shrink-0">
                 <path d="M3 4a2 2 0 00-2 2v1.161l8.441 4.221a1.25 1.25 0 001.118 0L19 7.162V6a2 2 0 00-2-2H3z" />
                 <path d="M19 8.839l-7.77 3.885a2.75 2.75 0 01-2.46 0L1 8.839V14a2 2 0 002 2h14a2 2 0 002-2V8.839z" />
               </svg>
               support@anvilcompounds.shop
             </a>
-            <div className="flex items-center gap-2 font-mono text-xs text-white/30 tracking-wider">
-              <svg className="w-3.5 h-3.5 text-white/20 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+            {/* Address */}
+            <div className="flex items-start gap-2 font-mono text-xs text-white/30 tracking-wider leading-relaxed">
+              <svg className="w-3.5 h-3.5 text-white/20 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
-              Southern California, USA
+              <span>
+                8690 Aero Dr Ste 115 #1173<br />
+                San Diego, CA 92123
+              </span>
             </div>
           </div>
 
@@ -60,18 +95,37 @@ export default function Footer() {
               </h4>
               <ul className="space-y-3">
                 {items.map((item) => (
-                  <li key={item}>
+                  <li key={item.label}>
                     <a
-                      href="#"
+                      href={item.href}
                       className="font-body text-sm text-white/35 hover:text-white/70 transition-colors animated-underline"
                     >
-                      {item}
+                      {item.label}
                     </a>
                   </li>
                 ))}
               </ul>
             </div>
           ))}
+
+          {/* Legal / Policies column */}
+          <div>
+            <h4 className="font-mono text-xs text-blue-400/70 tracking-[0.2em] uppercase mb-5">
+              Legal
+            </h4>
+            <ul className="space-y-3">
+              {POLICY_PAGES.map((item) => (
+                <li key={item.label}>
+                  <a
+                    href={item.href}
+                    className="font-body text-sm text-white/35 hover:text-white/70 transition-colors animated-underline"
+                  >
+                    {item.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
 
         {/* Disclaimer block */}
@@ -94,16 +148,16 @@ export default function Footer() {
           {/* Bottom bar */}
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="font-mono text-xs text-white/20">
-              © 2024 Anvil Compounds. All rights reserved. Southern California, USA.
+              © {new Date().getFullYear()} Anvil Compounds. All rights reserved. San Diego, CA.
             </p>
-            <div className="flex items-center gap-6">
-              {["Privacy Policy", "Terms of Service", "Research Policy"].map((item) => (
+            <div className="flex items-center gap-6 flex-wrap justify-center">
+              {POLICY_PAGES.slice(0, 3).map((item) => (
                 <a
-                  key={item}
-                  href="#"
+                  key={item.label}
+                  href={item.href}
                   className="font-mono text-xs text-white/25 hover:text-white/50 transition-colors"
                 >
-                  {item}
+                  {item.label}
                 </a>
               ))}
             </div>

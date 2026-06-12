@@ -8,17 +8,21 @@ interface Props {
   slug: string;
   name: string;
   sizes: string[];
+  sizesPrices: number[];
   priceNumber: number;
   wcProductId: number;
 }
 
-export default function AddToCartButton({ slug, name, sizes, priceNumber, wcProductId }: Props) {
+export default function AddToCartButton({ slug, name, sizes, sizesPrices, priceNumber, wcProductId }: Props) {
   const { addItem, openCart } = useCart();
-  const [selectedSize, setSelectedSize] = useState(sizes[0] ?? "");
+  const [selectedIndex, setSelectedIndex] = useState(0);
   const [added, setAdded] = useState(false);
 
+  const selectedSize = sizes[selectedIndex] ?? "";
+  const selectedPrice = sizesPrices[selectedIndex] ?? priceNumber;
+
   const handleAdd = () => {
-    addItem({ slug, name, size: selectedSize, price: priceNumber, wcProductId });
+    addItem({ slug, name, size: selectedSize, price: selectedPrice, wcProductId });
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
     openCart();
@@ -26,17 +30,27 @@ export default function AddToCartButton({ slug, name, sizes, priceNumber, wcProd
 
   return (
     <div className="space-y-3">
+      {/* Price — reactive to size selection */}
+      <div className="pt-1">
+        <div className="flex items-baseline gap-2">
+          <span className="font-display font-800 text-3xl text-white">
+            ${selectedPrice.toFixed(2)}
+          </span>
+          <span className="font-body text-sm text-white/30">/ vial</span>
+        </div>
+      </div>
+
       {/* Size selector */}
-      {sizes.length > 0 && (
+      {sizes.length > 1 && (
         <div>
           <p className="font-mono text-xs text-white/40 tracking-widest uppercase mb-3">Select Size</p>
           <div className="flex flex-wrap gap-2">
-            {sizes.map((size) => (
+            {sizes.map((size, idx) => (
               <button
                 key={size}
-                onClick={() => setSelectedSize(size)}
+                onClick={() => setSelectedIndex(idx)}
                 className={`px-5 py-2.5 rounded-lg border font-mono text-sm font-500 transition-all duration-200 ${
-                  selectedSize === size
+                  selectedIndex === idx
                     ? "bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-600/20"
                     : "bg-white/5 border-white/10 text-white/50 hover:border-white/20 hover:text-white/80"
                 }`}
@@ -53,8 +67,8 @@ export default function AddToCartButton({ slug, name, sizes, priceNumber, wcProd
         <svg className="w-3.5 h-3.5 text-blue-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
-        <p className="font-mono text-[10px] text-blue-400/80 tracking-wide">
-          Order before <strong className="text-blue-400">12PM PST</strong> for same-day dispatch
+        <p className="font-mono text-[10px] text-slate-400 tracking-wide">
+          Order before <strong className="text-white/70">12PM PST</strong> for same-day dispatch
         </p>
       </div>
 

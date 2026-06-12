@@ -111,9 +111,9 @@ export default function Navbar() {
               className="flex flex-col gap-1.5 p-2"
               onClick={() => setMenuOpen(!menuOpen)}
             >
-              <span className={`block w-6 h-0.5 bg-white transition-all duration-300 ${menuOpen ? "rotate-45 translate-y-2" : ""}`} />
-              <span className={`block w-6 h-0.5 bg-white transition-all duration-300 ${menuOpen ? "opacity-0" : ""}`} />
-              <span className={`block w-6 h-0.5 bg-white transition-all duration-300 ${menuOpen ? "-rotate-45 -translate-y-2" : ""}`} />
+              <span className={`block w-6 h-0.5 bg-blue-400 transition-all duration-300 ${menuOpen ? "rotate-45 translate-y-2" : ""}`} />
+              <span className={`block w-6 h-0.5 bg-blue-400 transition-all duration-300 ${menuOpen ? "opacity-0" : ""}`} />
+              <span className={`block w-6 h-0.5 bg-blue-400 transition-all duration-300 ${menuOpen ? "-rotate-45 -translate-y-2" : ""}`} />
             </button>
           </div>
         </div>
@@ -125,7 +125,7 @@ export default function Navbar() {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
-              className="md:hidden bg-navy-900/95 backdrop-blur-xl border-t border-blue-600/10"
+              className="md:hidden bg-navy-950 border-t border-blue-600/20"
             >
               <div className="px-6 py-4 flex flex-col gap-4">
                 {links.map((link) => (
@@ -133,7 +133,7 @@ export default function Navbar() {
                     key={link.label}
                     href={link.href}
                     onClick={() => setMenuOpen(false)}
-                    className="text-white/70 hover:text-white font-body text-sm py-1 transition-colors"
+                    className="text-white hover:text-blue-400 font-body text-sm py-1 transition-colors"
                   >
                     {link.label}
                   </a>

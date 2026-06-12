@@ -46,7 +46,7 @@ export default function HowWeTestSection() {
   return (
     <section id="testing" className="relative bg-navy-900 py-24 md:py-36 overflow-hidden">
       {/* Background elements */}
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full opacity-8 blur-[100px] bg-blue-700 pointer-events-none" />
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full opacity-[0.04] blur-[120px] bg-blue-700 pointer-events-none" />
       <div
         className="absolute inset-0 opacity-30"
         style={{
@@ -80,7 +80,7 @@ export default function HowWeTestSection() {
           >
             Triple-Method
             <br />
-            <span className="text-blue-400">Testing Protocol</span>
+            <span className="text-white">Testing Protocol</span>
           </motion.h2>
 
           <motion.p
