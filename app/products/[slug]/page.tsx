@@ -5,6 +5,8 @@ import Footer from "@/components/Footer";
 import ProductPageTemplate from "@/components/ProductPageTemplate";
 import { getProductPageData } from "@/lib/woocommerce";
 
+export const dynamicParams = true;
+
 const KNOWN_SLUGS = [
   "bpc-157",
   "t1rz",
