@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import AddToCartButton from "@/app/products/[slug]/AddToCartButton";
-import SizeSelector from "@/app/products/[slug]/SizeSelector";
 
 // ─── Data interface ────────────────────────────────────────────────────────────
 
@@ -50,7 +49,7 @@ function SectionLabel({ number, label }: { number: string; label: string }) {
   return (
     <div className="flex items-center gap-3 mb-5">
       <div className="w-6 h-px bg-blue-600" />
-      <span className="font-mono text-xs text-blue-400 tracking-[0.2em] uppercase">
+      <span className="font-mono text-xs text-slate-400 tracking-[0.2em] uppercase">
         {number} / {label}
       </span>
     </div>
@@ -123,7 +122,7 @@ export default function ProductPageTemplate({
               <nav className="font-mono text-xs text-white/30">
                 <span>Catalog</span>
                 <span className="mx-2 text-white/20">/</span>
-                <span className="text-blue-400/70">{product.category}</span>
+                <span className="text-slate-400/80">{product.category}</span>
               </nav>
 
               {/* RUO pill */}
@@ -142,35 +141,16 @@ export default function ProductPageTemplate({
               </h1>
 
               {/* Subtitle */}
-              <p className="font-mono text-xs text-blue-400/70 tracking-wider">
+              <p className="font-mono text-xs text-slate-400 tracking-wider">
                 {product.subtitle}
               </p>
 
-              {/* Price */}
-              <div className="pt-1">
-                <div className="flex items-baseline gap-2">
-                  <span className="font-display font-800 text-3xl text-white">
-                    {product.price}
-                  </span>
-                  <span className="font-body text-sm text-white/30">
-                    {product.priceUnit}
-                  </span>
-                </div>
-              </div>
-
-              {/* Size selector */}
-              <div>
-                <p className="font-mono text-[10px] text-white/35 tracking-widest uppercase mb-3">
-                  Select Size
-                </p>
-                <SizeSelector sizes={product.sizes} />
-              </div>
-
-              {/* Add to cart */}
+              {/* Add to cart — price display is inside AddToCartButton (client) so it updates on size select */}
               <AddToCartButton
                 slug={product.slug}
                 name={product.name}
                 sizes={product.sizes}
+                sizesPrices={product.sizesPrices}
                 priceNumber={product.priceNumber}
                 wcProductId={product.wcProductId}
               />
@@ -442,7 +422,7 @@ export default function ProductPageTemplate({
                   <h3 className="font-display font-700 text-white text-lg group-hover:text-blue-300 transition-colors">
                     {rel.name}
                   </h3>
-                  <p className="font-mono text-xs text-blue-400/70 tracking-wider mt-1">
+                  <p className="font-mono text-xs text-slate-400/70 tracking-wider mt-1">
                     {rel.category}
                   </p>
                 </div>

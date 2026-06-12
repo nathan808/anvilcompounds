@@ -4,24 +4,61 @@ import Image from "next/image";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import type { PostFull } from "@/app/api/blog/[slug]/route";
-import type { PostCard } from "@/app/api/blog/route";
 
-const BASE_URL =
-  process.env.VERCEL_URL
-    ? `https://${process.env.VERCEL_URL}`
-    : "http://localhost:3000";
+export const revalidate = 3600;
+
+interface PostCard {
+  id: number;
+  slug: string;
+  title: string;
+  excerpt: string;
+  date: string;
+  featuredImage: string | null;
+  categories: string[];
+}
+
+interface PostFull extends PostCard {
+  content: string;
+  author: string;
+}
+
+const WP_URL = "https://anvilcompounds.shop";
+
+function stripHtml(html: string): string {
+  return html.replace(/<[^>]*>/g, "").replace(/&[a-z#0-9]+;/gi, " ").replace(/\s+/g, " ").trim();
+}
+
+function formatDate(iso: string): string {
+  return new Date(iso).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+}
 
 // ─── Data fetching ─────────────────────────────────────────────────────────────
 
 async function getPost(slug: string): Promise<PostFull | null> {
   try {
-    const res = await fetch(`${BASE_URL}/api/blog/${slug}`, {
-      next: { revalidate: 3600 },
-    });
+    const res = await fetch(
+      `${WP_URL}/wp-json/wp/v2/posts?slug=${encodeURIComponent(slug)}&_embed&status=publish`,
+      { next: { revalidate: 3600 } }
+    );
     if (!res.ok) return null;
-    const data = await res.json();
-    return data?.post ?? null;
+    const posts = await res.json() as Record<string, unknown>[];
+    if (!posts.length) return null;
+    const p = posts[0];
+    const embedded = (p._embedded ?? {}) as Record<string, unknown[]>;
+    const featuredMedia = (embedded["wp:featuredmedia"] ?? []) as Record<string, unknown>[];
+    const termGroups = (embedded["wp:term"] ?? []) as Record<string, unknown>[][];
+    const authors = (embedded["author"] ?? []) as Record<string, unknown>[];
+    return {
+      id:           p.id as number,
+      slug:         p.slug as string,
+      title:        stripHtml((p.title as { rendered: string }).rendered),
+      excerpt:      stripHtml((p.excerpt as { rendered: string }).rendered),
+      date:         formatDate(p.date as string),
+      featuredImage: featuredMedia[0] ? ((featuredMedia[0].source_url as string) ?? null) : null,
+      categories:   (termGroups[0] ?? []).map((t) => (t.name as string) ?? "").filter(Boolean),
+      content:      (p.content as { rendered: string }).rendered,
+      author:       authors[0] ? ((authors[0].name as string) ?? "Anvil Compounds") : "Anvil Compounds",
+    };
   } catch {
     return null;
   }
@@ -29,12 +66,27 @@ async function getPost(slug: string): Promise<PostFull | null> {
 
 async function getAllPosts(): Promise<PostCard[]> {
   try {
-    const res = await fetch(`${BASE_URL}/api/blog`, {
-      next: { revalidate: 3600 },
-    });
+    const res = await fetch(
+      `${WP_URL}/wp-json/wp/v2/posts?_embed&per_page=20&orderby=date&order=desc&status=publish`,
+      { next: { revalidate: 3600 } }
+    );
     if (!res.ok) return [];
-    const data = await res.json();
-    return Array.isArray(data?.posts) ? data.posts : [];
+    const raw = await res.json();
+    if (!Array.isArray(raw)) return [];
+    return raw.map((p: Record<string, unknown>) => {
+      const embedded = (p._embedded ?? {}) as Record<string, unknown[]>;
+      const featuredMedia = (embedded["wp:featuredmedia"] ?? []) as Record<string, unknown>[];
+      const termGroups = (embedded["wp:term"] ?? []) as Record<string, unknown>[][];
+      return {
+        id:           p.id as number,
+        slug:         p.slug as string,
+        title:        stripHtml((p.title as { rendered: string }).rendered),
+        excerpt:      stripHtml((p.excerpt as { rendered: string }).rendered),
+        date:         formatDate(p.date as string),
+        featuredImage: featuredMedia[0] ? ((featuredMedia[0].source_url as string) ?? null) : null,
+        categories:   (termGroups[0] ?? []).map((t) => (t.name as string) ?? "").filter(Boolean),
+      };
+    });
   } catch {
     return [];
   }

@@ -7,14 +7,20 @@ import { getProductPageData } from "@/lib/woocommerce";
 
 const KNOWN_SLUGS = [
   "bpc-157",
-  "semaglutide",
-  "tirzepatide",
-  "retatrutide",
-  "kglow",
+  "t1rz",
+  "r3ta",
+  "klow",
   "ghk-cu",
   "tb-500",
   "bac-water",
   "mots-c",
+  // New SKUs — DRAFT until COA + images are live
+  "nad-plus",
+  "tesamorelin",
+  "cjc-1295-ipamorelin",
+  "5-amino-1mq",
+  "wolverine",
+  "glow",
 ];
 
 export async function generateStaticParams() {
