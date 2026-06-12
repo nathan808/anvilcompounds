@@ -17,6 +17,11 @@ const PRODUCT_SIZES: Record<string, string[]> = {
   "MOTS-c":                        ["10mg"],
   "Bacteriostatic Water":          ["30mL × 1"],
   "Wolverine — BPC-157 + TB-500":  ["5mg BPC-157 + 5mg TB-500"],
+  "NAD+":                          ["500mg"],
+  "Tesamorelin":                   ["10mg"],
+  "CJC-1295 + Ipamorelin":         ["5mg + 5mg blend"],
+  "5-Amino-1MQ":                   ["5mg", "10mg"],
+  "GLOW":                          ["70mg blend"],
 };
 
 const SLUG_MAP: Record<string, string> = {
@@ -29,6 +34,11 @@ const SLUG_MAP: Record<string, string> = {
   "MOTS-c":                        "mots-c",
   "Bacteriostatic Water":          "bac-water",
   "Wolverine — BPC-157 + TB-500":  "wolverine",
+  "NAD+":                          "nad-plus",
+  "Tesamorelin":                   "tesamorelin",
+  "CJC-1295 + Ipamorelin":         "cjc-1295-ipamorelin",
+  "5-Amino-1MQ":                   "5-amino-1mq",
+  "GLOW":                          "glow",
 };
 
 function slugifyProductName(name: string): string {
