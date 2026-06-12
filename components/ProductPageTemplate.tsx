@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import AddToCartButton from "@/app/products/[slug]/AddToCartButton";
+import ShippingBanner from "@/components/ShippingBanner";
 
 // ─── Data interface ────────────────────────────────────────────────────────────
 
@@ -154,6 +155,9 @@ export default function ProductPageTemplate({
                 priceNumber={product.priceNumber}
                 wcProductId={product.wcProductId}
               />
+
+              {/* Shipping banner — visible immediately after price/cart */}
+              <ShippingBanner theme="dark" />
             </div>
           </div>
         </div>

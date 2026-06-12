@@ -5,6 +5,7 @@ import { motion, useInView } from "framer-motion";
 import Image from "next/image";
 import type { ProductCard } from "@/lib/woocommerce";
 import { useCart } from "@/lib/cartContext";
+import ShippingBanner from "@/components/ShippingBanner";
 
 // Size variants shown on catalog cards
 const PRODUCT_SIZES: Record<string, string[]> = {
@@ -458,6 +459,16 @@ export default function ProductsSection() {
             </motion.div>
           </div>
         </div>
+
+        {/* Shipping banner */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={headerInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6, delay: 0.25 }}
+          className="mb-6"
+        >
+          <ShippingBanner theme="dark" />
+        </motion.div>
 
         {/* Category filter buttons */}
         {!loading && categories.length > 1 && (

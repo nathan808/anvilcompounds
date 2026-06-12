@@ -3,6 +3,7 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import Image from "next/image";
+import ShippingBanner from "@/components/ShippingBanner";
 
 const container = {
   hidden: {},
@@ -98,6 +99,11 @@ export default function HeroSection() {
               >
                 Our Testing Process →
               </a>
+            </motion.div>
+
+            {/* Shipping banner */}
+            <motion.div variants={item} className="mb-6 max-w-[480px]">
+              <ShippingBanner theme="light" />
             </motion.div>
 
             {/* Stats row */}
