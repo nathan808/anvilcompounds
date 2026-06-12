@@ -1,91 +1,64 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
+import Image from "next/image";
 
-const PARTICLES = Array.from({ length: 40 }, (_, i) => ({
-  id: i,
-  x: Math.random() * 100,
-  y: Math.random() * 100,
-  size: Math.random() * 2 + 0.5,
-  delay: Math.random() * 4,
-  duration: Math.random() * 6 + 4,
-}));
+const container = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.1, delayChildren: 0.2 } },
+};
+const item = {
+  hidden: { opacity: 0, y: 30 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } },
+};
 
 export default function HeroSection() {
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
-  const y = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
+  const y = useTransform(scrollYProgress, [0, 1], ["0%", "20%"]);
   const opacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
-
-  const container = {
-    hidden: {},
-    show: { transition: { staggerChildren: 0.1, delayChildren: 0.2 } },
-  };
-  const item = {
-    hidden: { opacity: 0, y: 30 },
-    show: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } },
-  };
 
   return (
     <section
       ref={ref}
-      className="relative min-h-screen flex items-center overflow-hidden mesh-bg"
+      className="relative flex items-center overflow-hidden"
+      style={{
+        height: "clamp(580px, 78vh, 820px)",
+        background: "linear-gradient(135deg, #f0f5ff 0%, #f5f8ff 50%, #f8faff 100%)",
+      }}
     >
-      {/* Grid pattern */}
-      <div
-        className="absolute inset-0 opacity-40"
-        style={{
-          backgroundImage:
-            "linear-gradient(rgba(29,106,219,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(29,106,219,0.07) 1px, transparent 1px)",
-          backgroundSize: "60px 60px",
-        }}
-      />
-
-      {/* Particles */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {PARTICLES.map((p) => (
-          <motion.div
-            key={p.id}
-            className="absolute rounded-full bg-blue-400"
+      {/* Vial image — right side, shrunk to 87% height and vertically centered */}
+      <div className="absolute right-0 inset-y-0 w-[52%] hidden md:flex items-end pointer-events-none">
+        <div className="relative w-full h-[90%]">
+          <Image
+            src="/images/bannerphoto2.png"
+            alt="Anvil Compounds research vials"
+            fill
+            className="object-cover object-[center_30%]"
+            priority
+            sizes="52vw"
+          />
+          {/* Blend left edge into the light blue-grey background — vials untouched */}
+          <div
+            className="absolute inset-0"
             style={{
-              left: `${p.x}%`,
-              top: `${p.y}%`,
-              width: p.size,
-              height: p.size,
-            }}
-            animate={{
-              y: [0, -20, 0],
-              opacity: [0.2, 0.6, 0.2],
-            }}
-            transition={{
-              duration: p.duration,
-              delay: p.delay,
-              repeat: Infinity,
-              ease: "easeInOut",
+              background: "linear-gradient(to right, #f5f8ff 0%, rgba(245,248,255,0.7) 18%, rgba(245,248,255,0) 38%)",
             }}
           />
-        ))}
+        </div>
       </div>
-
-      {/* Glowing orb */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full opacity-10 blur-[120px] bg-blue-600 pointer-events-none" />
-      <div className="absolute bottom-0 right-0 w-[400px] h-[400px] rounded-full opacity-8 blur-[100px] bg-blue-800 pointer-events-none" />
 
       {/* Content */}
       <motion.div style={{ y, opacity }} className="relative z-10 w-full">
-        <div className="max-w-7xl mx-auto px-6 pt-32 pb-20">
-          <motion.div
-            variants={container}
-            initial="hidden"
-            animate="show"
-            className="max-w-4xl"
-          >
+        <div className="max-w-7xl mx-auto px-6 md:px-10 pt-16 md:pt-20 pb-8">
+          <motion.div variants={container} initial="hidden" animate="show" className="max-w-[480px] lg:max-w-[520px]">
+
             {/* Badge */}
-            <motion.div variants={item} className="flex items-center gap-3 mb-8">
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-blue-600/30 bg-blue-600/10">
-                <span className="w-1.5 h-1.5 rounded-full bg-blue-400 pulse-ring inline-block" />
-                <span className="text-xs font-mono text-blue-300 tracking-widest uppercase">
+            <motion.div variants={item} className="flex items-center gap-3 mb-4 mt-[10px]">
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-blue-300/60 bg-white/60 backdrop-blur-sm">
+                <span className="w-1.5 h-1.5 rounded-full bg-blue-500 inline-block" />
+                <span className="text-[10px] md:text-xs font-mono text-blue-700 tracking-widest uppercase">
                   Research Grade · 99%+ Purity
                 </span>
               </div>
@@ -94,37 +67,34 @@ export default function HeroSection() {
             {/* Headline */}
             <motion.h1
               variants={item}
-              className="font-display font-800 leading-[0.92] mb-6"
-              style={{ fontSize: "clamp(3.5rem, 8vw, 7rem)" }}
+              className="font-display font-800 leading-[0.92] mb-4"
+              style={{ fontSize: "clamp(2.2rem, 4.8vw, 4.5rem)" }}
             >
-              <span className="block text-white">Independently</span>
-              <span className="block text-white">Verified.</span>
-              <span className="block glow-text" style={{ color: "#4D94F0" }}>
-                Every Batch.
-              </span>
+              <span className="block text-gray-900">Independently</span>
+              <span className="block text-gray-900">Verified.</span>
+              <span className="block text-blue-700 md:text-[#4D94F0]">Every Batch.</span>
             </motion.h1>
 
             {/* Subheadline */}
             <motion.p
               variants={item}
-              className="font-body text-white/50 text-lg md:text-xl max-w-xl leading-relaxed mb-10"
+              className="font-body text-gray-600 text-sm md:text-base leading-relaxed mb-6"
             >
               Research-grade compounds independently verified through triple-method
               testing. Every batch. No exceptions.
             </motion.p>
 
             {/* CTAs */}
-            <motion.div variants={item} className="flex flex-wrap gap-4 mb-16">
+            <motion.div variants={item} className="flex flex-wrap gap-3 mb-3">
               <a
                 href="#catalog"
-                className="group relative px-8 py-4 bg-blue-600 hover:bg-blue-500 text-white font-display font-700 text-sm tracking-wide rounded-md transition-all duration-300 hover:shadow-2xl hover:shadow-blue-600/40 overflow-hidden"
+                className="px-7 py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-display font-700 text-sm tracking-wide rounded-md transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/30"
               >
-                <span className="relative z-10">Explore Catalog</span>
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-blue-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                Explore Catalog
               </a>
               <a
                 href="#testing"
-                className="px-8 py-4 border border-white/20 hover:border-blue-400/50 text-white/70 hover:text-white font-display font-600 text-sm tracking-wide rounded-md transition-all duration-300 hover:bg-white/5"
+                className="px-7 py-3.5 border border-gray-300 hover:border-gray-400 text-gray-700 hover:text-gray-900 font-display font-600 text-sm tracking-wide rounded-md transition-all duration-300 bg-white/50 hover:bg-white/80"
               >
                 Our Testing Process →
               </a>
@@ -137,32 +107,33 @@ export default function HeroSection() {
                 { value: "3×", label: "Verification Methods" },
                 { value: "Same Day", label: "Dispatch by 12PM PST" },
               ].map((stat) => (
-                <div key={stat.label} className="flex flex-col gap-1">
-                  <span className="font-display font-800 text-2xl md:text-3xl text-blue-400">
+                <div key={stat.label} className="flex flex-col gap-0.5">
+                  <span className="font-display font-800 text-2xl md:text-3xl text-blue-700 md:text-blue-600">
                     {stat.value}
                   </span>
-                  <span className="font-mono text-xs text-white/40 tracking-widest uppercase">
+                  <span className="font-mono text-[9px] md:text-xs text-gray-500 tracking-widest uppercase">
                     {stat.label}
                   </span>
                 </div>
               ))}
             </motion.div>
+
           </motion.div>
         </div>
       </motion.div>
 
       {/* Scroll indicator */}
       <motion.div
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+        className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.5 }}
       >
-        <span className="text-xs font-mono text-white/25 tracking-widest uppercase">Scroll</span>
+        <span className="text-[10px] font-mono text-gray-400 tracking-widest uppercase">Scroll</span>
         <motion.div
           animate={{ y: [0, 8, 0] }}
           transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-          className="w-px h-12 bg-gradient-to-b from-blue-400/50 to-transparent"
+          className="w-px h-10 bg-gradient-to-b from-gray-300 to-transparent"
         />
       </motion.div>
     </section>
