@@ -1,12 +1,36 @@
 import { NextRequest, NextResponse } from "next/server";
+import crypto from "crypto";
+
+function derivePassword(email: string, birthday: string): string {
+  const secret = process.env.ANVIL_AUTH_SECRET ?? "anvil_research_2024";
+  return crypto
+    .createHmac("sha256", secret)
+    .update(`${email.toLowerCase().trim()}:${birthday}`)
+    .digest("hex")
+    .slice(0, 32);
+}
+
+const VALID_PURPOSES = [
+  "scientist",
+  "research_associate",
+  "lab_technician",
+  "independent_researcher",
+];
 
 export async function POST(req: NextRequest) {
   try {
-    const { email, password, firstName, lastName } = await req.json();
+    const { email, birthday, firstName, lastName, researchPurpose } = await req.json();
 
-    if (!email || !password || !firstName || !lastName) {
+    if (!email || !birthday || !firstName || !lastName || !researchPurpose) {
       return NextResponse.json(
         { error: "INVALID_INPUT", message: "All fields are required." },
+        { status: 400 }
+      );
+    }
+
+    if (!VALID_PURPOSES.includes(researchPurpose)) {
+      return NextResponse.json(
+        { error: "INVALID_INPUT", message: "Please select a valid research purpose." },
         { status: 400 }
       );
     }
@@ -23,8 +47,8 @@ export async function POST(req: NextRequest) {
     }
 
     const auth = Buffer.from(`${key}:${secret}`).toString("base64");
+    const password = derivePassword(email, birthday);
 
-    // Step 1: Create WC customer
     let wcCustomerId = 0;
 
     const createRes = await fetch(`${wcUrl}/wp-json/wc/v3/customers`, {
@@ -39,6 +63,10 @@ export async function POST(req: NextRequest) {
         first_name: firstName,
         last_name: lastName,
         username: email,
+        meta_data: [
+          { key: "anvil_birthday", value: birthday },
+          { key: "anvil_research_purpose", value: researchPurpose },
+        ],
       }),
     });
 
@@ -57,10 +85,7 @@ export async function POST(req: NextRequest) {
       const newCustomer = (await createRes.json()) as { id: number };
       wcCustomerId = newCustomer.id;
     } else {
-      // 409 or similar — customer already exists, try to proceed to login
-      const createErr = (await createRes.json().catch(() => ({}))) as {
-        code?: string;
-      };
+      const createErr = (await createRes.json().catch(() => ({}))) as { code?: string };
       const alreadyExists =
         createRes.status === 409 ||
         createErr.code === "registration-error-email-exists" ||
@@ -68,26 +93,21 @@ export async function POST(req: NextRequest) {
 
       if (!alreadyExists) {
         return NextResponse.json(
-          {
-            error: "REGISTRATION_FAILED",
-            message: "Failed to create account. Please try again.",
-          },
+          { error: "REGISTRATION_FAILED", message: "Failed to create account. Please try again." },
           { status: 400 }
         );
       }
 
-      // Fetch the existing customer's ID
-      const lookupRes = await fetch(
-        `${wcUrl}/wp-json/wc/v3/customers?email=${encodeURIComponent(email)}`,
-        { headers: { Authorization: `Basic ${auth}` } }
+      return NextResponse.json(
+        {
+          error: "EMAIL_EXISTS",
+          message: "An account with that email already exists. Please sign in.",
+        },
+        { status: 409 }
       );
-      if (lookupRes.ok) {
-        const customers = (await lookupRes.json()) as Array<{ id: number }>;
-        if (customers.length > 0) wcCustomerId = customers[0].id;
-      }
     }
 
-    // Step 2: Get JWT token
+    // Get JWT using derived password
     const jwtRes = await fetch(`${wcUrl}/wp-json/jwt-auth/v1/token`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -99,20 +119,18 @@ export async function POST(req: NextRequest) {
         {
           error: "AUTH_NOT_CONFIGURED",
           message:
-            "Account login is being configured. Please contact support@anvilcompounds.shop to place an order.",
+            "Account login is being configured. Please contact support@anvilcompounds.shop.",
         },
         { status: 503 }
       );
     }
 
     if (!jwtRes.ok) {
-      const jwtErr = (await jwtRes.json().catch(() => ({}))) as {
-        message?: string;
-      };
+      const jwtErr = (await jwtRes.json().catch(() => ({}))) as { message?: string };
       return NextResponse.json(
         {
           error: "AUTH_FAILED",
-          message: jwtErr.message ?? "Account created but login failed. Please sign in.",
+          message: jwtErr.message ?? "Account created but sign-in failed. Please try signing in.",
         },
         { status: 401 }
       );

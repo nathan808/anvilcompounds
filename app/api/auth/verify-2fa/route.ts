@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 
-// Birthday + email deterministically produce the WP password — user never sees it
 function derivePassword(email: string, birthday: string): string {
   const secret = process.env.ANVIL_AUTH_SECRET ?? "anvil_research_2024";
   return crypto
@@ -13,11 +12,11 @@ function derivePassword(email: string, birthday: string): string {
 
 export async function POST(req: NextRequest) {
   try {
-    const { email, birthday } = await req.json();
+    const { email, code } = await req.json();
 
-    if (!email || !birthday) {
+    if (!email || !code) {
       return NextResponse.json(
-        { error: "INVALID_INPUT", message: "Email and date of birth are required." },
+        { error: "INVALID_INPUT", message: "Email and code are required." },
         { status: 400 }
       );
     }
@@ -35,20 +34,19 @@ export async function POST(req: NextRequest) {
 
     const auth = Buffer.from(`${key}:${secret}`).toString("base64");
 
-    // Fetch customer and verify birthday from stored meta
-    const customerRes = await fetch(
+    const lookupRes = await fetch(
       `${wcUrl}/wp-json/wc/v3/customers?email=${encodeURIComponent(email)}`,
       { headers: { Authorization: `Basic ${auth}` } }
     );
 
-    if (!customerRes.ok) {
+    if (!lookupRes.ok) {
       return NextResponse.json(
-        { error: "AUTH_FAILED", message: "No account found with that email." },
+        { error: "AUTH_FAILED", message: "Invalid or expired code." },
         { status: 401 }
       );
     }
 
-    const customers = (await customerRes.json()) as Array<{
+    const customers = (await lookupRes.json()) as Array<{
       id: number;
       first_name: string;
       last_name: string;
@@ -57,23 +55,53 @@ export async function POST(req: NextRequest) {
 
     if (!customers.length) {
       return NextResponse.json(
-        { error: "AUTH_FAILED", message: "No account found with that email." },
+        { error: "AUTH_FAILED", message: "Invalid or expired code." },
         { status: 401 }
       );
     }
 
     const customer = customers[0];
-    const storedBirthday = customer.meta_data.find((m) => m.key === "anvil_birthday")?.value;
+    const getMeta = (k: string) => customer.meta_data.find((m) => m.key === k)?.value ?? "";
 
-    if (!storedBirthday || storedBirthday !== birthday) {
+    const storedCode = getMeta("anvil_2fa_code");
+    const storedExpiry = getMeta("anvil_2fa_expiry");
+    const storedBirthday = getMeta("anvil_birthday");
+
+    if (!storedCode || storedCode !== code.trim()) {
       return NextResponse.json(
-        { error: "AUTH_FAILED", message: "Incorrect date of birth." },
+        { error: "AUTH_FAILED", message: "Invalid or expired code." },
         { status: 401 }
       );
     }
 
-    // Birthday verified — get JWT using derived internal password
-    const password = derivePassword(email, birthday);
+    if (storedExpiry && Math.floor(Date.now() / 1000) > parseInt(storedExpiry)) {
+      return NextResponse.json(
+        { error: "CODE_EXPIRED", message: "Code has expired. Please request a new one." },
+        { status: 401 }
+      );
+    }
+
+    if (!storedBirthday) {
+      return NextResponse.json(
+        { error: "AUTH_FAILED", message: "Account setup incomplete. Contact support@anvilcompounds.shop." },
+        { status: 401 }
+      );
+    }
+
+    // Clear OTP
+    await fetch(`${wcUrl}/wp-json/wc/v3/customers/${customer.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json", Authorization: `Basic ${auth}` },
+      body: JSON.stringify({
+        meta_data: [
+          { key: "anvil_2fa_code", value: "" },
+          { key: "anvil_2fa_expiry", value: "" },
+        ],
+      }),
+    });
+
+    // Get JWT using derived internal password
+    const password = derivePassword(email, storedBirthday);
 
     const jwtRes = await fetch(`${wcUrl}/wp-json/jwt-auth/v1/token`, {
       method: "POST",
@@ -81,19 +109,9 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify({ username: email, password }),
     });
 
-    if (jwtRes.status === 404) {
-      return NextResponse.json(
-        {
-          error: "AUTH_NOT_CONFIGURED",
-          message: "Account login is being configured. Please contact support@anvilcompounds.shop.",
-        },
-        { status: 503 }
-      );
-    }
-
     if (!jwtRes.ok) {
       return NextResponse.json(
-        { error: "AUTH_FAILED", message: "Sign in failed. Please contact support@anvilcompounds.shop." },
+        { error: "AUTH_FAILED", message: "Verification failed. Contact support@anvilcompounds.shop." },
         { status: 401 }
       );
     }
@@ -108,7 +126,7 @@ export async function POST(req: NextRequest) {
       wcCustomerId: customer.id,
     });
   } catch (err) {
-    console.error("Login error:", err);
+    console.error("Verify 2FA error:", err);
     return NextResponse.json(
       { error: "INTERNAL_ERROR", message: "An unexpected error occurred." },
       { status: 500 }

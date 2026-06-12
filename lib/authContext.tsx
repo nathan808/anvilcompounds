@@ -25,13 +25,16 @@ interface AuthContextType {
   isAuthenticated: boolean;
   hydrated: boolean;
   authError: string | null;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, birthday: string) => Promise<void>;
   register: (
     email: string,
-    password: string,
+    birthday: string,
     firstName: string,
-    lastName: string
+    lastName: string,
+    researchPurpose: string
   ) => Promise<void>;
+  sendTwoFactor: (email: string) => Promise<void>;
+  verifyTwoFactor: (email: string, code: string) => Promise<void>;
   logout: () => void;
 }
 
@@ -39,7 +42,6 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 const STORAGE_KEY = "anvil_auth";
 
-/** Decode a JWT payload and return the `exp` field (Unix seconds), or null if unreadable. */
 function getJwtExpiry(token: string): number | null {
   try {
     const parts = token.split(".");
@@ -55,7 +57,7 @@ function getJwtExpiry(token: string): number | null {
 
 function isTokenExpired(token: string): boolean {
   const exp = getJwtExpiry(token);
-  if (exp === null) return false; // can't decode — treat as valid
+  if (exp === null) return false;
   return Date.now() / 1000 > exp;
 }
 
@@ -64,7 +66,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [hydrated, setHydrated] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
 
-  // Hydrate from localStorage on mount
   useEffect(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
@@ -91,12 +92,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setAuthError(null);
   };
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, birthday: string) => {
     setAuthError(null);
     const res = await fetch("/api/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ email, birthday }),
     });
     const data = (await res.json()) as {
       token?: string;
@@ -110,9 +111,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!res.ok || data.error) {
       const err = data as { error: string; message: string };
       setAuthError(err.error ?? "LOGIN_FAILED");
-      throw Object.assign(new Error(err.message ?? "Login failed"), {
-        code: err.error,
-      });
+      throw Object.assign(new Error(err.message ?? "Login failed"), { code: err.error });
     }
     storeUser({
       token: data.token!,
@@ -125,15 +124,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const register = async (
     email: string,
-    password: string,
+    birthday: string,
     firstName: string,
-    lastName: string
+    lastName: string,
+    researchPurpose: string
   ) => {
     setAuthError(null);
     const res = await fetch("/api/auth/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password, firstName, lastName }),
+      body: JSON.stringify({ email, birthday, firstName, lastName, researchPurpose }),
     });
     const data = (await res.json()) as {
       token?: string;
@@ -147,15 +147,55 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!res.ok || data.error) {
       const err = data as { error: string; message: string };
       setAuthError(err.error ?? "REGISTER_FAILED");
-      throw Object.assign(new Error(err.message ?? "Registration failed"), {
-        code: err.error,
-      });
+      throw Object.assign(new Error(err.message ?? "Registration failed"), { code: err.error });
     }
     storeUser({
       token: data.token!,
       email: data.email!,
       firstName: data.firstName ?? firstName,
       lastName: data.lastName ?? lastName,
+      wcCustomerId: data.wcCustomerId ?? 0,
+    });
+  };
+
+  const sendTwoFactor = async (email: string) => {
+    const res = await fetch("/api/auth/send-2fa", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
+    if (!res.ok) {
+      const data = (await res.json()) as { message?: string };
+      throw new Error(data.message ?? "Failed to send code.");
+    }
+  };
+
+  const verifyTwoFactor = async (email: string, code: string) => {
+    setAuthError(null);
+    const res = await fetch("/api/auth/verify-2fa", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, code }),
+    });
+    const data = (await res.json()) as {
+      token?: string;
+      email?: string;
+      firstName?: string;
+      lastName?: string;
+      wcCustomerId?: number;
+      error?: string;
+      message?: string;
+    };
+    if (!res.ok || data.error) {
+      const err = data as { error: string; message: string };
+      setAuthError(err.error ?? "VERIFY_FAILED");
+      throw Object.assign(new Error(err.message ?? "Verification failed"), { code: err.error });
+    }
+    storeUser({
+      token: data.token!,
+      email: data.email!,
+      firstName: data.firstName ?? "",
+      lastName: data.lastName ?? "",
       wcCustomerId: data.wcCustomerId ?? 0,
     });
   };
@@ -170,7 +210,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, isAuthenticated, hydrated, authError, login, register, logout }}
+      value={{
+        user,
+        isAuthenticated,
+        hydrated,
+        authError,
+        login,
+        register,
+        sendTwoFactor,
+        verifyTwoFactor,
+        logout,
+      }}
     >
       {children}
     </AuthContext.Provider>
