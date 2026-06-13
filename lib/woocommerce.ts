@@ -207,7 +207,7 @@ export async function getProductPageData(slug: string): Promise<ProductPageData 
       sizes:       sizes.length ? sizes : ["Standard"],
       sizesPrices: sizesPrices.length ? sizesPrices : [basePrice],
       wcProductId: product.id,
-      image:       product.images[0]?.src ?? null,
+      image:       LOCAL_PRODUCT_IMAGES[product.name] ?? product.images[0]?.src ?? null,
       trustBadges,
       whatItIsSubtitle:    meta["what_it_is_subtitle"]         ?? `${product.name} | Research Use Only`,
       whatItIsBody:        meta["what_it_is_body"]             ?? "",
