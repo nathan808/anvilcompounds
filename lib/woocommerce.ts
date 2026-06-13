@@ -294,6 +294,22 @@ const PRODUCT_PAGE_URLS: Record<string, string> = {
   "Wolverine — BPC-157 + TB-500": "https://anvilcompounds.shop/product/wolverine/",
 };
 
+const LOCAL_PRODUCT_IMAGES: Record<string, string> = {
+  "BPC-157":                       "/products/bpc157.png",
+  "T1rz":                          "/products/tirz.png",
+  "R3ta":                          "/products/reta.png",
+  "KLOW":                          "/products/klow.png",
+  "GHK-Cu":                        "/products/ghkcu.png",
+  "TB-500":                        "/products/tb500.png",
+  "MOTS-c":                        "/products/motsc.png",
+  "Wolverine — BPC-157 + TB-500":  "/products/wolverine.png",
+  "NAD+":                          "/products/nad.png",
+  "Tesamorelin":                   "/products/tesa.png",
+  "CJC-1295 + Ipamorelin":         "/products/cjcipa.png",
+  "5-Amino-1MQ":                   "/products/5amino.png",
+  "GLOW":                          "/products/glow.png",
+};
+
 export function mapProduct(product: WCProduct, index: number): ProductCard {
   const badge = BADGES[index % BADGES.length];
   return {
@@ -307,7 +323,7 @@ export function mapProduct(product: WCProduct, index: number): ProductCard {
     badgeColor:  badge.color,
     icon:        ICONS[index % ICONS.length],
     permalink:   PRODUCT_PAGE_URLS[product.name] ?? product.permalink,
-    image:       product.images[0]?.src ?? null,
+    image:       LOCAL_PRODUCT_IMAGES[product.name] ?? product.images[0]?.src ?? null,
   };
 }
 

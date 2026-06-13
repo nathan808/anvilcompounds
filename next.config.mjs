@@ -6,6 +6,10 @@ const nextConfig = {
         protocol: "https",
         hostname: "anvilcompounds.shop",
       },
+      {
+        protocol: "https",
+        hostname: "paleturquoise-crane-581984.hostingersite.com",
+      },
     ],
   },
 };

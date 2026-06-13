@@ -7,6 +7,22 @@ import type { ProductCard } from "@/lib/woocommerce";
 import { useCart } from "@/lib/cartContext";
 import ShippingBanner from "@/components/ShippingBanner";
 
+const PRODUCT_IMAGES: Record<string, string> = {
+  "BPC-157":                       "/products/bpc157.png",
+  "T1rz":                          "/products/tirz.png",
+  "R3ta":                          "/products/reta.png",
+  "KLOW":                          "/products/klow.png",
+  "GHK-Cu":                        "/products/ghkcu.png",
+  "TB-500":                        "/products/tb500.png",
+  "MOTS-c":                        "/products/motsc.png",
+  "Wolverine — BPC-157 + TB-500":  "/products/wolverine.png",
+  "NAD+":                          "/products/nad.png",
+  "Tesamorelin":                   "/products/tesa.png",
+  "CJC-1295 + Ipamorelin":         "/products/cjcipa.png",
+  "5-Amino-1MQ":                   "/products/5amino.png",
+  "GLOW":                          "/products/glow.png",
+};
+
 // Size variants shown on catalog cards
 const PRODUCT_SIZES: Record<string, string[]> = {
   "BPC-157":                       ["10mg"],
@@ -86,7 +102,7 @@ const FALLBACK_PRODUCTS: ProductCard[] = [
     badgeColor: "bg-blue-600/70 text-blue-100 border-blue-500/50",
     icon: "⬡",
     permalink: "https://anvilcompounds.shop/product/bpc-157/",
-    image: null,
+    image: "/products/bpc157.png",
   },
   {
     id: 447,
@@ -99,7 +115,7 @@ const FALLBACK_PRODUCTS: ProductCard[] = [
     badgeColor: "bg-orange-600/70 text-orange-100 border-orange-500/50",
     icon: "⬧",
     permalink: "https://anvilcompounds.shop/product/wolverine/",
-    image: null,
+    image: "/products/wolverine.png",
   },
   {
     id: 333,
@@ -112,7 +128,7 @@ const FALLBACK_PRODUCTS: ProductCard[] = [
     badgeColor: "bg-cyan-600/70 text-cyan-100 border-cyan-500/50",
     icon: "◇",
     permalink: "https://anvilcompounds.shop/product/t1rz/",
-    image: null,
+    image: "/products/tirz.png",
   },
   {
     id: 337,
@@ -125,7 +141,7 @@ const FALLBACK_PRODUCTS: ProductCard[] = [
     badgeColor: "bg-rose-600/70 text-rose-100 border-rose-500/50",
     icon: "⬟",
     permalink: "https://anvilcompounds.shop/product/r3ta/",
-    image: null,
+    image: "/products/reta.png",
   },
   {
     id: 335,
@@ -138,7 +154,7 @@ const FALLBACK_PRODUCTS: ProductCard[] = [
     badgeColor: "bg-purple-600/70 text-purple-100 border-purple-500/50",
     icon: "✦",
     permalink: "https://anvilcompounds.shop/product/klow/",
-    image: null,
+    image: "/products/klow.png",
   },
   {
     id: 354,
@@ -151,7 +167,7 @@ const FALLBACK_PRODUCTS: ProductCard[] = [
     badgeColor: "bg-amber-600/70 text-amber-100 border-amber-500/50",
     icon: "◉",
     permalink: "https://anvilcompounds.shop/product/tb-500/",
-    image: null,
+    image: "/products/tb500.png",
   },
   {
     id: 336,
@@ -164,7 +180,7 @@ const FALLBACK_PRODUCTS: ProductCard[] = [
     badgeColor: "bg-teal-600/70 text-teal-100 border-teal-500/50",
     icon: "⬢",
     permalink: "https://anvilcompounds.shop/product/ghk-cu/",
-    image: null,
+    image: "/products/ghkcu.png",
   },
   {
     id: 346,
@@ -177,7 +193,7 @@ const FALLBACK_PRODUCTS: ProductCard[] = [
     badgeColor: "bg-violet-600/70 text-violet-100 border-violet-500/50",
     icon: "⬥",
     permalink: "https://anvilcompounds.shop/product/mots-c/",
-    image: null,
+    image: "/products/motsc.png",
   },
   {
     id: 349,
