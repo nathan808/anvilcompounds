@@ -227,19 +227,30 @@ function ProductCard({ product, index }: { product: ProductCard; index: number }
         {/* Product image */}
         <div className="relative w-full h-[168px] md:h-[248px] bg-navy-800 overflow-hidden shrink-0">
           {product.image ? (
-            <Image
-              src={product.image}
-              alt={product.name}
-              fill
-              className="object-cover transition-transform duration-500 group-hover:scale-105"
-            />
+            <>
+              {/* Blurred ambient fill — fills any edge gaps */}
+              <Image
+                src={product.image}
+                alt=""
+                fill
+                aria-hidden="true"
+                className="object-cover scale-125 blur-lg brightness-90 saturate-110"
+              />
+              {/* Main image — contained so label is never clipped, slight scale for focal zoom */}
+              <Image
+                src={product.image}
+                alt={product.name}
+                fill
+                className="object-contain scale-[1.05] z-10 transition-transform duration-500 group-hover:scale-110"
+              />
+            </>
           ) : (
             <div className="absolute inset-0 flex items-center justify-center">
               <span className="text-5xl text-blue-400/30">{product.icon}</span>
             </div>
           )}
           {/* Badge overlay */}
-          <div className="absolute top-2.5 right-2.5">
+          <div className="absolute top-2.5 right-2.5 z-20">
             <span className={`text-xs font-mono tracking-wider px-2 py-0.5 rounded-full border backdrop-blur-sm ${product.badgeColor}`}>
               {product.badge}
             </span>
