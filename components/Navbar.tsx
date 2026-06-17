@@ -40,14 +40,9 @@ export default function Navbar() {
       >
         <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
           {/* Logo */}
-          <a href="/" className="flex items-center gap-3 group">
-            <div className="relative w-8 h-8">
-              <div className="absolute inset-0 rounded bg-blue-600 rotate-45 group-hover:scale-110 transition-transform duration-300" />
-              <div className="absolute inset-[3px] rounded bg-navy-950 rotate-45" />
-              <div className="absolute inset-[6px] rounded bg-blue-600/80 rotate-45" />
-            </div>
-            <span className="font-display font-700 text-xl tracking-tight text-white">
-              ANVIL<span className="text-blue-400 font-400 text-sm tracking-[0.2em] ml-1">COMPOUNDS</span>
+          <a href="/" className="flex items-center group">
+            <span className="font-logo font-700 text-xl tracking-tight text-white">
+              ANVIL<span className="text-blue-400 font-600 text-sm tracking-[0.2em] ml-1">COMPOUNDS</span>
             </span>
           </a>
 

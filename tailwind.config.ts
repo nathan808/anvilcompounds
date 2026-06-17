@@ -29,6 +29,7 @@ const config: Config = {
         display: ["var(--font-syne)", "sans-serif"],
         body: ["var(--font-dm-sans)", "sans-serif"],
         mono: ["var(--font-dm-mono)", "monospace"],
+        logo: ["var(--font-oswald)", "sans-serif"],
       },
       backgroundImage: {
         "grid-pattern":

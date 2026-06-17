@@ -14,11 +14,12 @@ export default function Footer() {
   const links: Record<string, { label: string; href: string }[]> = {
     Catalog: [
       { label: "BPC-157",      href: "/products/bpc-157" },
-      { label: "Semaglutide",  href: "/products/semaglutide" },
-      { label: "Tirzepatide",  href: "/products/tirzepatide" },
-      { label: "KGLOW",        href: "/products/kglow" },
+      { label: "T1rz",         href: "/products/t1rz" },
+      { label: "R3ta",         href: "/products/r3ta" },
+      { label: "KLOW",         href: "/products/klow" },
       { label: "GHK-Cu",       href: "/products/ghk-cu" },
-      { label: "Retatrutide",  href: "/products/retatrutide" },
+      { label: "TB-500",       href: "/products/tb-500" },
+      { label: "MOTS-c",       href: "/products/mots-c" },
     ],
     Testing: [
       { label: "How We Test",          href: "/#testing" },

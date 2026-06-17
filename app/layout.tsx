@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Syne, DM_Sans, DM_Mono } from "next/font/google";
+import { Syne, DM_Sans, DM_Mono, Oswald } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import { CartProvider } from "@/lib/cartContext";
@@ -28,6 +28,13 @@ const dmMono = DM_Mono({
   display: "swap",
 });
 
+const oswald = Oswald({
+  subsets: ["latin"],
+  variable: "--font-oswald",
+  weight: ["600", "700"],
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: "Anvil Compounds — Independently Verified. Every Batch.",
   description:
@@ -42,7 +49,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="scroll-smooth" data-theme="light">
-      <body className={`${syne.variable} ${dmSans.variable} ${dmMono.variable} font-body`}>
+      <body className={`${syne.variable} ${dmSans.variable} ${dmMono.variable} ${oswald.variable} font-body`}>
         <AuthProvider>
           <CartProvider>
             <AgeGate />

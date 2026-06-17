@@ -29,22 +29,28 @@ export default function HeroSection() {
         background: "linear-gradient(135deg, #f0f5ff 0%, #f5f8ff 50%, #f8faff 100%)",
       }}
     >
-      {/* Vial image — right side, shrunk to 87% height and vertically centered */}
-      <div className="absolute right-0 inset-y-0 w-[52%] hidden md:flex items-end pointer-events-none">
-        <div className="relative w-full h-[90%]">
+      {/* Product lineup — right side, contained so nothing is cropped */}
+      <div className="absolute right-0 inset-y-0 w-[52%] hidden md:flex items-center pointer-events-none">
+        <div className="relative w-full h-full">
           <Image
-            src="/images/bannerphoto2.png"
-            alt="Anvil Compounds research vials"
+            src="/images/productcard4-cropped.png"
+            alt="Anvil Compounds research compounds"
             fill
-            className="object-cover object-[center_30%]"
+            quality={100}
+            className="object-contain"
             priority
             sizes="52vw"
           />
-          {/* Blend left edge into the light blue-grey background — vials untouched */}
+          {/* Blend all 4 edges into the hero background */}
           <div
             className="absolute inset-0"
             style={{
-              background: "linear-gradient(to right, #f5f8ff 0%, rgba(245,248,255,0.7) 18%, rgba(245,248,255,0) 38%)",
+              background: `
+                linear-gradient(to right, #f5f8ff 0%, rgba(245,248,255,0) 25%),
+                linear-gradient(to left, #f5f8ff 0%, rgba(245,248,255,0) 10%),
+                linear-gradient(to bottom, #f5f8ff 0%, rgba(245,248,255,0) 10%),
+                linear-gradient(to top, #f5f8ff 0%, #f5f8ff 5%, rgba(245,248,255,0) 16%)
+              `,
             }}
           />
         </div>
