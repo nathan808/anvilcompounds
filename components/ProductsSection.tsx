@@ -5,7 +5,6 @@ import { motion, useInView } from "framer-motion";
 import Image from "next/image";
 import type { ProductCard } from "@/lib/woocommerce";
 import { useCart } from "@/lib/cartContext";
-import ShippingBanner from "@/components/ShippingBanner";
 
 const PRODUCT_IMAGES: Record<string, string> = {
   "BPC-157":                       "/products/bpc157.png",
@@ -486,16 +485,6 @@ export default function ProductsSection() {
             </motion.div>
           </div>
         </div>
-
-        {/* Shipping banner */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={headerInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6, delay: 0.25 }}
-          className="mb-6"
-        >
-          <ShippingBanner theme="dark" />
-        </motion.div>
 
         {/* Category filter buttons */}
         {!loading && categories.length > 1 && (
