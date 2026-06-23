@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -64,24 +63,6 @@ function PostCard({ post }: { post: PostCard }) {
       href={`/blog/${post.slug}`}
       className="group flex flex-col glass-card rounded-2xl overflow-hidden hover:border-blue-500/40 hover:shadow-xl hover:shadow-blue-600/10 hover:-translate-y-1 transition-all duration-500"
     >
-      {/* Featured image */}
-      <div className="relative w-full h-52 bg-navy-800 overflow-hidden shrink-0">
-        {post.featuredImage ? (
-          <Image
-            src={post.featuredImage}
-            alt={post.title}
-            fill
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
-          />
-        ) : (
-          <div className="absolute inset-0 flex items-center justify-center mesh-bg opacity-60">
-            <span className="font-mono text-[10px] text-blue-400/30 tracking-[0.3em] uppercase">
-              Research Journal
-            </span>
-          </div>
-        )}
-      </div>
-
       {/* Card content */}
       <div className="flex flex-col flex-grow p-6">
         {/* Category + date */}

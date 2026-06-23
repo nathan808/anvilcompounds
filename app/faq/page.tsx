@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import { motion, AnimatePresence, useInView } from "framer-motion";
+import Image from "next/image";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
@@ -261,53 +262,63 @@ export default function FaqPage() {
       <Navbar />
 
       {/* ── Hero ─────────────────────────────────────────────────────────── */}
-      <section className="relative mesh-bg pt-40 pb-20 md:pt-52 md:pb-24 overflow-hidden">
-        <div
-          className="absolute inset-0 opacity-20 pointer-events-none"
-          style={{
-            backgroundImage:
-              "linear-gradient(rgba(29,106,219,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(29,106,219,0.06) 1px, transparent 1px)",
-            backgroundSize: "80px 80px",
-          }}
+      <section className="relative overflow-hidden" style={{ minHeight: "clamp(300px, 42vh, 480px)" }}>
+        {/* Same background as homepage hero */}
+        <Image
+          src="/images/hero-bg.jpeg"
+          alt=""
+          fill
+          className="object-cover object-center"
+          priority
+          sizes="100vw"
+          quality={90}
         />
-        <div className="absolute top-1/3 right-1/4 w-[500px] h-[400px] rounded-full opacity-12 blur-[100px] bg-blue-700 pointer-events-none" />
+        <div className="absolute inset-0 bg-white/25" />
 
-        <div className="relative z-10 max-w-3xl mx-auto px-6 text-center">
+        {/* Centered content with radial glow — mirrors homepage */}
+        <div className="relative z-10 flex items-center justify-center h-full w-full pt-24 pb-12 md:pt-32 md:pb-20 px-4">
           <motion.div
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="flex items-center justify-center gap-3 mb-5"
+            initial="hidden"
+            animate="show"
+            className="flex flex-col items-center text-center px-4 py-6"
+            style={{ background: "radial-gradient(ellipse 80% 90% at 50% 50%, rgba(255,255,255,0.65) 0%, rgba(255,255,255,0.18) 60%, transparent 100%)" }}
           >
-            <div className="w-6 h-px bg-blue-600" />
-            <span className="font-mono text-xs text-blue-400 tracking-[0.3em] uppercase">FAQ</span>
-            <div className="w-6 h-px bg-blue-600" />
+            <motion.div
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="flex items-center justify-center gap-3 mb-5"
+            >
+              <div className="w-6 h-px bg-blue-500" />
+              <span className="font-mono text-xs text-blue-600 tracking-[0.3em] uppercase">FAQ</span>
+              <div className="w-6 h-px bg-blue-500" />
+            </motion.div>
+
+            <motion.h1
+              initial={{ opacity: 0, y: 28 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+              className="font-display font-800 text-gray-950 mb-5"
+              style={{ fontSize: "clamp(2.4rem, 6vw, 4.2rem)", textShadow: "0 1px 12px rgba(255,255,255,0.95)" }}
+            >
+              Common{" "}
+              <span style={{ color: "#1D6ADB" }}>Questions</span>
+            </motion.h1>
+
+            <motion.p
+              initial={{ opacity: 0, y: 18 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.22 }}
+              className="font-body text-gray-700 text-base md:text-lg leading-relaxed max-w-xl"
+            >
+              Everything you need to know about ordering, testing, and research use.
+            </motion.p>
           </motion.div>
-
-          <motion.h1
-            initial={{ opacity: 0, y: 28 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-            className="font-display font-800 text-white mb-6"
-            style={{ fontSize: "clamp(2.6rem, 6vw, 4.2rem)" }}
-          >
-            Common{" "}
-            <span className="text-blue-400">Questions</span>
-          </motion.h1>
-
-          <motion.p
-            initial={{ opacity: 0, y: 18 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.22 }}
-            className="font-body text-white/45 text-lg leading-relaxed"
-          >
-            Everything you need to know about ordering, testing, and research use.
-          </motion.p>
         </div>
       </section>
 
       {/* ── Accordion ────────────────────────────────────────────────────── */}
-      <section className="bg-navy-900 py-16 md:py-24">
+      <section className="bg-navy-900 py-12 md:py-20">
         <div className="max-w-3xl mx-auto px-6">
           {faqs.map((group, gi) => (
             <CategoryGroup
