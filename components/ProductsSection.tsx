@@ -24,55 +24,64 @@ const PRODUCT_IMAGES: Record<string, string> = {
 
 // Size variants shown on catalog cards
 const PRODUCT_SIZES: Record<string, string[]> = {
-  "BPC-157":                       ["10mg"],
-  "T1rz":                          ["10mg", "20mg"],
-  "R3ta":                          ["10mg", "20mg"],
-  "KLOW":                          ["80mg blend"],
-  "GHK-Cu":                        ["50mg", "100mg"],
-  "TB-500":                        ["10mg"],
-  "MOTS-c":                        ["10mg"],
-  "Bacteriostatic Water":          ["30mL × 1"],
-  "Wolverine — BPC-157 + TB-500":  ["5mg BPC-157 + 5mg TB-500"],
-  "NAD+":                          ["500mg"],
-  "Tesamorelin":                   ["10mg"],
-  "CJC-1295 + Ipamorelin":         ["5mg + 5mg blend"],
-  "5-Amino-1MQ":                   ["5mg", "10mg"],
-  "GLOW":                          ["70mg blend"],
+  "BPC-157":                                      ["10mg"],
+  "T1rz":                                         ["10mg", "20mg"],
+  "Trz- dual receptor":                           ["10mg", "20mg"],
+  "R3ta":                                         ["10mg", "20mg"],
+  "Rta - triple agonist":                         ["10mg", "20mg"],
+  "KLOW":                                         ["80mg blend"],
+  "GHK-Cu":                                       ["50mg", "100mg"],
+  "TB-500":                                       ["10mg"],
+  "MOTS-c":                                       ["10mg"],
+  "Bacteriostatic Water":                         ["30mL × 1"],
+  "Reconstitution Solution – for Laboratory Use": ["30mL × 1"],
+  "Wolverine — BPC-157 + TB-500":                 ["5mg BPC-157 + 5mg TB-500"],
+  "NAD+":                                         ["500mg"],
+  "Tesamorelin":                                  ["10mg"],
+  "CJC-1295 + Ipamorelin":                        ["5mg + 5mg blend"],
+  "5-Amino-1MQ":                                  ["5mg", "10mg"],
+  "GLOW":                                         ["70mg blend"],
 };
 
 const SLUG_MAP: Record<string, string> = {
-  "BPC-157":                       "bpc-157",
-  "T1rz":                          "t1rz",
-  "R3ta":                          "r3ta",
-  "KLOW":                          "klow",
-  "GHK-Cu":                        "ghk-cu",
-  "TB-500":                        "tb-500",
-  "MOTS-c":                        "mots-c",
-  "Bacteriostatic Water":          "bac-water",
-  "Wolverine — BPC-157 + TB-500":  "wolverine",
-  "NAD+":                          "nad-plus",
-  "Tesamorelin":                   "tesamorelin",
-  "CJC-1295 + Ipamorelin":         "cjc-1295-ipamorelin",
-  "5-Amino-1MQ":                   "5-amino-1mq",
-  "GLOW":                          "glow",
+  "BPC-157":                                      "bpc-157",
+  "T1rz":                                         "t1rz",
+  "Trz- dual receptor":                           "t1rz",
+  "R3ta":                                         "r3ta",
+  "Rta - triple agonist":                         "r3ta",
+  "KLOW":                                         "klow",
+  "GHK-Cu":                                       "ghk-cu",
+  "TB-500":                                       "tb-500",
+  "MOTS-c":                                       "mots-c",
+  "Bacteriostatic Water":                         "bac-water",
+  "Reconstitution Solution – for Laboratory Use": "bac-water",
+  "Wolverine — BPC-157 + TB-500":                 "wolverine",
+  "NAD+":                                         "nad-plus",
+  "Tesamorelin":                                  "tesamorelin",
+  "CJC-1295 + Ipamorelin":                        "cjc-1295-ipamorelin",
+  "5-Amino-1MQ":                                  "5-amino-1mq",
+  "GLOW":                                         "glow",
 };
 
 // Popularity rank — lower = more popular (shown first)
 const POPULARITY_ORDER: Record<string, number> = {
-  "BPC-157":                       1,
-  "Wolverine — BPC-157 + TB-500":  2,
-  "T1rz":                          3,
-  "R3ta":                          4,
-  "KLOW":                          5,
-  "GLOW":                          6,
-  "TB-500":                        7,
-  "GHK-Cu":                        8,
-  "NAD+":                          9,
-  "MOTS-c":                        10,
-  "CJC-1295 + Ipamorelin":         11,
-  "Tesamorelin":                   12,
-  "5-Amino-1MQ":                   13,
-  "Bacteriostatic Water":          99,
+  "BPC-157":                                      1,
+  "Wolverine — BPC-157 + TB-500":                 2,
+  "T1rz":                                         3,
+  "Trz- dual receptor":                           3,
+  "R3ta":                                         4,
+  "Rta - triple agonist":                         4,
+  "KLOW":                                         5,
+  "GLOW":                                         6,
+  "TB-500":                                       7,
+  "GHK-Cu":                                       8,
+  "NAD+":                                         9,
+  "MOTS-c":                                       10,
+  "CJC-1295 + Ipamorelin":                        11,
+  "Tesamorelin":                                  12,
+  "5-Amino-1MQ":                                  13,
+  "Bacteriostatic Water":                         99,
+  "Reconstitution Solution – for Laboratory Use": 99,
 };
 
 // Canonical category display order
@@ -240,28 +249,20 @@ function ProductCard({ product, index }: { product: ProductCard; index: number }
       <div className="glass-card rounded-xl overflow-hidden h-full flex flex-col transition-all duration-500 hover:border-blue-500/40 hover:shadow-xl hover:shadow-blue-600/10 hover:-translate-y-1">
 
         {/* Product image */}
-        <div className="relative w-full h-[168px] md:h-[248px] bg-navy-800 overflow-hidden shrink-0">
+        <div className="relative w-full h-[210px] md:h-[300px] bg-white overflow-hidden shrink-0">
           {product.image ? (
-            <>
-              {/* Blurred ambient fill — fills any edge gaps */}
-              <Image
-                src={product.image}
-                alt=""
-                fill
-                aria-hidden="true"
-                className="object-cover scale-125 blur-lg brightness-90 saturate-110"
-              />
-              {/* Main image — contained so label is never clipped, slight scale for focal zoom */}
+            <div className="absolute inset-0">
               <Image
                 src={product.image}
                 alt={product.name}
                 fill
-                className="object-contain scale-[1.05] z-10 transition-transform duration-500 group-hover:scale-110"
+                className="object-contain scale-[1.15] md:scale-[1.2] transition-transform duration-500 group-hover:scale-[1.21] md:group-hover:scale-[1.27]"
+                sizes="(max-width: 768px) 50vw, 33vw"
               />
-            </>
+            </div>
           ) : (
             <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-5xl text-blue-400/30">{product.icon}</span>
+              <span className="text-5xl text-blue-300/40">{product.icon}</span>
             </div>
           )}
           {/* Badge overlay */}
@@ -346,7 +347,7 @@ function ProductCard({ product, index }: { product: ProductCard; index: number }
 function SkeletonCard() {
   return (
     <div className="glass-card rounded-xl overflow-hidden animate-pulse">
-      <div className="w-full h-[168px] md:h-[248px] bg-white/5" />
+      <div className="w-full h-[210px] md:h-[300px] bg-white/5" />
       <div className="p-3 md:p-5 space-y-2 md:space-y-3">
         <div className="w-1/2 h-4 md:h-5 bg-white/5 rounded" />
         <div className="w-1/3 h-2.5 md:h-3 bg-white/5 rounded" />
