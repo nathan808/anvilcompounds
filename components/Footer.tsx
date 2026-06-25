@@ -75,6 +75,17 @@ export default function Footer() {
               support@anvilcompounds.shop
             </a>
 
+            {/* Phone */}
+            <a
+              href="tel:6196534735"
+              className="flex items-center gap-2 text-blue-400 hover:text-blue-300 font-mono text-xs tracking-wider transition-colors animated-underline mb-4"
+            >
+              <svg viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 shrink-0">
+                <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
+              </svg>
+              (619) 653-4735
+            </a>
+
             {/* Address */}
             <div className="flex items-start gap-2 font-mono text-xs text-white/30 tracking-wider leading-relaxed">
               <svg className="w-3.5 h-3.5 text-white/20 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -145,6 +156,11 @@ export default function Footer() {
               </p>
             </div>
           </div>
+
+          {/* Billing notice */}
+          <p className="font-mono text-xs text-white/30 text-center mb-6">
+            All transactions will appear on your statement as <span className="text-white/50">Anvil Holdings LLC</span>
+          </p>
 
           {/* Bottom bar */}
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
