@@ -84,6 +84,8 @@ export default function ProductPageTemplate({
 }: {
   product: ProductPageData;
 }) {
+  const hasCoa = !!product.documentationFile;
+
   return (
     <>
       {/* ── SECTION 1 — Hero header ───────────────────────────────────────── */}
@@ -91,12 +93,15 @@ export default function ProductPageTemplate({
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 xl:gap-20 items-start">
 
-            {/* Left — product image */}
-            <ProductImageGallery
-              productImage={product.image}
-              productName={product.name}
-              coaImage={product.documentationImage}
-            />
+            {/* Left — product image + shipping banner */}
+            <div className="space-y-5">
+              <ProductImageGallery
+                productImage={product.image}
+                productName={product.name}
+                coaImage={product.documentationImage}
+              />
+              <ShippingBanner theme="dark" />
+            </div>
 
             {/* Right — buy column */}
             <div className="lg:sticky lg:top-24 space-y-5">
@@ -134,7 +139,7 @@ export default function ProductPageTemplate({
                 fileUrl={product.documentationFile}
               />
 
-              {/* Add to cart — price display is inside AddToCartButton (client) so it updates on size select */}
+              {/* Add to cart */}
               <AddToCartButton
                 slug={product.slug}
                 name={product.name}
@@ -142,10 +147,9 @@ export default function ProductPageTemplate({
                 sizesPrices={product.sizesPrices}
                 priceNumber={product.priceNumber}
                 wcProductId={product.wcProductId}
+                hasCoa={hasCoa}
               />
 
-              {/* Shipping banner — visible immediately after price/cart */}
-              <ShippingBanner theme="dark" />
             </div>
           </div>
         </div>
@@ -170,51 +174,9 @@ export default function ProductPageTemplate({
         </div>
       </section>
 
-      {/* ── SECTION 3 — What it is ────────────────────────────────────────── */}
-      <Section bg="navy-950">
-        <SectionLabel number="01" label="What it is" />
-        <div className="glass-card rounded-2xl p-8">
-          <p className="font-display font-700 text-white text-xl mb-4">
-            {product.whatItIsSubtitle}
-          </p>
-          <p className="font-body text-white/60 leading-relaxed">
-            {product.whatItIsBody}
-          </p>
-        </div>
-      </Section>
-
-      {/* ── SECTION 4 — Composition (conditional) ────────────────────────── */}
-      {product.compositionBody && (
-        <Section bg="navy-900">
-          <SectionLabel number="02" label="Composition" />
-          <div className="glass-card rounded-2xl p-8">
-            <p className="font-body text-white/60 leading-relaxed">
-              {product.compositionBody}
-            </p>
-          </div>
-        </Section>
-      )}
-
-      {/* ── SECTION 5 — Research applications ───────────────────────────── */}
-      <Section bg="navy-950">
-        <SectionLabel number="03" label="Research Applications" />
-        <div className="glass-card rounded-2xl p-8">
-          <ol className="space-y-5">
-            {product.researchApplications.map((item, i) => (
-              <li key={i} className="flex items-start gap-5">
-                <span className="shrink-0 font-mono text-xs text-blue-600/60 w-6 pt-0.5 tabular-nums">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <p className="font-body text-white/65 leading-relaxed">{item}</p>
-              </li>
-            ))}
-          </ol>
-        </div>
-      </Section>
-
-      {/* ── SECTION 6 — Documentation ────────────────────────────────────── */}
+      {/* ── SECTION 3 — Documentation & Quality (moved to top) ───────────── */}
       <Section bg="navy-900">
-        <SectionLabel number="04" label={product.documentationHeading} />
+        <SectionLabel number="01" label={product.documentationHeading} />
 
         {/* Metrics grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
@@ -237,18 +199,8 @@ export default function ProductPageTemplate({
             download
             className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-display font-700 text-sm transition-all duration-200 hover:shadow-lg hover:shadow-blue-600/30"
           >
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-              />
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
             Download COA
           </a>
@@ -257,18 +209,8 @@ export default function ProductPageTemplate({
             disabled
             className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white/5 border border-white/10 text-white/30 font-display font-700 text-sm opacity-40 cursor-not-allowed"
           >
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-              />
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
             COA Pending
           </button>
@@ -282,8 +224,50 @@ export default function ProductPageTemplate({
         )}
       </Section>
 
-      {/* ── SECTION 7 — Properties table ─────────────────────────────────── */}
+      {/* ── SECTION 4 — What it is ────────────────────────────────────────── */}
       <Section bg="navy-950">
+        <SectionLabel number="02" label="What it is" />
+        <div className="glass-card rounded-2xl p-8">
+          <p className="font-display font-700 text-white text-xl mb-4">
+            {product.whatItIsSubtitle}
+          </p>
+          <p className="font-body text-white/60 leading-relaxed">
+            {product.whatItIsBody}
+          </p>
+        </div>
+      </Section>
+
+      {/* ── SECTION 5 — Composition (conditional) ────────────────────────── */}
+      {product.compositionBody && (
+        <Section bg="navy-900">
+          <SectionLabel number="03" label="Composition" />
+          <div className="glass-card rounded-2xl p-8">
+            <p className="font-body text-white/60 leading-relaxed">
+              {product.compositionBody}
+            </p>
+          </div>
+        </Section>
+      )}
+
+      {/* ── SECTION 6 — Research applications ───────────────────────────── */}
+      <Section bg="navy-950">
+        <SectionLabel number="04" label="Research Applications" />
+        <div className="glass-card rounded-2xl p-8">
+          <ol className="space-y-5">
+            {product.researchApplications.map((item, i) => (
+              <li key={i} className="flex items-start gap-5">
+                <span className="shrink-0 font-mono text-xs text-blue-600/60 w-6 pt-0.5 tabular-nums">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <p className="font-body text-white/65 leading-relaxed">{item}</p>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </Section>
+
+      {/* ── SECTION 7 — Properties table ─────────────────────────────────── */}
+      <Section bg="navy-900">
         <SectionLabel number="05" label="Properties" />
         <div className="glass-card rounded-2xl overflow-hidden">
           <table className="w-full">
@@ -308,21 +292,23 @@ export default function ProductPageTemplate({
         </div>
       </Section>
 
-      {/* ── SECTION 9 — Research use confirmation ────────────────────────── */}
-      <Section bg="navy-950">
-        <div className="glass-card rounded-2xl p-8 border-l-4 border-blue-600">
-          <p className="font-body text-sm text-white/50 leading-relaxed">
-            By completing your order you confirm all products are purchased for
-            legitimate in vitro laboratory research purposes only — not for human
-            or veterinary injection or therapeutic use. Anvil Compounds is not a
-            pharmacy or compounding facility.
-          </p>
+      {/* ── RUO disclaimer — tighter top spacing ─────────────────────────── */}
+      <section className="bg-navy-900 pb-12">
+        <div className="max-w-5xl mx-auto px-6">
+          <div className="glass-card rounded-2xl p-8 border-l-4 border-blue-600">
+            <p className="font-body text-sm text-white/50 leading-relaxed">
+              By completing your order you confirm all products are purchased for
+              legitimate in vitro laboratory research purposes only — not for human
+              or veterinary injection or therapeutic use. Anvil Compounds is not a
+              pharmacy or compounding facility.
+            </p>
+          </div>
         </div>
-      </Section>
+      </section>
 
-      {/* ── SECTION 10 — Related compounds ───────────────────────────────── */}
+      {/* ── SECTION 8 — Related compounds ────────────────────────────────── */}
       {product.relatedProducts.length > 0 && (
-        <Section bg="navy-900">
+        <Section bg="navy-950">
           <SectionLabel number="06" label="Related Compounds" />
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {product.relatedProducts.map((rel) => (
@@ -349,7 +335,7 @@ export default function ProductPageTemplate({
         </Section>
       )}
 
-      {/* ── SECTION 11 — Footer compliance ───────────────────────────────── */}
+      {/* ── Footer compliance ─────────────────────────────────────────────── */}
       <section className="bg-navy-950 border-t border-white/5 py-8">
         <div className="max-w-5xl mx-auto px-6 text-center">
           <p className="font-mono text-[10px] text-white/20 tracking-wide leading-relaxed">

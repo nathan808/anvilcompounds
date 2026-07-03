@@ -22,8 +22,8 @@ const SLUG_TO_WC_ID: Record<string, number> = {
 
 const SLUG_TO_NAME: Record<string, string> = {
   "bpc-157":    "BPC-157",
-  "t1rz":       "T1rz",
-  "r3ta":       "R3ta",
+  "t1rz":       "Dual Receptor (T)",
+  "r3ta":       "Triple Agonist (R)",
   "klow":       "KLOW",
   "ghk-cu":     "GHK-Cu",
   "tb-500":     "TB-500",
@@ -294,15 +294,21 @@ export interface ProductCard {
   icon: string;
   permalink: string;
   image: string | null;
+  hasCoa: boolean;
 }
+
+// Products without COA yet (DRAFT SKUs pending lab verification)
+const IDS_WITHOUT_COA = new Set([443, 445, 446, 450, 447, 449]);
 
 const PRODUCT_PAGE_URLS: Record<string, string> = {
   "BPC-157":                                      "https://anvilcompounds.shop/product/bpc-157/",
   "T1rz":                                         "https://anvilcompounds.shop/product/t1rz/",
   "Trz- dual receptor":                           "https://anvilcompounds.shop/product/trz/",
+  "Dual Receptor (T)":                            "https://anvilcompounds.shop/product/t1rz/",
   "R3ta":                                         "https://anvilcompounds.shop/product/r3ta/",
   "Rta - triple agonist":                         "https://anvilcompounds.shop/product/rta/",
   "triple agonist (R)":                           "https://anvilcompounds.shop/product/rta/",
+  "Triple Agonist (R)":                           "https://anvilcompounds.shop/product/r3ta/",
   "KLOW":                                         "https://anvilcompounds.shop/product/klow/",
   "GHK-Cu":                                       "https://anvilcompounds.shop/product/ghk-cu/",
   "TB-500":                                       "https://anvilcompounds.shop/product/tb-500/",
@@ -316,9 +322,11 @@ const LOCAL_PRODUCT_IMAGES: Record<string, string> = {
   "BPC-157":                                      "/products/bpc157.png",
   "T1rz":                                         "/products/tirz.png",
   "Trz- dual receptor":                           "/products/tirz.png",
+  "Dual Receptor (T)":                            "/products/tirz.png",
   "R3ta":                                         "/products/reta.png",
   "Rta - triple agonist":                         "/products/reta.png",
   "triple agonist (R)":                           "/products/reta.png",
+  "Triple Agonist (R)":                           "/products/reta.png",
   "KLOW":                                         "/products/klow.png",
   "GHK-Cu":                                       "/products/ghkcu.png",
   "TB-500":                                       "/products/tb500.png",
@@ -345,6 +353,7 @@ export function mapProduct(product: WCProduct, index: number): ProductCard {
     icon:        ICONS[index % ICONS.length],
     permalink:   PRODUCT_PAGE_URLS[product.name] ?? product.permalink,
     image:       LOCAL_PRODUCT_IMAGES[product.name] ?? product.images[0]?.src ?? null,
+    hasCoa:      !IDS_WITHOUT_COA.has(product.id),
   };
 }
 

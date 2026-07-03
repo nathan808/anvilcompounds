@@ -9,7 +9,9 @@ import { useCart } from "@/lib/cartContext";
 const PRODUCT_IMAGES: Record<string, string> = {
   "BPC-157":                       "/products/bpc157.png",
   "T1rz":                          "/products/tirz.png",
+  "Dual Receptor (T)":             "/products/tirz.png",
   "R3ta":                          "/products/reta.png",
+  "Triple Agonist (R)":            "/products/reta.png",
   "triple agonist (R)":            "/products/reta.png",
   "KLOW":                          "/products/klow.png",
   "GHK-Cu":                        "/products/ghkcu.png",
@@ -28,9 +30,11 @@ const PRODUCT_SIZES: Record<string, string[]> = {
   "BPC-157":                                      ["10mg"],
   "T1rz":                                         ["10mg", "20mg"],
   "Trz- dual receptor":                           ["10mg", "20mg"],
+  "Dual Receptor (T)":                            ["10mg", "20mg"],
   "R3ta":                                         ["10mg", "20mg"],
   "Rta - triple agonist":                         ["10mg", "20mg"],
   "triple agonist (R)":                           ["10mg", "20mg"],
+  "Triple Agonist (R)":                           ["10mg", "20mg"],
   "KLOW":                                         ["80mg blend"],
   "GHK-Cu":                                       ["50mg", "100mg"],
   "TB-500":                                       ["10mg"],
@@ -52,6 +56,8 @@ const SLUG_MAP: Record<string, string> = {
   "R3ta":                                         "r3ta",
   "Rta - triple agonist":                         "r3ta",
   "triple agonist (R)":                           "r3ta",
+  "Triple Agonist (R)":                           "r3ta",
+  "Dual Receptor (T)":                            "t1rz",
   "KLOW":                                         "klow",
   "GHK-Cu":                                       "ghk-cu",
   "TB-500":                                       "tb-500",
@@ -72,9 +78,11 @@ const POPULARITY_ORDER: Record<string, number> = {
   "BPC-157 + TB-500":                              2,
   "T1rz":                                         3,
   "Trz- dual receptor":                           3,
+  "Dual Receptor (T)":                            3,
   "R3ta":                                         4,
   "Rta - triple agonist":                         4,
   "triple agonist (R)":                           4,
+  "Triple Agonist (R)":                           4,
   "KLOW":                                         5,
   "GLOW":                                         6,
   "TB-500":                                       7,
@@ -103,123 +111,15 @@ function slugifyProductName(name: string): string {
 }
 
 const FALLBACK_PRODUCTS: ProductCard[] = [
-  {
-    id: 332,
-    name: "BPC-157",
-    category: "Repair & Recovery Research",
-    description: "Body Protection Compound — a pentadecapeptide with notable tissue healing and regenerative properties under research conditions.",
-    price: "$44",
-    purity: "99.4%",
-    badge: "Bestseller",
-    badgeColor: "bg-blue-600/70 text-blue-100 border-blue-500/50",
-    icon: "⬡",
-    permalink: "https://anvilcompounds.shop/product/bpc-157/",
-    image: "/products/bpc157.png",
-  },
-  {
-    id: 447,
-    name: "BPC-157 + TB-500",
-    category: "Repair & Recovery Research",
-    description: "Dual peptide recovery blend combining BPC-157 and TB-500 — studied for synergistic effects in tissue repair and cell migration research models.",
-    price: "$54",
-    purity: "99%+",
-    badge: "Recovery Blend",
-    badgeColor: "bg-orange-600/70 text-orange-100 border-orange-500/50",
-    icon: "⬧",
-    permalink: "https://anvilcompounds.shop/product/bpc-157-tb-500/",
-    image: "/products/wolverine.png",
-  },
-  {
-    id: 333,
-    name: "T1rz",
-    category: "Metabolic Research",
-    description: "A dual incretin receptor agonist binding both GIP and GLP-1 receptors, under active clinical research.",
-    price: "$54",
-    purity: "99.1%",
-    badge: "Advanced",
-    badgeColor: "bg-cyan-600/70 text-cyan-100 border-cyan-500/50",
-    icon: "◇",
-    permalink: "https://anvilcompounds.shop/product/t1rz/",
-    image: "/products/tirz.png",
-  },
-  {
-    id: 337,
-    name: "R3ta",
-    category: "Metabolic Research",
-    description: "A triple receptor agonist targeting GIP, GLP-1, and glucagon receptors — at the frontier of current metabolic research.",
-    price: "$64",
-    purity: "99.0%",
-    badge: "Cutting Edge",
-    badgeColor: "bg-rose-600/70 text-rose-100 border-rose-500/50",
-    icon: "⬟",
-    permalink: "https://anvilcompounds.shop/product/r3ta/",
-    image: "/products/reta.png",
-  },
-  {
-    id: 335,
-    name: "KLOW",
-    category: "Longevity & Cosmetic Research",
-    description: "A curated blend of four research-grade peptides, independently tested as a combined formulation.",
-    price: "$89",
-    purity: "99.3%",
-    badge: "Exclusive Blend",
-    badgeColor: "bg-purple-600/70 text-purple-100 border-purple-500/50",
-    icon: "✦",
-    permalink: "https://anvilcompounds.shop/product/klow/",
-    image: "/products/klow.png",
-  },
-  {
-    id: 354,
-    name: "TB-500",
-    category: "Repair & Recovery Research",
-    description: "Synthetic analogue of Thymosin Beta-4, studied in cell migration, actin dynamics, and tissue modeling research models.",
-    price: "$64",
-    purity: "99%+",
-    badge: "Recovery",
-    badgeColor: "bg-amber-600/70 text-amber-100 border-amber-500/50",
-    icon: "◉",
-    permalink: "https://anvilcompounds.shop/product/tb-500/",
-    image: "/products/tb500.png",
-  },
-  {
-    id: 336,
-    name: "GHK-Cu",
-    category: "Longevity & Cosmetic Research",
-    description: "A naturally occurring copper complex with extensive research into cellular remodeling and tissue response.",
-    price: "$34",
-    purity: "99.5%",
-    badge: "Entry Point",
-    badgeColor: "bg-teal-600/70 text-teal-100 border-teal-500/50",
-    icon: "⬢",
-    permalink: "https://anvilcompounds.shop/product/ghk-cu/",
-    image: "/products/ghkcu.png",
-  },
-  {
-    id: 346,
-    name: "MOTS-c",
-    category: "Metabolic Research",
-    description: "Mitochondrial-derived peptide studied in mitochondrial-nuclear communication, glucose metabolism, and cellular stress response.",
-    price: "$44",
-    purity: "99%+",
-    badge: "Metabolic",
-    badgeColor: "bg-violet-600/70 text-violet-100 border-violet-500/50",
-    icon: "⬥",
-    permalink: "https://anvilcompounds.shop/product/mots-c/",
-    image: "/products/motsc.png",
-  },
-  {
-    id: 349,
-    name: "Bacteriostatic Water",
-    category: "Research Supplies",
-    description: "0.9% benzyl alcohol sterile water. Standard reconstitution solvent for lyophilized peptide research. 30mL multi-use vial.",
-    price: "$15",
-    purity: "Sterility Certified",
-    badge: "Essential Supply",
-    badgeColor: "bg-slate-600/70 text-slate-100 border-slate-500/50",
-    icon: "◎",
-    permalink: "https://anvilcompounds.shop/product/bac-water/",
-    image: null,
-  },
+  { id: 332, name: "BPC-157", category: "Repair & Recovery Research", description: "Body Protection Compound — a pentadecapeptide with notable tissue healing and regenerative properties under research conditions.", price: "$44", purity: "99.4%", badge: "Bestseller", badgeColor: "bg-blue-600/70 text-blue-100 border-blue-500/50", icon: "⬡", permalink: "https://anvilcompounds.shop/product/bpc-157/", image: "/products/bpc157.png", hasCoa: true },
+  { id: 447, name: "BPC-157 + TB-500", category: "Repair & Recovery Research", description: "Dual peptide recovery blend combining BPC-157 and TB-500 — studied for synergistic effects in tissue repair and cell migration research models.", price: "$54", purity: "99%+", badge: "Recovery Blend", badgeColor: "bg-orange-600/70 text-orange-100 border-orange-500/50", icon: "⬧", permalink: "https://anvilcompounds.shop/product/bpc-157-tb-500/", image: "/products/wolverine.png", hasCoa: false },
+  { id: 333, name: "Dual Receptor (T)", category: "Metabolic Research", description: "A dual incretin receptor agonist binding both GIP and GLP-1 receptors, under active clinical research.", price: "$54", purity: "99.1%", badge: "Advanced", badgeColor: "bg-cyan-600/70 text-cyan-100 border-cyan-500/50", icon: "◇", permalink: "https://anvilcompounds.shop/product/t1rz/", image: "/products/tirz.png", hasCoa: true },
+  { id: 337, name: "Triple Agonist (R)", category: "Metabolic Research", description: "A triple receptor agonist targeting GIP, GLP-1, and glucagon receptors — at the frontier of current metabolic research.", price: "$64", purity: "99.0%", badge: "Cutting Edge", badgeColor: "bg-rose-600/70 text-rose-100 border-rose-500/50", icon: "⬟", permalink: "https://anvilcompounds.shop/product/r3ta/", image: "/products/reta.png", hasCoa: true },
+  { id: 335, name: "KLOW", category: "Longevity & Cosmetic Research", description: "A curated blend of four research-grade peptides, independently tested as a combined formulation.", price: "$89", purity: "99.3%", badge: "Exclusive Blend", badgeColor: "bg-purple-600/70 text-purple-100 border-purple-500/50", icon: "✦", permalink: "https://anvilcompounds.shop/product/klow/", image: "/products/klow.png", hasCoa: true },
+  { id: 354, name: "TB-500", category: "Repair & Recovery Research", description: "Synthetic analogue of Thymosin Beta-4, studied in cell migration, actin dynamics, and tissue modeling research models.", price: "$64", purity: "99%+", badge: "Recovery", badgeColor: "bg-amber-600/70 text-amber-100 border-amber-500/50", icon: "◉", permalink: "https://anvilcompounds.shop/product/tb-500/", image: "/products/tb500.png", hasCoa: true },
+  { id: 336, name: "GHK-Cu", category: "Longevity & Cosmetic Research", description: "A naturally occurring copper complex with extensive research into cellular remodeling and tissue response.", price: "$34", purity: "99.5%", badge: "Entry Point", badgeColor: "bg-teal-600/70 text-teal-100 border-teal-500/50", icon: "⬢", permalink: "https://anvilcompounds.shop/product/ghk-cu/", image: "/products/ghkcu.png", hasCoa: true },
+  { id: 346, name: "MOTS-c", category: "Metabolic Research", description: "Mitochondrial-derived peptide studied in mitochondrial-nuclear communication, glucose metabolism, and cellular stress response.", price: "$44", purity: "99%+", badge: "Metabolic", badgeColor: "bg-violet-600/70 text-violet-100 border-violet-500/50", icon: "⬥", permalink: "https://anvilcompounds.shop/product/mots-c/", image: "/products/motsc.png", hasCoa: true },
+  { id: 349, name: "Bacteriostatic Water", category: "Research Supplies", description: "0.9% benzyl alcohol sterile water. Standard reconstitution solvent for lyophilized peptide research. 30mL multi-use vial.", price: "$15", purity: "Sterility Certified", badge: "Essential Supply", badgeColor: "bg-slate-600/70 text-slate-100 border-slate-500/50", icon: "◎", permalink: "https://anvilcompounds.shop/product/bac-water/", image: null, hasCoa: true },
 ];
 
 function ProductCard({ product, index }: { product: ProductCard; index: number }) {
@@ -253,15 +153,15 @@ function ProductCard({ product, index }: { product: ProductCard; index: number }
       <div className="glass-card rounded-xl overflow-hidden h-full flex flex-col transition-all duration-500 hover:border-blue-500/40 hover:shadow-xl hover:shadow-blue-600/10 hover:-translate-y-1">
 
         {/* Product image */}
-        <div className="relative w-full h-[210px] md:h-[300px] bg-white overflow-hidden shrink-0">
+        <div className="relative w-full h-[210px] md:h-[240px] bg-white overflow-hidden shrink-0">
           {product.image ? (
             <div className="absolute inset-0">
               <Image
                 src={product.image}
                 alt={product.name}
                 fill
-                className="object-contain scale-[1.15] md:scale-[1.2] transition-transform duration-500 group-hover:scale-[1.21] md:group-hover:scale-[1.27]"
-                sizes="(max-width: 768px) 50vw, 33vw"
+                className="object-contain scale-[1.7] transition-transform duration-500 group-hover:scale-[1.8]"
+                sizes="(max-width: 768px) 50vw, 25vw"
               />
             </div>
           ) : (
@@ -275,6 +175,15 @@ function ProductCard({ product, index }: { product: ProductCard; index: number }
               {product.badge}
             </span>
           </div>
+          {/* COA-pending blur overlay */}
+          {!product.hasCoa && (
+            <div className="absolute inset-0 z-10 backdrop-blur-sm bg-navy-950/60 flex flex-col items-center justify-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-yellow-400 animate-pulse" />
+              <span className="font-mono text-[10px] text-yellow-300 tracking-[0.18em] uppercase text-center px-2">
+                Testing in Progress
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Card content */}
@@ -330,16 +239,22 @@ function ProductCard({ product, index }: { product: ProductCard; index: number }
               >
                 View
               </a>
-              <button
-                onClick={handleAddToCart}
-                className={`flex-1 text-center px-2 md:px-3 py-1.5 md:py-2 border text-xs md:text-sm font-display font-600 rounded-lg transition-all duration-300 ${
-                  added
-                    ? "bg-green-600/20 border-green-500/40 text-green-300"
-                    : "bg-blue-600/20 hover:bg-blue-600 border-blue-600/30 hover:border-blue-500 text-blue-300 hover:text-white"
-                }`}
-              >
-                {added ? "✓ Added" : "Add to Cart"}
-              </button>
+              {product.hasCoa ? (
+                <button
+                  onClick={handleAddToCart}
+                  className={`flex-1 text-center px-2 md:px-3 py-1.5 md:py-2 border text-xs md:text-sm font-display font-600 rounded-lg transition-all duration-300 ${
+                    added
+                      ? "bg-green-600/20 border-green-500/40 text-green-300"
+                      : "bg-blue-600/20 hover:bg-blue-600 border-blue-600/30 hover:border-blue-500 text-blue-300 hover:text-white"
+                  }`}
+                >
+                  {added ? "✓ Added" : "Add to Cart"}
+                </button>
+              ) : (
+                <span className="flex-1 text-center px-2 md:px-3 py-1.5 md:py-2 border border-yellow-500/20 bg-yellow-500/5 text-yellow-400/70 text-[10px] md:text-xs font-mono rounded-lg cursor-default">
+                  Testing in Progress
+                </span>
+              )}
             </div>
           </div>
         </div>
@@ -522,7 +437,7 @@ export default function ProductsSection() {
         )}
 
         {/* Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-5">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
           {loading
             ? Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)
             : filtered.length > 0
@@ -535,7 +450,7 @@ export default function ProductsSection() {
                   </div>
                 ))
               : (
-                <div className="col-span-2 md:col-span-3 text-center py-16 text-white/30 font-body">
+                <div className="col-span-2 md:col-span-3 lg:col-span-4 text-center py-16 text-white/30 font-body">
                   No compounds match &ldquo;{search}&rdquo;
                 </div>
               )

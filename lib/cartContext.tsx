@@ -1,19 +1,21 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { getDiscountedPrice } from "@/lib/volumePricing";
 
 export interface CartItem {
   slug: string;
   name: string;
   size: string;
   price: number;
+  basePrice?: number;
   wcProductId: number;
   quantity: number;
 }
 
 interface CartContextType {
   items: CartItem[];
-  addItem: (item: Omit<CartItem, "quantity">) => void;
+  addItem: (item: Omit<CartItem, "quantity">, qty?: number) => void;
   removeItem: (slug: string, size: string) => void;
   updateQty: (slug: string, size: string, qty: number) => void;
   clearCart: () => void;
@@ -54,17 +56,21 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   }, [items, hydrated]);
 
-  const addItem = (item: Omit<CartItem, "quantity">) => {
+  const addItem = (item: Omit<CartItem, "quantity">, qty = 1) => {
     setItems((prev) => {
       const existing = prev.find((i) => i.slug === item.slug && i.size === item.size);
       if (existing) {
+        const newQty = existing.quantity + qty;
+        const base = existing.basePrice ?? existing.price;
         return prev.map((i) =>
           i.slug === item.slug && i.size === item.size
-            ? { ...i, quantity: i.quantity + 1 }
+            ? { ...i, quantity: newQty, price: getDiscountedPrice(base, newQty), basePrice: base }
             : i
         );
       }
-      return [...prev, { ...item, quantity: 1 }];
+      const base = item.basePrice ?? item.price;
+      const discountedPrice = getDiscountedPrice(base, qty);
+      return [...prev, { ...item, quantity: qty, price: discountedPrice, basePrice: base }];
     });
 
     // Fire-and-forget Omnisend "Added to Cart" event — never blocks cart
@@ -92,7 +98,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const updateQty = (slug: string, size: string, qty: number) => {
     if (qty <= 0) { removeItem(slug, size); return; }
     setItems((prev) =>
-      prev.map((i) => i.slug === slug && i.size === size ? { ...i, quantity: qty } : i)
+      prev.map((i) => {
+        if (i.slug !== slug || i.size !== size) return i;
+        const base = i.basePrice ?? i.price;
+        return { ...i, quantity: qty, price: getDiscountedPrice(base, qty), basePrice: base };
+      })
     );
   };
 

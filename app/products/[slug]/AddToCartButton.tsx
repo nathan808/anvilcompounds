@@ -3,6 +3,13 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useCart } from "@/lib/cartContext";
+import {
+  VOLUME_TIERS,
+  getVolumeDiscount,
+  getDiscountedPrice,
+  getVolumeCTAText,
+  getActiveTierIndex,
+} from "@/lib/volumePricing";
 
 interface Props {
   slug: string;
@@ -11,33 +18,102 @@ interface Props {
   sizesPrices: number[];
   priceNumber: number;
   wcProductId: number;
+  hasCoa: boolean;
 }
 
-export default function AddToCartButton({ slug, name, sizes, sizesPrices, priceNumber, wcProductId }: Props) {
+const QUICK_PICKS = [1, 2, 5, 6, 10];
+
+export default function AddToCartButton({
+  slug,
+  name,
+  sizes,
+  sizesPrices,
+  priceNumber,
+  wcProductId,
+  hasCoa,
+}: Props) {
   const { addItem, openCart } = useCart();
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
 
+  const basePrice = sizesPrices[selectedIndex] ?? priceNumber;
   const selectedSize = sizes[selectedIndex] ?? "";
-  const selectedPrice = sizesPrices[selectedIndex] ?? priceNumber;
+  const discount = getVolumeDiscount(qty);
+  const unitPrice = getDiscountedPrice(basePrice, qty);
+  const lineTotal = unitPrice * qty;
+  const activeTierIdx = getActiveTierIndex(qty);
+  const ctaText = getVolumeCTAText(qty);
+
+  const handleQtyChange = (next: number) => {
+    setQty(Math.max(1, next));
+  };
 
   const handleAdd = () => {
-    addItem({ slug, name, size: selectedSize, price: selectedPrice, wcProductId });
+    addItem(
+      { slug, name, size: selectedSize, price: unitPrice, basePrice, wcProductId },
+      qty
+    );
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
     openCart();
   };
 
+  // ── Testing-in-progress gate ────────────────────────────────────────────────
+  if (!hasCoa) {
+    return (
+      <div className="space-y-4">
+        <div className="p-6 rounded-xl border border-yellow-500/20 bg-yellow-500/5">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-2 h-2 rounded-full bg-yellow-400 animate-pulse shrink-0" />
+            <span className="font-mono text-xs text-yellow-400 tracking-[0.2em] uppercase">
+              Testing in Progress
+            </span>
+          </div>
+          <p className="font-body text-sm text-white/50 leading-relaxed mb-4">
+            COA pending from our independent testing lab. This compound will be
+            available for purchase once all verification steps are complete.
+          </p>
+          <Link
+            href="/coas"
+            className="inline-flex items-center gap-2 font-mono text-xs text-blue-400 hover:text-blue-300 transition-colors animated-underline"
+          >
+            View available COAs →
+          </Link>
+        </div>
+        <p className="text-center font-mono text-[10px] text-white/20 tracking-wide">
+          RUO only · Not for human or veterinary use · 21+ required
+        </p>
+      </div>
+    );
+  }
+
+  // ── Normal buy UI ───────────────────────────────────────────────────────────
   return (
-    <div className="space-y-3">
-      {/* Price — reactive to size selection */}
+    <div className="space-y-4">
+      {/* Price display */}
       <div className="pt-1">
-        <div className="flex items-baseline gap-2">
+        <div className="flex items-baseline gap-3 flex-wrap">
           <span className="font-display font-800 text-3xl text-white">
-            ${selectedPrice.toFixed(2)}
+            ${unitPrice.toFixed(2)}
           </span>
           <span className="font-body text-sm text-white/30">/ vial</span>
+          {discount > 0 && (
+            <>
+              <span className="font-body text-sm text-white/25 line-through">
+                ${basePrice.toFixed(2)}
+              </span>
+              <span className="font-mono text-xs text-green-400 bg-green-400/10 border border-green-400/20 rounded-full px-2 py-0.5">
+                {Math.round(discount * 100)}% off
+              </span>
+            </>
+          )}
         </div>
+        {qty > 1 && (
+          <p className="font-mono text-xs text-white/30 mt-1">
+            {qty} × ${unitPrice.toFixed(2)} = <span className="text-white/60">${lineTotal.toFixed(2)} total</span>
+          </p>
+        )}
       </div>
 
       {/* Size selector */}
@@ -62,6 +138,96 @@ export default function AddToCartButton({ slug, name, sizes, sizesPrices, priceN
         </div>
       )}
 
+      {/* Quantity selector */}
+      <div>
+        <p className="font-mono text-xs text-white/40 tracking-widest uppercase mb-3">Quantity</p>
+        <div className="flex items-center gap-3 mb-3">
+          <button
+            onClick={() => handleQtyChange(qty - 1)}
+            className="w-9 h-9 rounded-lg bg-white/5 border border-white/10 text-white/50 hover:text-white hover:border-white/25 transition-all flex items-center justify-center font-display font-700 text-lg"
+          >
+            −
+          </button>
+          <input
+            type="number"
+            min={1}
+            value={qty}
+            onChange={(e) => handleQtyChange(parseInt(e.target.value) || 1)}
+            className="w-16 text-center bg-white/5 border border-white/10 rounded-lg font-mono text-sm text-white py-2 outline-none focus:border-blue-500/50"
+          />
+          <button
+            onClick={() => handleQtyChange(qty + 1)}
+            className="w-9 h-9 rounded-lg bg-white/5 border border-white/10 text-white/50 hover:text-white hover:border-white/25 transition-all flex items-center justify-center font-display font-700 text-lg"
+          >
+            +
+          </button>
+          {/* Quick pick buttons */}
+          <div className="flex items-center gap-1.5 ml-1">
+            <span className="font-mono text-[9px] text-white/25 tracking-widest uppercase mr-1">Quick</span>
+            {QUICK_PICKS.map((q) => (
+              <button
+                key={q}
+                onClick={() => handleQtyChange(q)}
+                className={`w-8 h-8 rounded-lg border font-mono text-xs transition-all duration-200 ${
+                  qty === q
+                    ? "bg-blue-600 border-blue-500 text-white"
+                    : "bg-white/5 border-white/10 text-white/40 hover:text-white/70 hover:border-white/20"
+                }`}
+              >
+                {q}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Volume pricing table */}
+      <div className="rounded-xl border border-white/8 overflow-hidden">
+        <div className="px-4 py-2.5 bg-navy-800 border-b border-white/8">
+          <span className="font-mono text-[10px] text-white/40 tracking-[0.2em] uppercase">Volume Pricing</span>
+        </div>
+        <div className="divide-y divide-white/5">
+          {VOLUME_TIERS.map((tier, i) => {
+            const isActive = i === activeTierIdx;
+            const tierPrice = getDiscountedPrice(basePrice, tier.min);
+            return (
+              <div
+                key={tier.label}
+                className={`flex items-center justify-between px-4 py-2.5 transition-colors ${
+                  isActive ? "bg-blue-600/10" : "bg-transparent"
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  {isActive && <div className="w-1.5 h-1.5 rounded-full bg-blue-400 shrink-0" />}
+                  {!isActive && <div className="w-1.5 h-1.5 rounded-full bg-transparent shrink-0" />}
+                  <span className={`font-body text-sm ${isActive ? "text-white" : "text-white/45"}`}>
+                    {tier.displayRange}
+                  </span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className={`font-mono text-sm ${isActive ? "text-white" : "text-white/40"}`}>
+                    ${tierPrice.toFixed(2)} ea
+                  </span>
+                  {tier.discount > 0 ? (
+                    <span className={`font-mono text-xs ${isActive ? "text-blue-300 font-600" : "text-white/30"}`}>
+                      {Math.round(tier.discount * 100)}% off
+                    </span>
+                  ) : (
+                    <span className="font-mono text-xs text-white/20">Full Price</span>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        {/* CTA nudge */}
+        {qty < 10 && (
+          <div className="px-4 py-2.5 bg-blue-600/5 border-t border-blue-600/15">
+            <p className="font-mono text-xs text-blue-400/80">{ctaText}</p>
+          </div>
+        )}
+      </div>
+
       {/* Urgency */}
       <div className="flex items-center gap-2 py-2 px-3 rounded-lg bg-blue-600/8 border border-blue-600/15">
         <svg className="w-3.5 h-3.5 text-blue-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -81,7 +247,11 @@ export default function AddToCartButton({ slug, name, sizes, sizesPrices, priceN
             : "bg-blue-600 hover:bg-blue-500 text-white hover:shadow-xl hover:shadow-blue-600/30 hover:-translate-y-0.5"
         }`}
       >
-        {added ? "✓ Added to Order" : "Add to Cart"}
+        {added
+          ? "✓ Added to Order"
+          : qty > 1
+          ? `Add ${qty} Vials to Cart — $${lineTotal.toFixed(2)}`
+          : "Add to Cart"}
       </button>
 
       {/* Express checkout */}

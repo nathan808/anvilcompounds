@@ -44,10 +44,15 @@ export async function POST(req: NextRequest) {
     }
 
     // ── 3. Build line_items ──────────────────────────────────────────────────
-    const lineItems = (items ?? []).map((item) => ({
-      product_id: item.wcProductId,
-      quantity: item.quantity,
-    }));
+    const lineItems = (items ?? []).map((item) => {
+      const lineTotal = (item.price * item.quantity).toFixed(2);
+      return {
+        product_id: item.wcProductId,
+        quantity: item.quantity,
+        subtotal: lineTotal,
+        total: lineTotal,
+      };
+    });
 
     const zeroIdItems = lineItems.filter(i => i.product_id === 0);
     if (zeroIdItems.length > 0) {
