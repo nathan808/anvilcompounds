@@ -94,7 +94,7 @@ export default function HeroSection() {
               variants={item}
               className="font-body text-gray-700 text-sm md:text-base leading-relaxed mb-5 max-w-sm md:max-w-md"
             >
-              Research-grade peptides independently verified through triple-method
+              Research-grade peptides independently verified through hexa-method
               testing. Every batch. No exceptions.
             </motion.p>
 

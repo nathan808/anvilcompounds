@@ -75,9 +75,9 @@ const trustPillars = [
 
 const stats = [
   { value: 99, suffix: "%+", label: "Minimum Purity Threshold" },
-  { value: 3, suffix: "×", label: "Independent Verification Methods" },
-  { value: 48, suffix: "hr", label: "Replacement Guarantee Window" },
-  { value: 2, suffix: "-3 days", label: "Domestic Delivery Time" },
+  { value: 6, suffix: "x", label: "Independent Verification Methods" },
+  { value: 48, suffix: "hr", label: "Damage Replacement Garuntee Window" },
+  { value: 0, suffix: "", label: "Same Day Support from Real Humans", display: "Same Day" },
 ];
 
 export default function TrustSection() {
@@ -140,7 +140,7 @@ export default function TrustSection() {
               className="glass-card-light rounded-xl p-5 md:p-6 text-center"
             >
               <div className="font-display font-800 text-navy-900 mb-1" style={{ fontSize: "clamp(2rem, 4vw, 3rem)" }}>
-                <CountUp end={stat.value} suffix={stat.suffix} />
+                {"display" in stat ? stat.display : <CountUp end={stat.value} suffix={stat.suffix} />}
               </div>
               <div className="font-mono text-xs text-navy-900/40 tracking-wider uppercase leading-snug">
                 {stat.label}
@@ -188,7 +188,7 @@ export default function TrustSection() {
               Domestic. Reliable. Accountable.
             </h3>
             <p className="font-body text-white/40 text-sm mt-1">
-              All orders ship from our SoCal facility. USPS Priority — 2 to 3 business days.
+              All orders ship from our SoCal facility. USPS Priority — 2 to 5 business days.
             </p>
           </div>
           <div className="flex flex-wrap gap-3 shrink-0">
@@ -196,7 +196,7 @@ export default function TrustSection() {
               <span className="font-mono text-xs text-blue-300 tracking-wider">USPS Priority</span>
             </div>
             <div className="px-4 py-2.5 rounded-lg border border-blue-600/20 bg-blue-600/10">
-              <span className="font-mono text-xs text-blue-300 tracking-wider">2-3 Day Delivery</span>
+              <span className="font-mono text-xs text-blue-300 tracking-wider">2-5 Day Delivery</span>
             </div>
             <div className="px-4 py-2.5 rounded-lg border border-blue-600/20 bg-blue-600/10">
               <span className="font-mono text-xs text-blue-300 tracking-wider">Order Tracking</span>

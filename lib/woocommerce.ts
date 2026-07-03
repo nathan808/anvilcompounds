@@ -16,7 +16,7 @@ const SLUG_TO_WC_ID: Record<string, number> = {
   "tesamorelin":           445,
   "cjc-1295-ipamorelin":   446,
   "5-amino-1mq":           450,
-  "wolverine":             447,
+  "bpc-157-tb-500":        447,
   "glow":                  449,
 };
 
@@ -33,7 +33,7 @@ const SLUG_TO_NAME: Record<string, string> = {
   "tesamorelin":           "Tesamorelin",
   "cjc-1295-ipamorelin":   "CJC-1295 + Ipamorelin",
   "5-amino-1mq":           "5-Amino-1MQ",
-  "wolverine":             "Wolverine — BPC-157 + TB-500",
+  "bpc-157-tb-500":        "BPC-157 + TB-500",
   "glow":                  "GLOW",
 };
 
@@ -50,7 +50,7 @@ const SLUG_TO_CATEGORY: Record<string, string> = {
   "tesamorelin":           "Growth Pathway Research",
   "cjc-1295-ipamorelin":   "Growth Pathway Research",
   "5-amino-1mq":           "Metabolic Research",
-  "wolverine":             "Repair & Recovery Research",
+  "bpc-157-tb-500":        "Repair & Recovery Research",
   "glow":                  "Longevity & Cosmetic Research",
 };
 
@@ -67,25 +67,25 @@ const SLUG_TO_ICON: Record<string, string> = {
   "tesamorelin":           "◍",
   "cjc-1295-ipamorelin":   "⬦",
   "5-amino-1mq":           "◆",
-  "wolverine":             "⬧",
+  "bpc-157-tb-500":        "⬧",
   "glow":                  "✧",
 };
 
 const RELATED_MAP: Record<string, string[]> = {
-  "bpc-157":    ["tb-500", "wolverine", "glow"],
+  "bpc-157":    ["tb-500", "bpc-157-tb-500", "glow"],
   "t1rz":       ["r3ta", "mots-c", "5-amino-1mq"],
   "r3ta":       ["t1rz", "mots-c", "nad-plus"],
   "klow":       ["glow", "ghk-cu", "bpc-157"],
   "ghk-cu":     ["glow", "klow", "bpc-157"],
-  "tb-500":     ["bpc-157", "wolverine", "glow"],
+  "tb-500":     ["bpc-157", "bpc-157-tb-500", "glow"],
   "mots-c":     ["nad-plus", "5-amino-1mq", "r3ta"],
   "bac-water":  ["bpc-157", "tb-500", "ghk-cu"],
   "nad-plus":            ["5-amino-1mq", "mots-c", "tesamorelin"],
   "tesamorelin":         ["cjc-1295-ipamorelin", "nad-plus", "mots-c"],
   "cjc-1295-ipamorelin": ["tesamorelin", "nad-plus", "mots-c"],
   "5-amino-1mq":         ["nad-plus", "mots-c", "t1rz"],
-  "wolverine":           ["bpc-157", "tb-500", "glow"],
-  "glow":                ["klow", "ghk-cu", "wolverine"],
+  "bpc-157-tb-500":      ["bpc-157", "tb-500", "glow"],
+  "glow":                ["klow", "ghk-cu", "bpc-157-tb-500"],
 };
 
 const FALLBACK_TRUST_BADGES = ["99%+ purity", "Endotoxin screened", "COA verified", "Same-day shipping"];
@@ -309,7 +309,7 @@ const PRODUCT_PAGE_URLS: Record<string, string> = {
   "Bacteriostatic Water":                         "https://anvilcompounds.shop/product/bac-water/",
   "Reconstitution Solution – for Laboratory Use": "https://anvilcompounds.shop/product/bacteriostatic-water/",
   "MOTS-c":                                       "https://anvilcompounds.shop/product/mots-c/",
-  "Wolverine — BPC-157 + TB-500":                 "https://anvilcompounds.shop/product/wolverine/",
+  "BPC-157 + TB-500":                              "https://anvilcompounds.shop/product/bpc-157-tb-500/",
 };
 
 const LOCAL_PRODUCT_IMAGES: Record<string, string> = {
@@ -323,7 +323,7 @@ const LOCAL_PRODUCT_IMAGES: Record<string, string> = {
   "GHK-Cu":                                       "/products/ghkcu.png",
   "TB-500":                                       "/products/tb500.png",
   "MOTS-c":                                       "/products/motsc.png",
-  "Wolverine — BPC-157 + TB-500":                 "/products/wolverine.png",
+  "BPC-157 + TB-500":                              "/products/wolverine.png",
   "NAD+":                                         "/products/nad.png",
   "Tesamorelin":                                  "/products/tesa.png",
   "CJC-1295 + Ipamorelin":                        "/products/cjcipa.png",

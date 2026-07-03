@@ -15,7 +15,7 @@ const PRODUCT_IMAGES: Record<string, string> = {
   "GHK-Cu":                        "/products/ghkcu.png",
   "TB-500":                        "/products/tb500.png",
   "MOTS-c":                        "/products/motsc.png",
-  "Wolverine — BPC-157 + TB-500":  "/products/wolverine.png",
+  "BPC-157 + TB-500":              "/products/wolverine.png",
   "NAD+":                          "/products/nad.png",
   "Tesamorelin":                   "/products/tesa.png",
   "CJC-1295 + Ipamorelin":         "/products/cjcipa.png",
@@ -37,7 +37,7 @@ const PRODUCT_SIZES: Record<string, string[]> = {
   "MOTS-c":                                       ["10mg"],
   "Bacteriostatic Water":                         ["30mL × 1"],
   "Reconstitution Solution – for Laboratory Use": ["30mL × 1"],
-  "Wolverine — BPC-157 + TB-500":                 ["5mg BPC-157 + 5mg TB-500"],
+  "BPC-157 + TB-500":                              ["5mg BPC-157 + 5mg TB-500"],
   "NAD+":                                         ["500mg"],
   "Tesamorelin":                                  ["10mg"],
   "CJC-1295 + Ipamorelin":                        ["5mg + 5mg blend"],
@@ -58,7 +58,7 @@ const SLUG_MAP: Record<string, string> = {
   "MOTS-c":                                       "mots-c",
   "Bacteriostatic Water":                         "bac-water",
   "Reconstitution Solution – for Laboratory Use": "bac-water",
-  "Wolverine — BPC-157 + TB-500":                 "wolverine",
+  "BPC-157 + TB-500":                              "bpc-157-tb-500",
   "NAD+":                                         "nad-plus",
   "Tesamorelin":                                  "tesamorelin",
   "CJC-1295 + Ipamorelin":                        "cjc-1295-ipamorelin",
@@ -69,7 +69,7 @@ const SLUG_MAP: Record<string, string> = {
 // Popularity rank — lower = more popular (shown first)
 const POPULARITY_ORDER: Record<string, number> = {
   "BPC-157":                                      1,
-  "Wolverine — BPC-157 + TB-500":                 2,
+  "BPC-157 + TB-500":                              2,
   "T1rz":                                         3,
   "Trz- dual receptor":                           3,
   "R3ta":                                         4,
@@ -118,7 +118,7 @@ const FALLBACK_PRODUCTS: ProductCard[] = [
   },
   {
     id: 447,
-    name: "Wolverine — BPC-157 + TB-500",
+    name: "BPC-157 + TB-500",
     category: "Repair & Recovery Research",
     description: "Dual peptide recovery blend combining BPC-157 and TB-500 — studied for synergistic effects in tissue repair and cell migration research models.",
     price: "$54",
@@ -126,7 +126,7 @@ const FALLBACK_PRODUCTS: ProductCard[] = [
     badge: "Recovery Blend",
     badgeColor: "bg-orange-600/70 text-orange-100 border-orange-500/50",
     icon: "⬧",
-    permalink: "https://anvilcompounds.shop/product/wolverine/",
+    permalink: "https://anvilcompounds.shop/product/bpc-157-tb-500/",
     image: "/products/wolverine.png",
   },
   {

@@ -34,6 +34,8 @@ const methods = [
     description:
       "Using the Limulus Amebocyte Lysate assay, we screen every batch for bacterial endotoxins — a step most vendors in this space skip entirely. Endotoxin contamination is invisible and odorless, making this test non-negotiable.",
     detail: "Non-standard in this industry — we do it anyway",
+    detailLink: "/blog/endotoxin-problem-peptide-market",
+    detailLinkLabel: "The endotoxin problem nobody in the peptide market talks about →",
     color: "from-indigo-600 to-indigo-400",
     dotColor: "bg-indigo-500",
   },
@@ -67,7 +69,7 @@ export default function HowWeTestSection() {
           >
             <div className="w-6 h-px bg-blue-600" />
             <span className="font-mono text-xs text-blue-400 tracking-[0.25em] uppercase">
-              003 / Verification Protocol
+              003 / Anvil Standards
             </span>
           </motion.div>
 
@@ -78,7 +80,7 @@ export default function HowWeTestSection() {
             className="font-display font-800 text-white mb-5"
             style={{ fontSize: "clamp(2.4rem, 5vw, 4rem)" }}
           >
-            Triple-Method
+            Anvil Standards:
             <br />
             <span className="text-white">Testing Protocol</span>
           </motion.h2>
@@ -89,8 +91,7 @@ export default function HowWeTestSection() {
             transition={{ duration: 0.7, delay: 0.2 }}
             className="font-body text-white/45 text-lg leading-relaxed"
           >
-            Most vendors test once, or not at all. We run three independent
-            verification methods on every batch before it reaches your lab.
+            We run multiple independent verification methods on our vials within every single batch before it finalizes into our inventory. Every single compound has been tested and verified to our standards before touching our catalog.
           </motion.p>
         </div>
 
@@ -102,12 +103,13 @@ export default function HowWeTestSection() {
         </div>
 
         {/* COA callout */}
-        <motion.div
+        <motion.a
+          href="/coas"
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-80px" }}
           transition={{ duration: 0.7, delay: 0.2 }}
-          className="mt-14 p-6 md:p-8 rounded-xl border border-blue-600/20 bg-blue-600/5 flex flex-col md:flex-row gap-6 md:items-center"
+          className="mt-14 p-6 md:p-8 rounded-xl border border-blue-600/20 bg-blue-600/5 flex flex-col md:flex-row gap-6 md:items-center hover:border-blue-500/40 hover:bg-blue-600/10 transition-all duration-300 cursor-pointer"
         >
           <div className="flex-grow">
             <h3 className="font-display font-700 text-white text-xl mb-2">
@@ -137,7 +139,7 @@ export default function HowWeTestSection() {
               </div>
             </div>
           </div>
-        </motion.div>
+        </motion.a>
       </div>
     </section>
   );
@@ -186,9 +188,20 @@ function MethodRow({ method, index }: { method: typeof methods[0]; index: number
           <p className="font-body text-white/50 text-sm md:text-base leading-relaxed mb-3">
             {method.description}
           </p>
-          <div className="flex items-center gap-2">
-            <div className={`w-1 h-1 rounded-full ${method.dotColor}`} />
-            <span className="font-mono text-xs text-blue-300/60 italic">{method.detail}</span>
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-2">
+              <div className={`w-1 h-1 rounded-full ${method.dotColor}`} />
+              <span className="font-mono text-xs text-blue-300/60 italic">{method.detail}</span>
+            </div>
+            {method.detailLink && (
+              <a
+                href={method.detailLink}
+                className="font-mono text-xs text-blue-400/70 hover:text-blue-400 transition-colors animated-underline ml-3"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {method.detailLinkLabel}
+              </a>
+            )}
           </div>
         </div>
       </div>

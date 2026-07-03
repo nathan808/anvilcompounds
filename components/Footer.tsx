@@ -53,7 +53,7 @@ export default function Footer() {
               </span>
             </div>
             <p className="font-body text-white/40 text-sm leading-relaxed mb-6 max-w-xs">
-              Research-grade compounds independently verified to 99%+ purity through triple-method
+              Research-grade compounds independently verified to 99%+ purity through hexa-method
               testing. Based in Southern California.
             </p>
 

@@ -22,7 +22,7 @@ const KNOWN_SLUGS = [
   "tesamorelin",
   "cjc-1295-ipamorelin",
   "5-amino-1mq",
-  "wolverine",
+  "bpc-157-tb-500",
   "glow",
 ];
 
