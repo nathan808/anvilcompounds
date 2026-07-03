@@ -120,6 +120,15 @@
         "mime_types": "pdf"
       },
       {
+        "key": "field_anvil_documentation_image",
+        "label": "COA Image (for gallery + inline preview)",
+        "name": "documentation_image",
+        "type": "image",
+        "instructions": "Upload a PNG/JPG of the COA (e.g. a screenshot of the PDF). Used in the product photo gallery and inline COA preview so visitors don't have to download a PDF. Leave blank if not yet available.",
+        "return_format": "url",
+        "library": "uploadedTo"
+      },
+      {
         "key": "field_anvil_documentation_caption",
         "label": "Documentation Caption",
         "name": "documentation_caption",

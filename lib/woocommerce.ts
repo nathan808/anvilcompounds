@@ -187,9 +187,22 @@ export async function getProductPageData(slug: string): Promise<ProductPageData 
     const propertiesTable = parseRepeater(meta, "properties_table", ["label", "value"])
       .map((r) => ({ label: r.label ?? "", value: r.value ?? "" }));
 
-    const relatedProducts = (RELATED_MAP[slug] ?? []).slice(0, 3).map((s) => ({
+    const relatedSlugs = (RELATED_MAP[slug] ?? []).slice(0, 3);
+    const relatedIds = relatedSlugs.map((s) => SLUG_TO_WC_ID[s]).filter(Boolean);
+    const relatedNames: Record<number, string> = {};
+    if (relatedIds.length) {
+      const relatedRes = await fetch(
+        `${url}/wp-json/wc/v3/products?include=${relatedIds.join(",")}&per_page=${relatedIds.length}`,
+        { headers, ...opts }
+      );
+      if (relatedRes.ok) {
+        const relatedList: { id: number; name: string }[] = await relatedRes.json();
+        for (const r of relatedList) relatedNames[r.id] = r.name;
+      }
+    }
+    const relatedProducts = relatedSlugs.map((s) => ({
       slug: s,
-      name:     SLUG_TO_NAME[s]     ?? s,
+      name:     relatedNames[SLUG_TO_WC_ID[s]] ?? SLUG_TO_NAME[s] ?? s,
       category: SLUG_TO_CATEGORY[s] ?? "Research Compound",
       icon:     SLUG_TO_ICON[s]     ?? "⬡",
     }));
@@ -216,6 +229,7 @@ export async function getProductPageData(slug: string): Promise<ProductPageData 
       documentationHeading: meta["documentation_section_heading"] ?? "Documentation & Quality",
       documentationMetrics,
       documentationFile:    meta["documentation_file"]          ?? null,
+      documentationImage:   meta["documentation_image"]         ?? null,
       documentationCaption: meta["documentation_caption"]       ?? "",
       propertiesTable,
       shippingType: (meta["shipping_type"] as "standard" | "ambient") ?? "standard",
@@ -288,6 +302,7 @@ const PRODUCT_PAGE_URLS: Record<string, string> = {
   "Trz- dual receptor":                           "https://anvilcompounds.shop/product/trz/",
   "R3ta":                                         "https://anvilcompounds.shop/product/r3ta/",
   "Rta - triple agonist":                         "https://anvilcompounds.shop/product/rta/",
+  "triple agonist (R)":                           "https://anvilcompounds.shop/product/rta/",
   "KLOW":                                         "https://anvilcompounds.shop/product/klow/",
   "GHK-Cu":                                       "https://anvilcompounds.shop/product/ghk-cu/",
   "TB-500":                                       "https://anvilcompounds.shop/product/tb-500/",
@@ -303,6 +318,7 @@ const LOCAL_PRODUCT_IMAGES: Record<string, string> = {
   "Trz- dual receptor":                           "/products/tirz.png",
   "R3ta":                                         "/products/reta.png",
   "Rta - triple agonist":                         "/products/reta.png",
+  "triple agonist (R)":                           "/products/reta.png",
   "KLOW":                                         "/products/klow.png",
   "GHK-Cu":                                       "/products/ghkcu.png",
   "TB-500":                                       "/products/tb500.png",

@@ -1,7 +1,8 @@
-import Image from "next/image";
 import Link from "next/link";
 import AddToCartButton from "@/app/products/[slug]/AddToCartButton";
 import ShippingBanner from "@/components/ShippingBanner";
+import ProductImageGallery from "@/components/ProductImageGallery";
+import ViewCoaButton from "@/components/ViewCoaButton";
 
 // ─── Data interface ────────────────────────────────────────────────────────────
 
@@ -30,6 +31,7 @@ export interface ProductPageData {
   documentationHeading: string;
   documentationMetrics: { label: string; value: string }[];
   documentationFile?: string | null;
+  documentationImage?: string | null;
   documentationCaption?: string;
 
   propertiesTable: { label: string; value: string }[];
@@ -90,32 +92,11 @@ export default function ProductPageTemplate({
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 xl:gap-20 items-start">
 
             {/* Left — product image */}
-            <div className="relative">
-              {product.image ? (
-                <div className="relative w-full aspect-square max-w-lg mx-auto lg:max-w-none rounded-2xl overflow-hidden glass-card">
-                  <Image
-                    src={product.image}
-                    alt={product.name}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 1024px) 100vw, 50vw"
-                    priority
-                  />
-                </div>
-              ) : (
-                <div
-                  className="glass-card rounded-2xl flex items-center justify-center max-w-lg mx-auto lg:max-w-none"
-                  style={{ minHeight: "420px" }}
-                >
-                  <span
-                    className="text-blue-400/20 select-none"
-                    style={{ fontSize: "6rem", lineHeight: 1 }}
-                  >
-                    ⬡
-                  </span>
-                </div>
-              )}
-            </div>
+            <ProductImageGallery
+              productImage={product.image}
+              productName={product.name}
+              coaImage={product.documentationImage}
+            />
 
             {/* Right — buy column */}
             <div className="lg:sticky lg:top-24 space-y-5">
@@ -145,6 +126,13 @@ export default function ProductPageTemplate({
               <p className="font-mono text-xs text-slate-400 tracking-wider">
                 {product.subtitle}
               </p>
+
+              {/* View COA — above Add to Cart */}
+              <ViewCoaButton
+                productName={product.name}
+                imageUrl={product.documentationImage}
+                fileUrl={product.documentationFile}
+              />
 
               {/* Add to cart — price display is inside AddToCartButton (client) so it updates on size select */}
               <AddToCartButton
@@ -320,84 +308,6 @@ export default function ProductPageTemplate({
         </div>
       </Section>
 
-      {/* ── SECTION 8 — Shipping ──────────────────────────────────────────── */}
-      <Section bg="navy-900">
-        <SectionLabel number="06" label="Shipping" />
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
-          {product.shippingType === "standard" ? (
-            <>
-              <div className="glass-card rounded-xl p-5">
-                <h3 className="font-display font-700 text-white text-sm">
-                  Same-day shipping
-                </h3>
-                <p className="font-body text-xs text-white/40 mt-1">
-                  Orders placed before 12PM PST
-                </p>
-              </div>
-              <div className="glass-card rounded-xl p-5">
-                <h3 className="font-display font-700 text-white text-sm">
-                  2–3 day delivery
-                </h3>
-                <p className="font-body text-xs text-white/40 mt-1">
-                  USPS Priority Mail
-                </p>
-              </div>
-              <div className="glass-card rounded-xl p-5">
-                <h3 className="font-display font-700 text-white text-sm">
-                  Cold-chain shipping
-                </h3>
-                <p className="font-body text-xs text-white/40 mt-1">
-                  Ice packs included for temperature-sensitive compounds
-                </p>
-              </div>
-              <div className="glass-card rounded-xl p-5">
-                <h3 className="font-display font-700 text-white text-sm">
-                  Discreet packaging
-                </h3>
-                <p className="font-body text-xs text-white/40 mt-1">
-                  Plain outer packaging, no product names
-                </p>
-              </div>
-            </>
-          ) : (
-            <>
-              <div className="glass-card rounded-xl p-5">
-                <h3 className="font-display font-700 text-white text-sm">
-                  Same-day shipping
-                </h3>
-                <p className="font-body text-xs text-white/40 mt-1">
-                  Orders placed before 12PM PST
-                </p>
-              </div>
-              <div className="glass-card rounded-xl p-5">
-                <h3 className="font-display font-700 text-white text-sm">
-                  2–3 day delivery
-                </h3>
-                <p className="font-body text-xs text-white/40 mt-1">
-                  USPS Priority Mail
-                </p>
-              </div>
-              <div className="glass-card rounded-xl p-5">
-                <h3 className="font-display font-700 text-white text-sm">
-                  Ambient shipping
-                </h3>
-                <p className="font-body text-xs text-white/40 mt-1">
-                  No cold-chain required for this product
-                </p>
-              </div>
-              <div className="glass-card rounded-xl p-5">
-                <h3 className="font-display font-700 text-white text-sm">
-                  Discreet packaging
-                </h3>
-                <p className="font-body text-xs text-white/40 mt-1">
-                  Plain outer packaging, no product names
-                </p>
-              </div>
-            </>
-          )}
-        </div>
-      </Section>
-
       {/* ── SECTION 9 — Research use confirmation ────────────────────────── */}
       <Section bg="navy-950">
         <div className="glass-card rounded-2xl p-8 border-l-4 border-blue-600">
@@ -413,7 +323,7 @@ export default function ProductPageTemplate({
       {/* ── SECTION 10 — Related compounds ───────────────────────────────── */}
       {product.relatedProducts.length > 0 && (
         <Section bg="navy-900">
-          <SectionLabel number="08" label="Related Compounds" />
+          <SectionLabel number="06" label="Related Compounds" />
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {product.relatedProducts.map((rel) => (
               <Link

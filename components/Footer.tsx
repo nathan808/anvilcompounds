@@ -13,20 +13,14 @@ const POLICY_PAGES = [
 export default function Footer() {
   const links: Record<string, { label: string; href: string }[]> = {
     Catalog: [
-      { label: "BPC-157",      href: "/products/bpc-157" },
-      { label: "T1rz",         href: "/products/t1rz" },
-      { label: "R3ta",         href: "/products/r3ta" },
-      { label: "KLOW",         href: "/products/klow" },
-      { label: "GHK-Cu",       href: "/products/ghk-cu" },
-      { label: "TB-500",       href: "/products/tb-500" },
-      { label: "MOTS-c",       href: "/products/mots-c" },
+      { label: "Shop All",     href: "/#catalog" },
     ],
     Testing: [
       { label: "How We Test",          href: "/#testing" },
       { label: "HPLC Process",         href: "/#testing" },
       { label: "Mass Spectrometry",    href: "/#testing" },
       { label: "Endotoxin Screening",  href: "/#testing" },
-      { label: "COA Verification",     href: "/#testing" },
+      { label: "COA Verification",     href: "/coas" },
     ],
     Company: [
       { label: "About Anvil",      href: "/about" },

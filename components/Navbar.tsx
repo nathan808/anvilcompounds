@@ -18,8 +18,7 @@ export default function Navbar() {
 
   const links = [
     { label: "Catalog", href: "/#catalog" },
-    { label: "How We Test", href: "/#testing" },
-    { label: "Why Anvil", href: "/#trust" },
+    { label: "COAs", href: "/coas" },
     { label: "Journal", href: "/blog" },
     { label: "About", href: "/about" },
     { label: "FAQ", href: "/faq" },
