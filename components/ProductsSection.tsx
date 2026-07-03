@@ -160,7 +160,7 @@ function ProductCard({ product, index }: { product: ProductCard; index: number }
                 src={product.image}
                 alt={product.name}
                 fill
-                className="object-contain scale-[1.7] transition-transform duration-500 group-hover:scale-[1.8]"
+                className="object-contain scale-[1.35] transition-transform duration-500 group-hover:scale-[1.42]"
                 sizes="(max-width: 768px) 50vw, 25vw"
               />
             </div>
