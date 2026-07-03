@@ -1,7 +1,7 @@
 const ITEMS = [
   { icon: "📍", text: "Southern California" },
   { icon: "🚚", text: "USPS Priority" },
-  { icon: "📦", text: "2–3 Business Days" },
+  { icon: "📦", text: "2–5 Business Days" },
   { icon: "⚡", text: "Same-Day Dispatch by 12 PM PST" },
 ];
 
