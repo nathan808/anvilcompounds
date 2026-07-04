@@ -23,6 +23,8 @@ const PRODUCT_IMAGES: Record<string, string> = {
   "CJC-1295 + Ipamorelin":         "/products/cjcipa.png",
   "5-Amino-1MQ":                   "/products/5amino.png",
   "GLOW":                          "/products/glow.png",
+  "Semax":                         "/products/semaxproductphoto.png",
+  "Selank":                        "/products/selankproductphoto.png",
 };
 
 // Size variants shown on catalog cards
@@ -47,6 +49,8 @@ const PRODUCT_SIZES: Record<string, string[]> = {
   "CJC-1295 + Ipamorelin":                        ["5mg + 5mg blend"],
   "5-Amino-1MQ":                                  ["5mg", "10mg"],
   "GLOW":                                         ["70mg blend"],
+  "Semax":                                        ["10mg"],
+  "Selank":                                       ["10mg"],
 };
 
 const SLUG_MAP: Record<string, string> = {
@@ -70,6 +74,8 @@ const SLUG_MAP: Record<string, string> = {
   "CJC-1295 + Ipamorelin":                        "cjc-1295-ipamorelin",
   "5-Amino-1MQ":                                  "5-amino-1mq",
   "GLOW":                                         "glow",
+  "Semax":                                        "semax",
+  "Selank":                                       "selank",
 };
 
 // Popularity rank — lower = more popular (shown first)
@@ -92,6 +98,8 @@ const POPULARITY_ORDER: Record<string, number> = {
   "CJC-1295 + Ipamorelin":                        11,
   "Tesamorelin":                                  12,
   "5-Amino-1MQ":                                  13,
+  "Semax":                                        14,
+  "Selank":                                       15,
   "Bacteriostatic Water":                         99,
   "Reconstitution Solution – for Laboratory Use": 99,
 };
@@ -101,6 +109,7 @@ const CATEGORY_ORDER = [
   "All Compounds",
   "Repair & Recovery Research",
   "Metabolic Research",
+  "Cognitive Research",
   "Longevity & Cosmetic Research",
   "Growth Pathway Research",
   "Research Supplies",
@@ -119,6 +128,8 @@ const FALLBACK_PRODUCTS: ProductCard[] = [
   { id: 354, name: "TB-500", category: "Repair & Recovery Research", description: "Synthetic analogue of Thymosin Beta-4, studied in cell migration, actin dynamics, and tissue modeling research models.", price: "$64", purity: "99%+", badge: "Recovery", badgeColor: "bg-amber-600/70 text-amber-100 border-amber-500/50", icon: "◉", permalink: "https://anvilcompounds.shop/product/tb-500/", image: "/products/tb500.png", hasCoa: true },
   { id: 336, name: "GHK-Cu", category: "Longevity & Cosmetic Research", description: "A naturally occurring copper complex with extensive research into cellular remodeling and tissue response.", price: "$34", purity: "99.5%", badge: "Entry Point", badgeColor: "bg-teal-600/70 text-teal-100 border-teal-500/50", icon: "⬢", permalink: "https://anvilcompounds.shop/product/ghk-cu/", image: "/products/ghkcu.png", hasCoa: true },
   { id: 346, name: "MOTS-c", category: "Metabolic Research", description: "Mitochondrial-derived peptide studied in mitochondrial-nuclear communication, glucose metabolism, and cellular stress response.", price: "$44", purity: "99%+", badge: "Metabolic", badgeColor: "bg-violet-600/70 text-violet-100 border-violet-500/50", icon: "⬥", permalink: "https://anvilcompounds.shop/product/mots-c/", image: "/products/motsc.png", hasCoa: true },
+  { id: 510, name: "Semax", category: "Cognitive Research", description: "Synthetic heptapeptide analogue of ACTH(4-10), studied in research involving neurotrophic factor expression, BDNF signaling, and neuroprotective pathway models.", price: "$44", purity: "99%+", badge: "Neuropeptide", badgeColor: "bg-indigo-600/70 text-indigo-100 border-indigo-500/50", icon: "◈", permalink: "https://anvilcompounds.shop/product/semax/", image: "/products/semaxproductphoto.png", hasCoa: false },
+  { id: 511, name: "Selank", category: "Cognitive Research", description: "Synthetic heptapeptide analogue of tuftsin, studied in research involving GABAergic pathway modulation, neuropeptide signaling, and anxiety response models.", price: "$44", purity: "99%+", badge: "Neuropeptide", badgeColor: "bg-indigo-600/70 text-indigo-100 border-indigo-500/50", icon: "◉", permalink: "https://anvilcompounds.shop/product/selank/", image: "/products/selankproductphoto.png", hasCoa: false },
   { id: 349, name: "Bacteriostatic Water", category: "Research Supplies", description: "0.9% benzyl alcohol sterile water. Standard reconstitution solvent for lyophilized peptide research. 30mL multi-use vial.", price: "$15", purity: "Sterility Certified", badge: "Essential Supply", badgeColor: "bg-slate-600/70 text-slate-100 border-slate-500/50", icon: "◎", permalink: "https://anvilcompounds.shop/product/bac-water/", image: null, hasCoa: true },
 ];
 

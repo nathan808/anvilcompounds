@@ -16,13 +16,15 @@ const KNOWN_SLUGS = [
   "tb-500",
   "bac-water",
   "mots-c",
-  // New SKUs — DRAFT until COA + images are live
+  // New SKUs — Testing in Progress (no COA yet)
   "nad-plus",
   "tesamorelin",
   "cjc-1295-ipamorelin",
   "5-amino-1mq",
   "bpc-157-tb-500",
   "glow",
+  "semax",
+  "selank",
 ];
 
 export async function generateStaticParams() {

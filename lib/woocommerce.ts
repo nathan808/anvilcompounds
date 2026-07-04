@@ -11,13 +11,15 @@ const SLUG_TO_WC_ID: Record<string, number> = {
   "tb-500":     354,
   "mots-c":     346,
   "bac-water":  349,
-  // New SKUs — DRAFT until COA + images are live
+  // New SKUs — Testing in Progress (no COA yet)
   "nad-plus":              443,
   "tesamorelin":           445,
   "cjc-1295-ipamorelin":   446,
   "5-amino-1mq":           450,
   "bpc-157-tb-500":        447,
   "glow":                  449,
+  "semax":                 510,
+  "selank":                511,
 };
 
 const SLUG_TO_NAME: Record<string, string> = {
@@ -35,6 +37,8 @@ const SLUG_TO_NAME: Record<string, string> = {
   "5-amino-1mq":           "5-Amino-1MQ",
   "bpc-157-tb-500":        "BPC-157 + TB-500",
   "glow":                  "GLOW",
+  "semax":                 "Semax",
+  "selank":                "Selank",
 };
 
 const SLUG_TO_CATEGORY: Record<string, string> = {
@@ -52,6 +56,8 @@ const SLUG_TO_CATEGORY: Record<string, string> = {
   "5-amino-1mq":           "Metabolic Research",
   "bpc-157-tb-500":        "Repair & Recovery Research",
   "glow":                  "Longevity & Cosmetic Research",
+  "semax":                 "Cognitive Research",
+  "selank":                "Cognitive Research",
 };
 
 const SLUG_TO_ICON: Record<string, string> = {
@@ -69,6 +75,8 @@ const SLUG_TO_ICON: Record<string, string> = {
   "5-amino-1mq":           "◆",
   "bpc-157-tb-500":        "⬧",
   "glow":                  "✧",
+  "semax":                 "◈",
+  "selank":                "◉",
 };
 
 const RELATED_MAP: Record<string, string[]> = {
@@ -86,6 +94,8 @@ const RELATED_MAP: Record<string, string[]> = {
   "5-amino-1mq":         ["nad-plus", "mots-c", "t1rz"],
   "bpc-157-tb-500":      ["bpc-157", "tb-500", "glow"],
   "glow":                ["klow", "ghk-cu", "bpc-157-tb-500"],
+  "semax":               ["selank", "bpc-157", "mots-c"],
+  "selank":              ["semax", "bpc-157", "ghk-cu"],
 };
 
 const FALLBACK_TRUST_BADGES = ["99%+ purity", "Endotoxin screened", "COA verified", "Same-day shipping"];
@@ -297,8 +307,8 @@ export interface ProductCard {
   hasCoa: boolean;
 }
 
-// Products without COA yet (DRAFT SKUs pending lab verification)
-const IDS_WITHOUT_COA = new Set([443, 445, 446, 450, 447, 449]);
+// Products without COA yet (Testing in Progress — no buy UI shown)
+const IDS_WITHOUT_COA = new Set([443, 445, 446, 450, 447, 449, 510, 511]);
 
 const PRODUCT_PAGE_URLS: Record<string, string> = {
   "BPC-157":                                      "https://anvilcompounds.shop/product/bpc-157/",
@@ -337,6 +347,8 @@ const LOCAL_PRODUCT_IMAGES: Record<string, string> = {
   "CJC-1295 + Ipamorelin":                        "/products/cjcipa.png",
   "5-Amino-1MQ":                                  "/products/5amino.png",
   "GLOW":                                         "/products/glow.png",
+  "Semax":                                        "/products/semaxproductphoto.png",
+  "Selank":                                       "/products/selankproductphoto.png",
 };
 
 export function mapProduct(product: WCProduct, index: number): ProductCard {

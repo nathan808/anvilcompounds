@@ -5,6 +5,7 @@ const BASE = "https://www.anvilcompounds.shop";
 const PRODUCT_SLUGS = [
   "bpc-157", "t1rz", "r3ta", "klow", "ghk-cu", "tb-500", "mots-c", "bac-water",
   "bpc-157-tb-500", "nad-plus", "tesamorelin", "cjc-1295-ipamorelin", "5-amino-1mq", "glow",
+  "semax", "selank",
 ];
 
 async function getBlogSlugs(): Promise<string[]> {
