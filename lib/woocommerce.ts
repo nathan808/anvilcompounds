@@ -347,8 +347,7 @@ const LOCAL_PRODUCT_IMAGES: Record<string, string> = {
   "CJC-1295 + Ipamorelin":                        "/products/cjcipa.png",
   "5-Amino-1MQ":                                  "/products/5amino.png",
   "GLOW":                                         "/products/glow.png",
-  "Semax":                                        "/products/semaxproductphoto.png",
-  "Selank":                                       "/products/selankproductphoto.png",
+  // Semax + Selank images served directly from WooCommerce gallery (no local copy)
 };
 
 export function mapProduct(product: WCProduct, index: number): ProductCard {
