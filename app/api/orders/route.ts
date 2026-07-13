@@ -142,6 +142,71 @@ export async function POST(req: NextRequest) {
 
     const order = JSON.parse(wcBody) as { id: number; number: string };
     console.log(`[orders:${requestId}] SUCCESS: order created — id:${order.id} number:${order.number}`);
+
+    // ── Create Bankful invoice ───────────────────────────────────────────────
+    const bankfulKey    = process.env.BANKFUL_API_KEY;
+    const bankfulSecret = process.env.BANKFUL_API_SECRET;
+    let paymentUrl: string | null = null;
+
+    if (bankfulKey && bankfulSecret) {
+      try {
+        const bankfulAuth = Buffer.from(`${bankfulKey}:${bankfulSecret}`).toString("base64");
+        const bankfulPayload = {
+          email:            billing.email,
+          request_currency: "USD",
+          invoice_date:     new Date().toISOString().split("T")[0],
+          reference_number: String(order.number),
+          type_of_goods:    "shippable_goods",
+          note_to_recipient: `Research Use Only (RUO) — Order #${order.number} — Anvil Compounds. For in vitro laboratory use only.`,
+          invoiceItems: (items ?? []).map((item) => ({
+            name:        item.name,
+            description: item.size,
+            quantity:    item.quantity,
+            rate:        item.price,
+            tax:         0,
+          })),
+          billingDetails: {
+            firstName:      billing.firstName,
+            lastName:       billing.lastName,
+            email:          billing.email,
+            phone:          billing.phone ?? "",
+            billingAddress: billing.address1,
+            billingCity:    billing.city,
+            billingState:   billing.state,
+            billingZip:     billing.zip,
+            billingCountry: "US",
+          },
+        };
+
+        console.log(`[orders:${requestId}] Calling Bankful: POST /api/invoice/create for order #${order.number}`);
+        const bankfulRes = await fetch("https://api.paybybankful.com/api/invoice/create", {
+          method: "POST",
+          headers: {
+            "Content-Type":  "application/json",
+            "Authorization": `Basic ${bankfulAuth}`,
+          },
+          body: JSON.stringify(bankfulPayload),
+        });
+
+        const bankfulData = await bankfulRes.json() as {
+          status?: string;
+          data?: { invoiceId?: number; paymentLink?: string; shortLink?: string };
+        };
+        console.log(`[orders:${requestId}] Bankful response:`, JSON.stringify(bankfulData).slice(0, 300));
+
+        if (bankfulData.status === "Success" && bankfulData.data?.paymentLink) {
+          paymentUrl = bankfulData.data.paymentLink;
+          console.log(`[orders:${requestId}] Bankful paymentLink: ${paymentUrl}`);
+        } else {
+          console.warn(`[orders:${requestId}] Bankful invoice creation failed — falling back to manual payment`, bankfulData);
+        }
+      } catch (bankfulErr) {
+        console.error(`[orders:${requestId}] Bankful error (non-fatal, WC order already created):`, bankfulErr);
+      }
+    } else {
+      console.warn(`[orders:${requestId}] BANKFUL_API_KEY/SECRET not set — skipping Bankful invoice`);
+    }
+
     console.log(`[orders:${requestId}] ── END ────────────────────────────────`);
 
     // ── Fire Omnisend events (fire-and-forget — never fails the order) ──────
@@ -189,7 +254,11 @@ export async function POST(req: NextRequest) {
       ]).catch(() => {});
     }
 
-    return NextResponse.json({ orderId: order.id, orderNumber: order.number });
+    return NextResponse.json({
+      orderId:     order.id,
+      orderNumber: order.number,
+      ...(paymentUrl ? { paymentUrl } : {}),
+    });
 
   } catch (err) {
     console.error(`[orders:${requestId}] UNHANDLED ERROR:`, err);

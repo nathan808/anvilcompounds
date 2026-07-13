@@ -62,17 +62,24 @@ export default function CheckoutForm() {
       const data = await res.json();
       if (!res.ok || data.error) throw new Error(data.error ?? "Unknown error");
 
-      // Store order details for confirmation page
+      // Always store order details so the confirmation page has them on return
       sessionStorage.setItem("anvil_order", JSON.stringify({
-        orderId: data.orderId,
+        orderId:     data.orderId,
         orderNumber: data.orderNumber,
-        email: form.email,
+        email:       form.email,
         items,
         subtotal,
       }));
 
       clearCart();
-      router.push(`/order-confirmation?order=${data.orderId}`);
+
+      // If Bankful returned a payment link, send the customer there to pay.
+      // On return, Bankful redirects back and the confirmation page reads sessionStorage.
+      if (data.paymentUrl) {
+        window.location.href = data.paymentUrl;
+      } else {
+        router.push(`/order-confirmation?order=${data.orderId}`);
+      }
     } catch {
       setError("Something went wrong. Please try again or contact support@anvilcompounds.shop");
       setSubmitting(false);
