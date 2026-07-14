@@ -66,9 +66,9 @@ export async function POST(req: NextRequest) {
     const auth = Buffer.from(`${key}:${secret}`).toString("base64");
 
     const payload = {
-      payment_method: "bankful_hosted_gateway",
-      payment_method_title: "Bankful",
-      status: "pending",
+      payment_method: "bacs",
+      payment_method_title: "Manual Payment (Zelle / ACH / Crypto)",
+      status: "on-hold",
       customer_id: customer_id ?? 0,
       billing: {
         first_name: billing.firstName,
@@ -140,15 +140,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const order = JSON.parse(wcBody) as { id: number; number: string; order_key: string };
+    const order = JSON.parse(wcBody) as { id: number; number: string };
     console.log(`[orders:${requestId}] SUCCESS: order created — id:${order.id} number:${order.number}`);
-
-    // ── Build Bankful payment URL via WooCommerce order-pay ─────────────────
-    // The bankful_hosted_gateway WC plugin handles auth with Bankful from here.
-    const wcSiteUrl = process.env.WC_URL ?? "";
-    const paymentUrl = `${wcSiteUrl}/checkout/order-pay/${order.id}/?pay_for_order=true&key=${order.order_key}`;
-    console.log(`[orders:${requestId}] WC order-pay URL: ${paymentUrl}`);
-
     console.log(`[orders:${requestId}] ── END ────────────────────────────────`);
 
     // ── Fire Omnisend events (fire-and-forget — never fails the order) ──────
@@ -196,11 +189,7 @@ export async function POST(req: NextRequest) {
       ]).catch(() => {});
     }
 
-    return NextResponse.json({
-      orderId:     order.id,
-      orderNumber: order.number,
-      paymentUrl,
-    });
+    return NextResponse.json({ orderId: order.id, orderNumber: order.number });
 
   } catch (err) {
     console.error(`[orders:${requestId}] UNHANDLED ERROR:`, err);
