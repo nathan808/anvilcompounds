@@ -39,3 +39,19 @@ export const PAYMENT_DETAILS = {
 
 export const HOLD_DAYS = 7;
 export const SUPPORT_EMAIL = "support@anvilcompounds.shop";
+
+// ─── CHECKOUT_SPEC.md config constants ─────────────────────────────────────
+// Per-spec status flags for the multi-step checkout (Step 3 payment method
+// selection). Kept alongside PAYMENT_DETAILS above rather than replacing it —
+// app/order-confirmation/page.tsx still reads PAYMENT_DETAILS/HOLD_DAYS/
+// SUPPORT_EMAIL, and removing them would break that page's build.
+// ──────────────────────────────────────────────────────────────────────────────
+
+export const PAYMENT_CONFIG = {
+  zelle: { phone: "(619) 653-4735", maxOrder: 2000 },
+  ethereum: { status: "live" },
+  echeck: { status: "placeholder" },
+  usdc_usdt: { status: "placeholder" },
+  ach: { status: "placeholder" },
+  stripe: { status: "placeholder" },
+} as const;

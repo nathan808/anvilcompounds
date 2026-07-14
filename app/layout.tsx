@@ -4,6 +4,7 @@ import Script from "next/script";
 import "./globals.css";
 import { CartProvider } from "@/lib/cartContext";
 import { AuthProvider } from "@/lib/authContext";
+import { CheckoutProvider } from "@/lib/checkoutContext";
 import AgeGate from "@/components/AgeGate";
 import BackToTop from "@/components/BackToTop";
 
@@ -52,9 +53,11 @@ export default function RootLayout({
       <body className={`${syne.variable} ${dmSans.variable} ${dmMono.variable} ${oswald.variable} font-body`}>
         <AuthProvider>
           <CartProvider>
-            <AgeGate />
-            {children}
-            <BackToTop />
+            <CheckoutProvider>
+              <AgeGate />
+              {children}
+              <BackToTop />
+            </CheckoutProvider>
           </CartProvider>
         </AuthProvider>
         {process.env.NEXT_PUBLIC_OMNISEND_BRAND_ID && (
