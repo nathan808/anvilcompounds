@@ -1,18 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
+import { resolveLineItem } from "@/lib/wcProducts";
+import { fetchShippingOptions } from "@/lib/wcShipping";
+import { validateCoupon } from "@/lib/wcCoupon";
 import { computeCouponDiscount } from "@/lib/couponMath";
 import { computeTax, roundCurrency } from "@/lib/taxMath";
 import { fetchTaxRate } from "@/lib/wcTax";
 import { PAYMENT_METHODS, PaymentMethodId } from "@/lib/paymentMethods";
 import { PAYMENT_CONFIG } from "@/lib/paymentConfig";
 
+// The client sends ONLY identifiers and selections — never a price, total,
+// discount amount, or tax figure. Every money value below is derived
+// server-side from WooCommerce (or from PAYMENT_CONFIG/lib/paymentMethods.ts,
+// which the client cannot influence). client_total_cents is accepted purely
+// as an optional staleness check (see PART C below) — it is never used in
+// the order math itself.
 interface PlaceOrderBody {
-  items: { wcProductId: number; quantity: number; name: string; size: string; price: number }[];
-  billing: Record<string, string>;
-  coupon: { code: string; discountType: "percent" | "fixed_cart"; amount: number } | null;
-  shipping: { methodId: string; instanceId: number; title: string; cost: number };
+  items: { productId: number; size: string; quantity: number }[];
+  shippingInstanceId: string;
+  couponCode?: string;
   paymentMethodId: PaymentMethodId;
+  billing: Record<string, string>;
   ruoConfirmed: boolean;
   customer_id?: number;
+  client_total_cents?: number;
 }
 
 export async function POST(req: NextRequest) {
@@ -27,27 +37,68 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
   }
 
-  const { items, billing, coupon, shipping, paymentMethodId, ruoConfirmed, customer_id } = body;
+  const { items, shippingInstanceId, couponCode, paymentMethodId, billing, ruoConfirmed, customer_id, client_total_cents } = body;
 
   const methodMeta = PAYMENT_METHODS.find((m) => m.id === paymentMethodId);
   if (!methodMeta) {
     console.error(`[place-order:${requestId}] FAIL: unknown paymentMethodId "${paymentMethodId}"`);
     return NextResponse.json({ error: "Unknown payment method" }, { status: 400 });
   }
-
   if (!items?.length) {
     return NextResponse.json({ error: "Cart is empty" }, { status: 400 });
   }
-  if (!shipping) {
+  if (!shippingInstanceId || typeof shippingInstanceId !== "string") {
     return NextResponse.json({ error: "No shipping method selected" }, { status: 400 });
   }
+  if (!billing?.state) {
+    return NextResponse.json({ error: "Missing shipping address" }, { status: 400 });
+  }
 
-  // ── Server-side totals — never trust a client-supplied total ──────────────
-  const subtotal = items.reduce((s, i) => s + i.price * i.quantity, 0);
+  // ── 1. Line items — price comes ONLY from WooCommerce ─────────────────────
+  const resolvedItems = [];
+  for (const item of items) {
+    const resolved = await resolveLineItem(item.productId, item.size, item.quantity);
+    if (!resolved) {
+      console.error(`[place-order:${requestId}] FAIL: could not resolve product ${item.productId} (size "${item.size}", qty ${item.quantity})`);
+      return NextResponse.json({ error: `One of the items in your cart is no longer available (product ${item.productId}).` }, { status: 400 });
+    }
+    resolvedItems.push(resolved);
+  }
+  const subtotal = roundCurrency(resolvedItems.reduce((s, i) => s + i.lineTotal, 0));
+
+  // ── 2. Coupon — validated against WC, discount computed server-side ───────
+  let coupon: { code: string; discountType: "percent" | "fixed_cart"; amount: number } | null = null;
+  if (couponCode) {
+    const result = await validateCoupon(couponCode, subtotal);
+    if (!result.valid) {
+      console.warn(`[place-order:${requestId}] FAIL: coupon "${couponCode}" rejected — ${result.reason}`);
+      return NextResponse.json({ error: result.reason }, { status: 400 });
+    }
+    coupon = { code: result.code, discountType: result.discountType, amount: result.amount };
+  }
   const couponDiscount = computeCouponDiscount(subtotal, coupon);
   const postCouponSubtotal = subtotal - couponDiscount;
+
+  // ── 3. Shipping — cost comes from WC; instance_id must be a real, currently
+  //      valid method for this cart, not merely well-formed ─────────────────
+  let shippingOptions;
+  try {
+    shippingOptions = await fetchShippingOptions(postCouponSubtotal, !!coupon);
+  } catch (err) {
+    console.error(`[place-order:${requestId}] FAIL: could not load shipping options`, err);
+    return NextResponse.json({ error: "Could not load shipping options" }, { status: 502 });
+  }
+  const shippingMatch = shippingOptions.find((o) => o.instanceId === shippingInstanceId);
+  if (!shippingMatch) {
+    console.warn(`[place-order:${requestId}] FAIL: shippingInstanceId "${shippingInstanceId}" is not a valid method for this order`);
+    return NextResponse.json({ error: "Selected shipping method is no longer available. Please choose again." }, { status: 400 });
+  }
+  const shippingCost = shippingMatch.cost; // already reflects the free-Ground-over-threshold override
+
+  // ── 4. Payment-method discount — percentage comes from our own catalog ────
   const paymentDiscountAmount = roundCurrency(postCouponSubtotal * (methodMeta.discountPercent / 100));
 
+  // ── 5. Tax ──────────────────────────────────────────────────────────────────
   let taxRate = 0;
   let shippingTaxable = false;
   try {
@@ -58,13 +109,12 @@ export async function POST(req: NextRequest) {
     console.error(`[place-order:${requestId}] FAIL: could not load tax rate`, err);
     return NextResponse.json({ error: "Could not load tax rate" }, { status: 502 });
   }
+  const tax = computeTax(taxRate, postCouponSubtotal, paymentDiscountAmount, shippingCost, shippingTaxable);
+  const expectedTotal = roundCurrency(postCouponSubtotal - paymentDiscountAmount + shippingCost + tax.totalTax);
 
-  const tax = computeTax(taxRate, postCouponSubtotal, paymentDiscountAmount, shipping.cost, shippingTaxable);
-  const expectedTotal = roundCurrency(postCouponSubtotal - paymentDiscountAmount + shipping.cost + tax.totalTax);
+  console.log(`[place-order:${requestId}] Method: ${paymentMethodId} | subtotal:${subtotal} couponDiscount:${couponDiscount} paymentDiscount:${paymentDiscountAmount} shipping:${shippingCost} taxRate:${taxRate} totalTax:${tax.totalTax} expectedTotal:${expectedTotal}`);
 
-  console.log(`[place-order:${requestId}] Method: ${paymentMethodId} | subtotal:${subtotal} couponDiscount:${couponDiscount} paymentDiscount:${paymentDiscountAmount} shipping:${shipping.cost} taxRate:${taxRate} totalTax:${tax.totalTax} expectedTotal:${expectedTotal}`);
-
-  // ── Zelle cap, enforced server-side too ────────────────────────────────────
+  // ── 6. Zelle cap, enforced server-side ─────────────────────────────────────
   if (paymentMethodId === "zelle" && expectedTotal > PAYMENT_CONFIG.zelle.maxOrder) {
     console.warn(`[place-order:${requestId}] FAIL: Zelle order ${expectedTotal} exceeds cap ${PAYMENT_CONFIG.zelle.maxOrder}`);
     return NextResponse.json({
@@ -72,19 +122,36 @@ export async function POST(req: NextRequest) {
     }, { status: 400 });
   }
 
+  // ── PART C: client/server agreement check — never silently use either
+  //    number without telling the customer ───────────────────────────────────
+  if (typeof client_total_cents === "number") {
+    const serverTotalCents = Math.round(expectedTotal * 100);
+    if (serverTotalCents !== client_total_cents) {
+      console.warn(`[place-order:${requestId}] CART CHANGED — client:${client_total_cents} server:${serverTotalCents} — order NOT created`);
+      return NextResponse.json({
+        error: "CART_CHANGED",
+        message: "Your cart has changed, please review.",
+        clientTotal: client_total_cents / 100,
+        serverTotal: expectedTotal,
+      }, { status: 409 });
+    }
+  }
+
   const url = process.env.WC_URL;
   const key = process.env.WC_CONSUMER_KEY;
   const secret = process.env.WC_CONSUMER_SECRET;
-
   if (!url || !key || !secret) {
     console.error(`[place-order:${requestId}] FAIL: missing WC env vars`);
     return NextResponse.json({ error: "API not configured" }, { status: 500 });
   }
 
-  const lineItems = items.map((item) => {
-    const lineTotal = (item.price * item.quantity).toFixed(2);
-    return { product_id: item.wcProductId, quantity: item.quantity, subtotal: lineTotal, total: lineTotal };
-  });
+  const lineItems = resolvedItems.map((item) => ({
+    product_id: item.productId,
+    ...(item.variationId ? { variation_id: item.variationId } : {}),
+    quantity: item.quantity,
+    subtotal: item.lineTotal.toFixed(2),
+    total: item.lineTotal.toFixed(2),
+  }));
 
   const feeLines = paymentDiscountAmount > 0
     ? [{
@@ -128,10 +195,10 @@ export async function POST(req: NextRequest) {
     },
     line_items: lineItems,
     shipping_lines: [{
-      method_id: shipping.methodId,
-      method_title: shipping.title,
-      instance_id: String(shipping.instanceId),
-      total: shipping.cost.toFixed(2),
+      method_id: shippingMatch.methodId,
+      method_title: shippingMatch.title,
+      instance_id: shippingMatch.instanceId,
+      total: shippingCost.toFixed(2),
     }],
     coupon_lines: couponLines,
     fee_lines: feeLines,
@@ -174,7 +241,7 @@ export async function POST(req: NextRequest) {
 
   console.log(`[place-order:${requestId}] WC order created — id:${order.id} total:${order.total} (expected ${expectedTotal})`);
 
-  // ── CRITICAL: verify WC's total matches what the customer was shown ───────
+  // ── CRITICAL: verify WC's total matches what we independently computed ────
   if (Math.abs(wcTotal - expectedTotal) > 0.01) {
     console.error(`[place-order:${requestId}] TOTAL MISMATCH — WC:${wcTotal} vs expected:${expectedTotal} — order ${order.id} left on-hold in WooCommerce, NOT redirecting customer`);
     return NextResponse.json({

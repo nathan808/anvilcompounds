@@ -58,10 +58,39 @@ payment processing partner."
   human or veterinary consumption. I am 21 years of age or older."
 - No product names, compound names, or research-chemical language on ANY
   payment page or in any payment descriptor/metadata.
+## Tax
+- This store has WooCommerce tax calculation enabled (`woocommerce_calc_taxes:
+  "yes"`). Currently one rate is configured: CA, 7.25%, and it applies to
+  shipping too (the rate's `shipping` flag is `true`). Other states currently
+  have no rate and are untaxed.
+- The rate is READ LIVE from `/wc/v3/taxes` (`lib/wcTax.ts`) — never hardcode
+  "7.25" or "CA" in Next.js. If a rate is added/changed/removed in WooCommerce,
+  checkout picks it up automatically.
+- WooCommerce rounds tax PER LINE, not once at the order/subtotal level
+  (`woocommerce_tax_round_at_subtotal: "no"` on this store). Reverse-engineered
+  from live order data, WC computes and rounds tax on three amounts
+  independently, then sums:
+  1. the post-coupon product total (subtotal − coupon discount)
+  2. the payment-method discount fee line (yes — WC taxes this too, even
+     though it's created with `tax_status: "none"`; empirically it still gets
+     taxed as a proportional reduction of the taxable base)
+  3. shipping (only if the matched rate's `shipping` flag is true)
+- Each of the three is rounded to the cent independently (half away from
+  zero — PHP's `round()`, not JS's `Math.round()`, which rounds `-0.5` the
+  wrong way) before being summed into the order's total tax.
+- `lib/taxMath.ts` (the rounding + composition formula) and `lib/wcTax.ts`
+  (the live rate lookup) are the ONLY place this logic may live. Both the
+  checkout UI (Order Summary tax row) and the order-creation route
+  (`app/api/checkout/place-order/route.ts`) call these same two functions —
+  never reimplement tax math elsewhere.
+- Verified against 6 live test orders across all payment methods (with and
+  without a coupon applied): server-computed totals matched WooCommerce's
+  totals to the cent.
+
 ## Config constants
 All payment details live in ONE file: /lib/paymentConfig.ts
 export const PAYMENT_CONFIG = {
-  zelle: { phone: "(619) 653-4735", maxOrder: 2000 },
+  zelle: { phone: "(619) 653-4735", maxOrder: 2000, status: "live" },
   ethereum: { status: "live" },
   echeck: { status: "placeholder" },
   usdc_usdt: { status: "placeholder" },

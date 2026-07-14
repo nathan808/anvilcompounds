@@ -48,7 +48,7 @@ export const SUPPORT_EMAIL = "support@anvilcompounds.shop";
 // ──────────────────────────────────────────────────────────────────────────────
 
 export const PAYMENT_CONFIG = {
-  zelle: { phone: "(619) 653-4735", maxOrder: 2000 },
+  zelle: { phone: "(619) 653-4735", maxOrder: 2000, status: "live" },
   ethereum: { status: "live" },
   echeck: { status: "placeholder" },
   usdc_usdt: { status: "placeholder" },

@@ -7,7 +7,7 @@ import { computeCouponDiscount } from "@/lib/couponMath";
 
 interface ShippingOption {
   methodId: string;
-  instanceId: number;
+  instanceId: string;
   title: string;
   cost: number;
   originalCost: number | null;

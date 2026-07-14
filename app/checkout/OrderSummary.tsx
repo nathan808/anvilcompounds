@@ -15,9 +15,10 @@ interface OrderSummaryProps {
   editableCoupon?: boolean;
   showShipping?: boolean;
   paymentDiscount?: PaymentDiscount | null;
+  onTotalChange?: (total: number) => void;
 }
 
-export default function OrderSummary({ editableCoupon = true, showShipping = false, paymentDiscount = null }: OrderSummaryProps) {
+export default function OrderSummary({ editableCoupon = true, showShipping = false, paymentDiscount = null, onTotalChange }: OrderSummaryProps) {
   const { items, subtotal } = useCart();
   const { coupon, setCoupon, shipping, step1 } = useCheckout();
   const [code, setCode] = useState(coupon?.code ?? "");
@@ -90,6 +91,11 @@ export default function OrderSummary({ editableCoupon = true, showShipping = fal
 
   const totalLabel = showShipping || paymentDiscount ? "Total" : coupon ? "New Subtotal" : "Total";
   const displayedTotal = showShipping || paymentDiscount ? total : postCouponSubtotal;
+
+  useEffect(() => {
+    onTotalChange?.(displayedTotal);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [displayedTotal]);
 
   return (
     <div className="glass-card rounded-2xl p-6">

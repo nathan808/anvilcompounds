@@ -24,7 +24,7 @@ export interface CheckoutCoupon {
 
 export interface CheckoutShipping {
   methodId: string;
-  instanceId: number;
+  instanceId: string;
   title: string;
   cost: number;
 }

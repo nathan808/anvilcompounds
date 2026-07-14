@@ -20,6 +20,7 @@ export default function PaymentPage() {
   const { step1, coupon, shipping, paymentMethodId, hydrated: checkoutHydrated } = useCheckout();
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [previewTotal, setPreviewTotal] = useState<number | null>(null);
 
   useEffect(() => {
     if (authHydrated && !isAuthenticated) {
@@ -53,18 +54,27 @@ export default function PaymentPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          items: items.map((i) => ({ wcProductId: i.wcProductId, quantity: i.quantity, name: i.name, size: i.size, price: i.price })),
-          billing: step1,
-          coupon,
-          shipping,
+          // Identifiers and selections ONLY — no price, total, discount, or tax
+          // value is ever sent. The server derives all of those from WC itself.
+          items: items.map((i) => ({ productId: i.wcProductId, size: i.size, quantity: i.quantity })),
+          shippingInstanceId: shipping.instanceId,
+          couponCode: coupon?.code,
           paymentMethodId,
+          billing: step1,
           ruoConfirmed: step1.ruoConfirmed,
           customer_id: user?.wcCustomerId ?? 0,
+          // Verification only — see PART C: if this disagrees with the
+          // server's own computation, the order is not created.
+          client_total_cents: previewTotal !== null ? Math.round(previewTotal * 100) : undefined,
         }),
       });
       const data = await res.json();
       if (!res.ok || data.error) {
-        setError(data.message ?? data.error ?? "Something went wrong creating your order. Please try again or contact support@anvilcompounds.shop");
+        if (data.error === "CART_CHANGED") {
+          setError("Your cart has changed, please review.");
+        } else {
+          setError(data.message ?? data.error ?? "Something went wrong creating your order. Please try again or contact support@anvilcompounds.shop");
+        }
         setSubmitting(false);
         return;
       }
@@ -125,7 +135,7 @@ export default function PaymentPage() {
             </div>
 
             <div className="lg:sticky lg:top-28 space-y-4">
-              <OrderSummary editableCoupon={false} showShipping paymentDiscount={paymentDiscount} />
+              <OrderSummary editableCoupon={false} showShipping paymentDiscount={paymentDiscount} onTotalChange={setPreviewTotal} />
             </div>
           </div>
         </div>

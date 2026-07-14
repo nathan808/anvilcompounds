@@ -25,8 +25,7 @@ export default function PaymentMethods() {
               {methods.map((method) => {
                 const discountAmount = postCouponSubtotal * (method.discountPercent / 100);
                 const methodTotal = postCouponSubtotal - discountAmount + shippingCost;
-                const methodConfig = PAYMENT_CONFIG[method.id];
-                const isLive = "status" in methodConfig && methodConfig.status === "live";
+                const isLive = PAYMENT_CONFIG[method.id].status === "live";
                 const overZelleCap = method.id === "zelle" && methodTotal > PAYMENT_CONFIG.zelle.maxOrder;
                 const selected = paymentMethodId === method.id;
 
