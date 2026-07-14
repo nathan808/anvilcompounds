@@ -66,9 +66,9 @@ export async function POST(req: NextRequest) {
     const auth = Buffer.from(`${key}:${secret}`).toString("base64");
 
     const payload = {
-      payment_method: "bacs",
-      payment_method_title: "Manual Payment (Zelle / ACH / Crypto)",
-      status: "on-hold",
+      payment_method: "bankful_hosted_gateway",
+      payment_method_title: "Bankful",
+      status: "pending",
       customer_id: customer_id ?? 0,
       billing: {
         first_name: billing.firstName,
@@ -140,74 +140,14 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const order = JSON.parse(wcBody) as { id: number; number: string };
+    const order = JSON.parse(wcBody) as { id: number; number: string; order_key: string };
     console.log(`[orders:${requestId}] SUCCESS: order created — id:${order.id} number:${order.number}`);
 
-    // ── Create Bankful invoice ───────────────────────────────────────────────
-    const bankfulKey      = process.env.BANKFUL_API_KEY;
-    const bankfulSecret   = process.env.BANKFUL_API_SECRET;
-    const bankfulMerchant = process.env.BANKFUL_MERCHANT_ID;
-    let paymentUrl: string | null = null;
-
-    if (bankfulKey && bankfulSecret && bankfulMerchant) {
-      try {
-        const bankfulAuth = Buffer.from(`${bankfulKey}:${bankfulSecret}`).toString("base64");
-        const bankfulPayload = {
-          email:             billing.email,
-          request_currency:  "USD",
-          invoice_date:      new Date().toISOString().split("T")[0],
-          reference_number:  String(order.number),
-          type_of_goods:     "shippable_goods",
-          merchant_id:       parseInt(bankfulMerchant, 10),
-          note_to_recipient: `Research Use Only (RUO) — Order #${order.number} — Anvil Compounds. For in vitro laboratory use only.`,
-          invoiceItems: (items ?? []).map((item) => ({
-            item_name:        item.name,
-            item_description: item.size,
-            quantity:         item.quantity,
-            rate:             item.price,
-            tax_percentage:   0,
-          })),
-          billingDetails: {
-            first_name: billing.firstName,
-            last_name:  billing.lastName,
-            email:      billing.email,
-            phone:      billing.phone ?? "",
-            address_1:  billing.address1,
-            city:       billing.city,
-            state:      billing.state,
-            zip:        billing.zip,
-            country:    "US",
-          },
-        };
-
-        console.log(`[orders:${requestId}] Calling Bankful: POST /api/invoice/create for order #${order.number}`);
-        const bankfulRes = await fetch("https://api.paybybankful.com/api/invoice/create", {
-          method: "POST",
-          headers: {
-            "Content-Type":  "application/json",
-            "Authorization": `Basic ${bankfulAuth}`,
-          },
-          body: JSON.stringify(bankfulPayload),
-        });
-
-        const bankfulData = await bankfulRes.json() as {
-          status?: string;
-          data?: { invoiceId?: number; paymentLink?: string; shortLink?: string };
-        };
-        console.log(`[orders:${requestId}] Bankful response:`, JSON.stringify(bankfulData).slice(0, 300));
-
-        if (bankfulData.status === "Success" && bankfulData.data?.paymentLink) {
-          paymentUrl = bankfulData.data.paymentLink;
-          console.log(`[orders:${requestId}] Bankful paymentLink: ${paymentUrl}`);
-        } else {
-          console.warn(`[orders:${requestId}] Bankful invoice creation failed — falling back to manual payment`, bankfulData);
-        }
-      } catch (bankfulErr) {
-        console.error(`[orders:${requestId}] Bankful error (non-fatal, WC order already created):`, bankfulErr);
-      }
-    } else {
-      console.warn(`[orders:${requestId}] Bankful env vars missing (KEY:${!!bankfulKey} SECRET:${!!bankfulSecret} MERCHANT_ID:${!!bankfulMerchant}) — skipping Bankful invoice`);
-    }
+    // ── Build Bankful payment URL via WooCommerce order-pay ─────────────────
+    // The bankful_hosted_gateway WC plugin handles auth with Bankful from here.
+    const wcSiteUrl = process.env.WC_URL ?? "";
+    const paymentUrl = `${wcSiteUrl}/checkout/order-pay/${order.id}/?pay_for_order=true&key=${order.order_key}`;
+    console.log(`[orders:${requestId}] WC order-pay URL: ${paymentUrl}`);
 
     console.log(`[orders:${requestId}] ── END ────────────────────────────────`);
 
@@ -259,7 +199,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       orderId:     order.id,
       orderNumber: order.number,
-      ...(paymentUrl ? { paymentUrl } : {}),
+      paymentUrl,
     });
 
   } catch (err) {
