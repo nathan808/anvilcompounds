@@ -29,12 +29,17 @@ export default function PaymentPage() {
   }, [authHydrated, isAuthenticated, router]);
 
   useEffect(() => {
+    // Skip while an order submission is in flight — handleContinue clears the
+    // cart right after creating the order and before navigating to the pay
+    // page, which would otherwise make this effect see items.length === 0 and
+    // race router.push with its own router.replace("/checkout").
+    if (submitting) return;
     if (checkoutHydrated && (items.length === 0 || !step1.ruoConfirmed)) {
       router.replace("/checkout");
     } else if (checkoutHydrated && !shipping) {
       router.replace("/checkout/shipping");
     }
-  }, [checkoutHydrated, items.length, step1.ruoConfirmed, shipping, router]);
+  }, [checkoutHydrated, items.length, step1.ruoConfirmed, shipping, router, submitting]);
 
   if (!authHydrated || !isAuthenticated || !checkoutHydrated) return null;
 
