@@ -4,20 +4,14 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import CheckoutForm from "./CheckoutForm";
+import Step1Form from "./Step1Form";
+import OrderSummary from "./OrderSummary";
 import { useCart } from "@/lib/cartContext";
 import { useAuth } from "@/lib/authContext";
 import Link from "next/link";
 
-const PAYMENT_METHODS = [
-  { label: "ACH Transfer", sub: "Via LinkMoney or Plaid", icon: "🏦" },
-  { label: "USDC / USDT", sub: "Via NOWPayments", icon: "₿" },
-  { label: "Zelle", sub: "To our business account", icon: "⚡" },
-  { label: "CashApp", sub: "To our $cashtag", icon: "💚" },
-];
-
 export default function CheckoutPage() {
-  const { items, subtotal } = useCart();
+  const { items } = useCart();
   const { isAuthenticated, hydrated, user } = useAuth();
   const router = useRouter();
 
@@ -47,9 +41,9 @@ export default function CheckoutPage() {
           <div className="mb-10">
             <div className="flex items-center gap-3 mb-3">
               <div className="w-6 h-px bg-blue-600" />
-              <span className="font-mono text-xs text-blue-400 tracking-[0.25em] uppercase">Checkout</span>
+              <span className="font-mono text-xs text-blue-400 tracking-[0.25em] uppercase">Step 1 of 3 · Information</span>
             </div>
-            <h1 className="font-display font-800 text-white text-4xl">Reserve Your Order</h1>
+            <h1 className="font-display font-800 text-white text-4xl">Checkout</h1>
             <p className="font-body text-white/40 mt-2">
               Checking out as <span className="text-white/60">{user?.email}</span> ·{" "}
               <button onClick={() => { router.push("/account"); }} className="text-blue-400/70 hover:text-blue-400 transition-colors text-sm underline underline-offset-2">
@@ -68,62 +62,11 @@ export default function CheckoutPage() {
             </div>
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-10 items-start">
-              {/* Left — form */}
               <div className="glass-card rounded-2xl p-8">
-                <CheckoutForm />
+                <Step1Form />
               </div>
-
-              {/* Right — order summary (sticky) */}
               <div className="lg:sticky lg:top-28 space-y-4">
-                {/* Order summary */}
-                <div className="glass-card rounded-2xl p-6">
-                  <h3 className="font-display font-700 text-white mb-4">Order Summary</h3>
-                  <div className="space-y-3 mb-5">
-                    {items.map((item) => (
-                      <div key={`${item.slug}-${item.size}`} className="flex items-start justify-between gap-3">
-                        <div className="flex-1 min-w-0">
-                          <p className="font-body text-sm text-white/70">{item.name}</p>
-                          <p className="font-mono text-xs text-blue-400/50 tracking-wider">{item.size} · qty {item.quantity}</p>
-                        </div>
-                        <span className="font-mono text-sm text-white/70 shrink-0">
-                          ${(item.price * item.quantity).toFixed(2)}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="border-t border-white/8 pt-4 flex items-center justify-between">
-                    <span className="font-body text-white/50">Subtotal</span>
-                    <span className="font-display font-800 text-white text-xl">${subtotal.toFixed(2)}</span>
-                  </div>
-                  <p className="font-mono text-[10px] text-white/20 tracking-wide mt-3">
-                    Shipping calculated at confirmation. US domestic only.
-                  </p>
-                </div>
-
-                {/* Payment info */}
-                <div className="glass-card rounded-2xl p-6">
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="w-1.5 h-1.5 rounded-full bg-blue-400" />
-                    <h3 className="font-display font-700 text-white text-sm">Payment</h3>
-                  </div>
-                  <p className="font-body text-xs text-white/40 leading-relaxed mb-4">
-                    No card processing. After reserving, you'll receive payment instructions via email. Orders ship once payment clears.
-                  </p>
-                  <div className="grid grid-cols-2 gap-2">
-                    {PAYMENT_METHODS.map((m) => (
-                      <div key={m.label} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/3 border border-white/6">
-                        <span className="text-base">{m.icon}</span>
-                        <div>
-                          <p className="font-mono text-xs text-white/60">{m.label}</p>
-                          <p className="font-mono text-[9px] text-white/25">{m.sub}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  <p className="font-mono text-[10px] text-white/20 tracking-wide mt-3">
-                    Orders held 48 hours pending payment.
-                  </p>
-                </div>
+                <OrderSummary />
               </div>
             </div>
           )}

@@ -39,3 +39,26 @@ export const PAYMENT_DETAILS = {
 
 export const HOLD_DAYS = 7;
 export const SUPPORT_EMAIL = "support@anvilcompounds.shop";
+
+// ─── CHECKOUT_SPEC.md config constants ─────────────────────────────────────
+// Per-spec status flags for the multi-step checkout (Step 3 payment method
+// selection). Kept alongside PAYMENT_DETAILS above rather than replacing it —
+// app/order-confirmation/page.tsx still reads PAYMENT_DETAILS/HOLD_DAYS/
+// SUPPORT_EMAIL, and removing them would break that page's build.
+// ──────────────────────────────────────────────────────────────────────────────
+
+export const PAYMENT_CONFIG = {
+  zelle: { phone: "(619) 653-4735", maxOrder: 2000, status: "live" },
+  ethereum: { status: "live" },
+  echeck: { status: "live" },
+  usdc_usdt: { status: "placeholder" },
+  ach: { status: "placeholder" },
+  stripe: { status: "placeholder" },
+} as const;
+
+// Order hold window for the Bankful/multi-step flow (CHECKOUT_SPEC.md "Order
+// lifecycle": on-hold at creation, auto-cancel if unpaid after 3 days). Kept
+// distinct from HOLD_DAYS above (7) — that constant is read by the older
+// single-step order-confirmation page and represents a different, undocumented
+// policy; not touched here since changing it would change that page's behavior.
+export const ORDER_HOLD_DAYS = 3;
