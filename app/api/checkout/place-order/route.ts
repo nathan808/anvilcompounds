@@ -204,6 +204,10 @@ export async function POST(req: NextRequest) {
     fee_lines: feeLines,
     meta_data: [
       { key: "anvil_payment_method", value: paymentMethodId },
+      // customer_ip_address is read-only via the WC REST API (confirmed: an
+      // explicit value on create/update is silently dropped) — stored as meta
+      // instead so lib/bankful.ts's remote_ip field has something real to read.
+      { key: "_headless_customer_ip", value: ip },
       { key: "_ruo_confirmed", value: ruoConfirmed ? "yes" : "no" },
       { key: "_ruo_confirmed_at", value: new Date().toISOString() },
       { key: "_ruo_confirmed_ip", value: ip },

@@ -21,7 +21,7 @@ Group 1 — Card
   stripe    | Card             | $0 (baseline price) | PLACEHOLDER integration
 Group 2 — Instant (lead with these)
   ethereum  | Ethereum         | -10% | LIVE — Bankful hosted page
-  echeck    | E-check          | -10% | PLACEHOLDER — Bankful hosted page
+  echeck    | E-check          | -10% | LIVE — Bankful hosted page (promoted from PLACEHOLDER; both share createPaymentLink())
   usdc_usdt | USDC / USDT      | -5%  | PLACEHOLDER — NOWPayments
   ach       | ACH transfer     | -5%  | PLACEHOLDER — LinkMoney
 Group 3 — Manual
@@ -39,6 +39,14 @@ NO card surcharge. Card is the posted baseline; other rails are discounts off it
 ## Order lifecycle
 on-hold at creation → auto-cancel if unpaid after 3 days
 → "processing" on payment confirmation (webhook, or manual for Zelle)
+- The 3-day figure is `ORDER_HOLD_DAYS` in `lib/paymentConfig.ts`, read by the
+  pay/confirmation pages. It is intentionally separate from the older
+  `HOLD_DAYS` constant (7) in the same file, which the single-step
+  `app/order-confirmation` page still reads — that's a different, pre-existing
+  policy for a different flow, left alone rather than reconciled.
+- No auto-cancel cron/job exists yet — only the hold-expiry *display* is
+  implemented. Actually cancelling unpaid on-hold orders after 3 days is not
+  built.
 
 ## Zelle rules
 - Cap: $2,000 per order. Above this, the Zelle card is disabled with
