@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useCart } from "@/lib/cartContext";
+import PaymentMethodsBar from "@/components/PaymentMethodsBar";
 import {
   VOLUME_TIERS,
   getVolumeDiscount,
@@ -267,13 +268,8 @@ export default function AddToCartButton({
       </Link>
 
       {/* Payment methods */}
-      <div className="flex items-center justify-center gap-4 pt-1">
-        {[["⚡", "Zelle"], ["💚", "CashApp"], ["🍎", "Apple Cash"], ["₿", "Crypto"]].map(([icon, label]) => (
-          <div key={label} className="flex items-center gap-1">
-            <span className="text-xs">{icon}</span>
-            <span className="font-mono text-[9px] text-white/30 tracking-wide">{label}</span>
-          </div>
-        ))}
+      <div className="pt-1">
+        <PaymentMethodsBar />
       </div>
 
       {/* RUO */}

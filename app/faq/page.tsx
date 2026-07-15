@@ -16,11 +16,11 @@ const faqs: { category: string; items: FaqItem[] }[] = [
     items: [
       {
         q: "What payment methods do you accept?",
-        a: "Anvil Compounds does not process card payments at launch. Orders are reserved through the checkout flow and fulfilled after payment is received via one of the following channels: ACH bank transfer (via LinkMoney or Plaid), USDC or USDT cryptocurrency (via NOWPayments), Zelle to our business account, or CashApp. Payment instructions are included in your order confirmation email. Orders are held for 48 hours pending payment — after which they are released if no payment is received.",
+        a: "Card payments via Stripe (Visa, Mastercard, Amex, Discover, Apple Pay, Google Pay, Link) are coming soon and not yet live. Today, orders are reserved through the checkout flow and fulfilled after payment is received via one of: Ethereum or E-check (both via our payment partner Bankful, each with an instant 10% discount), Zelle to our business account, USDC/USDT cryptocurrency, or ACH bank transfer. Payment instructions are shown on the payment page and included in your confirmation email. Orders are held for 72 hours pending payment — after which they are released if no payment is received.",
       },
       {
         q: "How long is my order held after checkout?",
-        a: "Reserved orders are held for 48 hours from the time of checkout. If payment is not received within that window, the order is released and inventory is returned to stock. To avoid delays, complete payment as soon as you receive your confirmation email.",
+        a: "Reserved orders are held for 72 hours from the time of checkout. If payment is not received within that window, the order is released and inventory is returned to stock. To avoid delays, complete payment as soon as you receive your confirmation email.",
       },
       {
         q: "Can I cancel or modify my order?",

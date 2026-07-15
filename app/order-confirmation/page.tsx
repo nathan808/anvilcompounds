@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { PAYMENT_DETAILS, HOLD_DAYS, SUPPORT_EMAIL } from "@/lib/paymentConfig";
+import { PAYMENT_DETAILS, PAYMENT_CONFIG, HOLD_DAYS, SUPPORT_EMAIL } from "@/lib/paymentConfig";
 import type { OrderDetail } from "@/app/api/orders/[id]/route";
 
 // ─── Discount badge ────────────────────────────────────────────────────────────
@@ -211,29 +211,31 @@ function ConfirmationContent() {
 
         <div className="space-y-4">
 
+          {/* Ethereum — via Bankful, instant 10% discount */}
+          <PaymentBlock icon="Ξ" title="Ethereum" discount="10% instant discount" orderNumber={orderNum} timeline="A secure payment link is emailed to you separately.">
+            <p className="font-body text-sm text-white/50">
+              Processed via our payment partner Bankful. Your bank statement will show a charge from Anvil Holdings LLC.
+            </p>
+          </PaymentBlock>
+
+          {/* E-check — via Bankful, instant 10% discount */}
+          <PaymentBlock icon="✓" title="E-check" discount="10% instant discount" orderNumber={orderNum} timeline="A secure payment link is emailed to you separately.">
+            <p className="font-body text-sm text-white/50">
+              Processed via our payment partner Bankful. Your bank statement will show a charge from Anvil Holdings LLC.
+            </p>
+          </PaymentBlock>
+
           {/* Zelle */}
           <PaymentBlock icon="⚡" title="Zelle" orderNumber={orderNum} timeline={PAYMENT_DETAILS.zelle.timeline}>
-            <DetailRow label="Send to" value={PAYMENT_DETAILS.zelle.handle} />
+            <DetailRow label="Send to" value={PAYMENT_CONFIG.zelle.phone} />
             <DetailRow label="Name" value={PAYMENT_DETAILS.zelle.recipientName} />
-          </PaymentBlock>
-
-          {/* CashApp */}
-          <PaymentBlock icon="💚" title="CashApp" orderNumber={orderNum} timeline={PAYMENT_DETAILS.cashapp.timeline}>
-            <DetailRow label="Cashtag" value={PAYMENT_DETAILS.cashapp.cashtag} />
-            <DetailRow label="Name" value={PAYMENT_DETAILS.cashapp.recipientName} />
-          </PaymentBlock>
-
-          {/* Apple Cash */}
-          <PaymentBlock icon="🍎" title="Apple Cash" orderNumber={orderNum} timeline={PAYMENT_DETAILS.applecash.timeline}>
-            <DetailRow label="Send to" value={PAYMENT_DETAILS.applecash.phone} />
-            <DetailRow label="Name" value={PAYMENT_DETAILS.applecash.recipientName} />
           </PaymentBlock>
 
           {/* ACH — discount badge */}
           <PaymentBlock
             icon="🏦"
             title="ACH Bank Transfer"
-            discount={PAYMENT_DETAILS.ach.discount}
+            discount="5% instant discount"
             orderNumber={orderNum}
             timeline={PAYMENT_DETAILS.ach.timeline}
           >
@@ -244,16 +246,16 @@ function ConfirmationContent() {
             <DetailRow label="Beneficiary"    value={PAYMENT_DETAILS.ach.beneficiaryName} />
           </PaymentBlock>
 
-          {/* Crypto — discount badge */}
+          {/* Crypto — USDC/USDT only; ETH is handled above via the separate Bankful rail */}
           <PaymentBlock
-            icon="₿"
-            title="Crypto (USDC / USDT / BTC / ETH)"
-            discount={PAYMENT_DETAILS.crypto.discount}
+            icon="₮"
+            title="USDC / USDT (Crypto)"
+            discount="5% instant discount"
             orderNumber={orderNum}
             timeline={PAYMENT_DETAILS.crypto.timeline}
           >
             <DetailRow label="Provider"   value={PAYMENT_DETAILS.crypto.provider} />
-            <DetailRow label="Coins"      value={PAYMENT_DETAILS.crypto.supportedCoins} />
+            <DetailRow label="Coins"      value="USDC, USDT" />
             <div className="rounded-xl bg-blue-600/5 border border-blue-600/10 px-4 py-3">
               <p className="font-mono text-[10px] text-white/35 tracking-wide leading-relaxed">
                 A unique wallet address is auto-generated for your order via NOWPayments.

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useCart } from "@/lib/cartContext";
 import { useFreeShippingProgress } from "@/lib/useFreeShippingProgress";
 import FreeShippingProgress from "@/components/FreeShippingProgress";
+import PaymentMethodsBar from "@/components/PaymentMethodsBar";
 
 export default function CartDrawer() {
   const { items, isCartOpen, closeCart, removeItem, updateQty, itemCount, subtotal } = useCart();
@@ -125,8 +126,9 @@ export default function CartDrawer() {
                   <span className="font-body text-white/50">Subtotal</span>
                   <span className="font-display font-700 text-white text-xl">${subtotal.toFixed(2)}</span>
                 </div>
-                <p className="font-mono text-[10px] text-white/20 tracking-wide leading-relaxed">
-                  Payment via Zelle · CashApp · ACH · Crypto. Instructions sent after checkout.
+                <PaymentMethodsBar />
+                <p className="font-mono text-[10px] text-white/20 tracking-wide leading-relaxed text-center">
+                  Instructions sent after checkout.
                 </p>
                 <Link
                   href="/checkout"
