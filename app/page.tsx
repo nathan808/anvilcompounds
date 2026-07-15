@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import MarqueeBar from "@/components/MarqueeBar";
@@ -12,7 +13,9 @@ export default function Home() {
       <Navbar />
       <HeroSection />
       <MarqueeBar />
-      <ProductsSection />
+      <Suspense fallback={null}>
+        <ProductsSection />
+      </Suspense>
       <HowWeTestSection />
       <TrustSection />
       <Footer />

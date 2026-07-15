@@ -120,7 +120,7 @@ export default function CartDrawer() {
             {/* Footer */}
             {items.length > 0 && (
               <div className="px-6 py-5 border-t border-white/8 space-y-4">
-                <FreeShippingProgress data={freeShippingProgress} />
+                <FreeShippingProgress data={freeShippingProgress} subtotal={subtotal} />
                 <div className="flex items-center justify-between">
                   <span className="font-body text-white/50">Subtotal</span>
                   <span className="font-display font-700 text-white text-xl">${subtotal.toFixed(2)}</span>

@@ -101,7 +101,7 @@ export default function HeroSection() {
             {/* CTAs — stacked on mobile, row on sm+ */}
             <motion.div variants={item} className="flex flex-col sm:flex-row flex-wrap justify-center gap-2.5 mb-4 w-full sm:w-auto">
               <a
-                href="#catalog"
+                href="/?catalog=full#catalog"
                 className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-display font-700 text-sm tracking-wide rounded-md transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/30 text-center"
               >
                 Explore Catalog

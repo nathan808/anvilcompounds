@@ -1,39 +1,78 @@
 import { FreeShippingProgress as FreeShippingProgressData } from "@/lib/useFreeShippingProgress";
+import { VOLUME_DISCOUNT_THRESHOLD, VOLUME_DISCOUNT_PERCENT } from "@/lib/volumeDiscount";
 
 interface Props {
   data: FreeShippingProgressData | null;
+  subtotal: number;
+  hasCoupon?: boolean;
   label?: string;
 }
 
-// Single source of the free-shipping teaser UI — used by ShippingMethods.tsx
-// (Step 2, fed from its own fetch), and via useFreeShippingProgress by the
-// cart drawer, Step 1, and Step 3. Renders nothing if there's no amount-based
-// free-shipping rule to show progress toward (data === null).
-export default function FreeShippingProgress({ data, label = "free Ground shipping" }: Props) {
-  if (!data) return null;
+interface Row {
+  key: string;
+  eligible: boolean;
+  remaining: number;
+  threshold: number;
+  unlockedText: string;
+  pendingLabel: string;
+}
 
-  if (data.eligible) {
-    return (
-      <div className="px-4 py-3 rounded-xl bg-blue-600/10 border border-blue-500/30">
-        <p className="font-body text-sm text-blue-300">✓ You&apos;ve unlocked {label}</p>
-      </div>
-    );
+function ProgressRow({ row }: { row: Row }) {
+  if (row.eligible) {
+    return <p className="font-body text-sm text-blue-300">✓ {row.unlockedText}</p>;
   }
-
-  const pct = Math.min(100, Math.max(0, ((data.threshold - data.remaining) / data.threshold) * 100));
-
+  const pct = Math.min(100, Math.max(0, ((row.threshold - row.remaining) / row.threshold) * 100));
   return (
-    <div className="px-4 py-3 rounded-xl bg-white/5 border border-white/10 space-y-2">
+    <div className="space-y-2">
       <p className="font-body text-sm text-white/60">
-        Add <span className="text-blue-400 font-600">${data.remaining.toFixed(2)}</span> more to unlock{" "}
-        <span className="text-white/80">{label}</span>
+        Add <span className="text-blue-400 font-600">${row.remaining.toFixed(2)}</span> more to unlock{" "}
+        <span className="text-white/80">{row.pendingLabel}</span>
       </p>
       <div className="h-1.5 rounded-full bg-white/10 overflow-hidden">
-        <div
-          className="h-full bg-blue-500 rounded-full transition-all duration-500"
-          style={{ width: `${pct}%` }}
-        />
+        <div className="h-full bg-blue-500 rounded-full transition-all duration-500" style={{ width: `${pct}%` }} />
       </div>
+    </div>
+  );
+}
+
+// Single source of both spend-more-save-more teasers shown throughout
+// checkout: free shipping (data — live from WC, via ShippingMethods.tsx's
+// own fetch or useFreeShippingProgress elsewhere) and the volume discount
+// (subtotal/hasCoupon — a pure Next.js-side constant, no WC lookup needed,
+// since it's not a WC coupon or shipping rule). The two have independent
+// $150/$200 thresholds, so each renders as its own row rather than one
+// merged bar. The volume-discount row is omitted entirely when a coupon is
+// active, since computeVolumeDiscount() returns 0 in that case regardless
+// of subtotal — nothing to show progress toward.
+export default function FreeShippingProgress({ data, subtotal, hasCoupon = false, label = "free Ground shipping" }: Props) {
+  const shippingRow: Row | null = data && {
+    key: "shipping",
+    eligible: data.eligible,
+    remaining: data.remaining,
+    threshold: data.threshold,
+    unlockedText: `You've unlocked ${label}`,
+    pendingLabel: label,
+  };
+
+  const volumeRow: Row | null = hasCoupon ? null : {
+    key: "volume",
+    eligible: subtotal >= VOLUME_DISCOUNT_THRESHOLD,
+    remaining: Math.max(0, VOLUME_DISCOUNT_THRESHOLD - subtotal),
+    threshold: VOLUME_DISCOUNT_THRESHOLD,
+    unlockedText: `You've unlocked ${VOLUME_DISCOUNT_PERCENT}% off your order`,
+    pendingLabel: `${VOLUME_DISCOUNT_PERCENT}% off your order`,
+  };
+
+  const rows = [shippingRow, volumeRow].filter((r): r is Row => r !== null);
+  if (rows.length === 0) return null;
+
+  return (
+    <div className="px-4 py-3 rounded-xl bg-white/5 border border-white/10 space-y-3">
+      {rows.map((row, i) => (
+        <div key={row.key} className={i > 0 ? "pt-3 border-t border-white/8" : ""}>
+          <ProgressRow row={row} />
+        </div>
+      ))}
     </div>
   );
 }

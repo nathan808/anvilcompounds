@@ -16,18 +16,26 @@ export interface TaxBreakdown {
 
 // Mirrors WooCommerce's own tax calculation with per-line rounding (this store
 // has woocommerce_tax_round_at_subtotal = "no"): the post-coupon product
-// total, the payment-method discount fee, and shipping are each taxed and
-// rounded independently, then summed. This matches WC's calculate_totals()
-// to the cent — verified against live test orders (549-554).
+// total, EACH fee line (payment-method discount, volume discount — every
+// negative fee line WC sees on the order, even ones created with
+// tax_status: "none"), and shipping are each taxed and rounded
+// independently as their own WC_Order_Item_Fee, then summed. Verified
+// against live test orders with a single fee line (549-554); with two fee
+// lines simultaneously (volume + payment-method discount), each is still
+// its own independent WC_Order_Item_Fee under the hood, so the same
+// per-line-rounding mechanism applies — re-verify against a real order
+// before trusting this without the CRITICAL total-match check.
 export function computeTax(
   rate: number,
   postCouponSubtotal: number,
-  paymentDiscountAmount: number,
+  feeAmounts: number[],
   shippingCost: number,
   shippingTaxable: boolean
 ): TaxBreakdown {
   const productTax = roundCurrency(postCouponSubtotal * rate);
-  const feeTax = paymentDiscountAmount > 0 ? roundCurrency(-paymentDiscountAmount * rate) : 0;
+  const feeTax = roundCurrency(
+    feeAmounts.reduce((sum, amount) => sum + (amount !== 0 ? roundCurrency(-amount * rate) : 0), 0)
+  );
   const shippingTax = shippingTaxable ? roundCurrency(shippingCost * rate) : 0;
   return {
     productTax,

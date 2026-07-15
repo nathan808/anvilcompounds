@@ -21,7 +21,7 @@ export default function Navbar({ pushDown = false }: { pushDown?: boolean }) {
   }, []);
 
   const links = [
-    { label: "Catalog", href: "/#catalog" },
+    { label: "Catalog", href: "/?catalog=full#catalog" },
     { label: "COAs", href: "/coas" },
     { label: "Journal", href: "/blog" },
     { label: "About", href: "/about" },
@@ -68,7 +68,7 @@ export default function Navbar({ pushDown = false }: { pushDown?: boolean }) {
               Research Use Only
             </span>
             <a
-              href="/#catalog"
+              href="/?catalog=full#catalog"
               className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-display font-600 rounded transition-all duration-200 hover:shadow-lg hover:shadow-blue-600/30"
             >
               View Catalog
@@ -137,7 +137,7 @@ export default function Navbar({ pushDown = false }: { pushDown?: boolean }) {
                   </a>
                 ))}
                 <a
-                  href="/#catalog"
+                  href="/?catalog=full#catalog"
                   onClick={() => setMenuOpen(false)}
                   className="mt-2 px-4 py-2.5 bg-blue-600 text-white text-sm font-display font-600 rounded text-center"
                 >

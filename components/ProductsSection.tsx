@@ -1,10 +1,19 @@
 "use client";
 
 import { useRef, useEffect, useState, useCallback, useMemo } from "react";
+import { useSearchParams } from "next/navigation";
 import { motion, useInView } from "framer-motion";
 import Image from "next/image";
 import type { ProductCard } from "@/lib/woocommerce";
 import { useCart } from "@/lib/cartContext";
+
+// Hidden by default under the "All Compounds" tab on the home page only —
+// revealed either by clicking "View All" at the bottom of that grid, or
+// immediately if arriving via a link that set ?catalog=full (Catalog nav,
+// "View Catalog" CTA, Explore Catalog banner button — see Navbar.tsx /
+// HeroSection.tsx). Never hidden under any specific category tab (e.g.
+// Metabolic Research) — only under the default "All Compounds" view.
+const HOME_HIDDEN_ON_ALL_COMPOUNDS = ["GLP-RT", "GLP-TRZ"];
 
 const PRODUCT_IMAGES: Record<string, string> = {
   "BPC-157":                       "/products/bpc157.png",
@@ -13,6 +22,8 @@ const PRODUCT_IMAGES: Record<string, string> = {
   "R3ta":                          "/products/reta.png",
   "Triple Agonist (R)":            "/products/reta.png",
   "triple agonist (R)":            "/products/reta.png",
+  "GLP-TRZ":                       "/products/tirz.png",
+  "GLP-RT":                        "/products/reta.png",
   "KLOW":                          "/products/klow.png",
   "GHK-Cu":                        "/products/ghkcu.png",
   "TB-500":                        "/products/tb500.png",
@@ -37,6 +48,8 @@ const PRODUCT_SIZES: Record<string, string[]> = {
   "Rta - triple agonist":                         ["10mg", "20mg"],
   "triple agonist (R)":                           ["10mg", "20mg"],
   "Triple Agonist (R)":                           ["10mg", "20mg"],
+  "GLP-TRZ":                                      ["10mg", "20mg"],
+  "GLP-RT":                                       ["10mg", "20mg"],
   "KLOW":                                         ["80mg blend"],
   "GHK-Cu":                                       ["50mg", "100mg"],
   "TB-500":                                       ["10mg"],
@@ -62,6 +75,8 @@ const SLUG_MAP: Record<string, string> = {
   "triple agonist (R)":                           "r3ta",
   "Triple Agonist (R)":                           "r3ta",
   "Dual Receptor (T)":                            "t1rz",
+  "GLP-TRZ":                                      "glp-trz",
+  "GLP-RT":                                       "glp-rt",
   "KLOW":                                         "klow",
   "GHK-Cu":                                       "ghk-cu",
   "TB-500":                                       "tb-500",
@@ -89,6 +104,8 @@ const POPULARITY_ORDER: Record<string, number> = {
   "Rta - triple agonist":                         4,
   "triple agonist (R)":                           4,
   "Triple Agonist (R)":                           4,
+  "GLP-TRZ":                                      3,
+  "GLP-RT":                                       4,
   "KLOW":                                         5,
   "GLOW":                                         6,
   "TB-500":                                       7,
@@ -122,8 +139,8 @@ function slugifyProductName(name: string): string {
 const FALLBACK_PRODUCTS: ProductCard[] = [
   { id: 332, name: "BPC-157", category: "Repair & Recovery Research", description: "Body Protection Compound — a pentadecapeptide with notable tissue healing and regenerative properties under research conditions.", price: "$44", purity: "99.4%", badge: "Bestseller", badgeColor: "bg-blue-600/70 text-blue-100 border-blue-500/50", icon: "⬡", permalink: "https://anvilcompounds.shop/product/bpc-157/", image: "/products/bpc157.png", hasCoa: true },
   { id: 447, name: "BPC-157 + TB-500", category: "Repair & Recovery Research", description: "Dual peptide recovery blend combining BPC-157 and TB-500 — studied for synergistic effects in tissue repair and cell migration research models.", price: "$54", purity: "99%+", badge: "Recovery Blend", badgeColor: "bg-orange-600/70 text-orange-100 border-orange-500/50", icon: "⬧", permalink: "https://anvilcompounds.shop/product/bpc-157-tb-500/", image: "/products/wolverine.png", hasCoa: false },
-  { id: 333, name: "Dual Receptor (T)", category: "Metabolic Research", description: "A dual incretin receptor agonist binding both GIP and GLP-1 receptors, under active clinical research.", price: "$54", purity: "99.1%", badge: "Advanced", badgeColor: "bg-cyan-600/70 text-cyan-100 border-cyan-500/50", icon: "◇", permalink: "https://anvilcompounds.shop/product/t1rz/", image: "/products/tirz.png", hasCoa: true },
-  { id: 337, name: "Triple Agonist (R)", category: "Metabolic Research", description: "A triple receptor agonist targeting GIP, GLP-1, and glucagon receptors — at the frontier of current metabolic research.", price: "$64", purity: "99.0%", badge: "Cutting Edge", badgeColor: "bg-rose-600/70 text-rose-100 border-rose-500/50", icon: "⬟", permalink: "https://anvilcompounds.shop/product/r3ta/", image: "/products/reta.png", hasCoa: true },
+  { id: 333, name: "GLP-TRZ", category: "Metabolic Research", description: "A dual incretin receptor agonist binding both GIP and GLP-1 receptors, under active clinical research.", price: "$54", purity: "99.1%", badge: "Advanced", badgeColor: "bg-cyan-600/70 text-cyan-100 border-cyan-500/50", icon: "◇", permalink: "https://anvilcompounds.shop/product/glp-trz/", image: "/products/tirz.png", hasCoa: true },
+  { id: 337, name: "GLP-RT", category: "Metabolic Research", description: "A triple receptor agonist targeting GIP, GLP-1, and glucagon receptors — at the frontier of current metabolic research.", price: "$64", purity: "99.0%", badge: "Cutting Edge", badgeColor: "bg-rose-600/70 text-rose-100 border-rose-500/50", icon: "⬟", permalink: "https://anvilcompounds.shop/product/glp-rt/", image: "/products/reta.png", hasCoa: true },
   { id: 335, name: "KLOW", category: "Longevity & Cosmetic Research", description: "A curated blend of four research-grade peptides, independently tested as a combined formulation.", price: "$89", purity: "99.3%", badge: "Exclusive Blend", badgeColor: "bg-purple-600/70 text-purple-100 border-purple-500/50", icon: "✦", permalink: "https://anvilcompounds.shop/product/klow/", image: "/products/klow.png", hasCoa: true },
   { id: 354, name: "TB-500", category: "Repair & Recovery Research", description: "Synthetic analogue of Thymosin Beta-4, studied in cell migration, actin dynamics, and tissue modeling research models.", price: "$64", purity: "99%+", badge: "Recovery", badgeColor: "bg-amber-600/70 text-amber-100 border-amber-500/50", icon: "◉", permalink: "https://anvilcompounds.shop/product/tb-500/", image: "/products/tb500.png", hasCoa: true },
   { id: 336, name: "GHK-Cu", category: "Longevity & Cosmetic Research", description: "A naturally occurring copper complex with extensive research into cellular remodeling and tissue response.", price: "$34", purity: "99.5%", badge: "Entry Point", badgeColor: "bg-teal-600/70 text-teal-100 border-teal-500/50", icon: "⬢", permalink: "https://anvilcompounds.shop/product/ghk-cu/", image: "/products/ghkcu.png", hasCoa: true },
@@ -243,6 +260,12 @@ function ProductCard({ product, index }: { product: ProductCard; index: number }
                 <span className="font-display font-800 text-lg md:text-2xl text-white">{product.price}</span>
               </div>
             </div>
+            <a
+              href="/coas"
+              className="block w-full text-center mb-1.5 md:mb-2 px-2 md:px-3 py-1.5 md:py-2 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-white/50 hover:text-white text-xs md:text-sm font-display font-600 rounded-lg transition-all duration-300"
+            >
+              View COA
+            </a>
             <div className="flex gap-1.5 md:gap-2">
               <a
                 href={`/products/${slugifyProductName(product.name)}`}
@@ -299,6 +322,17 @@ export default function ProductsSection() {
   const [mobileShowAll, setMobileShowAll] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("All Compounds");
 
+  const searchParams = useSearchParams();
+  // Arrived via a link that set ?catalog=full (Catalog nav / View Catalog /
+  // Explore Catalog) — GLP-RT/GLP-TRZ show in their normal sorted position
+  // (first row) immediately, no click needed.
+  const revealedViaLink = searchParams.get("catalog") === "full";
+  // Arrived by scrolling and clicking "View All" at the bottom of the grid —
+  // GLP-RT/GLP-TRZ appear appended at the end instead, since jumping them
+  // into their normal (much earlier) sorted position after a deliberate
+  // "reveal" click would be a jarring layout shift.
+  const [revealedViaClick, setRevealedViaClick] = useState(false);
+
   useEffect(() => {
     fetch("/api/products")
       .then((r) => r.json())
@@ -322,20 +356,45 @@ export default function ProductsSection() {
     return ordered;
   }, [products]);
 
+  const byPopularity = (a: ProductCard, b: ProductCard) => {
+    const rankA = POPULARITY_ORDER[a.name] ?? 50;
+    const rankB = POPULARITY_ORDER[b.name] ?? 50;
+    return rankA - rankB;
+  };
+
   const filtered = useMemo(() => {
     let base = products.filter((p) =>
       p.name.toLowerCase().includes(search.toLowerCase()) ||
       p.category.toLowerCase().includes(search.toLowerCase())
     );
+
     if (selectedCategory !== "All Compounds") {
-      base = base.filter((p) => p.category === selectedCategory);
+      // Hiding is scoped only to the default "All Compounds" view — any
+      // specific category tab (including Metabolic Research, which is where
+      // GLP-RT/GLP-TRZ actually live) shows everything normally.
+      return base.filter((p) => p.category === selectedCategory).sort(byPopularity);
     }
-    return base.sort((a, b) => {
-      const rankA = POPULARITY_ORDER[a.name] ?? 50;
-      const rankB = POPULARITY_ORDER[b.name] ?? 50;
-      return rankA - rankB;
-    });
-  }, [products, search, selectedCategory]);
+
+    if (revealedViaLink) {
+      return base.sort(byPopularity);
+    }
+
+    const isHidden = (p: ProductCard) => HOME_HIDDEN_ON_ALL_COMPOUNDS.includes(p.name);
+    const visible = base.filter((p) => !isHidden(p)).sort(byPopularity);
+
+    if (revealedViaClick) {
+      const revealed = base.filter(isHidden).sort(byPopularity);
+      return [...visible, ...revealed];
+    }
+
+    return visible;
+  }, [products, search, selectedCategory, revealedViaLink, revealedViaClick]);
+
+  const hasHiddenCompounds =
+    selectedCategory === "All Compounds" &&
+    !revealedViaLink &&
+    !revealedViaClick &&
+    products.some((p) => HOME_HIDDEN_ON_ALL_COMPOUNDS.includes(p.name));
 
   return (
     <section id="catalog" className="relative bg-navy-950 py-24 md:py-32">
@@ -433,6 +492,7 @@ export default function ProductsSection() {
                   onClick={() => {
                     setSelectedCategory(cat);
                     setMobileShowAll(false);
+                    setRevealedViaClick(false);
                   }}
                   className={`font-mono text-xs tracking-wide px-4 py-2 rounded-lg border transition-all duration-250 whitespace-nowrap ${
                     isActive
@@ -476,6 +536,28 @@ export default function ProductsSection() {
               className="px-8 py-3 bg-blue-600 hover:bg-blue-500 text-white font-display font-700 text-sm tracking-wide rounded-md transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/30"
             >
               View Full Catalog
+            </button>
+          </div>
+        )}
+
+        {/* "View All" — reveals GLP-RT/GLP-TRZ under the All Compounds tab.
+            Home page only behavior; any specific category tab always shows
+            everything, and arriving via a Catalog/Explore-Catalog link skips
+            this entirely (revealedViaLink short-circuits hasHiddenCompounds). */}
+        {!loading && hasHiddenCompounds && (
+          <div className="mt-6 flex justify-center">
+            <button
+              onClick={() => {
+                setRevealedViaClick(true);
+                // The revealed items are appended at the very end of the
+                // list, which on mobile would otherwise still be caught by
+                // the unrelated 6-item mobile cutoff above — "View All"
+                // should actually show them, not hide them behind a second gate.
+                setMobileShowAll(true);
+              }}
+              className="px-8 py-3 bg-blue-600 hover:bg-blue-500 text-white font-display font-700 text-sm tracking-wide rounded-md transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/30"
+            >
+              View All
             </button>
           </div>
         )}

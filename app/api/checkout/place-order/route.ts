@@ -7,6 +7,7 @@ import { computeTax, roundCurrency } from "@/lib/taxMath";
 import { fetchTaxRate } from "@/lib/wcTax";
 import { PAYMENT_METHODS, PaymentMethodId } from "@/lib/paymentMethods";
 import { PAYMENT_CONFIG } from "@/lib/paymentConfig";
+import { computeVolumeDiscount, VOLUME_DISCOUNT_LABEL } from "@/lib/volumeDiscount";
 
 // The client sends ONLY identifiers and selections — never a price, total,
 // discount amount, or tax figure. Every money value below is derived
@@ -77,13 +78,29 @@ export async function POST(req: NextRequest) {
     coupon = { code: result.code, discountType: result.discountType, amount: result.amount };
   }
   const couponDiscount = computeCouponDiscount(subtotal, coupon);
+  // postCouponSubtotal reflects ONLY the real WC coupon — this is what gets
+  // sent as the line_items subtotal/total, and it's what WC computes the
+  // product line's own tax against. Volume discount, like the payment-method
+  // discount, is a fee line — NOT a coupon — so it must NOT reduce this value
+  // (confirmed against a real order: WC taxed the full pre-volume-discount
+  // subtotal on the product line, and taxed the Volume Discount fee line
+  // separately and independently — folding it in here double-counted the
+  // reduction and produced a TOTAL_MISMATCH on order 608).
   const postCouponSubtotal = subtotal - couponDiscount;
+
+  // Volume discount occupies the same pipeline slot as a coupon — mutually
+  // exclusive with it (computeVolumeDiscount returns 0 whenever a coupon is
+  // present). discountedSubtotal is the "compounding" base confirmed for
+  // both the free-shipping threshold check and the payment-method discount
+  // calculation — it is NOT the WC line-item/tax base (see above).
+  const volumeDiscount = roundCurrency(computeVolumeDiscount(subtotal, !!coupon));
+  const discountedSubtotal = postCouponSubtotal - volumeDiscount;
 
   // ── 3. Shipping — cost comes from WC; instance_id must be a real, currently
   //      valid method for this cart, not merely well-formed ─────────────────
   let shippingOptions;
   try {
-    shippingOptions = (await fetchShippingOptions(postCouponSubtotal, !!coupon)).methods;
+    shippingOptions = (await fetchShippingOptions(discountedSubtotal, !!coupon)).methods;
   } catch (err) {
     console.error(`[place-order:${requestId}] FAIL: could not load shipping options`, err);
     return NextResponse.json({ error: "Could not load shipping options" }, { status: 502 });
@@ -96,7 +113,7 @@ export async function POST(req: NextRequest) {
   const shippingCost = shippingMatch.cost; // already reflects the free-Ground-over-threshold override
 
   // ── 4. Payment-method discount — percentage comes from our own catalog ────
-  const paymentDiscountAmount = roundCurrency(postCouponSubtotal * (methodMeta.discountPercent / 100));
+  const paymentDiscountAmount = roundCurrency(discountedSubtotal * (methodMeta.discountPercent / 100));
 
   // ── 5. Tax ──────────────────────────────────────────────────────────────────
   let taxRate = 0;
@@ -109,10 +126,10 @@ export async function POST(req: NextRequest) {
     console.error(`[place-order:${requestId}] FAIL: could not load tax rate`, err);
     return NextResponse.json({ error: "Could not load tax rate" }, { status: 502 });
   }
-  const tax = computeTax(taxRate, postCouponSubtotal, paymentDiscountAmount, shippingCost, shippingTaxable);
-  const expectedTotal = roundCurrency(postCouponSubtotal - paymentDiscountAmount + shippingCost + tax.totalTax);
+  const tax = computeTax(taxRate, postCouponSubtotal, [volumeDiscount, paymentDiscountAmount], shippingCost, shippingTaxable);
+  const expectedTotal = roundCurrency(postCouponSubtotal - volumeDiscount - paymentDiscountAmount + shippingCost + tax.totalTax);
 
-  console.log(`[place-order:${requestId}] Method: ${paymentMethodId} | subtotal:${subtotal} couponDiscount:${couponDiscount} paymentDiscount:${paymentDiscountAmount} shipping:${shippingCost} taxRate:${taxRate} totalTax:${tax.totalTax} expectedTotal:${expectedTotal}`);
+  console.log(`[place-order:${requestId}] Method: ${paymentMethodId} | subtotal:${subtotal} couponDiscount:${couponDiscount} volumeDiscount:${volumeDiscount} paymentDiscount:${paymentDiscountAmount} shipping:${shippingCost} taxRate:${taxRate} totalTax:${tax.totalTax} expectedTotal:${expectedTotal}`);
 
   // ── 6. Zelle cap, enforced server-side ─────────────────────────────────────
   if (paymentMethodId === "zelle" && expectedTotal > PAYMENT_CONFIG.zelle.maxOrder) {
@@ -153,13 +170,22 @@ export async function POST(req: NextRequest) {
     total: item.lineTotal.toFixed(2),
   }));
 
-  const feeLines = paymentDiscountAmount > 0
-    ? [{
-        name: `Payment method discount (${methodMeta.label})`,
-        total: (-paymentDiscountAmount).toFixed(2),
-        tax_status: "none",
-      }]
-    : [];
+  const feeLines = [
+    ...(volumeDiscount > 0
+      ? [{
+          name: VOLUME_DISCOUNT_LABEL,
+          total: (-volumeDiscount).toFixed(2),
+          tax_status: "none",
+        }]
+      : []),
+    ...(paymentDiscountAmount > 0
+      ? [{
+          name: `Payment method discount (${methodMeta.label})`,
+          total: (-paymentDiscountAmount).toFixed(2),
+          tax_status: "none",
+        }]
+      : []),
+  ];
 
   const couponLines = coupon ? [{ code: coupon.code }] : [];
 

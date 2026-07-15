@@ -31,10 +31,30 @@ NO card surcharge. Card is the posted baseline; other rails are discounts off it
 
 ## Discount math
 1. Apply coupon (if any) to subtotal.
-2. Apply payment-method % to the post-coupon subtotal, EXCLUDING shipping.
-3. Record as a NEGATIVE fee line item on the WooCommerce order:
+2. Volume Discount — automatic 10% off subtotal when subtotal >= $200
+   (`lib/volumeDiscount.ts`: `VOLUME_DISCOUNT_THRESHOLD`/`VOLUME_DISCOUNT_PERCENT`).
+   Mutually exclusive with coupons: any valid coupon suppresses this entirely,
+   even if the coupon is worth less. Independent of the (unrelated) $150
+   free-shipping threshold — the two are NOT tied together.
+   Recorded as its own NEGATIVE fee line: name "Volume Discount", tax_status: none.
+   Like the payment-method discount, this is a fee line, NOT a WC coupon — it
+   must never reduce the product line_items' own subtotal/total sent to WC
+   (only a real coupon does that). Folding it into that value double-counts
+   the reduction and mismatches WC's real total (hit this exact bug once,
+   verified via a live order — see `place-order/route.ts`'s postCouponSubtotal
+   vs discountedSubtotal comment).
+3. Apply payment-method % to the subtotal EXCLUDING shipping, compounding on
+   top of the Volume Discount if both apply (Volume Discount off subtotal
+   first, THEN payment-method % off what's left — same "discountedSubtotal"
+   base used for the free-shipping-threshold check).
+4. Record as a NEGATIVE fee line item on the WooCommerce order:
    name: "Payment method discount (<Method>)", total: negative value, tax_status: none
-4. Coupons never stack with each other. Payment discount is not a coupon.
+5. Coupons never stack with each other. Neither the payment discount nor the
+   Volume Discount is a coupon.
+6. Tax: each fee line (Volume Discount, payment-method discount) is taxed
+   independently and rounded per-line, same as before — see the Tax section.
+   `lib/taxMath.ts`'s `computeTax()` takes an array of fee amounts now, not a
+   single one, to support both fee lines applying simultaneously.
 
 ## Order lifecycle
 on-hold at creation → auto-cancel if unpaid after 3 days
@@ -76,14 +96,17 @@ payment processing partner."
   checkout picks it up automatically.
 - WooCommerce rounds tax PER LINE, not once at the order/subtotal level
   (`woocommerce_tax_round_at_subtotal: "no"` on this store). Reverse-engineered
-  from live order data, WC computes and rounds tax on three amounts
+  from live order data, WC computes and rounds tax on each of these amounts
   independently, then sums:
-  1. the post-coupon product total (subtotal − coupon discount)
-  2. the payment-method discount fee line (yes — WC taxes this too, even
-     though it's created with `tax_status: "none"`; empirically it still gets
-     taxed as a proportional reduction of the taxable base)
+  1. the post-coupon product total (subtotal − coupon discount — NOT further
+     reduced by the Volume Discount or payment-method discount; those are fee
+     lines, not coupons, so they never touch this value)
+  2. EACH fee line present (Volume Discount, payment-method discount — yes,
+     WC taxes these too, even though created with `tax_status: "none"`;
+     empirically each still gets taxed as its own proportional reduction of
+     the taxable base). Zero, one, or both may be present on a given order.
   3. shipping (only if the matched rate's `shipping` flag is true)
-- Each of the three is rounded to the cent independently (half away from
+- Each amount is rounded to the cent independently (half away from
   zero — PHP's `round()`, not JS's `Math.round()`, which rounds `-0.5` the
   wrong way) before being summed into the order's total tax.
 - `lib/taxMath.ts` (the rounding + composition formula) and `lib/wcTax.ts`

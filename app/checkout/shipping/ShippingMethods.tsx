@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useCart } from "@/lib/cartContext";
 import { useCheckout } from "@/lib/checkoutContext";
 import { computeCouponDiscount } from "@/lib/couponMath";
+import { computeVolumeDiscount } from "@/lib/volumeDiscount";
 import { FreeShippingProgress as FreeShippingProgressData } from "@/lib/useFreeShippingProgress";
 import FreeShippingProgress from "@/components/FreeShippingProgress";
 
@@ -25,6 +26,10 @@ export default function ShippingMethods() {
 
   const discount = computeCouponDiscount(subtotal, coupon);
   const postCouponSubtotal = subtotal - discount;
+  // Compounding base — matches place-order/route.ts's discountedSubtotal,
+  // which is what free-shipping eligibility is actually evaluated against.
+  const volumeDiscount = computeVolumeDiscount(subtotal, !!coupon);
+  const discountedSubtotal = postCouponSubtotal - volumeDiscount;
 
   useEffect(() => {
     let cancelled = false;
@@ -32,7 +37,7 @@ export default function ShippingMethods() {
     setOptions(null);
 
     const params = new URLSearchParams({
-      subtotal: postCouponSubtotal.toFixed(2),
+      subtotal: discountedSubtotal.toFixed(2),
       hasCoupon: coupon ? "true" : "false",
     });
 
@@ -51,7 +56,7 @@ export default function ShippingMethods() {
 
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [postCouponSubtotal, coupon?.code]);
+  }, [discountedSubtotal, coupon?.code]);
 
   if (error) {
     return <div className="px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 font-body text-sm">{error}</div>;
@@ -75,7 +80,7 @@ export default function ShippingMethods() {
 
   return (
     <div className="space-y-4">
-      <FreeShippingProgress data={freeShipping} />
+      <FreeShippingProgress data={freeShipping} subtotal={subtotal} hasCoupon={!!coupon} />
 
       {options.map((opt) => {
         const key = `${opt.methodId}:${opt.instanceId}`;

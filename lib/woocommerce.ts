@@ -4,8 +4,8 @@ import type { ProductPageData } from "@/components/ProductPageTemplate";
 
 const SLUG_TO_WC_ID: Record<string, number> = {
   "bpc-157":    332,
-  "t1rz":       333,
-  "r3ta":       337,
+  "glp-trz":    333,
+  "glp-rt":     337,
   "klow":       335,
   "ghk-cu":     336,
   "tb-500":     354,
@@ -24,8 +24,8 @@ const SLUG_TO_WC_ID: Record<string, number> = {
 
 const SLUG_TO_NAME: Record<string, string> = {
   "bpc-157":    "BPC-157",
-  "t1rz":       "Dual Receptor (T)",
-  "r3ta":       "Triple Agonist (R)",
+  "glp-trz":    "GLP-TRZ",
+  "glp-rt":     "GLP-RT",
   "klow":       "KLOW",
   "ghk-cu":     "GHK-Cu",
   "tb-500":     "TB-500",
@@ -43,8 +43,8 @@ const SLUG_TO_NAME: Record<string, string> = {
 
 const SLUG_TO_CATEGORY: Record<string, string> = {
   "bpc-157":    "Repair & Recovery Research",
-  "t1rz":       "Metabolic Research",
-  "r3ta":       "Metabolic Research",
+  "glp-trz":    "Metabolic Research",
+  "glp-rt":     "Metabolic Research",
   "klow":       "Longevity & Cosmetic Research",
   "ghk-cu":     "Longevity & Cosmetic Research",
   "tb-500":     "Repair & Recovery Research",
@@ -62,8 +62,8 @@ const SLUG_TO_CATEGORY: Record<string, string> = {
 
 const SLUG_TO_ICON: Record<string, string> = {
   "bpc-157":    "⬡",
-  "t1rz":       "◇",
-  "r3ta":       "⬟",
+  "glp-trz":    "◇",
+  "glp-rt":     "⬟",
   "klow":       "✦",
   "ghk-cu":     "⬢",
   "tb-500":     "◉",
@@ -81,17 +81,17 @@ const SLUG_TO_ICON: Record<string, string> = {
 
 const RELATED_MAP: Record<string, string[]> = {
   "bpc-157":    ["tb-500", "bpc-157-tb-500", "glow"],
-  "t1rz":       ["r3ta", "mots-c", "5-amino-1mq"],
-  "r3ta":       ["t1rz", "mots-c", "nad-plus"],
+  "glp-trz":    ["glp-rt", "mots-c", "5-amino-1mq"],
+  "glp-rt":     ["glp-trz", "mots-c", "nad-plus"],
   "klow":       ["glow", "ghk-cu", "bpc-157"],
   "ghk-cu":     ["glow", "klow", "bpc-157"],
   "tb-500":     ["bpc-157", "bpc-157-tb-500", "glow"],
-  "mots-c":     ["nad-plus", "5-amino-1mq", "r3ta"],
+  "mots-c":     ["nad-plus", "5-amino-1mq", "glp-rt"],
   "bac-water":  ["bpc-157", "tb-500", "ghk-cu"],
   "nad-plus":            ["5-amino-1mq", "mots-c", "tesamorelin"],
   "tesamorelin":         ["cjc-1295-ipamorelin", "nad-plus", "mots-c"],
   "cjc-1295-ipamorelin": ["tesamorelin", "nad-plus", "mots-c"],
-  "5-amino-1mq":         ["nad-plus", "mots-c", "t1rz"],
+  "5-amino-1mq":         ["nad-plus", "mots-c", "glp-trz"],
   "bpc-157-tb-500":      ["bpc-157", "tb-500", "glow"],
   "glow":                ["klow", "ghk-cu", "bpc-157-tb-500"],
   "semax":               ["selank", "bpc-157", "mots-c"],
@@ -319,6 +319,8 @@ const PRODUCT_PAGE_URLS: Record<string, string> = {
   "Rta - triple agonist":                         "https://anvilcompounds.shop/product/rta/",
   "triple agonist (R)":                           "https://anvilcompounds.shop/product/rta/",
   "Triple Agonist (R)":                           "https://anvilcompounds.shop/product/r3ta/",
+  "GLP-TRZ":                                      "https://anvilcompounds.shop/product/glp-trz/",
+  "GLP-RT":                                       "https://anvilcompounds.shop/product/glp-rt/",
   "KLOW":                                         "https://anvilcompounds.shop/product/klow/",
   "GHK-Cu":                                       "https://anvilcompounds.shop/product/ghk-cu/",
   "TB-500":                                       "https://anvilcompounds.shop/product/tb-500/",
@@ -337,6 +339,8 @@ const LOCAL_PRODUCT_IMAGES: Record<string, string> = {
   "Rta - triple agonist":                         "/products/reta.png",
   "triple agonist (R)":                           "/products/reta.png",
   "Triple Agonist (R)":                           "/products/reta.png",
+  "GLP-TRZ":                                      "/products/tirz.png",
+  "GLP-RT":                                       "/products/reta.png",
   "KLOW":                                         "/products/klow.png",
   "GHK-Cu":                                       "/products/ghkcu.png",
   "TB-500":                                       "/products/tb500.png",

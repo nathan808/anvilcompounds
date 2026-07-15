@@ -11,8 +11,8 @@ export const metadata: Metadata = {
 
 const KNOWN_SLUGS = [
   "bpc-157",
-  "t1rz",
-  "r3ta",
+  "glp-trz",
+  "glp-rt",
   "klow",
   "ghk-cu",
   "tb-500",

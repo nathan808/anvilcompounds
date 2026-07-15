@@ -5,6 +5,7 @@ import { useCart } from "@/lib/cartContext";
 import { useCheckout } from "@/lib/checkoutContext";
 import { computeCouponDiscount } from "@/lib/couponMath";
 import { computeTax } from "@/lib/taxMath";
+import { computeVolumeDiscount, VOLUME_DISCOUNT_LABEL } from "@/lib/volumeDiscount";
 import { useFreeShippingProgress } from "@/lib/useFreeShippingProgress";
 import FreeShippingProgress from "@/components/FreeShippingProgress";
 
@@ -33,11 +34,21 @@ export default function OrderSummary({ editableCoupon = true, showShipping = fal
   const [shippingTaxable, setShippingTaxable] = useState(false);
 
   const couponDiscount = computeCouponDiscount(subtotal, coupon);
+  // postCouponSubtotal = coupon only — this is the WC line-item/tax base.
+  // Volume discount is a fee line (like the payment-method discount), NOT a
+  // coupon, so it must not reduce this value (verified against a real order —
+  // folding it in here double-counts the reduction and mismatches WC's total).
   const postCouponSubtotal = subtotal - couponDiscount;
+  // Same pipeline slot as the coupon — mutually exclusive with it (see
+  // lib/volumeDiscount.ts), so at most one of couponDiscount/volumeDiscount
+  // is ever nonzero. discountedSubtotal is the "compounding" base used for
+  // the free-shipping threshold and (server-side) the payment-discount calc.
+  const volumeDiscount = computeVolumeDiscount(subtotal, !!coupon);
+  const discountedSubtotal = postCouponSubtotal - volumeDiscount;
   const paymentDiscountAmount = paymentDiscount?.amount ?? 0;
   const shippingCost = showShipping ? (shipping?.cost ?? 0) : 0;
 
-  const freeShippingProgress = useFreeShippingProgress(postCouponSubtotal, !!coupon, showFreeShippingProgress);
+  const freeShippingProgress = useFreeShippingProgress(discountedSubtotal, !!coupon, showFreeShippingProgress);
 
   useEffect(() => {
     if (!showShipping || !step1.state) { setTaxRate(0); setShippingTaxable(false); return; }
@@ -53,8 +64,8 @@ export default function OrderSummary({ editableCoupon = true, showShipping = fal
     return () => { cancelled = true; };
   }, [showShipping, step1.state]);
 
-  const tax = computeTax(taxRate, postCouponSubtotal, paymentDiscountAmount, shippingCost, shippingTaxable);
-  const total = postCouponSubtotal - paymentDiscountAmount + shippingCost + (showShipping ? tax.totalTax : 0);
+  const tax = computeTax(taxRate, postCouponSubtotal, [volumeDiscount, paymentDiscountAmount], shippingCost, shippingTaxable);
+  const total = postCouponSubtotal - volumeDiscount - paymentDiscountAmount + shippingCost + (showShipping ? tax.totalTax : 0);
 
   const applyCoupon = async () => {
     const trimmed = code.trim();
@@ -97,7 +108,7 @@ export default function OrderSummary({ editableCoupon = true, showShipping = fal
   const labelClass = "block font-mono text-xs text-white/40 tracking-widest uppercase mb-2";
 
   const totalLabel = showShipping || paymentDiscount ? "Total" : coupon ? "New Subtotal" : "Total";
-  const displayedTotal = showShipping || paymentDiscount ? total : postCouponSubtotal;
+  const displayedTotal = showShipping || paymentDiscount ? total : discountedSubtotal;
 
   useEffect(() => {
     onTotalChange?.(displayedTotal);
@@ -124,7 +135,7 @@ export default function OrderSummary({ editableCoupon = true, showShipping = fal
 
       {showFreeShippingProgress && (
         <div className="mb-4">
-          <FreeShippingProgress data={freeShippingProgress} />
+          <FreeShippingProgress data={freeShippingProgress} subtotal={subtotal} hasCoupon={!!coupon} />
         </div>
       )}
 
@@ -178,7 +189,7 @@ export default function OrderSummary({ editableCoupon = true, showShipping = fal
         </div>
       ) : null}
 
-      {/* Row order per CHECKOUT_SPEC.md: subtotal → coupon → payment discount → shipping → total */}
+      {/* Row order per CHECKOUT_SPEC.md: subtotal → coupon/volume discount → payment discount → shipping → total */}
       <div className="border-t border-white/8 pt-4 space-y-2">
         <div className="flex items-center justify-between">
           <span className="font-body text-sm text-white/50">Subtotal</span>
@@ -188,6 +199,12 @@ export default function OrderSummary({ editableCoupon = true, showShipping = fal
           <div className="flex items-center justify-between">
             <span className="font-body text-sm text-white/50">Coupon ({coupon.code})</span>
             <span className="font-mono text-sm text-blue-400">-${couponDiscount.toFixed(2)}</span>
+          </div>
+        )}
+        {volumeDiscount > 0 && (
+          <div className="flex items-center justify-between">
+            <span className="font-body text-sm text-white/50">{VOLUME_DISCOUNT_LABEL}</span>
+            <span className="font-mono text-sm text-blue-400">-${volumeDiscount.toFixed(2)}</span>
           </div>
         )}
         {paymentDiscount && paymentDiscountAmount > 0 && (

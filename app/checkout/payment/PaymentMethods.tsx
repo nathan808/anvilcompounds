@@ -3,6 +3,7 @@
 import { useCart } from "@/lib/cartContext";
 import { useCheckout } from "@/lib/checkoutContext";
 import { computeCouponDiscount } from "@/lib/couponMath";
+import { computeVolumeDiscount } from "@/lib/volumeDiscount";
 import { PAYMENT_METHODS, GROUP_LABELS, GROUP_ORDER } from "@/lib/paymentMethods";
 import { PAYMENT_CONFIG } from "@/lib/paymentConfig";
 
@@ -11,7 +12,8 @@ export default function PaymentMethods() {
   const { coupon, shipping, paymentMethodId, setPaymentMethodId } = useCheckout();
 
   const couponDiscount = computeCouponDiscount(subtotal, coupon);
-  const postCouponSubtotal = subtotal - couponDiscount;
+  const volumeDiscount = computeVolumeDiscount(subtotal, !!coupon);
+  const postCouponSubtotal = subtotal - couponDiscount - volumeDiscount;
   const shippingCost = shipping?.cost ?? 0;
 
   return (

@@ -11,6 +11,7 @@ import { useCart } from "@/lib/cartContext";
 import { useAuth } from "@/lib/authContext";
 import { useCheckout } from "@/lib/checkoutContext";
 import { computeCouponDiscount } from "@/lib/couponMath";
+import { computeVolumeDiscount } from "@/lib/volumeDiscount";
 import { PAYMENT_METHODS } from "@/lib/paymentMethods";
 
 export default function PaymentPage() {
@@ -46,8 +47,12 @@ export default function PaymentPage() {
   const selectedMeta = PAYMENT_METHODS.find((m) => m.id === paymentMethodId) ?? null;
   const couponDiscount = computeCouponDiscount(subtotal, coupon);
   const postCouponSubtotal = subtotal - couponDiscount;
+  // Compounding base — volume discount comes off first, THEN the
+  // payment-method % applies to what's left (matches place-order/route.ts).
+  const volumeDiscount = computeVolumeDiscount(subtotal, !!coupon);
+  const discountedSubtotal = postCouponSubtotal - volumeDiscount;
   const paymentDiscount = selectedMeta && selectedMeta.discountPercent > 0
-    ? { label: `Payment method discount (${selectedMeta.label})`, amount: postCouponSubtotal * (selectedMeta.discountPercent / 100) }
+    ? { label: `Payment method discount (${selectedMeta.label})`, amount: discountedSubtotal * (selectedMeta.discountPercent / 100) }
     : null;
 
   const handleContinue = async () => {
