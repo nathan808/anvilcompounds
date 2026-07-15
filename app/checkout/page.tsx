@@ -66,7 +66,7 @@ export default function CheckoutPage() {
                 <Step1Form />
               </div>
               <div className="lg:sticky lg:top-28 space-y-4">
-                <OrderSummary />
+                <OrderSummary showFreeShippingProgress />
               </div>
             </div>
           )}

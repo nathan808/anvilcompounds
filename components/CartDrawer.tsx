@@ -3,9 +3,15 @@
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useCart } from "@/lib/cartContext";
+import { useFreeShippingProgress } from "@/lib/useFreeShippingProgress";
+import FreeShippingProgress from "@/components/FreeShippingProgress";
 
 export default function CartDrawer() {
   const { items, isCartOpen, closeCart, removeItem, updateQty, itemCount, subtotal } = useCart();
+  // No coupon has been entered yet at this point in the flow (coupon only
+  // exists in checkout's own context, starting at Step 1) — teaser here is
+  // always based on the raw cart subtotal.
+  const freeShippingProgress = useFreeShippingProgress(subtotal, false, isCartOpen && items.length > 0);
 
   return (
     <AnimatePresence>
@@ -114,6 +120,7 @@ export default function CartDrawer() {
             {/* Footer */}
             {items.length > 0 && (
               <div className="px-6 py-5 border-t border-white/8 space-y-4">
+                <FreeShippingProgress data={freeShippingProgress} />
                 <div className="flex items-center justify-between">
                   <span className="font-body text-white/50">Subtotal</span>
                   <span className="font-display font-700 text-white text-xl">${subtotal.toFixed(2)}</span>

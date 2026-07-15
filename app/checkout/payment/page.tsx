@@ -140,7 +140,7 @@ export default function PaymentPage() {
             </div>
 
             <div className="lg:sticky lg:top-28 space-y-4">
-              <OrderSummary editableCoupon={false} showShipping paymentDiscount={paymentDiscount} onTotalChange={setPreviewTotal} />
+              <OrderSummary editableCoupon={false} showShipping paymentDiscount={paymentDiscount} onTotalChange={setPreviewTotal} showFreeShippingProgress />
             </div>
           </div>
         </div>

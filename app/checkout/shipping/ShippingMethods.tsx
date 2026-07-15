@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useCart } from "@/lib/cartContext";
 import { useCheckout } from "@/lib/checkoutContext";
 import { computeCouponDiscount } from "@/lib/couponMath";
+import { FreeShippingProgress as FreeShippingProgressData } from "@/lib/useFreeShippingProgress";
+import FreeShippingProgress from "@/components/FreeShippingProgress";
 
 interface ShippingOption {
   methodId: string;
@@ -14,17 +16,11 @@ interface ShippingOption {
   estimate: string;
 }
 
-interface FreeShippingProgress {
-  eligible: boolean;
-  remaining: number;
-  threshold: number;
-}
-
 export default function ShippingMethods() {
   const { subtotal } = useCart();
   const { coupon, shipping, setShipping } = useCheckout();
   const [options, setOptions] = useState<ShippingOption[] | null>(null);
-  const [freeShipping, setFreeShipping] = useState<FreeShippingProgress | null>(null);
+  const [freeShipping, setFreeShipping] = useState<FreeShippingProgressData | null>(null);
   const [error, setError] = useState("");
 
   const discount = computeCouponDiscount(subtotal, coupon);
@@ -79,26 +75,7 @@ export default function ShippingMethods() {
 
   return (
     <div className="space-y-4">
-      {freeShipping && (
-        freeShipping.eligible ? (
-          <div className="px-4 py-3 rounded-xl bg-blue-600/10 border border-blue-500/30">
-            <p className="font-body text-sm text-blue-300">✓ You've unlocked free Ground shipping</p>
-          </div>
-        ) : (
-          <div className="px-4 py-3 rounded-xl bg-white/5 border border-white/10 space-y-2">
-            <p className="font-body text-sm text-white/60">
-              Add <span className="text-blue-400 font-600">${freeShipping.remaining.toFixed(2)}</span> more to unlock{" "}
-              <span className="text-white/80">free Ground shipping</span>
-            </p>
-            <div className="h-1.5 rounded-full bg-white/10 overflow-hidden">
-              <div
-                className="h-full bg-blue-500 rounded-full transition-all duration-500"
-                style={{ width: `${Math.min(100, Math.max(0, ((freeShipping.threshold - freeShipping.remaining) / freeShipping.threshold) * 100))}%` }}
-              />
-            </div>
-          </div>
-        )
-      )}
+      <FreeShippingProgress data={freeShipping} />
 
       {options.map((opt) => {
         const key = `${opt.methodId}:${opt.instanceId}`;

@@ -5,6 +5,8 @@ import { useCart } from "@/lib/cartContext";
 import { useCheckout } from "@/lib/checkoutContext";
 import { computeCouponDiscount } from "@/lib/couponMath";
 import { computeTax } from "@/lib/taxMath";
+import { useFreeShippingProgress } from "@/lib/useFreeShippingProgress";
+import FreeShippingProgress from "@/components/FreeShippingProgress";
 
 interface PaymentDiscount {
   label: string;
@@ -16,9 +18,12 @@ interface OrderSummaryProps {
   showShipping?: boolean;
   paymentDiscount?: PaymentDiscount | null;
   onTotalChange?: (total: number) => void;
+  // Step 2 already shows this via ShippingMethods.tsx, right next to the
+  // Ground option — leave it off there (default) to avoid showing it twice.
+  showFreeShippingProgress?: boolean;
 }
 
-export default function OrderSummary({ editableCoupon = true, showShipping = false, paymentDiscount = null, onTotalChange }: OrderSummaryProps) {
+export default function OrderSummary({ editableCoupon = true, showShipping = false, paymentDiscount = null, onTotalChange, showFreeShippingProgress = false }: OrderSummaryProps) {
   const { items, subtotal } = useCart();
   const { coupon, setCoupon, shipping, step1 } = useCheckout();
   const [code, setCode] = useState(coupon?.code ?? "");
@@ -31,6 +36,8 @@ export default function OrderSummary({ editableCoupon = true, showShipping = fal
   const postCouponSubtotal = subtotal - couponDiscount;
   const paymentDiscountAmount = paymentDiscount?.amount ?? 0;
   const shippingCost = showShipping ? (shipping?.cost ?? 0) : 0;
+
+  const freeShippingProgress = useFreeShippingProgress(postCouponSubtotal, !!coupon, showFreeShippingProgress);
 
   useEffect(() => {
     if (!showShipping || !step1.state) { setTaxRate(0); setShippingTaxable(false); return; }
@@ -114,6 +121,12 @@ export default function OrderSummary({ editableCoupon = true, showShipping = fal
           </div>
         ))}
       </div>
+
+      {showFreeShippingProgress && (
+        <div className="mb-4">
+          <FreeShippingProgress data={freeShippingProgress} />
+        </div>
+      )}
 
       {editableCoupon ? (
         <div className="border-t border-white/8 pt-4 mb-4">
