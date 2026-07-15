@@ -83,7 +83,7 @@ export async function POST(req: NextRequest) {
   //      valid method for this cart, not merely well-formed ─────────────────
   let shippingOptions;
   try {
-    shippingOptions = await fetchShippingOptions(postCouponSubtotal, !!coupon);
+    shippingOptions = (await fetchShippingOptions(postCouponSubtotal, !!coupon)).methods;
   } catch (err) {
     console.error(`[place-order:${requestId}] FAIL: could not load shipping options`, err);
     return NextResponse.json({ error: "Could not load shipping options" }, { status: 502 });

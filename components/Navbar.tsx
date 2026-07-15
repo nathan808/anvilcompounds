@@ -5,7 +5,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useCart } from "@/lib/cartContext";
 import CartDrawer from "@/components/CartDrawer";
 
-export default function Navbar() {
+// pushDown: true on pages that also render a fixed compliance bar above the
+// navbar (checkout flow) — both are fixed to the viewport, so without this
+// they'd stack at the same top:0 position instead of one pushing the other
+// down. Height (h-7 / top-7, 28px) must match the compliance bar's own h-7.
+export default function Navbar({ pushDown = false }: { pushDown?: boolean }) {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const { itemCount, openCart } = useCart();
@@ -31,7 +35,7 @@ export default function Navbar() {
         initial={{ y: -80, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+        className={`fixed ${pushDown ? "top-7" : "top-0"} left-0 right-0 z-50 transition-all duration-500 ${
           scrolled
             ? "bg-navy-950/90 backdrop-blur-xl border-b border-blue-600/10 py-2"
             : "bg-transparent py-3.5"

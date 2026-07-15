@@ -8,8 +8,8 @@ export async function GET(req: NextRequest) {
   const hasCoupon = req.nextUrl.searchParams.get("hasCoupon") === "true";
 
   try {
-    const methods = await fetchShippingOptions(subtotal, hasCoupon);
-    return NextResponse.json({ methods });
+    const { methods, freeShipping } = await fetchShippingOptions(subtotal, hasCoupon);
+    return NextResponse.json({ methods, freeShipping });
   } catch (err) {
     console.error(`[shipping:${requestId}] FAIL:`, err);
     return NextResponse.json({ error: "Could not load shipping methods" }, { status: 502 });

@@ -33,12 +33,12 @@ export default function ShippingPage() {
 
   return (
     <>
-      <Navbar />
-      <main className="bg-navy-950 min-h-screen pt-24">
+      <Navbar pushDown />
+      <main className="bg-navy-950 min-h-screen pt-32">
         <div className="absolute inset-0 mesh-bg opacity-40 pointer-events-none" />
 
-        <div className="fixed top-0 left-0 right-0 z-[60] bg-navy-800/95 backdrop-blur-sm border-b border-blue-600/10">
-          <p className="text-center font-mono text-[10px] text-white/35 tracking-[0.2em] uppercase py-1.5">
+        <div className="fixed top-0 left-0 right-0 z-[60] h-7 flex items-center justify-center bg-navy-800/95 backdrop-blur-sm border-b border-blue-600/10">
+          <p className="text-center font-mono text-[10px] text-white/35 tracking-[0.2em] uppercase">
             For laboratory and research use only · Must be 21+ to purchase
           </p>
         </div>
