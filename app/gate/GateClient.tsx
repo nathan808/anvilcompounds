@@ -99,7 +99,7 @@ export default function GateClient() {
     <>
       <Script
         src="https://challenges.cloudflare.com/turnstile/v0/api.js"
-        strategy="beforeInteractive"
+        strategy="afterInteractive"
         onLoad={() => setScriptLoaded(true)}
       />
       <div className="min-h-screen bg-navy-950 flex items-center justify-center px-6 py-16">
