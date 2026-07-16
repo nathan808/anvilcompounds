@@ -151,6 +151,16 @@ export default function Footer() {
             </div>
           </div>
 
+          {/* FDA disclaimer */}
+          <div className="p-5 rounded-xl bg-navy-800/50 border border-white/5 mb-8">
+            <p className="font-mono text-xs text-white/30 leading-relaxed tracking-wide">
+              These products have not been evaluated by the Food and Drug Administration. They are not
+              drugs, dietary supplements, or cosmetics, and are not intended to diagnose, treat, cure, or
+              prevent any disease. No claim is made that any compound sold here is safe or effective for
+              any use in humans or animals.
+            </p>
+          </div>
+
           {/* Billing notice */}
           <p className="font-mono text-xs text-white/30 text-center mb-6">
             All transactions will appear on your statement as <span className="text-white/50">Anvil Holdings LLC</span>

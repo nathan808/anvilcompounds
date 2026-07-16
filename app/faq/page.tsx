@@ -86,8 +86,8 @@ const faqs: { category: string; items: FaqItem[] }[] = [
         a: "No. All Anvil Compounds products are sold strictly for in vitro laboratory research. They are not approved for human or veterinary use by any regulatory authority. Using research peptides in humans carries serious and unpredictable health risks. By completing an order, purchasers confirm they are acquiring compounds for legitimate research purposes only.",
       },
       {
-        q: "How do I reconstitute a lyophilized peptide?",
-        a: "Lyophilized peptides must be reconstituted with a suitable solvent before use. Bacteriostatic water (BAC water) is the most commonly used reconstitution medium — available separately. Protocol: calculate the volume needed for your target concentration, inject BAC water slowly along the inner vial wall (not directly onto the powder), swirl gently — do not shake or vortex — until fully dissolved. Store reconstituted peptide at -4°C and use within 28 days. For research use only.",
+        q: "Do you sell reconstitution supplies?",
+        a: "Yes — bacteriostatic water is available as a separate research supply. We don't provide reconstitution technique, dosing, or administration instructions; that falls under your own institution's standard operating procedures and safety protocols.",
       },
     ],
   },

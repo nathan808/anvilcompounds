@@ -40,7 +40,7 @@ export const metadata: Metadata = {
   title: "Anvil Compounds — Independently Verified. Every Batch.",
   description:
     "Research-grade peptides independently tested to 99%+ purity. Triple verification: HPLC, Mass Spectrometry & Endotoxin Screening. Ships same day from Southern California.",
-  keywords: "research peptides, BPC-157, Semaglutide, Tirzepatide, research compounds, HPLC tested peptides",
+  keywords: "research peptides, BPC-157, GLP research compounds, HPLC tested peptides, reference materials",
 };
 
 export default function RootLayout({
