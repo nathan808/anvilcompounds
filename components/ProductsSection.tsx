@@ -19,7 +19,7 @@ const CATALOG_TRUST_BADGES: { icon: JSX.Element; label: JSX.Element }[] = [
         <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5.106 14.4A2.25 2.25 0 004.447 16v.001c0 1.243 1.007 2.25 2.25 2.25h10.606a2.25 2.25 0 002.25-2.25v-.001a2.25 2.25 0 00-.659-1.591l-3.985-3.99a2.25 2.25 0 01-.659-1.591V3.104M9.75 3.104h4.5M9.75 3.104a48.667 48.667 0 014.5 0" />
       </svg>
     ),
-    label: <>Tested by an <strong className="text-white/85 font-600">accredited third-party lab</strong> (HPLC + Mass Spec)</>,
+    label: <>Tested by <strong className="text-white/85 font-600">Freedom Analytical</strong> (HPLC + Mass Spec + Endotoxin + Heavy-Metal Screening)</>,
   },
   {
     icon: (
