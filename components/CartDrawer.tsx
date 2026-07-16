@@ -67,7 +67,7 @@ export default function CartDrawer() {
                     <p className="font-body text-sm text-white/25">Browse the catalog to add compounds</p>
                   </div>
                   <Link
-                    href="/#catalog"
+                    href="/catalog"
                     onClick={closeCart}
                     className="mt-2 px-5 py-2.5 bg-blue-600/20 border border-blue-600/30 text-blue-300 font-display font-600 text-sm rounded-lg hover:bg-blue-600 hover:text-white transition-all duration-300"
                   >

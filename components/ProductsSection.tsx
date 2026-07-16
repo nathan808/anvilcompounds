@@ -12,7 +12,7 @@ import { getProductDisplayTitle, isGlpCompound } from "@/lib/productTitle";
 // Small credibility pills above the catalog header — same idea as a
 // competitor's "tested by / sold to / verified" badge row, adapted to what
 // we can actually back up (no named lab, no institutional-sales claim).
-const CATALOG_TRUST_BADGES: { icon: JSX.Element; label: JSX.Element }[] = [
+export const CATALOG_TRUST_BADGES: { icon: JSX.Element; label: JSX.Element }[] = [
   {
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-3.5 h-3.5">

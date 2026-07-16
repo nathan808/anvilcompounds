@@ -13,7 +13,7 @@ const POLICY_PAGES = [
 export default function Footer() {
   const links: Record<string, { label: string; href: string }[]> = {
     Catalog: [
-      { label: "Shop All",     href: "/#catalog" },
+      { label: "Shop All",     href: "/catalog" },
     ],
     Testing: [
       { label: "How We Test",          href: "/#testing" },

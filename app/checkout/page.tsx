@@ -56,7 +56,7 @@ export default function CheckoutPage() {
             <div className="glass-card rounded-2xl p-16 text-center">
               <p className="font-display font-700 text-white/40 text-xl mb-2">Your cart is empty</p>
               <p className="font-body text-white/25 mb-6">Add compounds from the catalog before checking out.</p>
-              <Link href="/#catalog" className="px-6 py-3 bg-blue-600 text-white font-display font-600 rounded-xl hover:bg-blue-500 transition-all">
+              <Link href="/catalog" className="px-6 py-3 bg-blue-600 text-white font-display font-600 rounded-xl hover:bg-blue-500 transition-all">
                 Browse Catalog
               </Link>
             </div>

@@ -3,6 +3,7 @@ import AddToCartButton from "@/app/products/[slug]/AddToCartButton";
 import ShippingBanner from "@/components/ShippingBanner";
 import ProductImageGallery from "@/components/ProductImageGallery";
 import ViewCoaButton from "@/components/ViewCoaButton";
+import SdsPreviewButton from "@/components/SdsPreviewButton";
 import { getProductDisplayTitle } from "@/lib/productTitle";
 
 // ─── Data interface ────────────────────────────────────────────────────────────
@@ -138,6 +139,12 @@ export default function ProductPageTemplate({
                 productName={product.name}
                 imageUrl={product.documentationImage}
                 fileUrl={product.documentationFile}
+              />
+
+              {/* SDS preview — basic specs unlocked, rest gated behind purchase */}
+              <SdsPreviewButton
+                productName={product.name}
+                propertiesTable={product.propertiesTable}
               />
 
               {/* Add to cart */}

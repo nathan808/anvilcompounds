@@ -149,7 +149,7 @@ function ConfirmationContent() {
         <p className="font-body text-white/25 text-sm mb-6">
           If you just placed an order, check your email for confirmation.
         </p>
-        <Link href="/#catalog" className="text-blue-400 hover:text-blue-300 font-mono text-sm transition-colors">
+        <Link href="/catalog" className="text-blue-400 hover:text-blue-300 font-mono text-sm transition-colors">
           ← Back to catalog
         </Link>
       </div>
@@ -317,7 +317,7 @@ function ConfirmationContent() {
       {/* Back link */}
       <div className="text-center pb-4">
         <Link
-          href="/#catalog"
+          href="/catalog"
           className="inline-flex items-center gap-2 font-body text-sm text-white/25 hover:text-white/50 transition-colors"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
