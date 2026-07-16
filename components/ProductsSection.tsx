@@ -19,7 +19,7 @@ const CATALOG_TRUST_BADGES: { icon: JSX.Element; label: JSX.Element }[] = [
         <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5.106 14.4A2.25 2.25 0 004.447 16v.001c0 1.243 1.007 2.25 2.25 2.25h10.606a2.25 2.25 0 002.25-2.25v-.001a2.25 2.25 0 00-.659-1.591l-3.985-3.99a2.25 2.25 0 01-.659-1.591V3.104M9.75 3.104h4.5M9.75 3.104a48.667 48.667 0 014.5 0" />
       </svg>
     ),
-    label: <>Tested by <strong className="text-white/85 font-600">Freedom Analytical</strong> (HPLC + Mass Spec + Endotoxin + Heavy-Metal Screening)</>,
+    label: <>Tested by <strong className="text-blue-400 font-600">Freedom Diagnostics</strong> (HPLC + Mass Spec + Endotoxin + Heavy-Metal Screening)</>,
   },
   {
     icon: (
@@ -27,7 +27,7 @@ const CATALOG_TRUST_BADGES: { icon: JSX.Element; label: JSX.Element }[] = [
         <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
       </svg>
     ),
-    label: <><strong className="text-white/85 font-600">21+ verified</strong> researcher accounts</>,
+    label: <><strong className="text-blue-400 font-600">21+ verified</strong> researcher accounts</>,
   },
   {
     icon: (
@@ -35,7 +35,7 @@ const CATALOG_TRUST_BADGES: { icon: JSX.Element; label: JSX.Element }[] = [
         <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75M3.75 6.75h.007v.008H3.75V6.75zm0 5.25h.007v.008H3.75V12zm0 5.25h.007v.008H3.75v-.008zM3.75 5.25h16.5v13.5a1.5 1.5 0 01-1.5 1.5H5.25a1.5 1.5 0 01-1.5-1.5V5.25z" />
       </svg>
     ),
-    label: <><strong className="text-white/85 font-600">COA</strong> on every lot</>,
+    label: <><strong className="text-blue-400 font-600">COA</strong> on every lot</>,
   },
   {
     icon: (
@@ -43,7 +43,7 @@ const CATALOG_TRUST_BADGES: { icon: JSX.Element; label: JSX.Element }[] = [
         <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" />
       </svg>
     ),
-    label: <><strong className="text-white/85 font-600">Same-day dispatch</strong> before 12PM PST</>,
+    label: <><strong className="text-blue-400 font-600">Same-day dispatch</strong> before 12PM PST</>,
   },
 ];
 
