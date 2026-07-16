@@ -1,8 +1,5 @@
 "use client";
 
-import { useRef } from "react";
-import { motion, useInView } from "framer-motion";
-
 const methods = [
   {
     step: "01",
@@ -42,9 +39,6 @@ const methods = [
 ];
 
 export default function HowWeTestSection() {
-  const headerRef = useRef<HTMLDivElement>(null);
-  const headerInView = useInView(headerRef, { once: true, margin: "-80px" });
-
   return (
     <section id="testing" className="relative bg-navy-900 py-24 md:py-36 overflow-hidden">
       {/* Background elements */}
@@ -60,55 +54,38 @@ export default function HowWeTestSection() {
 
       <div className="relative z-10 max-w-7xl mx-auto px-6">
         {/* Header */}
-        <div ref={headerRef} className="max-w-2xl mb-20">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={headerInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6 }}
-            className="flex items-center gap-3 mb-4"
-          >
+        <div className="max-w-2xl mb-20">
+          <div className="flex items-center gap-3 mb-4">
             <div className="w-6 h-px bg-blue-600" />
             <span className="font-mono text-xs text-blue-400 tracking-[0.25em] uppercase">
               003 / Anvil Standards
             </span>
-          </motion.div>
+          </div>
 
-          <motion.h2
-            initial={{ opacity: 0, y: 30 }}
-            animate={headerInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.7, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+          <h2
             className="font-display font-800 text-white mb-5"
             style={{ fontSize: "clamp(2.4rem, 5vw, 4rem)" }}
           >
             Anvil Standards:
             <br />
             <span className="text-white">Testing Protocol</span>
-          </motion.h2>
+          </h2>
 
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={headerInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.7, delay: 0.2 }}
-            className="font-body text-white/45 text-lg leading-relaxed"
-          >
+          <p className="font-body text-white/45 text-lg leading-relaxed">
             We run multiple independent verification methods on our vials within every single batch before it finalizes into our inventory. Every single compound has been tested and verified to our standards before touching our catalog.
-          </motion.p>
+          </p>
         </div>
 
         {/* Methods */}
         <div className="space-y-6">
-          {methods.map((method, i) => (
-            <MethodRow key={method.step} method={method} index={i} />
+          {methods.map((method) => (
+            <MethodRow key={method.step} method={method} />
           ))}
         </div>
 
         {/* COA callout */}
-        <motion.a
+        <a
           href="/coas"
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.7, delay: 0.2 }}
           className="mt-14 p-6 md:p-8 rounded-xl border border-blue-600/20 bg-blue-600/5 flex flex-col md:flex-row gap-6 md:items-center hover:border-blue-500/40 hover:bg-blue-600/10 transition-all duration-300 cursor-pointer"
         >
           <div className="flex-grow">
@@ -139,22 +116,15 @@ export default function HowWeTestSection() {
               </div>
             </div>
           </div>
-        </motion.a>
+        </a>
       </div>
     </section>
   );
 }
 
-function MethodRow({ method, index }: { method: typeof methods[0]; index: number }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-60px" });
-
+function MethodRow({ method }: { method: typeof methods[0] }) {
   return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, x: -40 }}
-      animate={inView ? { opacity: 1, x: 0 } : {}}
-      transition={{ duration: 0.7, delay: index * 0.12, ease: [0.16, 1, 0.3, 1] }}
+    <div
       className="group relative glass-card rounded-xl p-6 md:p-8 hover:border-blue-500/30 transition-all duration-500 hover:-translate-x-1"
     >
       <div className="flex flex-col md:flex-row gap-6 md:gap-10 md:items-start">
@@ -210,6 +180,6 @@ function MethodRow({ method, index }: { method: typeof methods[0]; index: number
       <div
         className={`absolute left-0 top-8 bottom-8 w-0.5 rounded-full bg-gradient-to-b ${method.color} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}
       />
-    </motion.div>
+    </div>
   );
 }

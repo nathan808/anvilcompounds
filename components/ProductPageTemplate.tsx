@@ -4,6 +4,7 @@ import ShippingBanner from "@/components/ShippingBanner";
 import ProductImageGallery from "@/components/ProductImageGallery";
 import ViewCoaButton from "@/components/ViewCoaButton";
 import SdsPreviewButton from "@/components/SdsPreviewButton";
+import PurchaseFooter from "@/components/PurchaseFooter";
 import { getProductDisplayTitle } from "@/lib/productTitle";
 
 // ─── Data interface ────────────────────────────────────────────────────────────
@@ -93,9 +94,73 @@ export default function ProductPageTemplate({
       {/* ── SECTION 1 — Hero header ───────────────────────────────────────── */}
       <section className="bg-navy-950 py-16 md:py-24">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 xl:gap-20 items-start">
 
-            {/* Left — product image + shipping banner */}
+          {/* ── Mobile layout (< lg): category/disclaimer/name up top, buy
+              buttons right under pricing so they're visible without
+              scrolling, everything else (COA/SDS, shipping, payment info)
+              pushed below. Renders its own AddToCartButton/ProductImageGallery
+              instance (see note on the desktop block below). ── */}
+          <div className="lg:hidden space-y-5">
+            <nav className="font-mono text-xs text-white/30">
+              <span>Catalog</span>
+              <span className="mx-2 text-white/20">/</span>
+              <span className="text-slate-400/80">{product.category}</span>
+            </nav>
+
+            <div className="inline-block">
+              <span className="font-mono text-[10px] text-white/35 tracking-[0.18em] uppercase border border-white/10 rounded-full px-3 py-1">
+                For laboratory and research use only
+              </span>
+            </div>
+
+            <h1
+              className="font-display font-800 text-white leading-[1.05]"
+              style={{ fontSize: "clamp(2.5rem, 5vw, 4rem)" }}
+            >
+              {getProductDisplayTitle(product.name, product.category)}
+            </h1>
+
+            <p className="font-mono text-xs text-slate-400 tracking-wider">
+              {product.subtitle}
+            </p>
+
+            <ProductImageGallery
+              productImage={product.image}
+              productName={product.name}
+              coaImage={product.documentationImage}
+            />
+
+            <AddToCartButton
+              slug={product.slug}
+              name={product.name}
+              sizes={product.sizes}
+              sizesPrices={product.sizesPrices}
+              priceNumber={product.priceNumber}
+              wcProductId={product.wcProductId}
+              hasCoa={hasCoa}
+              showFooter={false}
+            />
+
+            <div className="space-y-3">
+              <ViewCoaButton
+                productName={product.name}
+                imageUrl={product.documentationImage}
+                fileUrl={product.documentationFile}
+              />
+              <SdsPreviewButton productName={product.name} />
+            </div>
+
+            <ShippingBanner theme="dark" />
+
+            <PurchaseFooter />
+          </div>
+
+          {/* ── Desktop layout (>= lg): image + shipping + SDS on the left,
+              everything else in a sticky right column, as before except
+              SDS moved under the shipping card. ── */}
+          <div className="hidden lg:grid lg:grid-cols-2 gap-12 xl:gap-20 items-start">
+
+            {/* Left — product image + shipping banner + SDS preview */}
             <div className="space-y-5">
               <ProductImageGallery
                 productImage={product.image}
@@ -103,6 +168,7 @@ export default function ProductPageTemplate({
                 coaImage={product.documentationImage}
               />
               <ShippingBanner theme="dark" />
+              <SdsPreviewButton productName={product.name} />
             </div>
 
             {/* Right — buy column */}
@@ -141,13 +207,7 @@ export default function ProductPageTemplate({
                 fileUrl={product.documentationFile}
               />
 
-              {/* SDS preview — basic specs unlocked, rest gated behind purchase */}
-              <SdsPreviewButton
-                productName={product.name}
-                propertiesTable={product.propertiesTable}
-              />
-
-              {/* Add to cart */}
+              {/* Add to cart (renders its own payment-methods/RUO footer) */}
               <AddToCartButton
                 slug={product.slug}
                 name={product.name}

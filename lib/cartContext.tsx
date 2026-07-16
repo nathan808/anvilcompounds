@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import { getDiscountedPrice } from "@/lib/volumePricing";
+import { getDiscountedPrice, MAX_QTY_PER_ITEM } from "@/lib/volumePricing";
 
 export interface CartItem {
   slug: string;
@@ -60,7 +60,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setItems((prev) => {
       const existing = prev.find((i) => i.slug === item.slug && i.size === item.size);
       if (existing) {
-        const newQty = existing.quantity + qty;
+        const newQty = Math.min(MAX_QTY_PER_ITEM, existing.quantity + qty);
         const base = existing.basePrice ?? existing.price;
         return prev.map((i) =>
           i.slug === item.slug && i.size === item.size
@@ -68,9 +68,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
             : i
         );
       }
+      const cappedQty = Math.min(MAX_QTY_PER_ITEM, qty);
       const base = item.basePrice ?? item.price;
-      const discountedPrice = getDiscountedPrice(base, qty);
-      return [...prev, { ...item, quantity: qty, price: discountedPrice, basePrice: base }];
+      const discountedPrice = getDiscountedPrice(base, cappedQty);
+      return [...prev, { ...item, quantity: cappedQty, price: discountedPrice, basePrice: base }];
     });
 
     // Fire-and-forget Omnisend "Added to Cart" event — never blocks cart
@@ -97,11 +98,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const updateQty = (slug: string, size: string, qty: number) => {
     if (qty <= 0) { removeItem(slug, size); return; }
+    const cappedQty = Math.min(MAX_QTY_PER_ITEM, qty);
     setItems((prev) =>
       prev.map((i) => {
         if (i.slug !== slug || i.size !== size) return i;
         const base = i.basePrice ?? i.price;
-        return { ...i, quantity: qty, price: getDiscountedPrice(base, qty), basePrice: base };
+        return { ...i, quantity: cappedQty, price: getDiscountedPrice(base, cappedQty), basePrice: base };
       })
     );
   };

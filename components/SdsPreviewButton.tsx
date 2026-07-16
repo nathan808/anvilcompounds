@@ -4,28 +4,14 @@ import { useState } from "react";
 
 interface SdsPreviewButtonProps {
   productName: string;
-  propertiesTable: { label: string; value: string }[];
 }
 
 // SDS/Technical Research Guide PDFs are drafted and shipped with every
 // order (email + package insert) -- not hosted as a public URL, so there's
-// nothing here for a crawler to read or flag. This button only shows a
-// preview built from data we already publish elsewhere on the page (CAS,
-// formula, MW, appearance, storage), then locks the rest behind "purchase
-// to unlock" rather than linking to a real file.
-const PREVIEW_LABELS = ["CAS Number", "Molecular Formula", "Molecular Weight", "Appearance", "Storage"];
-
-const LOCKED_SECTIONS = [
-  "Hazard Identification",
-  "Handling & Storage",
-  "Exposure Controls / Personal Protection",
-  "Stability & Reactivity",
-];
-
-export default function SdsPreviewButton({ productName, propertiesTable }: SdsPreviewButtonProps) {
+// nothing here for a crawler to read or flag. Just a short description of
+// what's included, no preview content to gate behind a purchase.
+export default function SdsPreviewButton({ productName }: SdsPreviewButtonProps) {
   const [open, setOpen] = useState(false);
-
-  const previewRows = propertiesTable.filter((row) => PREVIEW_LABELS.includes(row.label));
 
   return (
     <>
@@ -51,7 +37,7 @@ export default function SdsPreviewButton({ productName, propertiesTable }: SdsPr
             <div className="px-6 py-5 border-b border-white/8 flex items-center justify-between">
               <div>
                 <p className="font-mono text-[10px] text-white/35 tracking-[0.2em] uppercase mb-1">
-                  Safety Data Sheet — Preview
+                  Safety Data Sheet
                 </p>
                 <h3 className="font-display font-700 text-white text-lg">{productName}</h3>
               </div>
@@ -66,37 +52,10 @@ export default function SdsPreviewButton({ productName, propertiesTable }: SdsPr
             </div>
 
             <div className="px-6 py-5 space-y-4">
-              {/* Unlocked basic info */}
-              <div className="rounded-xl border border-white/8 divide-y divide-white/5 overflow-hidden">
-                {previewRows.map((row) => (
-                  <div key={row.label} className="flex items-center justify-between px-4 py-2.5">
-                    <span className="font-mono text-[10px] text-white/35 tracking-widest uppercase">{row.label}</span>
-                    <span className="font-mono text-xs text-white/70">{row.value}</span>
-                  </div>
-                ))}
-              </div>
-
-              {/* Locked sections */}
-              <div className="relative rounded-xl border border-white/8 overflow-hidden">
-                <div className="divide-y divide-white/5 blur-[3px] select-none pointer-events-none">
-                  {LOCKED_SECTIONS.map((section) => (
-                    <div key={section} className="px-4 py-2.5">
-                      <span className="font-mono text-[10px] text-white/30 tracking-widest uppercase">{section}</span>
-                    </div>
-                  ))}
-                </div>
-                <div className="absolute inset-0 bg-navy-950/70 flex flex-col items-center justify-center gap-2 text-center px-4">
-                  <svg className="w-4 h-4 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                  </svg>
-                  <p className="font-mono text-[10px] text-blue-300 tracking-[0.15em] uppercase">
-                    Purchase to unlock full SDS
-                  </p>
-                </div>
-              </div>
-
-              <p className="font-mono text-[10px] text-white/30 text-center leading-relaxed">
-                Full Safety Data Sheet + Technical Research Guide included with every order.
+              <p className="font-body text-sm text-white/60 leading-relaxed">
+                A Safety Data Sheet (SDS) documents handling, storage, and hazard information for
+                this compound. A full SDS and a technical/research reference guide are included
+                with every purchase.
               </p>
 
               <button

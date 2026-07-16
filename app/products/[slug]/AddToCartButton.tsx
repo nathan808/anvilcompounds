@@ -3,9 +3,10 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useCart } from "@/lib/cartContext";
-import PaymentMethodsBar from "@/components/PaymentMethodsBar";
+import PurchaseFooter from "@/components/PurchaseFooter";
 import {
   VOLUME_TIERS,
+  MAX_QTY_PER_ITEM,
   getVolumeDiscount,
   getDiscountedPrice,
   getVolumeCTAText,
@@ -20,9 +21,10 @@ interface Props {
   priceNumber: number;
   wcProductId: number;
   hasCoa: boolean;
+  showFooter?: boolean;
 }
 
-const QUICK_PICKS = [1, 2, 5, 6, 10];
+const QUICK_PICKS = [1, 2, 5, 6, 9];
 
 export default function AddToCartButton({
   slug,
@@ -32,6 +34,7 @@ export default function AddToCartButton({
   priceNumber,
   wcProductId,
   hasCoa,
+  showFooter = true,
 }: Props) {
   const { addItem, openCart } = useCart();
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -47,7 +50,7 @@ export default function AddToCartButton({
   const ctaText = getVolumeCTAText(qty);
 
   const handleQtyChange = (next: number) => {
-    setQty(Math.max(1, next));
+    setQty(Math.min(MAX_QTY_PER_ITEM, Math.max(1, next)));
   };
 
   const handleAdd = () => {
@@ -152,6 +155,7 @@ export default function AddToCartButton({
           <input
             type="number"
             min={1}
+            max={MAX_QTY_PER_ITEM}
             value={qty}
             onChange={(e) => handleQtyChange(parseInt(e.target.value) || 1)}
             className="w-16 text-center bg-white/5 border border-white/10 rounded-lg font-mono text-sm text-white py-2 outline-none focus:border-blue-500/50"
@@ -222,7 +226,7 @@ export default function AddToCartButton({
           })}
         </div>
         {/* CTA nudge */}
-        {qty < 10 && (
+        {qty < MAX_QTY_PER_ITEM && (
           <div className="px-4 py-2.5 bg-blue-600/5 border-t border-blue-600/15">
             <p className="font-mono text-xs text-blue-400/80">{ctaText}</p>
           </div>
@@ -267,15 +271,11 @@ export default function AddToCartButton({
         Proceed to Secure Checkout →
       </Link>
 
-      {/* Payment methods */}
-      <div className="pt-1">
-        <PaymentMethodsBar />
-      </div>
-
-      {/* RUO */}
-      <p className="text-center font-mono text-[10px] text-white/20 tracking-wide">
-        RUO only · Not for human or veterinary use · 21+ required
-      </p>
+      {showFooter && (
+        <div className="pt-1">
+          <PurchaseFooter />
+        </div>
+      )}
     </div>
   );
 }

@@ -8,6 +8,7 @@ import { fetchTaxRate } from "@/lib/wcTax";
 import { PAYMENT_METHODS, PaymentMethodId } from "@/lib/paymentMethods";
 import { PAYMENT_CONFIG } from "@/lib/paymentConfig";
 import { computeVolumeDiscount, VOLUME_DISCOUNT_LABEL } from "@/lib/volumeDiscount";
+import { MAX_QTY_PER_ITEM } from "@/lib/volumePricing";
 
 // The client sends ONLY identifiers and selections — never a price, total,
 // discount amount, or tax figure. Every money value below is derived
@@ -47,6 +48,13 @@ export async function POST(req: NextRequest) {
   }
   if (!items?.length) {
     return NextResponse.json({ error: "Cart is empty" }, { status: 400 });
+  }
+  const overLimit = items.find((i) => i.quantity < 1 || i.quantity > MAX_QTY_PER_ITEM);
+  if (overLimit) {
+    return NextResponse.json(
+      { error: `Quantity must be between 1 and ${MAX_QTY_PER_ITEM} vials per compound.` },
+      { status: 400 }
+    );
   }
   if (!shippingInstanceId || typeof shippingInstanceId !== "string") {
     return NextResponse.json({ error: "No shipping method selected" }, { status: 400 });

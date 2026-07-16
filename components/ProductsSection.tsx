@@ -19,7 +19,7 @@ export const CATALOG_TRUST_BADGES: { icon: JSX.Element; label: JSX.Element }[] =
         <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5.106 14.4A2.25 2.25 0 004.447 16v.001c0 1.243 1.007 2.25 2.25 2.25h10.606a2.25 2.25 0 002.25-2.25v-.001a2.25 2.25 0 00-.659-1.591l-3.985-3.99a2.25 2.25 0 01-.659-1.591V3.104M9.75 3.104h4.5M9.75 3.104a48.667 48.667 0 014.5 0" />
       </svg>
     ),
-    label: <>Tested by <strong className="text-blue-400 font-600">Freedom Diagnostics</strong> (HPLC + Mass Spec + Endotoxin + Heavy-Metal Screening)</>,
+    label: <>Tested by <strong className="text-blue-400 font-600">Freedom Diagnostics</strong></>,
   },
   {
     icon: (
@@ -283,17 +283,17 @@ function ProductCard({ product, index }: { product: ProductCard; index: number }
               </div>
             </div>
             <a
-              href={glpGated ? loginHref : "/coas"}
+              href={glpGated ? loginHref : `/products/${slugifyProductName(product.name)}`}
               className="block w-full text-center mb-1.5 md:mb-2 px-2 md:px-3 py-1.5 md:py-2 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-white/50 hover:text-white text-xs md:text-sm font-display font-600 rounded-lg transition-all duration-300"
             >
-              View COA
+              View Information
             </a>
             <div className="flex gap-1.5 md:gap-2">
               <a
-                href={glpGated ? loginHref : `/products/${slugifyProductName(product.name)}`}
+                href={glpGated ? loginHref : "/coas"}
                 className="flex-1 text-center px-2 md:px-3 py-1.5 md:py-2 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-white/60 hover:text-white text-xs md:text-sm font-display font-600 rounded-lg transition-all duration-300"
               >
-                View
+                View COA
               </a>
               {glpGated ? (
                 <button
