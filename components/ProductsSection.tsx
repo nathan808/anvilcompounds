@@ -1,12 +1,51 @@
 "use client";
 
 import { useRef, useEffect, useState, useCallback, useMemo } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { motion, useInView } from "framer-motion";
 import Image from "next/image";
 import type { ProductCard } from "@/lib/woocommerce";
 import { useCart } from "@/lib/cartContext";
-import { getProductDisplayTitle } from "@/lib/productTitle";
+import { useAuth } from "@/lib/authContext";
+import { getProductDisplayTitle, isGlpCompound } from "@/lib/productTitle";
+
+// Small credibility pills above the catalog header — same idea as a
+// competitor's "tested by / sold to / verified" badge row, adapted to what
+// we can actually back up (no named lab, no institutional-sales claim).
+const CATALOG_TRUST_BADGES: { icon: JSX.Element; label: JSX.Element }[] = [
+  {
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-3.5 h-3.5">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5.106 14.4A2.25 2.25 0 004.447 16v.001c0 1.243 1.007 2.25 2.25 2.25h10.606a2.25 2.25 0 002.25-2.25v-.001a2.25 2.25 0 00-.659-1.591l-3.985-3.99a2.25 2.25 0 01-.659-1.591V3.104M9.75 3.104h4.5M9.75 3.104a48.667 48.667 0 014.5 0" />
+      </svg>
+    ),
+    label: <>Tested by an <strong className="text-white/85 font-600">accredited third-party lab</strong> (HPLC + Mass Spec)</>,
+  },
+  {
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-3.5 h-3.5">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+      </svg>
+    ),
+    label: <><strong className="text-white/85 font-600">21+ verified</strong> researcher accounts</>,
+  },
+  {
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-3.5 h-3.5">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75M3.75 6.75h.007v.008H3.75V6.75zm0 5.25h.007v.008H3.75V12zm0 5.25h.007v.008H3.75v-.008zM3.75 5.25h16.5v13.5a1.5 1.5 0 01-1.5 1.5H5.25a1.5 1.5 0 01-1.5-1.5V5.25z" />
+      </svg>
+    ),
+    label: <><strong className="text-white/85 font-600">COA</strong> on every lot</>,
+  },
+  {
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-3.5 h-3.5">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" />
+      </svg>
+    ),
+    label: <><strong className="text-white/85 font-600">Same-day dispatch</strong> before 12PM PST</>,
+  },
+];
 
 // Hidden by default under the "All Compounds" tab on the home page only —
 // revealed either by clicking "View All" at the bottom of that grid, or
@@ -37,34 +76,6 @@ const PRODUCT_IMAGES: Record<string, string> = {
   "GLOW":                          "/products/glow.png",
   "Semax":                         "https://anvilcompounds.shop/wp-content/uploads/2026/07/semaxproductphoto.png",
   "Selank":                        "https://anvilcompounds.shop/wp-content/uploads/2026/07/selankproductphoto.png",
-};
-
-// Size variants shown on catalog cards
-const PRODUCT_SIZES: Record<string, string[]> = {
-  "BPC-157":                                      ["10mg"],
-  "T1rz":                                         ["10mg", "20mg"],
-  "Trz- dual receptor":                           ["10mg", "20mg"],
-  "Dual Receptor (T)":                            ["10mg", "20mg"],
-  "R3ta":                                         ["10mg", "20mg"],
-  "Rta - triple agonist":                         ["10mg", "20mg"],
-  "triple agonist (R)":                           ["10mg", "20mg"],
-  "Triple Agonist (R)":                           ["10mg", "20mg"],
-  "GLP-TRZ":                                      ["10mg", "20mg"],
-  "GLP-RT":                                       ["10mg", "20mg"],
-  "KLOW":                                         ["80mg blend"],
-  "GHK-Cu":                                       ["50mg", "100mg"],
-  "TB-500":                                       ["10mg"],
-  "MOTS-c":                                       ["10mg"],
-  "Bacteriostatic Water":                         ["30mL × 1"],
-  "Reconstitution Solution – for Laboratory Use": ["30mL × 1"],
-  "BPC-157 + TB-500":                              ["5mg BPC-157 + 5mg TB-500"],
-  "NAD+":                                         ["500mg"],
-  "Tesamorelin":                                  ["10mg"],
-  "CJC-1295 + Ipamorelin":                        ["5mg + 5mg blend"],
-  "5-Amino-1MQ":                                  ["5mg", "10mg"],
-  "GLOW":                                         ["70mg blend"],
-  "Semax":                                        ["10mg"],
-  "Selank":                                       ["10mg"],
 };
 
 const SLUG_MAP: Record<string, string> = {
@@ -155,7 +166,15 @@ function ProductCard({ product, index }: { product: ProductCard; index: number }
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-80px" });
   const { addItem, openCart } = useCart();
+  const { isAuthenticated } = useAuth();
+  const router = useRouter();
   const [added, setAdded] = useState(false);
+
+  // GLP compounds are inquiry-gated: guests can't view, add to cart, or
+  // check the COA from the catalog card until they log in. Same
+  // /account?redirect= pattern used for the GLP COA gate elsewhere.
+  const glpGated = isGlpCompound(product.name) && !isAuthenticated;
+  const loginHref = `/account?redirect=${encodeURIComponent(`/products/${slugifyProductName(product.name)}`)}`;
 
   const handleAddToCart = useCallback(() => {
     const priceNum = parseFloat(product.price.replace(/[^0-9.]/g, "")) || 0;
@@ -205,14 +224,23 @@ function ProductCard({ product, index }: { product: ProductCard; index: number }
             </span>
           </div>
           {/* COA-pending blur overlay */}
-          {!product.hasCoa && (
+          {!product.hasCoa ? (
             <div className="absolute inset-0 z-10 backdrop-blur-sm bg-navy-950/60 flex flex-col items-center justify-center gap-2">
               <div className="w-2 h-2 rounded-full bg-yellow-400 animate-pulse" />
               <span className="font-mono text-[10px] text-yellow-300 tracking-[0.18em] uppercase text-center px-2">
                 Testing in Progress
               </span>
             </div>
-          )}
+          ) : glpGated ? (
+            <div className="absolute inset-0 z-10 backdrop-blur-sm bg-navy-950/60 flex flex-col items-center justify-center gap-2">
+              <svg className="w-4 h-4 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+              <span className="font-mono text-[10px] text-blue-300 tracking-[0.18em] uppercase text-center px-2">
+                Log In to Inquire
+              </span>
+            </div>
+          ) : null}
         </div>
 
         {/* Card content */}
@@ -224,15 +252,6 @@ function ProductCard({ product, index }: { product: ProductCard; index: number }
             <span className="font-mono text-[10px] md:text-xs text-blue-400/70 tracking-widest uppercase">
               {product.category}
             </span>
-            {PRODUCT_SIZES[product.name] && (
-              <div className="flex flex-wrap gap-1 mt-1">
-                {PRODUCT_SIZES[product.name].map((s) => (
-                  <span key={s} className="font-mono text-[8px] md:text-[9px] text-white/35 bg-white/5 border border-white/8 rounded px-1.5 py-0.5 tracking-wider">
-                    {s}
-                  </span>
-                ))}
-              </div>
-            )}
           </div>
 
           <p className="font-body text-xs md:text-sm text-white/45 leading-relaxed mb-3 md:mb-4 flex-grow line-clamp-3 md:line-clamp-none">
@@ -264,19 +283,26 @@ function ProductCard({ product, index }: { product: ProductCard; index: number }
               </div>
             </div>
             <a
-              href="/coas"
+              href={glpGated ? loginHref : "/coas"}
               className="block w-full text-center mb-1.5 md:mb-2 px-2 md:px-3 py-1.5 md:py-2 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-white/50 hover:text-white text-xs md:text-sm font-display font-600 rounded-lg transition-all duration-300"
             >
               View COA
             </a>
             <div className="flex gap-1.5 md:gap-2">
               <a
-                href={`/products/${slugifyProductName(product.name)}`}
+                href={glpGated ? loginHref : `/products/${slugifyProductName(product.name)}`}
                 className="flex-1 text-center px-2 md:px-3 py-1.5 md:py-2 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-white/60 hover:text-white text-xs md:text-sm font-display font-600 rounded-lg transition-all duration-300"
               >
                 View
               </a>
-              {product.hasCoa ? (
+              {glpGated ? (
+                <button
+                  onClick={() => router.push(loginHref)}
+                  className="flex-1 text-center px-2 md:px-3 py-1.5 md:py-2 border border-blue-500/40 bg-blue-600/10 hover:bg-blue-600/20 text-blue-300 hover:text-blue-200 text-xs md:text-sm font-display font-600 rounded-lg transition-all duration-300"
+                >
+                  Log In to Inquire
+                </button>
+              ) : product.hasCoa ? (
                 <button
                   onClick={handleAddToCart}
                   className={`flex-1 text-center px-2 md:px-3 py-1.5 md:py-2 border text-xs md:text-sm font-display font-600 rounded-lg transition-all duration-300 ${
@@ -407,6 +433,25 @@ export default function ProductsSection() {
         {/* Header */}
         <div ref={headerRef} className="mb-8">
           <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={headerInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.6 }}
+            className="flex flex-wrap items-center gap-2.5 mb-6"
+          >
+            {CATALOG_TRUST_BADGES.map((badge, i) => (
+              <div
+                key={i}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-white/10 bg-white/5"
+              >
+                <span className="text-blue-400 shrink-0">{badge.icon}</span>
+                <span className="font-mono text-[11px] text-white/50 tracking-wide whitespace-nowrap">
+                  {badge.label}
+                </span>
+              </div>
+            ))}
+          </motion.div>
+
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={headerInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.6 }}
@@ -427,9 +472,9 @@ export default function ProductsSection() {
                 className="font-display font-800 text-white mb-4"
                 style={{ fontSize: "clamp(2.4rem, 5vw, 4rem)" }}
               >
-                Independently Verified
+                Reference materials
                 <br />
-                <span className="text-blue-400">Compounds</span>
+                <span className="text-blue-400">&amp; research compounds</span>
               </motion.h2>
 
               <motion.p
@@ -438,8 +483,8 @@ export default function ProductsSection() {
                 transition={{ duration: 0.7, delay: 0.2 }}
                 className="font-body text-white/45 text-lg max-w-xl"
               >
-                All compounds ship as lyophilized powder with full COA documentation.
-                For in vitro laboratory and research use only.
+                Each compound is a synthetic reference material supplied for
+                in-vitro laboratory research.
               </motion.p>
             </div>
 

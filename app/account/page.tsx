@@ -277,7 +277,9 @@ function AccountForm() {
           <p className="font-body text-white/40 text-sm">
             {redirect === "/checkout"
               ? "An account is required to place an order."
-              : redirect === "/coas" || redirect.startsWith("/products/")
+              : redirect.startsWith("/products/")
+              ? "Log in to inquire about this compound."
+              : redirect === "/coas"
               ? "Sign in to view this COA."
               : "Access your Anvil Compounds research account."}
           </p>
