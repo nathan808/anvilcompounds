@@ -1,7 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import CoaModal from "@/components/CoaModal";
+import { useAuth } from "@/lib/authContext";
+import { isGlpCompound } from "@/lib/productTitle";
 
 interface ViewCoaButtonProps {
   productName: string;
@@ -10,7 +13,21 @@ interface ViewCoaButtonProps {
 }
 
 export default function ViewCoaButton({ productName, imageUrl, fileUrl }: ViewCoaButtonProps) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const { isAuthenticated } = useAuth();
   const [open, setOpen] = useState(false);
+
+  const handleClick = () => {
+    // GLP compounds' COAs are gated behind login; every other compound's
+    // COA stays open to guests. Same gate checkout already applies, so
+    // there's no conflicting login prompt for the same reason.
+    if (isGlpCompound(productName) && !isAuthenticated) {
+      router.push(`/account?redirect=${encodeURIComponent(pathname)}`);
+      return;
+    }
+    setOpen(true);
+  };
 
   if (!imageUrl && !fileUrl) {
     return (
@@ -26,7 +43,7 @@ export default function ViewCoaButton({ productName, imageUrl, fileUrl }: ViewCo
   return (
     <>
       <button
-        onClick={() => setOpen(true)}
+        onClick={handleClick}
         className="w-full inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl border border-blue-500/40 hover:border-blue-400 text-blue-400 hover:text-blue-300 font-display font-700 text-sm transition-all duration-200 bg-blue-600/5 hover:bg-blue-600/10"
       >
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

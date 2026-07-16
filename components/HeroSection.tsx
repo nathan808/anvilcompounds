@@ -83,10 +83,10 @@ export default function HeroSection() {
               className="font-display font-800 leading-[0.95] mb-4 max-w-3xl"
               style={{ fontSize: "clamp(2rem, 5vw, 4.5rem)", textShadow: "0 1px 12px rgba(255,255,255,0.95), 0 0px 2px rgba(255,255,255,0.7)" }}
             >
-              <span className="block text-gray-950">Independently</span>
-              <span className="block text-gray-950">Verified Peptides.</span>
-              <span className="block font-800" style={{ color: "#1D6ADB" }}>Every batch.</span>
-              <span className="block text-gray-600" style={{ fontSize: "0.68em" }}>USA-based.</span>
+              <span className="block text-gray-950">Research compounds</span>
+              <span className="block text-gray-950">and reference materials,</span>
+              <span className="block font-800" style={{ color: "#1D6ADB" }}>independently verified</span>
+              <span className="block text-gray-600" style={{ fontSize: "0.68em" }}>before release.</span>
             </motion.h1>
 
             {/* Subheadline */}
@@ -94,8 +94,9 @@ export default function HeroSection() {
               variants={item}
               className="font-body text-gray-700 text-sm md:text-base leading-relaxed mb-5 max-w-sm md:max-w-md"
             >
-              Research-grade peptides independently verified through hexa-method
-              testing. Every batch. No exceptions.
+              Independently verified per lot — HPLC purity, mass-spec identity,
+              endotoxin and heavy-metal screening, multi-vial sampling. COA per
+              lot. For in-vitro research use only.
             </motion.p>
 
             {/* CTAs — stacked on mobile, row on sm+ */}

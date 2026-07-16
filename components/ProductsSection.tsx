@@ -6,6 +6,7 @@ import { motion, useInView } from "framer-motion";
 import Image from "next/image";
 import type { ProductCard } from "@/lib/woocommerce";
 import { useCart } from "@/lib/cartContext";
+import { getProductDisplayTitle } from "@/lib/productTitle";
 
 // Hidden by default under the "All Compounds" tab on the home page only —
 // revealed either by clicking "View All" at the bottom of that grid, or
@@ -217,7 +218,9 @@ function ProductCard({ product, index }: { product: ProductCard; index: number }
         {/* Card content */}
         <div className="p-3 md:p-5 flex flex-col flex-grow">
           <div className="mb-2 md:mb-3">
-            <h3 className="font-display font-700 text-base md:text-xl text-white mb-0.5 leading-tight">{product.name}</h3>
+            <h3 className="font-display font-700 text-base md:text-xl text-white mb-0.5 leading-tight">
+              {getProductDisplayTitle(product.name, product.category)}
+            </h3>
             <span className="font-mono text-[10px] md:text-xs text-blue-400/70 tracking-widest uppercase">
               {product.category}
             </span>

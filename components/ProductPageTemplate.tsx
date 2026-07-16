@@ -3,6 +3,7 @@ import AddToCartButton from "@/app/products/[slug]/AddToCartButton";
 import ShippingBanner from "@/components/ShippingBanner";
 import ProductImageGallery from "@/components/ProductImageGallery";
 import ViewCoaButton from "@/components/ViewCoaButton";
+import { getProductDisplayTitle } from "@/lib/productTitle";
 
 // ─── Data interface ────────────────────────────────────────────────────────────
 
@@ -124,7 +125,7 @@ export default function ProductPageTemplate({
                 className="font-display font-800 text-white leading-[1.05]"
                 style={{ fontSize: "clamp(2.5rem, 5vw, 4rem)" }}
               >
-                {product.name}
+                {getProductDisplayTitle(product.name, product.category)}
               </h1>
 
               {/* Subtitle */}

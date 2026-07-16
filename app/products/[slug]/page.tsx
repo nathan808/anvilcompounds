@@ -4,6 +4,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ProductPageTemplate from "@/components/ProductPageTemplate";
 import { getProductPageData } from "@/lib/woocommerce";
+import { getProductDisplayTitle } from "@/lib/productTitle";
 
 export const dynamicParams = true;
 
@@ -40,9 +41,10 @@ export async function generateMetadata({
   if (!product) {
     return { title: "Product — Anvil Compounds" };
   }
+  const displayTitle = getProductDisplayTitle(product.name, product.category);
   return {
-    title: `${product.name} — Anvil Compounds`,
-    description: product.subtitle || `${product.name} — research-grade compound. Independent hexa-method testing. Ships same day.`,
+    title: `${displayTitle} — Anvil Compounds`,
+    description: product.subtitle || `${displayTitle} — research-grade compound. Independent hexa-method testing. Ships same day.`,
   };
 }
 

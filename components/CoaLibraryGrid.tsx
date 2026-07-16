@@ -1,7 +1,10 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import CoaModal from "@/components/CoaModal";
+import { useAuth } from "@/lib/authContext";
+import { getProductDisplayTitle, isGlpCompound } from "@/lib/productTitle";
 
 interface CoaProduct {
   slug: string;
@@ -13,8 +16,21 @@ interface CoaProduct {
 }
 
 export default function CoaLibraryGrid({ products }: { products: CoaProduct[] }) {
+  const router = useRouter();
+  const { isAuthenticated } = useAuth();
   const [query, setQuery] = useState("");
   const [active, setActive] = useState<CoaProduct | null>(null);
+
+  const handleView = (product: CoaProduct) => {
+    // GLP compounds' COAs are gated behind login; everything else stays
+    // open to guests. Checkout is already gated the same way, so this
+    // never asks a guest to log in twice for the same reason.
+    if (isGlpCompound(product.name) && !isAuthenticated) {
+      router.push("/account?redirect=/coas");
+      return;
+    }
+    setActive(product);
+  };
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -55,7 +71,7 @@ export default function CoaLibraryGrid({ products }: { products: CoaProduct[] })
             return (
               <button
                 key={product.slug}
-                onClick={() => hasCoa && setActive(product)}
+                onClick={() => hasCoa && handleView(product)}
                 disabled={!hasCoa}
                 className={`group text-left glass-card rounded-xl p-6 flex flex-col justify-between transition-all duration-200 ${
                   hasCoa ? "hover:border-blue-500/40 hover:-translate-y-0.5 cursor-pointer" : "cursor-not-allowed"
@@ -65,7 +81,9 @@ export default function CoaLibraryGrid({ products }: { products: CoaProduct[] })
                   <p className="font-mono text-[10px] text-white/35 tracking-widest uppercase mb-2">
                     {product.category}
                   </p>
-                  <h2 className="font-display font-700 text-white text-lg mb-1">{product.name}</h2>
+                  <h2 className="font-display font-700 text-white text-lg mb-1">
+                    {getProductDisplayTitle(product.name, product.category)}
+                  </h2>
                   {product.documentationCaption && (
                     <p className="font-mono text-xs text-white/30 leading-relaxed mt-3">
                       {product.documentationCaption}
