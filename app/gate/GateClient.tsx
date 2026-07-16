@@ -16,6 +16,7 @@ declare global {
           "error-callback"?: (errorCode?: string) => void;
         }
       ) => string;
+      reset: (widgetId?: string) => void;
     };
   }
 }
@@ -36,11 +37,12 @@ export default function GateClient() {
   const [error, setError] = useState<string | null>(null);
   const widgetRef = useRef<HTMLDivElement>(null);
   const rendered = useRef(false);
+  const widgetIdRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (!scriptLoaded || rendered.current || !widgetRef.current || !window.turnstile) return;
     rendered.current = true;
-    window.turnstile.render(widgetRef.current, {
+    widgetIdRef.current = window.turnstile.render(widgetRef.current, {
       sitekey: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "1x00000000000000000000AA",
       callback: (token) => {
         setTurnstileToken(token);
@@ -51,12 +53,19 @@ export default function GateClient() {
         setTurnstileStatus("pending");
       },
       "error-callback": () => {
-        // Turnstile retries transient errors on its own (network hiccups,
-        // an initial risk check escalating to a harder challenge) -- this
-        // just keeps our own UI honest about that in-between state instead
-        // of looking stuck or broken while it resolves.
+        // Turnstile's own widget renders a visible error state (the "big
+        // red X") on transient failures it would otherwise retry on its
+        // own -- rather than let that flash on screen, force a clean
+        // restart immediately and mask the widget with our own spinner
+        // for the brief moment until it's back to a normal, interactable
+        // state (still needed in case Managed mode escalates to a real
+        // challenge that requires a click).
         setTurnstileToken(null);
         setTurnstileStatus("retrying");
+        if (widgetIdRef.current) {
+          window.turnstile?.reset(widgetIdRef.current);
+        }
+        setTimeout(() => setTurnstileStatus("pending"), 500);
       },
     });
   }, [scriptLoaded]);
@@ -90,6 +99,7 @@ export default function GateClient() {
     <>
       <Script
         src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+        strategy="beforeInteractive"
         onLoad={() => setScriptLoaded(true)}
       />
       <div className="min-h-screen bg-navy-950 flex items-center justify-center px-6 py-16">
@@ -194,13 +204,18 @@ export default function GateClient() {
                 </div>
               </div>
 
-              {/* Turnstile widget */}
-              <div ref={widgetRef} className="flex justify-center mb-2" />
-              {turnstileStatus === "retrying" && (
-                <p className="font-mono text-[10px] text-white/30 text-center mb-3">
-                  Still verifying — this can take a moment on first load…
-                </p>
-              )}
+              {/* Turnstile widget -- masked during a transient error/retry so
+                  the native error state never flashes on screen; still in
+                  the DOM underneath in case Managed mode needs a real click */}
+              <div className="relative flex justify-center mb-2 min-h-[65px]">
+                <div ref={widgetRef} className={turnstileStatus === "retrying" ? "invisible" : ""} />
+                {turnstileStatus === "retrying" && (
+                  <div className="absolute inset-0 flex items-center justify-center gap-2">
+                    <div className="w-3.5 h-3.5 rounded-full border-2 border-blue-400/30 border-t-blue-400 animate-spin" />
+                    <span className="font-mono text-[10px] text-white/40 tracking-wide">Verifying…</span>
+                  </div>
+                )}
+              </div>
 
               {error && (
                 <p className="font-mono text-xs text-red-400 text-center mb-4">{error}</p>
