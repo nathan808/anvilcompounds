@@ -9,7 +9,12 @@ declare global {
     turnstile?: {
       render: (
         container: HTMLElement,
-        options: { sitekey: string; callback: (token: string) => void; "expired-callback"?: () => void }
+        options: {
+          sitekey: string;
+          callback: (token: string) => void;
+          "expired-callback"?: () => void;
+          "error-callback"?: (errorCode?: string) => void;
+        }
       ) => string;
     };
   }
@@ -25,6 +30,7 @@ export default function GateClient() {
   const [ruoConfirmed, setRuoConfirmed] = useState(false);
   const [researcherType, setResearcherType] = useState<(typeof RESEARCHER_TYPES)[number] | null>(null);
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [turnstileStatus, setTurnstileStatus] = useState<"pending" | "success" | "retrying">("pending");
   const [scriptLoaded, setScriptLoaded] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -36,8 +42,22 @@ export default function GateClient() {
     rendered.current = true;
     window.turnstile.render(widgetRef.current, {
       sitekey: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "1x00000000000000000000AA",
-      callback: (token) => setTurnstileToken(token),
-      "expired-callback": () => setTurnstileToken(null),
+      callback: (token) => {
+        setTurnstileToken(token);
+        setTurnstileStatus("success");
+      },
+      "expired-callback": () => {
+        setTurnstileToken(null);
+        setTurnstileStatus("pending");
+      },
+      "error-callback": () => {
+        // Turnstile retries transient errors on its own (network hiccups,
+        // an initial risk check escalating to a harder challenge) -- this
+        // just keeps our own UI honest about that in-between state instead
+        // of looking stuck or broken while it resolves.
+        setTurnstileToken(null);
+        setTurnstileStatus("retrying");
+      },
     });
   }, [scriptLoaded]);
 
@@ -175,7 +195,12 @@ export default function GateClient() {
               </div>
 
               {/* Turnstile widget */}
-              <div ref={widgetRef} className="flex justify-center mb-5" />
+              <div ref={widgetRef} className="flex justify-center mb-2" />
+              {turnstileStatus === "retrying" && (
+                <p className="font-mono text-[10px] text-white/30 text-center mb-3">
+                  Still verifying — this can take a moment on first load…
+                </p>
+              )}
 
               {error && (
                 <p className="font-mono text-xs text-red-400 text-center mb-4">{error}</p>
