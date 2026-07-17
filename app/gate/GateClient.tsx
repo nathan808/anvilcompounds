@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Script from "next/script";
+import { RESEARCH_PURPOSES, OTHER_RESEARCH_PURPOSE, ResearchPurposeValue } from "@/lib/researchPurpose";
 
 declare global {
   interface Window {
@@ -21,15 +22,14 @@ declare global {
   }
 }
 
-const RESEARCHER_TYPES = ["Private Research", "Laboratory", "Academic"] as const;
-
 export default function GateClient() {
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect") || "/catalog";
 
   const [ageConfirmed, setAgeConfirmed] = useState(false);
   const [ruoConfirmed, setRuoConfirmed] = useState(false);
-  const [researcherType, setResearcherType] = useState<(typeof RESEARCHER_TYPES)[number] | null>(null);
+  const [researchPurpose, setResearchPurpose] = useState<ResearchPurposeValue | null>(null);
+  const [researchPurposeOther, setResearchPurposeOther] = useState("");
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const [turnstileStatus, setTurnstileStatus] = useState<"pending" | "success" | "retrying">("pending");
   const [scriptLoaded, setScriptLoaded] = useState(false);
@@ -70,7 +70,14 @@ export default function GateClient() {
     });
   }, [scriptLoaded]);
 
-  const canSubmit = ageConfirmed && ruoConfirmed && !!researcherType && !!turnstileToken && !submitting;
+  const needsOtherDetail = researchPurpose === OTHER_RESEARCH_PURPOSE;
+  const canSubmit =
+    ageConfirmed &&
+    ruoConfirmed &&
+    !!researchPurpose &&
+    (!needsOtherDetail || !!researchPurposeOther.trim()) &&
+    !!turnstileToken &&
+    !submitting;
 
   const handleSubmit = async () => {
     if (!canSubmit) return;
@@ -80,7 +87,13 @@ export default function GateClient() {
       const res = await fetch("/api/gate/verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ turnstileToken, ageConfirmed, ruoConfirmed, researcherType }),
+        body: JSON.stringify({
+          turnstileToken,
+          ageConfirmed,
+          ruoConfirmed,
+          researchPurpose,
+          researchPurposeOther: needsOtherDetail ? researchPurposeOther.trim() : undefined,
+        }),
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
@@ -176,32 +189,42 @@ export default function GateClient() {
                     )}
                   </div>
                   <p className="font-body text-sm text-white/55 leading-relaxed">
-                    I understand these products are for laboratory research use only and not for human or veterinary consumption
+                    I understand these are synthetic reference materials/reagents supplied for
+                    in-vitro laboratory research only, not for human or veterinary use
                   </p>
                 </label>
               </div>
 
-              {/* Researcher type */}
+              {/* Research purpose */}
               <div className="mb-5">
                 <p className="font-mono text-[10px] text-white/30 tracking-widest uppercase mb-2.5">
-                  I am inquiring as
+                  Research Purpose
                 </p>
                 <div className="flex flex-wrap gap-2">
-                  {RESEARCHER_TYPES.map((type) => (
+                  {RESEARCH_PURPOSES.map((p) => (
                     <button
-                      key={type}
+                      key={p.value}
                       type="button"
-                      onClick={() => setResearcherType(type)}
+                      onClick={() => setResearchPurpose(p.value)}
                       className={`px-3.5 py-2 rounded-lg border font-mono text-xs transition-all duration-200 ${
-                        researcherType === type
+                        researchPurpose === p.value
                           ? "bg-blue-600 border-blue-500 text-white"
                           : "bg-white/5 border-white/10 text-white/50 hover:border-white/25 hover:text-white/75"
                       }`}
                     >
-                      {type}
+                      {p.label}
                     </button>
                   ))}
                 </div>
+                {needsOtherDetail && (
+                  <input
+                    type="text"
+                    placeholder="Describe your research purpose"
+                    value={researchPurposeOther}
+                    onChange={(e) => setResearchPurposeOther(e.target.value)}
+                    className="w-full mt-2 px-3.5 py-2.5 bg-white/5 border border-white/10 focus:border-blue-500/50 rounded-lg text-white placeholder-white/20 font-body text-sm outline-none transition-all duration-300"
+                  />
+                )}
               </div>
 
               {/* Turnstile widget -- masked during a transient error/retry so

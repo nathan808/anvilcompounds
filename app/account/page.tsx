@@ -8,13 +8,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Link from "next/link";
 import { Suspense } from "react";
-
-const RESEARCH_PURPOSES = [
-  { value: "scientist", label: "Scientist" },
-  { value: "research_associate", label: "Research Associate" },
-  { value: "lab_technician", label: "Lab Technician" },
-  { value: "independent_researcher", label: "Independent Researcher" },
-] as const;
+import { RESEARCH_PURPOSES, OTHER_RESEARCH_PURPOSE } from "@/lib/researchPurpose";
 
 function humanError(code: string | null | undefined, fallback: string): string {
   if (code === "AUTH_NOT_CONFIGURED") {
@@ -52,6 +46,7 @@ function AccountForm() {
     firstName: "",
     lastName: "",
     researchPurpose: "",
+    researchPurposeOther: "",
   });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -82,6 +77,10 @@ function AccountForm() {
         setError("All fields are required.");
         return;
       }
+      if (form.researchPurpose === OTHER_RESEARCH_PURPOSE && !form.researchPurposeOther.trim()) {
+        setError("Please describe your research purpose.");
+        return;
+      }
     } else {
       if (!form.email || !form.birthday) {
         setError("Email and date of birth are required.");
@@ -97,7 +96,8 @@ function AccountForm() {
           form.birthday,
           form.firstName.trim(),
           form.lastName.trim(),
-          form.researchPurpose
+          form.researchPurpose,
+          form.researchPurpose === OTHER_RESEARCH_PURPOSE ? form.researchPurposeOther.trim() : undefined
         );
       } else {
         await login(form.email.toLowerCase().trim(), form.birthday);
@@ -401,6 +401,16 @@ function AccountForm() {
                       </svg>
                     </div>
                   </div>
+                  {form.researchPurpose === OTHER_RESEARCH_PURPOSE && (
+                    <input
+                      type="text"
+                      required
+                      placeholder="Describe your research purpose"
+                      value={form.researchPurposeOther}
+                      onChange={(e) => set("researchPurposeOther", e.target.value)}
+                      className={`${inputClass} mt-2`}
+                    />
+                  )}
                 </motion.div>
               )}
             </AnimatePresence>

@@ -5,7 +5,6 @@ import "./globals.css";
 import { CartProvider } from "@/lib/cartContext";
 import { AuthProvider } from "@/lib/authContext";
 import { CheckoutProvider } from "@/lib/checkoutContext";
-import AgeGate from "@/components/AgeGate";
 import BackToTop from "@/components/BackToTop";
 
 const syne = Syne({
@@ -54,7 +53,6 @@ export default function RootLayout({
         <AuthProvider>
           <CartProvider>
             <CheckoutProvider>
-              <AgeGate />
               {children}
               <BackToTop />
             </CheckoutProvider>

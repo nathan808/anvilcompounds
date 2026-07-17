@@ -1,12 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { signGateToken, GATE_COOKIE_NAME } from "@/lib/gateAuth";
+import { isValidResearchPurpose, OTHER_RESEARCH_PURPOSE } from "@/lib/researchPurpose";
 
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null);
-  const { turnstileToken, ageConfirmed, ruoConfirmed, researcherType } = body ?? {};
+  const { turnstileToken, ageConfirmed, ruoConfirmed, researchPurpose, researchPurposeOther } = body ?? {};
 
-  if (!ageConfirmed || !ruoConfirmed || !researcherType) {
+  if (!ageConfirmed || !ruoConfirmed || !researchPurpose || !isValidResearchPurpose(researchPurpose)) {
     return NextResponse.json({ error: "All attestation fields are required." }, { status: 400 });
+  }
+  if (researchPurpose === OTHER_RESEARCH_PURPOSE && !researchPurposeOther?.trim()) {
+    return NextResponse.json({ error: "Please describe your research purpose." }, { status: 400 });
   }
 
   // Falls back to Cloudflare's published "always passes" test secret key when
@@ -32,7 +36,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Verification failed. Please retry the challenge." }, { status: 403 });
   }
 
-  console.log(`[gate] verified ip=${ip} researcherType=${researcherType} ts=${new Date().toISOString()}`);
+  const purposeDetail = researchPurpose === OTHER_RESEARCH_PURPOSE ? ` (${researchPurposeOther})` : "";
+  console.log(`[gate] verified ip=${ip} researchPurpose=${researchPurpose}${purposeDetail} ts=${new Date().toISOString()}`);
 
   const token = await signGateToken();
   const res = NextResponse.json({ success: true });
