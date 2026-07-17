@@ -27,7 +27,6 @@ export default function GateClient() {
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect") || "/catalog";
 
-  const [ageConfirmed, setAgeConfirmed] = useState(false);
   const [ruoConfirmed, setRuoConfirmed] = useState(false);
   const [researchPurpose, setResearchPurpose] = useState<ResearchPurposeValue | null>(null);
   const [researchPurposeOther, setResearchPurposeOther] = useState("");
@@ -76,12 +75,9 @@ export default function GateClient() {
   const needsOtherDetail = researchPurpose === OTHER_RESEARCH_PURPOSE;
   const needsInstitutionOtherDetail = institutionType === OTHER_INSTITUTION_TYPE;
   const canSubmit =
-    ageConfirmed &&
     ruoConfirmed &&
     !!researchPurpose &&
-    (!needsOtherDetail || !!researchPurposeOther.trim()) &&
     !!institutionType &&
-    (!needsInstitutionOtherDetail || !!institutionTypeOther.trim()) &&
     !!turnstileToken &&
     !submitting;
 
@@ -95,7 +91,6 @@ export default function GateClient() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           turnstileToken,
-          ageConfirmed,
           ruoConfirmed,
           researchPurpose,
           researchPurposeOther: needsOtherDetail ? researchPurposeOther.trim() : undefined,
@@ -166,25 +161,6 @@ export default function GateClient() {
                 <label className="flex items-start gap-3 cursor-pointer group">
                   <input
                     type="checkbox"
-                    checked={ageConfirmed}
-                    onChange={(e) => setAgeConfirmed(e.target.checked)}
-                    className="sr-only"
-                  />
-                  <div className={`mt-0.5 w-4 h-4 rounded border flex items-center justify-center shrink-0 transition-all duration-200 ${ageConfirmed ? "bg-blue-600 border-blue-600" : "bg-white/5 border-white/15 group-hover:border-white/30"}`}>
-                    {ageConfirmed && (
-                      <svg className="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                      </svg>
-                    )}
-                  </div>
-                  <p className="font-body text-sm text-white/55 leading-relaxed">
-                    I am at least 21 years of age
-                  </p>
-                </label>
-
-                <label className="flex items-start gap-3 cursor-pointer group">
-                  <input
-                    type="checkbox"
                     checked={ruoConfirmed}
                     onChange={(e) => setRuoConfirmed(e.target.checked)}
                     className="sr-only"
@@ -227,7 +203,7 @@ export default function GateClient() {
                 {needsOtherDetail && (
                   <input
                     type="text"
-                    placeholder="Describe your research purpose"
+                    placeholder="Describe your research purpose (optional)"
                     value={researchPurposeOther}
                     onChange={(e) => setResearchPurposeOther(e.target.value)}
                     className="w-full mt-2 px-3.5 py-2.5 bg-white/5 border border-white/10 focus:border-blue-500/50 rounded-lg text-white placeholder-white/20 font-body text-sm outline-none transition-all duration-300"
@@ -259,7 +235,7 @@ export default function GateClient() {
                 {needsInstitutionOtherDetail && (
                   <input
                     type="text"
-                    placeholder="Describe your institution"
+                    placeholder="Describe your institution (optional)"
                     value={institutionTypeOther}
                     onChange={(e) => setInstitutionTypeOther(e.target.value)}
                     className="w-full mt-2 px-3.5 py-2.5 bg-white/5 border border-white/10 focus:border-blue-500/50 rounded-lg text-white placeholder-white/20 font-body text-sm outline-none transition-all duration-300"

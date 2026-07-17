@@ -7,7 +7,6 @@ export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null);
   const {
     turnstileToken,
-    ageConfirmed,
     ruoConfirmed,
     researchPurpose,
     researchPurposeOther,
@@ -15,17 +14,11 @@ export async function POST(req: NextRequest) {
     institutionTypeOther,
   } = body ?? {};
 
-  if (!ageConfirmed || !ruoConfirmed || !researchPurpose || !isValidResearchPurpose(researchPurpose)) {
+  if (!ruoConfirmed || !researchPurpose || !isValidResearchPurpose(researchPurpose)) {
     return NextResponse.json({ error: "All attestation fields are required." }, { status: 400 });
-  }
-  if (researchPurpose === OTHER_RESEARCH_PURPOSE && !researchPurposeOther?.trim()) {
-    return NextResponse.json({ error: "Please describe your research purpose." }, { status: 400 });
   }
   if (!institutionType || !isValidInstitutionType(institutionType)) {
     return NextResponse.json({ error: "All attestation fields are required." }, { status: 400 });
-  }
-  if (institutionType === OTHER_INSTITUTION_TYPE && !institutionTypeOther?.trim()) {
-    return NextResponse.json({ error: "Please describe your research institution." }, { status: 400 });
   }
 
   // Falls back to Cloudflare's published "always passes" test secret key when
@@ -51,8 +44,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Verification failed. Please retry the challenge." }, { status: 403 });
   }
 
-  const purposeDetail = researchPurpose === OTHER_RESEARCH_PURPOSE ? ` (${researchPurposeOther})` : "";
-  const institutionDetail = institutionType === OTHER_INSTITUTION_TYPE ? ` (${institutionTypeOther})` : "";
+  const purposeDetail =
+    researchPurpose === OTHER_RESEARCH_PURPOSE && researchPurposeOther?.trim() ? ` (${researchPurposeOther})` : "";
+  const institutionDetail =
+    institutionType === OTHER_INSTITUTION_TYPE && institutionTypeOther?.trim() ? ` (${institutionTypeOther})` : "";
   console.log(
     `[gate] verified ip=${ip} researchPurpose=${researchPurpose}${purposeDetail} institutionType=${institutionType}${institutionDetail} ts=${new Date().toISOString()}`
   );

@@ -77,10 +77,6 @@ function AccountForm() {
         setError("All fields are required.");
         return;
       }
-      if (form.researchPurpose === OTHER_RESEARCH_PURPOSE && !form.researchPurposeOther.trim()) {
-        setError("Please describe your research purpose.");
-        return;
-      }
     } else {
       if (!form.email || !form.birthday) {
         setError("Email and date of birth are required.");
@@ -404,8 +400,7 @@ function AccountForm() {
                   {form.researchPurpose === OTHER_RESEARCH_PURPOSE && (
                     <input
                       type="text"
-                      required
-                      placeholder="Describe your research purpose"
+                      placeholder="Describe your research purpose (optional)"
                       value={form.researchPurposeOther}
                       onChange={(e) => set("researchPurposeOther", e.target.value)}
                       className={`${inputClass} mt-2`}

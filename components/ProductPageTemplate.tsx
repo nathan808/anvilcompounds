@@ -64,17 +64,9 @@ function SectionLabel({ number, label }: { number: string; label: string }) {
 
 // ─── Section wrappers ──────────────────────────────────────────────────────────
 
-function Section({
-  bg,
-  children,
-}: {
-  bg: "navy-950" | "navy-900";
-  children: React.ReactNode;
-}) {
+function Section({ children }: { children: React.ReactNode }) {
   return (
-    <section
-      className={`${bg === "navy-950" ? "bg-navy-950" : "bg-navy-900"} py-16`}
-    >
+    <section className="bg-navy-950 py-16">
       <div className="max-w-5xl mx-auto px-6">{children}</div>
     </section>
   );
@@ -224,7 +216,7 @@ export default function ProductPageTemplate({
       </section>
 
       {/* ── SECTION 2 — Trust badges ──────────────────────────────────────── */}
-      <section className="bg-navy-900 py-8">
+      <section className="bg-navy-950 py-8">
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {product.trustBadges.map((badge) => (
@@ -243,7 +235,7 @@ export default function ProductPageTemplate({
       </section>
 
       {/* ── SECTION 3 — Documentation & Quality (moved to top) ───────────── */}
-      <Section bg="navy-900">
+      <Section>
         <SectionLabel number="01" label={product.documentationHeading} />
 
         {/* Metrics grid */}
@@ -293,7 +285,7 @@ export default function ProductPageTemplate({
       </Section>
 
       {/* ── SECTION 4 — What it is ────────────────────────────────────────── */}
-      <Section bg="navy-950">
+      <Section>
         <SectionLabel number="02" label="What it is" />
         <div className="glass-card rounded-2xl p-8">
           <p className="font-display font-700 text-white text-xl mb-4">
@@ -307,7 +299,7 @@ export default function ProductPageTemplate({
 
       {/* ── SECTION 5 — Composition (conditional) ────────────────────────── */}
       {product.compositionBody && (
-        <Section bg="navy-900">
+        <Section>
           <SectionLabel number="03" label="Composition" />
           <div className="glass-card rounded-2xl p-8">
             <p className="font-body text-white/60 leading-relaxed">
@@ -318,7 +310,7 @@ export default function ProductPageTemplate({
       )}
 
       {/* ── SECTION 6 — Research applications ───────────────────────────── */}
-      <Section bg="navy-950">
+      <Section>
         <SectionLabel number="04" label="Research Applications" />
         <div className="glass-card rounded-2xl p-8">
           <ol className="space-y-5">
@@ -335,7 +327,7 @@ export default function ProductPageTemplate({
       </Section>
 
       {/* ── SECTION 7 — Properties table ─────────────────────────────────── */}
-      <Section bg="navy-900">
+      <Section>
         <SectionLabel number="05" label="Properties" />
         <div className="glass-card rounded-2xl overflow-hidden">
           <table className="w-full">
@@ -361,7 +353,7 @@ export default function ProductPageTemplate({
       </Section>
 
       {/* ── RUO disclaimer — tighter top spacing ─────────────────────────── */}
-      <section className="bg-navy-900 pb-12">
+      <section className="bg-navy-950 pb-12">
         <div className="max-w-5xl mx-auto px-6">
           <div className="glass-card rounded-2xl p-8 border-l-4 border-blue-600">
             <p className="font-body text-sm text-white/50 leading-relaxed">
@@ -376,7 +368,7 @@ export default function ProductPageTemplate({
 
       {/* ── SECTION 8 — Related compounds ────────────────────────────────── */}
       {product.relatedProducts.length > 0 && (
-        <Section bg="navy-950">
+        <Section>
           <SectionLabel number="06" label="Related Compounds" />
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {product.relatedProducts.map((rel) => (

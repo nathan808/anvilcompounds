@@ -29,13 +29,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (researchPurpose === OTHER_RESEARCH_PURPOSE && !researchPurposeOther?.trim()) {
-      return NextResponse.json(
-        { error: "INVALID_INPUT", message: "Please describe your research purpose." },
-        { status: 400 }
-      );
-    }
-
     const wcUrl = process.env.WC_URL;
     const key = process.env.WC_CONSUMER_KEY;
     const secret = process.env.WC_CONSUMER_SECRET;
@@ -67,7 +60,7 @@ export async function POST(req: NextRequest) {
         meta_data: [
           { key: "anvil_birthday", value: birthday },
           { key: "anvil_research_purpose", value: researchPurpose },
-          ...(researchPurpose === OTHER_RESEARCH_PURPOSE
+          ...(researchPurpose === OTHER_RESEARCH_PURPOSE && researchPurposeOther?.trim()
             ? [{ key: "anvil_research_purpose_other", value: researchPurposeOther.trim() }]
             : []),
         ],
