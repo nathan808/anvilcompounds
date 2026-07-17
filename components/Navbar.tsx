@@ -24,7 +24,6 @@ export default function Navbar({ pushDown = false }: { pushDown?: boolean }) {
     { label: "Catalog", href: "/catalog?catalog=full" },
     { label: "COAs", href: "/coas" },
     { label: "Journal", href: "/blog" },
-    { label: "About", href: "/about" },
     { label: "FAQ", href: "/faq" },
     { label: "Contact", href: "/#footer" },
   ];
