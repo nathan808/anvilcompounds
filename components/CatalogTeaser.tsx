@@ -87,7 +87,7 @@ export default function CatalogTeaser({
     <section className="relative bg-navy-950 py-24 md:py-32">
       <div className="absolute inset-0 mesh-bg opacity-60" />
 
-      <div ref={ref} className="relative z-10 max-w-4xl mx-auto px-6 text-center">
+      <div ref={ref} className="relative z-10 max-w-7xl mx-auto px-6 text-center">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
@@ -153,7 +153,7 @@ export default function CatalogTeaser({
               Showing {previewProducts.length} of {totalCount} compounds — verify to view
               full catalog &amp; pricing
             </p>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 md:gap-4 text-left">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4 text-left">
               {previewProducts.map((product) => (
                 <PreviewCard key={product.id} product={product} />
               ))}

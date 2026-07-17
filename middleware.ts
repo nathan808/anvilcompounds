@@ -18,6 +18,13 @@ export const config = {
 };
 
 export async function middleware(req: NextRequest) {
+  // Static assets under public/ (e.g. public/products/*.png) share the
+  // /products prefix with the gated product-detail route, but a file
+  // request should never be redirected to an HTML gate page.
+  if (/\.[a-zA-Z0-9]+$/.test(req.nextUrl.pathname)) {
+    return NextResponse.next();
+  }
+
   const token = req.cookies.get(GATE_COOKIE_NAME)?.value;
   if (await verifyGateToken(token)) {
     return NextResponse.next();
