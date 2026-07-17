@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Script from "next/script";
 import { RESEARCH_PURPOSES, OTHER_RESEARCH_PURPOSE, ResearchPurposeValue } from "@/lib/researchPurpose";
+import { INSTITUTION_TYPES, OTHER_INSTITUTION_TYPE, InstitutionTypeValue } from "@/lib/institutionType";
 
 declare global {
   interface Window {
@@ -30,6 +31,8 @@ export default function GateClient() {
   const [ruoConfirmed, setRuoConfirmed] = useState(false);
   const [researchPurpose, setResearchPurpose] = useState<ResearchPurposeValue | null>(null);
   const [researchPurposeOther, setResearchPurposeOther] = useState("");
+  const [institutionType, setInstitutionType] = useState<InstitutionTypeValue | null>(null);
+  const [institutionTypeOther, setInstitutionTypeOther] = useState("");
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const [turnstileStatus, setTurnstileStatus] = useState<"pending" | "success" | "retrying">("pending");
   const [scriptLoaded, setScriptLoaded] = useState(false);
@@ -71,11 +74,14 @@ export default function GateClient() {
   }, [scriptLoaded]);
 
   const needsOtherDetail = researchPurpose === OTHER_RESEARCH_PURPOSE;
+  const needsInstitutionOtherDetail = institutionType === OTHER_INSTITUTION_TYPE;
   const canSubmit =
     ageConfirmed &&
     ruoConfirmed &&
     !!researchPurpose &&
     (!needsOtherDetail || !!researchPurposeOther.trim()) &&
+    !!institutionType &&
+    (!needsInstitutionOtherDetail || !!institutionTypeOther.trim()) &&
     !!turnstileToken &&
     !submitting;
 
@@ -93,6 +99,8 @@ export default function GateClient() {
           ruoConfirmed,
           researchPurpose,
           researchPurposeOther: needsOtherDetail ? researchPurposeOther.trim() : undefined,
+          institutionType,
+          institutionTypeOther: needsInstitutionOtherDetail ? institutionTypeOther.trim() : undefined,
         }),
       });
       if (!res.ok) {
@@ -222,6 +230,38 @@ export default function GateClient() {
                     placeholder="Describe your research purpose"
                     value={researchPurposeOther}
                     onChange={(e) => setResearchPurposeOther(e.target.value)}
+                    className="w-full mt-2 px-3.5 py-2.5 bg-white/5 border border-white/10 focus:border-blue-500/50 rounded-lg text-white placeholder-white/20 font-body text-sm outline-none transition-all duration-300"
+                  />
+                )}
+              </div>
+
+              {/* Institution type */}
+              <div className="mb-5">
+                <p className="font-mono text-[10px] text-white/30 tracking-widest uppercase mb-2.5">
+                  Research Institution
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {INSTITUTION_TYPES.map((t) => (
+                    <button
+                      key={t.value}
+                      type="button"
+                      onClick={() => setInstitutionType(t.value)}
+                      className={`px-3.5 py-2 rounded-lg border font-mono text-xs transition-all duration-200 ${
+                        institutionType === t.value
+                          ? "bg-blue-600 border-blue-500 text-white"
+                          : "bg-white/5 border-white/10 text-white/50 hover:border-white/25 hover:text-white/75"
+                      }`}
+                    >
+                      {t.label}
+                    </button>
+                  ))}
+                </div>
+                {needsInstitutionOtherDetail && (
+                  <input
+                    type="text"
+                    placeholder="Describe your institution"
+                    value={institutionTypeOther}
+                    onChange={(e) => setInstitutionTypeOther(e.target.value)}
                     className="w-full mt-2 px-3.5 py-2.5 bg-white/5 border border-white/10 focus:border-blue-500/50 rounded-lg text-white placeholder-white/20 font-body text-sm outline-none transition-all duration-300"
                   />
                 )}

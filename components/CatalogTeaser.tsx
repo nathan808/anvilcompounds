@@ -27,40 +27,31 @@ function PreviewCard({ product }: { product: ProductCard }) {
       href={href}
       className="group glass-card rounded-xl overflow-hidden flex flex-col transition-all duration-500 hover:border-blue-500/40 hover:shadow-xl hover:shadow-blue-600/10 hover:-translate-y-1"
     >
-      <div className="relative w-full h-[130px] md:h-[150px] bg-white overflow-hidden shrink-0">
+      <div className="relative w-full h-[210px] md:h-[240px] bg-white overflow-hidden shrink-0">
         {product.image ? (
           <Image
             src={product.image}
             alt={product.name}
             fill
-            className="object-contain scale-[1.3] transition-transform duration-500 group-hover:scale-[1.38]"
-            sizes="(max-width: 768px) 40vw, 18vw"
+            className="object-contain scale-[1.35] transition-transform duration-500 group-hover:scale-[1.42]"
+            sizes="(max-width: 768px) 50vw, 25vw"
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center">
-            <span className="text-4xl text-blue-300/40">{product.icon}</span>
+            <span className="text-5xl text-blue-300/40">{product.icon}</span>
           </div>
         )}
 
         {/* Preview ribbon -- distinguishes these from the real catalog cards */}
-        <div className="absolute top-2 left-2 z-20">
+        <div className="absolute top-2.5 left-2.5 z-20">
           <span className="font-mono text-[9px] tracking-widest uppercase px-1.5 py-0.5 rounded-full border border-blue-400/40 bg-navy-950/70 text-blue-300 backdrop-blur-sm">
             Preview
           </span>
         </div>
-
-        {!product.hasCoa && (
-          <div className="absolute inset-0 z-10 backdrop-blur-sm bg-navy-950/60 flex flex-col items-center justify-center gap-1.5">
-            <div className="w-1.5 h-1.5 rounded-full bg-yellow-400 animate-pulse" />
-            <span className="font-mono text-[9px] text-yellow-300 tracking-[0.15em] uppercase text-center px-2">
-              Testing in Progress
-            </span>
-          </div>
-        )}
       </div>
 
-      <div className="p-3 md:p-4">
-        <h3 className="font-display font-700 text-sm md:text-base text-white leading-tight mb-0.5 line-clamp-1">
+      <div className="p-3 md:p-5">
+        <h3 className="font-display font-700 text-base md:text-xl text-white leading-tight mb-0.5 line-clamp-1">
           {getProductDisplayTitle(product.name, product.category)}
         </h3>
         <span className="font-mono text-[9px] md:text-[10px] text-blue-400/70 tracking-widest uppercase block mb-2">
