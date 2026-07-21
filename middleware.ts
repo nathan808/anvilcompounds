@@ -25,6 +25,15 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
+  // Vercel Preview deployments never pass Turnstile -- Cloudflare flags
+  // traffic through the preview's *.vercel.app domain as bot activity, so
+  // the challenge always fails there regardless of the actual visitor.
+  // VERCEL_ENV is set automatically by Vercel (not something to configure),
+  // and is never "preview" in Production, so this can't leak the bypass.
+  if (process.env.VERCEL_ENV === "preview") {
+    return NextResponse.next();
+  }
+
   const token = req.cookies.get(GATE_COOKIE_NAME)?.value;
   if (await verifyGateToken(token)) {
     return NextResponse.next();
