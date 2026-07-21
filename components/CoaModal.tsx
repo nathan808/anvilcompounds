@@ -30,7 +30,7 @@ export default function CoaModal({ open, onClose, title, imageUrl, fileUrl }: Co
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8 bg-black/80 backdrop-blur-sm"
+          className="fixed inset-0 z-[100] flex items-center justify-center p-2 md:p-6 bg-black/80 backdrop-blur-sm"
           onClick={onClose}
         >
           <motion.div
@@ -38,7 +38,7 @@ export default function CoaModal({ open, onClose, title, imageUrl, fileUrl }: Co
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 10 }}
             transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            className="relative w-full max-w-3xl h-[85vh] glass-card rounded-2xl overflow-hidden flex flex-col"
+            className="relative w-full max-w-6xl h-[96vh] md:h-[94vh] glass-card rounded-2xl overflow-hidden flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between px-5 py-4 border-b border-white/10 shrink-0">

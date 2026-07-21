@@ -4,6 +4,7 @@ import ShippingBanner from "@/components/ShippingBanner";
 import ProductImageGallery from "@/components/ProductImageGallery";
 import ViewCoaButton from "@/components/ViewCoaButton";
 import SdsPreviewButton from "@/components/SdsPreviewButton";
+import InlineCoaViewer from "@/components/InlineCoaViewer";
 import PurchaseFooter from "@/components/PurchaseFooter";
 import { getProductDisplayTitle } from "@/lib/productTitle";
 
@@ -37,6 +38,7 @@ export interface ProductPageData {
   documentationImage?: string | null;
   documentationCaption?: string;
   sdsFile?: string | null;
+  moleculeImage?: string | null;
 
   propertiesTable: { label: string; value: string }[];
 
@@ -70,6 +72,55 @@ function Section({ children }: { children: React.ReactNode }) {
     <section className="bg-navy-950 py-16">
       <div className="max-w-5xl mx-auto px-6">{children}</div>
     </section>
+  );
+}
+
+// A single content block within the combined info section below — no
+// section/background of its own, just a label + body, so several of these
+// can sit close together without the dead space that comes from each one
+// being its own full-bleed section.
+function InfoBlock({
+  number,
+  label,
+  children,
+}: {
+  number: string;
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div>
+      <SectionLabel number={number} label={label} />
+      {children}
+    </div>
+  );
+}
+
+// Pairs a text card with the compound's molecular structure/sequence
+// diagram (cropped from its SDS reference document) when one exists;
+// falls back to the text card alone otherwise.
+function WithMoleculeVisual({
+  image,
+  productName,
+  children,
+}: {
+  image?: string | null;
+  productName: string;
+  children: React.ReactNode;
+}) {
+  if (!image) return <>{children}</>;
+  return (
+    <div className="grid md:grid-cols-[1fr_300px] gap-5 items-start">
+      {children}
+      <div className="rounded-2xl overflow-hidden bg-white p-3 shrink-0">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={image}
+          alt={`${productName} molecular structure`}
+          className="w-full h-auto rounded-lg"
+        />
+      </div>
+    </div>
   );
 }
 
@@ -235,123 +286,111 @@ export default function ProductPageTemplate({
         </div>
       </section>
 
-      {/* ── SECTION 3 — Documentation & Quality (moved to top) ───────────── */}
-      <Section>
-        <SectionLabel number="01" label={product.documentationHeading} />
+      {/* ── SECTIONS 3-7 — Combined info block ────────────────────────────
+          One continuous section instead of five stacked ones: every block
+          shares the same bg-navy-950, so separate py-16 wrappers per block
+          only added dead space between them. space-y-14 below keeps clear
+          separation without it. ── */}
+      <section className="bg-navy-950 py-16">
+        <div className="max-w-5xl mx-auto px-6 space-y-14">
 
-        {/* Metrics grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-          {product.documentationMetrics.map((metric) => (
-            <div key={metric.label} className="glass-card rounded-xl p-5">
-              <p className="font-mono text-[10px] text-white/35 tracking-widest uppercase">
-                {metric.label}
-              </p>
-              <p className="font-display font-700 text-white text-xl mt-1">
-                {metric.value}
-              </p>
-            </div>
-          ))}
-        </div>
-
-        {/* Download button */}
-        {product.documentationFile ? (
-          <a
-            href={product.documentationFile}
-            download
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-display font-700 text-sm transition-all duration-200 hover:shadow-lg hover:shadow-blue-600/30"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-            Download COA
-          </a>
-        ) : (
-          <button
-            disabled
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white/5 border border-white/10 text-white/30 font-display font-700 text-sm opacity-40 cursor-not-allowed"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-            COA Pending
-          </button>
-        )}
-
-        {/* Caption */}
-        {product.documentationCaption && (
-          <p className="font-mono text-xs text-white/30 mt-4">
-            {product.documentationCaption}
-          </p>
-        )}
-      </Section>
-
-      {/* ── SECTION 4 — What it is ────────────────────────────────────────── */}
-      <Section>
-        <SectionLabel number="02" label="What it is" />
-        <div className="glass-card rounded-2xl p-8">
-          <p className="font-display font-700 text-white text-xl mb-4">
-            {product.whatItIsSubtitle}
-          </p>
-          <p className="font-body text-white/60 leading-relaxed">
-            {product.whatItIsBody}
-          </p>
-        </div>
-      </Section>
-
-      {/* ── SECTION 5 — Composition (conditional) ────────────────────────── */}
-      {product.compositionBody && (
-        <Section>
-          <SectionLabel number="03" label="Composition" />
-          <div className="glass-card rounded-2xl p-8">
-            <p className="font-body text-white/60 leading-relaxed">
-              {product.compositionBody}
-            </p>
-          </div>
-        </Section>
-      )}
-
-      {/* ── SECTION 6 — Research applications ───────────────────────────── */}
-      <Section>
-        <SectionLabel number="04" label="Research Applications" />
-        <div className="glass-card rounded-2xl p-8">
-          <ol className="space-y-5">
-            {product.researchApplications.map((item, i) => (
-              <li key={i} className="flex items-start gap-5">
-                <span className="shrink-0 font-mono text-xs text-blue-600/60 w-6 pt-0.5 tabular-nums">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <p className="font-body text-white/65 leading-relaxed">{item}</p>
-              </li>
-            ))}
-          </ol>
-        </div>
-      </Section>
-
-      {/* ── SECTION 7 — Properties table ─────────────────────────────────── */}
-      <Section>
-        <SectionLabel number="05" label="Properties" />
-        <div className="glass-card rounded-2xl overflow-hidden">
-          <table className="w-full">
-            <tbody>
-              {product.propertiesTable.map((row, i) => (
-                <tr
-                  key={row.label}
-                  className={`border-b border-white/5 last:border-0 ${
-                    i % 2 === 0 ? "bg-white/[0.02]" : ""
-                  }`}
-                >
-                  <td className="px-6 md:px-8 py-4 font-mono text-xs text-white/30 tracking-widest uppercase whitespace-nowrap align-top w-48">
-                    {row.label}
-                  </td>
-                  <td className="px-6 md:px-8 py-4 font-body text-sm text-white/70 leading-relaxed">
-                    {row.value}
-                  </td>
-                </tr>
+          <InfoBlock number="01" label={product.documentationHeading}>
+            {/* Metrics grid */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+              {product.documentationMetrics.map((metric) => (
+                <div key={metric.label} className="glass-card rounded-xl p-5">
+                  <p className="font-mono text-[10px] text-white/35 tracking-widest uppercase">
+                    {metric.label}
+                  </p>
+                  <p className="font-display font-700 text-white text-xl mt-1">
+                    {metric.value}
+                  </p>
+                </div>
               ))}
-            </tbody>
-          </table>
+            </div>
+
+            <InlineCoaViewer
+              productName={product.name}
+              imageUrl={product.documentationImage}
+              fileUrl={product.documentationFile}
+            />
+
+            {product.documentationCaption && (
+              <p className="font-mono text-xs text-white/30 mt-4">
+                {product.documentationCaption}
+              </p>
+            )}
+          </InfoBlock>
+
+          <InfoBlock number="02" label="What it is">
+            <WithMoleculeVisual
+              image={!product.compositionBody ? product.moleculeImage : null}
+              productName={product.name}
+            >
+              <div className="glass-card rounded-2xl p-8">
+                <p className="font-display font-700 text-white text-xl mb-4">
+                  {product.whatItIsSubtitle}
+                </p>
+                <p className="font-body text-white/60 leading-relaxed">
+                  {product.whatItIsBody}
+                </p>
+              </div>
+            </WithMoleculeVisual>
+          </InfoBlock>
+
+          {product.compositionBody && (
+            <InfoBlock number="03" label="Composition">
+              <WithMoleculeVisual image={product.moleculeImage} productName={product.name}>
+                <div className="glass-card rounded-2xl p-8">
+                  <p className="font-body text-white/60 leading-relaxed">
+                    {product.compositionBody}
+                  </p>
+                </div>
+              </WithMoleculeVisual>
+            </InfoBlock>
+          )}
+
+          <InfoBlock number="04" label="Research Applications">
+            <div className="glass-card rounded-2xl p-8">
+              <ol className="space-y-5">
+                {product.researchApplications.map((item, i) => (
+                  <li key={i} className="flex items-start gap-5">
+                    <span className="shrink-0 font-mono text-xs text-blue-600/60 w-6 pt-0.5 tabular-nums">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <p className="font-body text-white/65 leading-relaxed">{item}</p>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          </InfoBlock>
+
+          <InfoBlock number="05" label="Properties">
+            <div className="glass-card rounded-2xl overflow-hidden">
+              <table className="w-full">
+                <tbody>
+                  {product.propertiesTable.map((row, i) => (
+                    <tr
+                      key={row.label}
+                      className={`border-b border-white/5 last:border-0 ${
+                        i % 2 === 0 ? "bg-white/[0.02]" : ""
+                      }`}
+                    >
+                      <td className="px-6 md:px-8 py-4 font-mono text-xs text-white/30 tracking-widest uppercase whitespace-nowrap align-top w-48">
+                        {row.label}
+                      </td>
+                      <td className="px-6 md:px-8 py-4 font-body text-sm text-white/70 leading-relaxed">
+                        {row.value}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </InfoBlock>
+
         </div>
-      </Section>
+      </section>
 
       {/* ── RUO disclaimer — tighter top spacing ─────────────────────────── */}
       <section className="bg-navy-950 pb-12">

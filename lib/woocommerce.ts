@@ -44,6 +44,24 @@ const SLUG_TO_SDS: Record<string, string> = {
   "selank":               "/documents/sds/selank.pdf",
 };
 
+// Molecular structure / sequence diagrams cropped from each compound's SDS
+// reference document, for use as a supporting visual alongside the written
+// composition copy. Not every SDS includes one (GLP compounds carry a
+// regulatory-distinction notice instead of a diagram; blends carry a
+// constituent table) — those slugs are simply omitted here.
+const SLUG_TO_MOLECULE_IMAGE: Record<string, string> = {
+  "bpc-157":              "/images/molecule/bpc-157.png",
+  "ghk-cu":               "/images/molecule/ghk-cu.png",
+  "tb-500":               "/images/molecule/tb-500.png",
+  "mots-c":               "/images/molecule/mots-c.png",
+  "nad-plus":             "/images/molecule/nad-plus.png",
+  "tesamorelin":          "/images/molecule/tesamorelin.png",
+  "5-amino-1mq":          "/images/molecule/5-amino-1mq.png",
+  "bpc-157-tb-500":       "/images/molecule/bpc-157-tb-500.png",
+  "semax":                "/images/molecule/semax.png",
+  "selank":               "/images/molecule/selank.png",
+};
+
 const SLUG_TO_NAME: Record<string, string> = {
   "bpc-157":    "BPC-157",
   "glp-trz":    "GLP-TRZ",
@@ -263,6 +281,7 @@ export async function getProductPageData(slug: string): Promise<ProductPageData 
       documentationFile:    meta["documentation_file"]          ?? null,
       documentationImage:   meta["documentation_image"]         ?? null,
       sdsFile:              SLUG_TO_SDS[slug]                   ?? null,
+      moleculeImage:        SLUG_TO_MOLECULE_IMAGE[slug]        ?? null,
       documentationCaption: meta["documentation_caption"]       ?? "",
       propertiesTable,
       shippingType: (meta["shipping_type"] as "standard" | "ambient") ?? "standard",

@@ -410,17 +410,17 @@ function AccountForm() {
                 : tab === "create" ? "Create Account & Continue →" : "Sign In →"}
             </button>
 
-            {/* Forgot birthday — sign in tab only */}
+            {/* One-time access code — sign in tab only, a visible alternative
+                to typing the birthday so it reads as a real option rather
+                than a buried "forgot password" recovery link. */}
             {tab === "signin" && (
-              <div className="text-center pt-1">
-                <button
-                  type="button"
-                  onClick={() => { setTwoFactorEmail(form.email); setTwoFactorStep("idle"); }}
-                  className="font-body text-xs text-white/25 hover:text-blue-400/70 transition-colors"
-                >
-                  Forgot your date of birth? Get a one-time access code →
-                </button>
-              </div>
+              <button
+                type="button"
+                onClick={() => { setTwoFactorEmail(form.email); setTwoFactorStep("idle"); }}
+                className="w-full py-3 border border-white/15 hover:border-blue-400/40 text-white/60 hover:text-blue-300 font-display font-600 text-sm rounded-xl transition-all duration-300 bg-white/5 hover:bg-blue-600/5"
+              >
+                Log-in with one-time access code
+              </button>
             )}
           </form>
 
