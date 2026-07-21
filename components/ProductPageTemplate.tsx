@@ -36,6 +36,7 @@ export interface ProductPageData {
   documentationFile?: string | null;
   documentationImage?: string | null;
   documentationCaption?: string;
+  sdsFile?: string | null;
 
   propertiesTable: { label: string; value: string }[];
 
@@ -139,7 +140,7 @@ export default function ProductPageTemplate({
                 imageUrl={product.documentationImage}
                 fileUrl={product.documentationFile}
               />
-              <SdsPreviewButton productName={product.name} />
+              <SdsPreviewButton productName={product.name} fileUrl={product.sdsFile} />
             </div>
 
             <ShippingBanner theme="dark" />
@@ -160,7 +161,7 @@ export default function ProductPageTemplate({
                 coaImage={product.documentationImage}
               />
               <ShippingBanner theme="dark" />
-              <SdsPreviewButton productName={product.name} />
+              <SdsPreviewButton productName={product.name} fileUrl={product.sdsFile} />
             </div>
 
             {/* Right — buy column */}

@@ -42,7 +42,7 @@ const trustPillars = [
       </svg>
     ),
     title: "Independent Testing",
-    description: "We use certified third-party labs — not in-house testing. Results can't be manipulated to pass a batch.",
+    description: "We contract certified third-party labs instead of testing in-house, so results can't be quietly adjusted to pass a batch.",
   },
   {
     icon: (
@@ -76,7 +76,7 @@ const trustPillars = [
 const stats = [
   { value: 99, suffix: "%+", label: "Minimum Purity Threshold" },
   { value: 6, suffix: "x", label: "Independent Verification Methods" },
-  { value: 48, suffix: "hr", label: "Damage Replacement Garuntee Window" },
+  { value: 48, suffix: "hr", label: "Damage Replacement Guarantee Window" },
   { value: 0, suffix: "", label: "Same Day Support from Real Humans", display: "Same Day" },
 ];
 
@@ -123,8 +123,8 @@ export default function TrustSection() {
             transition={{ duration: 0.7, delay: 0.2 }}
             className="font-body text-navy-900/55 text-lg leading-relaxed"
           >
-            In a market where claims are easy and proof is rare, we made
-            verification the default — not an upgrade.
+            Anyone can print 99% pure on a label. We built our testing
+            pipeline so you never have to take our word for it.
           </motion.p>
         </div>
 
@@ -188,7 +188,7 @@ export default function TrustSection() {
               Domestic. Reliable. Accountable.
             </h3>
             <p className="font-body text-white/40 text-sm mt-1">
-              All orders ship from our SoCal facility. USPS Priority — 2 to 5 business days.
+              All orders ship from our SoCal facility. USPS Priority, 2 to 5 business days.
             </p>
           </div>
           <div className="flex flex-wrap gap-3 shrink-0">

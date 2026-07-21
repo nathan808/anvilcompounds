@@ -436,7 +436,7 @@ export default function ProductsSection() {
             initial={{ opacity: 0, y: 16 }}
             animate={headerInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.6 }}
-            className="flex flex-wrap items-center gap-2.5 mb-6"
+            className="hidden md:flex flex-wrap items-center gap-2.5 mb-6"
           >
             {CATALOG_TRUST_BADGES.map((badge, i) => (
               <div

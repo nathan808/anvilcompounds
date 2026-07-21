@@ -92,7 +92,7 @@ export default function CatalogTeaser({
           initial={{ opacity: 0, y: 16 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6 }}
-          className="flex flex-wrap items-center justify-center gap-2.5 mb-6"
+          className="hidden md:flex flex-wrap items-center justify-center gap-2.5 mb-6"
         >
           {CATALOG_TRUST_BADGES.map((badge, i) => (
             <div
@@ -150,7 +150,7 @@ export default function CatalogTeaser({
             className="mb-10"
           >
             <p className="font-mono text-[11px] text-white/30 tracking-[0.2em] uppercase mb-4">
-              Showing {previewProducts.length} of {totalCount} compounds — verify to view
+              Showing {previewProducts.length} of {totalCount} compounds, verify to view
               full catalog &amp; pricing
             </p>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4 text-left">

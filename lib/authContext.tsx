@@ -31,8 +31,7 @@ interface AuthContextType {
     birthday: string,
     firstName: string,
     lastName: string,
-    researchPurpose: string,
-    researchPurposeOther?: string
+    researchAffiliationConfirmed: boolean
   ) => Promise<void>;
   sendTwoFactor: (email: string) => Promise<void>;
   verifyTwoFactor: (email: string, code: string) => Promise<void>;
@@ -128,14 +127,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     birthday: string,
     firstName: string,
     lastName: string,
-    researchPurpose: string,
-    researchPurposeOther?: string
+    researchAffiliationConfirmed: boolean
   ) => {
     setAuthError(null);
     const res = await fetch("/api/auth/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, birthday, firstName, lastName, researchPurpose, researchPurposeOther }),
+      body: JSON.stringify({ email, birthday, firstName, lastName, researchAffiliationConfirmed }),
     });
     const data = (await res.json()) as {
       token?: string;

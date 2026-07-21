@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
-import { isValidResearchPurpose, OTHER_RESEARCH_PURPOSE } from "@/lib/researchPurpose";
 
 function derivePassword(email: string, birthday: string): string {
   const secret = process.env.ANVIL_AUTH_SECRET ?? "anvil_research_2024";
@@ -13,18 +12,11 @@ function derivePassword(email: string, birthday: string): string {
 
 export async function POST(req: NextRequest) {
   try {
-    const { email, birthday, firstName, lastName, researchPurpose, researchPurposeOther } = await req.json();
+    const { email, birthday, firstName, lastName, researchAffiliationConfirmed } = await req.json();
 
-    if (!email || !birthday || !firstName || !lastName || !researchPurpose) {
+    if (!email || !birthday || !firstName || !lastName || !researchAffiliationConfirmed) {
       return NextResponse.json(
         { error: "INVALID_INPUT", message: "All fields are required." },
-        { status: 400 }
-      );
-    }
-
-    if (!isValidResearchPurpose(researchPurpose)) {
-      return NextResponse.json(
-        { error: "INVALID_INPUT", message: "Please select a valid research purpose." },
         { status: 400 }
       );
     }
@@ -59,10 +51,7 @@ export async function POST(req: NextRequest) {
         username: email,
         meta_data: [
           { key: "anvil_birthday", value: birthday },
-          { key: "anvil_research_purpose", value: researchPurpose },
-          ...(researchPurpose === OTHER_RESEARCH_PURPOSE && researchPurposeOther?.trim()
-            ? [{ key: "anvil_research_purpose_other", value: researchPurposeOther.trim() }]
-            : []),
+          { key: "anvil_research_affiliation_confirmed", value: "true" },
         ],
       }),
     });

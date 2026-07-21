@@ -7,7 +7,7 @@ const methods = [
     fullName: "High-Performance Liquid Chromatography",
     role: "Purity Quantification",
     description:
-      "Each compound is separated through a stationary phase under pressure, producing a chromatogram that precisely quantifies the percentage of active compound versus impurities. We require 99%+ purity — no batch ships below this threshold.",
+      "Each lot is run through a stationary phase under pressure, and the resulting chromatogram tells us exactly what's active compound and what's impurity, down to the ppm. Our purity floor is 99%. A batch that tests below it doesn't leave the lab.",
     detail: "Detects impurities at parts-per-million sensitivity",
     color: "from-blue-600 to-blue-400",
     dotColor: "bg-blue-500",
@@ -18,7 +18,7 @@ const methods = [
     fullName: "Mass Spectrometry",
     role: "Molecular Identity Confirmation",
     description:
-      "Ionization and mass-to-charge analysis confirms the exact molecular identity of each compound. This is not self-reporting — it's chemical proof. We verify you're getting exactly what the label says at the molecular level.",
+      "Ionization and mass-to-charge analysis pins down the exact molecular identity of the compound in the vial. We're not trusting a label, we're measuring a molecule. If the spectrum doesn't match spec, the batch doesn't ship.",
     detail: "Confirms molecular weight and structural identity",
     color: "from-cyan-600 to-cyan-400",
     dotColor: "bg-cyan-500",
@@ -29,8 +29,8 @@ const methods = [
     fullName: "Endotoxin (LAL) Screening",
     role: "Bacterial Contamination Detection",
     description:
-      "Using the Limulus Amebocyte Lysate assay, we screen every batch for bacterial endotoxins — a step most vendors in this space skip entirely. Endotoxin contamination is invisible and odorless, making this test non-negotiable.",
-    detail: "Non-standard in this industry — we do it anyway",
+      "Every batch runs a Limulus Amebocyte Lysate assay for bacterial endotoxins, a screen most research suppliers skip to save time and cost. Endotoxin contamination has no smell and leaves no visible trace, which is exactly why we treat this test as mandatory, not optional.",
+    detail: "Uncommon in this industry. We run it on every batch anyway",
     detailLink: "/blog/endotoxin-problem-peptide-market",
     detailLinkLabel: "The endotoxin problem nobody in the peptide market talks about →",
     color: "from-indigo-600 to-indigo-400",
@@ -72,7 +72,7 @@ export default function HowWeTestSection() {
           </h2>
 
           <p className="font-body text-white/45 text-lg leading-relaxed">
-            We run multiple independent verification methods on our vials within every single batch before it finalizes into our inventory. Every single compound has been tested and verified to our standards before touching our catalog.
+            Every lot that reaches our inventory clears three independent assays first. No shortcuts, no batch skips a step, and nothing lists in our catalog until the data confirms it meets spec.
           </p>
         </div>
 
@@ -90,11 +90,11 @@ export default function HowWeTestSection() {
         >
           <div className="flex-grow">
             <h3 className="font-display font-700 text-white text-xl mb-2">
-              Certificate of Analysis — Every Batch
+              Certificate of Analysis, Every Batch
             </h3>
             <p className="font-body text-white/45 text-sm leading-relaxed max-w-lg">
-              Every order ships with a full COA summarizing all three test results. Scan the
-              QR code to verify your batch on our independent testing portal.
+              Every order ships with a full COA covering all three assay results. Scan the QR
+              code to confirm your batch against our independent testing portal.
             </p>
           </div>
           <div className="shrink-0">

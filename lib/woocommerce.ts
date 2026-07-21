@@ -22,6 +22,28 @@ const SLUG_TO_WC_ID: Record<string, number> = {
   "selank":                511,
 };
 
+// Safety Data Sheets — static files under public/documents/sds/, keyed by
+// slug rather than pulled from WC meta. No entry for a slug means no source
+// PDF exists yet (falls back to the "included with every order" notice in
+// SdsPreviewButton) — currently true only for bac-water.
+const SLUG_TO_SDS: Record<string, string> = {
+  "bpc-157":              "/documents/sds/bpc-157.pdf",
+  "glp-trz":              "/documents/sds/glp-trz.pdf",
+  "glp-rt":               "/documents/sds/glp-rt.pdf",
+  "klow":                 "/documents/sds/klow.pdf",
+  "ghk-cu":               "/documents/sds/ghk-cu.pdf",
+  "tb-500":               "/documents/sds/tb-500.pdf",
+  "mots-c":               "/documents/sds/mots-c.pdf",
+  "nad-plus":             "/documents/sds/nad-plus.pdf",
+  "tesamorelin":          "/documents/sds/tesamorelin.pdf",
+  "cjc-1295-ipamorelin":  "/documents/sds/cjc-1295-ipamorelin.pdf",
+  "5-amino-1mq":          "/documents/sds/5-amino-1mq.pdf",
+  "bpc-157-tb-500":       "/documents/sds/bpc-157-tb-500.pdf",
+  "glow":                 "/documents/sds/glow.pdf",
+  "semax":                "/documents/sds/semax.pdf",
+  "selank":               "/documents/sds/selank.pdf",
+};
+
 const SLUG_TO_NAME: Record<string, string> = {
   "bpc-157":    "BPC-157",
   "glp-trz":    "GLP-TRZ",
@@ -240,6 +262,7 @@ export async function getProductPageData(slug: string): Promise<ProductPageData 
       documentationMetrics,
       documentationFile:    meta["documentation_file"]          ?? null,
       documentationImage:   meta["documentation_image"]         ?? null,
+      sdsFile:              SLUG_TO_SDS[slug]                   ?? null,
       documentationCaption: meta["documentation_caption"]       ?? "",
       propertiesTable,
       shippingType: (meta["shipping_type"] as "standard" | "ambient") ?? "standard",

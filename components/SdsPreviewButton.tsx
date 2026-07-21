@@ -4,25 +4,38 @@ import { useState } from "react";
 
 interface SdsPreviewButtonProps {
   productName: string;
+  fileUrl?: string | null;
 }
 
-// SDS/Technical Research Guide PDFs are drafted and shipped with every
-// order (email + package insert) -- not hosted as a public URL, so there's
-// nothing here for a crawler to read or flag. Just a short description of
-// what's included, no preview content to gate behind a purchase.
-export default function SdsPreviewButton({ productName }: SdsPreviewButtonProps) {
+const buttonClass =
+  "w-full inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl border border-white/10 hover:border-white/20 text-white/50 hover:text-white/80 font-display font-700 text-sm transition-all duration-200 bg-white/5 hover:bg-white/10";
+
+const sdsIcon = (
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h3.75M9 15h3.75M9 18h3.75M3.75 6.75h.007v.008H3.75V6.75zm0 5.25h.007v.008H3.75V12zm0 5.25h.007v.008H3.75v-.008zM3.75 5.25h16.5v13.5a1.5 1.5 0 01-1.5 1.5H5.25a1.5 1.5 0 01-1.5-1.5V5.25z" />
+  </svg>
+);
+
+export default function SdsPreviewButton({ productName, fileUrl }: SdsPreviewButtonProps) {
   const [open, setOpen] = useState(false);
 
+  // Real SDS PDF exists for this product — link straight to it.
+  if (fileUrl) {
+    return (
+      <a href={fileUrl} target="_blank" rel="noopener noreferrer" className={buttonClass}>
+        {sdsIcon}
+        View Safety Data
+      </a>
+    );
+  }
+
+  // No PDF on file yet for this product — keep the descriptive fallback so
+  // the button never links to a broken/missing file.
   return (
     <>
-      <button
-        onClick={() => setOpen(true)}
-        className="w-full inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl border border-white/10 hover:border-white/20 text-white/50 hover:text-white/80 font-display font-700 text-sm transition-all duration-200 bg-white/5 hover:bg-white/10"
-      >
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h3.75M9 15h3.75M9 18h3.75M3.75 6.75h.007v.008H3.75V6.75zm0 5.25h.007v.008H3.75V12zm0 5.25h.007v.008H3.75v-.008zM3.75 5.25h16.5v13.5a1.5 1.5 0 01-1.5 1.5H5.25a1.5 1.5 0 01-1.5-1.5V5.25z" />
-        </svg>
-        View SDS Preview
+      <button onClick={() => setOpen(true)} className={buttonClass}>
+        {sdsIcon}
+        View Safety Data
       </button>
 
       {open && (

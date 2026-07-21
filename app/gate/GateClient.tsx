@@ -3,8 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Script from "next/script";
-import { RESEARCH_PURPOSES, OTHER_RESEARCH_PURPOSE, ResearchPurposeValue } from "@/lib/researchPurpose";
-import { INSTITUTION_TYPES, OTHER_INSTITUTION_TYPE, InstitutionTypeValue } from "@/lib/institutionType";
 
 declare global {
   interface Window {
@@ -28,10 +26,7 @@ export default function GateClient() {
   const redirect = searchParams.get("redirect") || "/catalog";
 
   const [ruoConfirmed, setRuoConfirmed] = useState(false);
-  const [researchPurpose, setResearchPurpose] = useState<ResearchPurposeValue | null>(null);
-  const [researchPurposeOther, setResearchPurposeOther] = useState("");
-  const [institutionType, setInstitutionType] = useState<InstitutionTypeValue | null>(null);
-  const [institutionTypeOther, setInstitutionTypeOther] = useState("");
+  const [researchAffiliationConfirmed, setResearchAffiliationConfirmed] = useState(false);
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const [turnstileStatus, setTurnstileStatus] = useState<"pending" | "success" | "retrying">("pending");
   const [scriptLoaded, setScriptLoaded] = useState(false);
@@ -72,12 +67,9 @@ export default function GateClient() {
     });
   }, [scriptLoaded]);
 
-  const needsOtherDetail = researchPurpose === OTHER_RESEARCH_PURPOSE;
-  const needsInstitutionOtherDetail = institutionType === OTHER_INSTITUTION_TYPE;
   const canSubmit =
     ruoConfirmed &&
-    !!researchPurpose &&
-    !!institutionType &&
+    researchAffiliationConfirmed &&
     !!turnstileToken &&
     !submitting;
 
@@ -92,10 +84,7 @@ export default function GateClient() {
         body: JSON.stringify({
           turnstileToken,
           ruoConfirmed,
-          researchPurpose,
-          researchPurposeOther: needsOtherDetail ? researchPurposeOther.trim() : undefined,
-          institutionType,
-          institutionTypeOther: needsInstitutionOtherDetail ? institutionTypeOther.trim() : undefined,
+          researchAffiliationConfirmed,
         }),
       });
       if (!res.ok) {
@@ -177,70 +166,26 @@ export default function GateClient() {
                     in-vitro laboratory research only, not for human or veterinary use
                   </p>
                 </label>
-              </div>
 
-              {/* Research purpose */}
-              <div className="mb-5">
-                <p className="font-mono text-[10px] text-white/30 tracking-widest uppercase mb-2.5">
-                  Research Purpose
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {RESEARCH_PURPOSES.map((p) => (
-                    <button
-                      key={p.value}
-                      type="button"
-                      onClick={() => setResearchPurpose(p.value)}
-                      className={`px-3.5 py-2 rounded-lg border font-mono text-xs transition-all duration-200 ${
-                        researchPurpose === p.value
-                          ? "bg-blue-600 border-blue-500 text-white"
-                          : "bg-white/5 border-white/10 text-white/50 hover:border-white/25 hover:text-white/75"
-                      }`}
-                    >
-                      {p.label}
-                    </button>
-                  ))}
-                </div>
-                {needsOtherDetail && (
+                <label className="flex items-start gap-3 cursor-pointer group">
                   <input
-                    type="text"
-                    placeholder="Describe your research purpose (optional)"
-                    value={researchPurposeOther}
-                    onChange={(e) => setResearchPurposeOther(e.target.value)}
-                    className="w-full mt-2 px-3.5 py-2.5 bg-white/5 border border-white/10 focus:border-blue-500/50 rounded-lg text-white placeholder-white/20 font-body text-sm outline-none transition-all duration-300"
+                    type="checkbox"
+                    checked={researchAffiliationConfirmed}
+                    onChange={(e) => setResearchAffiliationConfirmed(e.target.checked)}
+                    className="sr-only"
                   />
-                )}
-              </div>
-
-              {/* Institution type */}
-              <div className="mb-5">
-                <p className="font-mono text-[10px] text-white/30 tracking-widest uppercase mb-2.5">
-                  Research Institution
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {INSTITUTION_TYPES.map((t) => (
-                    <button
-                      key={t.value}
-                      type="button"
-                      onClick={() => setInstitutionType(t.value)}
-                      className={`px-3.5 py-2 rounded-lg border font-mono text-xs transition-all duration-200 ${
-                        institutionType === t.value
-                          ? "bg-blue-600 border-blue-500 text-white"
-                          : "bg-white/5 border-white/10 text-white/50 hover:border-white/25 hover:text-white/75"
-                      }`}
-                    >
-                      {t.label}
-                    </button>
-                  ))}
-                </div>
-                {needsInstitutionOtherDetail && (
-                  <input
-                    type="text"
-                    placeholder="Describe your institution (optional)"
-                    value={institutionTypeOther}
-                    onChange={(e) => setInstitutionTypeOther(e.target.value)}
-                    className="w-full mt-2 px-3.5 py-2.5 bg-white/5 border border-white/10 focus:border-blue-500/50 rounded-lg text-white placeholder-white/20 font-body text-sm outline-none transition-all duration-300"
-                  />
-                )}
+                  <div className={`mt-0.5 w-4 h-4 rounded border flex items-center justify-center shrink-0 transition-all duration-200 ${researchAffiliationConfirmed ? "bg-blue-600 border-blue-600" : "bg-white/5 border-white/15 group-hover:border-white/30"}`}>
+                    {researchAffiliationConfirmed && (
+                      <svg className="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                      </svg>
+                    )}
+                  </div>
+                  <p className="font-body text-sm text-white/55 leading-relaxed">
+                    I confirm I am affiliated with a research institution and am accessing this
+                    catalog for a legitimate research purpose
+                  </p>
+                </label>
               </div>
 
               {/* Turnstile widget -- masked during a transient error/retry so
@@ -265,7 +210,7 @@ export default function GateClient() {
                 disabled={!canSubmit}
                 className="w-full py-3.5 bg-blue-600 hover:bg-blue-500 disabled:bg-white/10 disabled:text-white/25 disabled:cursor-not-allowed text-white font-display font-700 text-sm tracking-wider rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-blue-600/30"
               >
-                {submitting ? "Verifying…" : "Continue"}
+                {submitting ? "Verifying…" : "Press to Continue"}
               </button>
             </div>
 

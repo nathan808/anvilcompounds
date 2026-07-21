@@ -8,7 +8,6 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Link from "next/link";
 import { Suspense } from "react";
-import { RESEARCH_PURPOSES, OTHER_RESEARCH_PURPOSE } from "@/lib/researchPurpose";
 
 function humanError(code: string | null | undefined, fallback: string): string {
   if (code === "AUTH_NOT_CONFIGURED") {
@@ -45,9 +44,8 @@ function AccountForm() {
     birthday: "",
     firstName: "",
     lastName: "",
-    researchPurpose: "",
-    researchPurposeOther: "",
   });
+  const [researchAffiliationConfirmed, setResearchAffiliationConfirmed] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
@@ -73,7 +71,7 @@ function AccountForm() {
     setError("");
 
     if (tab === "create") {
-      if (!form.email || !form.firstName || !form.lastName || !form.birthday || !form.researchPurpose) {
+      if (!form.email || !form.firstName || !form.lastName || !form.birthday || !researchAffiliationConfirmed) {
         setError("All fields are required.");
         return;
       }
@@ -92,8 +90,7 @@ function AccountForm() {
           form.birthday,
           form.firstName.trim(),
           form.lastName.trim(),
-          form.researchPurpose,
-          form.researchPurpose === OTHER_RESEARCH_PURPOSE ? form.researchPurposeOther.trim() : undefined
+          researchAffiliationConfirmed
         );
       } else {
         await login(form.email.toLowerCase().trim(), form.birthday);
@@ -144,8 +141,6 @@ function AccountForm() {
     "w-full px-4 py-3 bg-white/5 border border-white/10 focus:border-blue-500/50 focus:bg-white/8 rounded-xl text-white placeholder-white/20 font-body text-sm outline-none transition-all duration-300";
   const labelClass =
     "block font-mono text-xs text-white/40 tracking-widest uppercase mb-2";
-  const selectClass =
-    "w-full px-4 py-3 bg-white/5 border border-white/10 focus:border-blue-500/50 rounded-xl text-white font-body text-sm outline-none transition-all duration-300 appearance-none cursor-pointer";
 
   // ── 2FA panel ──────────────────────────────────────────────────────────────
   if (twoFactorStep !== "idle" || twoFactorEmail !== "") {
@@ -366,46 +361,35 @@ function AccountForm() {
               />
             </div>
 
-            {/* Research Purpose — create tab only */}
+            {/* Research affiliation — create tab only */}
             <AnimatePresence mode="wait">
               {tab === "create" && (
                 <motion.div
-                  key="research-purpose"
+                  key="research-affiliation"
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -8 }}
                   transition={{ duration: 0.2 }}
                 >
-                  <label className={labelClass}>Research Purpose *</label>
-                  <div className="relative">
-                    <select
-                      required
-                      value={form.researchPurpose}
-                      onChange={(e) => set("researchPurpose", e.target.value)}
-                      className={`${selectClass} ${!form.researchPurpose ? "text-white/20" : "text-white"}`}
-                    >
-                      <option value="" disabled hidden>Select your role</option>
-                      {RESEARCH_PURPOSES.map((p) => (
-                        <option key={p.value} value={p.value} className="bg-navy-900 text-white">
-                          {p.label}
-                        </option>
-                      ))}
-                    </select>
-                    <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-white/30">
-                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                        <path d="M2 4l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    </div>
-                  </div>
-                  {form.researchPurpose === OTHER_RESEARCH_PURPOSE && (
+                  <label className="flex items-start gap-3 cursor-pointer group">
                     <input
-                      type="text"
-                      placeholder="Describe your research purpose (optional)"
-                      value={form.researchPurposeOther}
-                      onChange={(e) => set("researchPurposeOther", e.target.value)}
-                      className={`${inputClass} mt-2`}
+                      type="checkbox"
+                      checked={researchAffiliationConfirmed}
+                      onChange={(e) => setResearchAffiliationConfirmed(e.target.checked)}
+                      className="sr-only"
                     />
-                  )}
+                    <div className={`mt-0.5 w-4 h-4 rounded border flex items-center justify-center shrink-0 transition-all duration-200 ${researchAffiliationConfirmed ? "bg-blue-600 border-blue-600" : "bg-white/5 border-white/15 group-hover:border-white/30"}`}>
+                      {researchAffiliationConfirmed && (
+                        <svg className="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                        </svg>
+                      )}
+                    </div>
+                    <p className="font-body text-sm text-white/55 leading-relaxed">
+                      I confirm I am affiliated with a research institution and am creating this
+                      account for a legitimate research purpose
+                    </p>
+                  </label>
                 </motion.div>
               )}
             </AnimatePresence>
