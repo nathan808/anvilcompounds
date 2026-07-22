@@ -198,7 +198,7 @@ export async function getProductPageData(slug: string): Promise<ProductPageData 
 
   const auth = `Basic ${Buffer.from(`${key}:${secret}`).toString("base64")}`;
   const headers = { Authorization: auth };
-  const opts = { next: { revalidate: 3600 } };
+  const opts = { next: { revalidate: 3600, tags: ["wc-products"] } };
 
   try {
     const [productRes, variationsRes] = await Promise.all([
@@ -421,7 +421,7 @@ export async function getProducts(): Promise<ProductCard[]> {
 
   const res = await fetch(
     `${url}/wp-json/wc/v3/products?consumer_key=${key}&consumer_secret=${secret}&status=publish&per_page=20`,
-    { next: { revalidate: 3600 } }
+    { next: { revalidate: 3600, tags: ["wc-products"] } }
   );
 
   if (!res.ok) throw new Error(`WooCommerce API error: ${res.status}`);
