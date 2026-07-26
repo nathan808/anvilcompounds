@@ -11,11 +11,11 @@ import type { ProductCard } from "@/lib/woocommerce";
 // Slugs for the fixed preview list only (see PREVIEW_NAMES in app/page.tsx) —
 // not the full catalog's name->slug map, which lives in ProductsSection.
 const PREVIEW_SLUGS: Record<string, string> = {
-  "NAD+": "nad-plus",
-  "5-Amino-1MQ": "5-amino-1mq",
-  "MOTS-c": "mots-c",
+  "BPC-157": "bpc-157",
   "GHK-Cu": "ghk-cu",
-  Semax: "semax",
+  "TB-500": "tb-500",
+  "GLP-RT": "glp-rt",
+  KLOW: "klow",
 };
 
 function PreviewCard({ product }: { product: ProductCard }) {

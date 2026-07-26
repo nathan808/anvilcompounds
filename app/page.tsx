@@ -7,10 +7,10 @@ import TrustSection from "@/components/TrustSection";
 import Footer from "@/components/Footer";
 import { getProducts } from "@/lib/woocommerce";
 
-// The lowest-scrutiny, non-GLP compounds -- shown unverified as a catalog
-// preview. Everything else (pricing, the rest of the catalog, GLP-1
-// analogs) stays behind the gate.
-const PREVIEW_NAMES = ["NAD+", "5-Amino-1MQ", "MOTS-c", "GHK-Cu", "Semax"];
+// The 5 featured compounds shown unverified as a catalog preview on the
+// homepage. Everything else (pricing, the rest of the catalog) stays
+// behind the gate.
+const PREVIEW_NAMES = ["BPC-157", "GHK-Cu", "TB-500", "GLP-RT", "KLOW"];
 
 export default async function Home() {
   const products = await getProducts().catch(() => []);
