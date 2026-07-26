@@ -27,13 +27,17 @@ function PreviewCard({ product }: { product: ProductCard }) {
       href={href}
       className="group glass-card rounded-xl overflow-hidden flex flex-col transition-all duration-500 hover:border-blue-500/40 hover:shadow-xl hover:shadow-blue-600/10 hover:-translate-y-1"
     >
-      <div className="relative w-full h-[210px] md:h-[240px] bg-white overflow-hidden shrink-0">
+      {/* Container aspect matches the source photos (1500x1858) so
+          object-contain fills it edge-to-edge with no forced zoom --
+          keeps the full frame (vial + info card) in view instead of
+          center-cropping it. */}
+      <div className="relative w-full aspect-[1500/1858] bg-white overflow-hidden shrink-0">
         {product.image ? (
           <Image
             src={product.image}
             alt={product.name}
             fill
-            className="object-contain scale-[1.35] transition-transform duration-500 group-hover:scale-[1.42]"
+            className="object-contain"
             sizes="(max-width: 768px) 50vw, 25vw"
           />
         ) : (

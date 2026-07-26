@@ -200,15 +200,18 @@ function ProductCard({ product, index }: { product: ProductCard; index: number }
     >
       <div className="glass-card rounded-xl overflow-hidden h-full flex flex-col transition-all duration-500 hover:border-blue-500/40 hover:shadow-xl hover:shadow-blue-600/10 hover:-translate-y-1">
 
-        {/* Product image */}
-        <div className="relative w-full h-[210px] md:h-[240px] bg-white overflow-hidden shrink-0">
+        {/* Product image -- container aspect matches the source photos
+            (1500x1858) so object-contain fills it edge-to-edge with no
+            forced zoom, guaranteeing the full frame (vial + info card)
+            is always visible instead of being center-cropped. */}
+        <div className="relative w-full aspect-[1500/1858] bg-white overflow-hidden shrink-0">
           {product.image ? (
             <div className="absolute inset-0">
               <Image
                 src={product.image}
                 alt={product.name}
                 fill
-                className="object-contain scale-[1.35] transition-transform duration-500 group-hover:scale-[1.42]"
+                className="object-contain"
                 sizes="(max-width: 768px) 50vw, 25vw"
               />
             </div>
@@ -329,7 +332,7 @@ function ProductCard({ product, index }: { product: ProductCard; index: number }
 function SkeletonCard() {
   return (
     <div className="glass-card rounded-xl overflow-hidden animate-pulse">
-      <div className="w-full h-[210px] md:h-[300px] bg-white/5" />
+      <div className="w-full aspect-[1500/1858] bg-white/5" />
       <div className="p-3 md:p-5 space-y-2 md:space-y-3">
         <div className="w-1/2 h-4 md:h-5 bg-white/5 rounded" />
         <div className="w-1/3 h-2.5 md:h-3 bg-white/5 rounded" />
