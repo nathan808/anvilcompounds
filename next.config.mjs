@@ -1,5 +1,24 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // AC Research Library is a WordPress plugin living on the same
+  // WordPress/WooCommerce install as this store's backend, reachable
+  // directly at anvilcompounds.shop -- but that apex domain force-
+  // redirects everything to www.anvilcompounds.shop (this app), which
+  // has no /library route, so a bare link 404s. Rather than stand up a
+  // new subdomain (blocked -- Hostinger's plan doesn't support one),
+  // /library/* is served by app/library/[[...path]]/route.ts, a proxy
+  // route that also rewrites the HTML so deep in-page navigation stays
+  // on this domain (see that file for why a plain rewrite isn't enough).
+  // Only the plugin/theme/core asset paths those pages reference (CSS,
+  // JS, uploaded PDFs) are simple passthrough rewrites here -- they're
+  // files, not permalinks, so there's no HTML to rewrite.
+  async rewrites() {
+    const libraryOrigin = "https://paleturquoise-crane-581984.hostingersite.com";
+    return [
+      { source: "/wp-content/:path*", destination: `${libraryOrigin}/wp-content/:path*` },
+      { source: "/wp-includes/:path*", destination: `${libraryOrigin}/wp-includes/:path*` },
+    ];
+  },
   async redirects() {
     return [
       // WooCommerce product slugs differ from our internal slugs — redirect to canonical

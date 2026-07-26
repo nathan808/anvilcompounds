@@ -414,18 +414,26 @@ export function mapProduct(product: WCProduct, index: number): ProductCard {
   };
 }
 
+// AC Research Library's downloadable guide products live in this same
+// WooCommerce store (so its own checkout/downloads work) but must never
+// appear in Anvil's own catalog -- exclude by their shared name pattern
+// rather than by category, since they're deliberately left Uncategorized.
+const LIBRARY_GUIDE_NAME_PATTERN = /Laboratory Research Guide/i;
+
 export async function getProducts(): Promise<ProductCard[]> {
   const url    = process.env.WC_URL;
   const key    = process.env.WC_CONSUMER_KEY;
   const secret = process.env.WC_CONSUMER_SECRET;
 
   const res = await fetch(
-    `${url}/wp-json/wc/v3/products?consumer_key=${key}&consumer_secret=${secret}&status=publish&per_page=20`,
+    `${url}/wp-json/wc/v3/products?consumer_key=${key}&consumer_secret=${secret}&status=publish&per_page=100`,
     { next: { revalidate: 3600, tags: ["wc-products"] } }
   );
 
   if (!res.ok) throw new Error(`WooCommerce API error: ${res.status}`);
 
   const products: WCProduct[] = await res.json();
-  return products.map(mapProduct);
+  return products
+    .filter((p) => !LIBRARY_GUIDE_NAME_PATTERN.test(p.name))
+    .map(mapProduct);
 }
