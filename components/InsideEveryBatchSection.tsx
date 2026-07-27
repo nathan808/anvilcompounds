@@ -9,8 +9,8 @@ export default function InsideEveryBatchSection() {
   const inView = useInView(ref, { once: true, margin: "-80px" });
 
   return (
-    <section className="relative bg-white py-24 md:py-32 overflow-hidden">
-      <div ref={ref} className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+    <section className="relative bg-white py-14 md:py-20 overflow-hidden">
+      <div ref={ref} className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-8 lg:gap-10 items-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
@@ -32,23 +32,23 @@ export default function InsideEveryBatchSection() {
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6, delay: 0.1 }}
         >
-          <div className="flex items-center gap-3 mb-4">
+          <div className="flex items-center gap-3 mb-3">
             <div className="w-6 h-px bg-blue-600" />
             <span className="font-mono text-xs text-blue-600 tracking-[0.25em] uppercase">
               005 / Inside the Lab
             </span>
           </div>
           <h2
-            className="font-display font-800 text-navy-900 mb-5"
-            style={{ fontSize: "clamp(2.2rem, 4vw, 3.2rem)" }}
+            className="font-display font-800 text-navy-900 mb-4"
+            style={{ fontSize: "clamp(1.9rem, 3.4vw, 2.7rem)" }}
           >
             Inside Every Batch
           </h2>
-          <p className="font-body text-navy-900/55 text-lg leading-relaxed mb-3">
+          <p className="font-body text-navy-900/55 text-base leading-relaxed mb-2.5">
             Anyone can print 99% pure on a label. Real people run the assays
             that prove it — and put their name on the result.
           </p>
-          <p className="font-body text-navy-900/55 text-lg leading-relaxed">
+          <p className="font-body text-navy-900/55 text-base leading-relaxed">
             Each lot&rsquo;s data ships with it: purity, identity,
             contamination screen. Read the numbers before your experiment,
             not after.

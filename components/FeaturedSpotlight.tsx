@@ -4,20 +4,20 @@ import { useRef } from "react";
 import Image from "next/image";
 import { motion, useInView } from "framer-motion";
 
-// Full-bleed graphite band pairing a single hero product shot with a short
-// trust statement + stat row. Visual template is shared with the
-// product-detail-page hero (see ProductPageTemplate.tsx) per the homepage
-// integration brief.
+// Split band pairing a single hero product shot with a short trust
+// statement + stat row. Image and section share the same light "ice"
+// background so the vial composite (which already has its own light
+// background baked in) sits seamlessly rather than looking framed.
 export default function FeaturedSpotlight() {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-80px" });
 
   return (
-    <section className="relative bg-navy-950 overflow-hidden">
+    <section className="relative bg-ice overflow-hidden">
       <div ref={ref} className="grid lg:grid-cols-2 items-stretch">
-        <div className="relative min-h-[320px] lg:min-h-[480px] bg-navy-950">
+        <div className="relative w-full aspect-[896/1200] bg-ice">
           <Image
-            src="/images/homepage/glow-hero.png"
+            src="/images/homepage/glow-hero-light.png"
             alt="Anvil Compounds BPC-157 research vial, lot-verified and 99%+ purity"
             fill
             className="object-contain"
@@ -30,34 +30,34 @@ export default function FeaturedSpotlight() {
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6 }}
-          className="flex flex-col justify-center gap-4 px-6 py-16 md:px-14 md:py-20"
+          className="flex flex-col justify-center gap-3 px-6 py-12 md:px-12 md:py-16"
         >
-          <span className="font-mono text-xs text-blue-400 tracking-[0.25em] uppercase">
+          <span className="font-mono text-xs text-blue-600 tracking-[0.25em] uppercase">
             A standard you can see
           </span>
           <h2
-            className="font-display font-800 text-white leading-[1.05]"
-            style={{ fontSize: "clamp(1.9rem, 3.6vw, 2.8rem)" }}
+            className="font-display font-800 text-navy-900 leading-[1.05]"
+            style={{ fontSize: "clamp(1.7rem, 3.2vw, 2.5rem)" }}
           >
             Silver-sealed. Lot-verified. Research-grade.
           </h2>
-          <p className="font-body text-white/50 text-base leading-relaxed max-w-md">
+          <p className="font-body text-navy-900/55 text-base leading-relaxed max-w-md">
             Every vial ships with the same discipline behind it — a
             Certificate of Analysis covering purity, identity, and endotoxin
             screening for that exact lot. No batch skips a step.
           </p>
-          <div className="flex gap-8 mt-2">
+          <div className="flex gap-7 mt-1">
             <div>
-              <span className="block font-display font-800 text-2xl text-white">99%+</span>
-              <span className="font-mono text-[11px] text-white/40 tracking-wider uppercase">Minimum Purity</span>
+              <span className="block font-display font-800 text-xl text-navy-900">99%+</span>
+              <span className="font-mono text-[10px] text-navy-900/40 tracking-wider uppercase">Minimum Purity</span>
             </div>
             <div>
-              <span className="block font-display font-800 text-2xl text-white">6×</span>
-              <span className="font-mono text-[11px] text-white/40 tracking-wider uppercase">Verification Methods</span>
+              <span className="block font-display font-800 text-xl text-navy-900">6×</span>
+              <span className="font-mono text-[10px] text-navy-900/40 tracking-wider uppercase">Verification Methods</span>
             </div>
             <div>
-              <span className="block font-display font-800 text-2xl text-white">COA</span>
-              <span className="font-mono text-[11px] text-white/40 tracking-wider uppercase">Every Batch</span>
+              <span className="block font-display font-800 text-xl text-navy-900">COA</span>
+              <span className="font-mono text-[10px] text-navy-900/40 tracking-wider uppercase">Every Batch</span>
             </div>
           </div>
         </motion.div>

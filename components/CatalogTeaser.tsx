@@ -4,7 +4,6 @@ import { useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, useInView } from "framer-motion";
-import { CATALOG_TRUST_BADGES } from "@/components/ProductsSection";
 import { getProductDisplayTitle } from "@/lib/productTitle";
 import type { ProductCard } from "@/lib/woocommerce";
 
@@ -88,29 +87,10 @@ export default function CatalogTeaser({
   const inView = useInView(ref, { once: true });
 
   return (
-    <section className="relative bg-navy-950 py-24 md:py-32">
+    <section className="relative bg-navy-950 py-14 md:py-20">
       <div className="absolute inset-0 mesh-bg opacity-60" />
 
       <div ref={ref} className="relative z-10 max-w-7xl mx-auto px-6 text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
-          className="hidden md:flex flex-wrap items-center justify-center gap-2.5 mb-6"
-        >
-          {CATALOG_TRUST_BADGES.map((badge, i) => (
-            <div
-              key={i}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-white/10 bg-white/5"
-            >
-              <span className="text-blue-400 shrink-0">{badge.icon}</span>
-              <span className="font-mono text-[11px] text-white/50 tracking-wide whitespace-nowrap">
-                {badge.label}
-              </span>
-            </div>
-          ))}
-        </motion.div>
-
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
@@ -128,8 +108,8 @@ export default function CatalogTeaser({
           initial={{ opacity: 0, y: 30 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.7, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-          className="font-display font-800 text-white mb-4"
-          style={{ fontSize: "clamp(2.4rem, 5vw, 4rem)" }}
+          className="font-display font-800 text-white mb-3"
+          style={{ fontSize: "clamp(2.1rem, 4.4vw, 3.5rem)" }}
         >
           Reference materials
           <br />
@@ -140,7 +120,7 @@ export default function CatalogTeaser({
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.7, delay: 0.2 }}
-          className="font-body text-white/45 text-lg max-w-xl mx-auto mb-8"
+          className="font-body text-white/45 text-base max-w-xl mx-auto mb-6"
         >
           Each compound is a synthetic reference material supplied for
           in-vitro laboratory research.
@@ -151,9 +131,9 @@ export default function CatalogTeaser({
             initial={{ opacity: 0, y: 20 }}
             animate={inView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.7, delay: 0.25 }}
-            className="mb-10"
+            className="mb-7"
           >
-            <p className="font-mono text-[11px] text-white/30 tracking-[0.2em] uppercase mb-4">
+            <p className="font-mono text-[11px] text-white/30 tracking-[0.2em] uppercase mb-3">
               Showing {previewProducts.length} of {totalCount} compounds, verify to view
               full catalog &amp; pricing
             </p>
@@ -172,7 +152,7 @@ export default function CatalogTeaser({
         >
           <Link
             href="/catalog?catalog=full"
-            className="inline-block px-8 py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-display font-700 text-sm tracking-wide rounded-md transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/30"
+            className="inline-block px-7 py-3 bg-blue-600 hover:bg-blue-500 text-white font-display font-700 text-sm tracking-wide rounded-md transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/30"
           >
             Browse Full Catalog →
           </Link>

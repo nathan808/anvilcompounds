@@ -85,19 +85,19 @@ export default function TrustSection() {
   const headerInView = useInView(headerRef, { once: true, margin: "-80px" });
 
   return (
-    <section id="trust" className="relative bg-ice py-24 md:py-36 overflow-hidden">
+    <section id="trust" className="relative bg-ice py-14 md:py-20 overflow-hidden">
       {/* Subtle blue gradient on light bg */}
       <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-blue-600/30 to-transparent" />
       <div className="absolute inset-0 bg-gradient-to-br from-white via-ice to-blue-50 opacity-80" />
 
       <div className="relative z-10 max-w-7xl mx-auto px-6">
         {/* Header */}
-        <div ref={headerRef} className="max-w-2xl mb-16">
+        <div ref={headerRef} className="max-w-2xl mb-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={headerInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.6 }}
-            className="flex items-center gap-3 mb-4"
+            className="flex items-center gap-3 mb-3"
           >
             <div className="w-6 h-px bg-blue-600" />
             <span className="font-mono text-xs text-blue-600 tracking-[0.25em] uppercase">
@@ -109,8 +109,8 @@ export default function TrustSection() {
             initial={{ opacity: 0, y: 30 }}
             animate={headerInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.7, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-            className="font-display font-800 text-navy-900 mb-5"
-            style={{ fontSize: "clamp(2.4rem, 5vw, 4rem)" }}
+            className="font-display font-800 text-navy-900 mb-4"
+            style={{ fontSize: "clamp(2.1rem, 4.4vw, 3.5rem)" }}
           >
             Built Around One
             <br />
@@ -121,7 +121,7 @@ export default function TrustSection() {
             initial={{ opacity: 0, y: 20 }}
             animate={headerInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.7, delay: 0.2 }}
-            className="font-body text-navy-900/55 text-lg leading-relaxed"
+            className="font-body text-navy-900/55 text-base leading-relaxed"
           >
             Anyone can print 99% pure on a label. We built our testing
             pipeline so you never have to take our word for it.
@@ -129,7 +129,7 @@ export default function TrustSection() {
         </div>
 
         {/* Stats row */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-5 mb-16">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
           {stats.map((stat, i) => (
             <motion.div
               key={stat.label}
@@ -137,9 +137,9 @@ export default function TrustSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-60px" }}
               transition={{ duration: 0.6, delay: i * 0.08 }}
-              className="glass-card-light rounded-xl p-5 md:p-6 text-center"
+              className="glass-card-light rounded-xl p-4 md:p-5 text-center"
             >
-              <div className="font-display font-800 text-navy-900 mb-1" style={{ fontSize: "clamp(2rem, 4vw, 3rem)" }}>
+              <div className="font-display font-800 text-navy-900 mb-1" style={{ fontSize: "clamp(1.8rem, 3.6vw, 2.7rem)" }}>
                 {"display" in stat ? stat.display : <CountUp end={stat.value} suffix={stat.suffix} />}
               </div>
               <div className="font-mono text-xs text-navy-900/40 tracking-wider uppercase leading-snug">
@@ -150,7 +150,7 @@ export default function TrustSection() {
         </div>
 
         {/* Pillars grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {trustPillars.map((pillar, i) => (
             <motion.div
               key={pillar.title}
@@ -158,13 +158,13 @@ export default function TrustSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-60px" }}
               transition={{ duration: 0.6, delay: i * 0.1 }}
-              className="glass-card-light rounded-xl p-6 flex gap-5"
+              className="glass-card-light rounded-xl p-5 flex gap-4"
             >
-              <div className="shrink-0 w-11 h-11 rounded-lg bg-blue-600/10 border border-blue-600/20 flex items-center justify-center text-blue-600">
+              <div className="shrink-0 w-10 h-10 rounded-lg bg-blue-600/10 border border-blue-600/20 flex items-center justify-center text-blue-600">
                 {pillar.icon}
               </div>
               <div>
-                <h3 className="font-display font-700 text-navy-900 text-lg mb-2">{pillar.title}</h3>
+                <h3 className="font-display font-700 text-navy-900 text-base mb-1.5">{pillar.title}</h3>
                 <p className="font-body text-navy-900/55 text-sm leading-relaxed">{pillar.description}</p>
               </div>
             </motion.div>

@@ -12,53 +12,53 @@ export default function OperationsSection() {
   const inView = useInView(ref, { once: true, margin: "-80px" });
 
   return (
-    <section className="relative bg-ice py-24 md:py-32 overflow-hidden">
-      <div ref={ref} className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+    <section className="relative bg-white py-14 md:py-20 overflow-hidden">
+      <div ref={ref} className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-8 lg:gap-10 items-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6 }}
         >
-          <div className="flex items-center gap-2 mb-3">
+          <div className="flex items-center gap-2 mb-2">
             <span className="w-2 h-2 rounded-full bg-blue-500 pulse-ring" />
             <span className="font-mono text-xs text-blue-600 tracking-widest uppercase">Southern California</span>
           </div>
           <h2
-            className="font-display font-800 text-navy-900 mb-5"
-            style={{ fontSize: "clamp(2.2rem, 4vw, 3.2rem)" }}
+            className="font-display font-800 text-navy-900 mb-3"
+            style={{ fontSize: "clamp(1.9rem, 3.4vw, 2.7rem)" }}
           >
             Domestic. Reliable.
             <br />
             Accountable.
           </h2>
-          <p className="font-body text-navy-900/55 text-lg leading-relaxed mb-6 max-w-md">
+          <p className="font-body text-navy-900/55 text-base leading-relaxed mb-4 max-w-md">
             Prepared and dispatched from our Southern California facility.
             USPS Priority, 2–5 business days, tracking at fulfillment —
             discreet shipping on every order.
           </p>
 
-          <div className="flex flex-wrap gap-3 mb-8">
-            <div className="px-4 py-2.5 rounded-lg border border-blue-600/20 bg-blue-600/10">
+          <div className="flex flex-wrap gap-2.5 mb-5">
+            <div className="px-3.5 py-2 rounded-lg border border-blue-600/20 bg-blue-600/10">
               <span className="font-mono text-xs text-blue-700 tracking-wider">USPS Priority</span>
             </div>
-            <div className="px-4 py-2.5 rounded-lg border border-blue-600/20 bg-blue-600/10">
+            <div className="px-3.5 py-2 rounded-lg border border-blue-600/20 bg-blue-600/10">
               <span className="font-mono text-xs text-blue-700 tracking-wider">2-5 Day Delivery</span>
             </div>
-            <div className="px-4 py-2.5 rounded-lg border border-blue-600/20 bg-blue-600/10">
+            <div className="px-3.5 py-2 rounded-lg border border-blue-600/20 bg-blue-600/10">
               <span className="font-mono text-xs text-blue-700 tracking-wider">Order Tracking</span>
             </div>
           </div>
 
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-wrap gap-2.5">
             <a
               href="/account"
-              className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-display font-700 text-sm tracking-wide rounded-md transition-all duration-300"
+              className="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-display font-700 text-sm tracking-wide rounded-md transition-all duration-300"
             >
               Track an Order
             </a>
             <a
               href="/faq"
-              className="px-6 py-3 border border-blue-300 hover:border-blue-400 text-blue-700 hover:text-blue-600 font-display font-600 text-sm tracking-wide rounded-md transition-all duration-300 bg-white/60 hover:bg-white/90"
+              className="px-5 py-2.5 border border-blue-300 hover:border-blue-400 text-blue-700 hover:text-blue-600 font-display font-600 text-sm tracking-wide rounded-md transition-all duration-300 bg-white/60 hover:bg-white/90"
             >
               Shipping FAQ →
             </a>
