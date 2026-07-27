@@ -325,7 +325,7 @@ export interface ProductCard {
 }
 
 // Products without COA yet (Testing in Progress — no buy UI shown)
-const IDS_WITHOUT_COA = new Set([443, 445, 446, 450, 447, 449, 510, 511, 333, 346]);
+const IDS_WITHOUT_COA = new Set([443, 445, 446, 450, 510, 511, 333, 346]);
 
 const PRODUCT_PAGE_URLS: Record<string, string> = {
   "BPC-157":                                      "https://anvilcompounds.shop/product/bpc-157/",
