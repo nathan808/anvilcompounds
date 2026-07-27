@@ -5,17 +5,21 @@ import Image from "next/image";
 import { motion, useInView } from "framer-motion";
 
 // Split band pairing a single hero product shot with a short trust
-// statement + stat row. Image and section share the same light "ice"
-// background so the vial composite (which already has its own light
-// background baked in) sits seamlessly rather than looking framed.
+// statement + stat row. The section background is a gradient sampled
+// directly from the vial composite's own background (near-white top-left
+// fading to a pale blue-grey bottom-right) instead of the flat "ice" token,
+// so the image's edges dissolve into the section rather than showing a
+// visible seam.
+const SPOTLIGHT_BG = "linear-gradient(135deg, #ffffff 0%, #f2f5f8 55%, #eef2f6 100%)";
+
 export default function FeaturedSpotlight() {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-80px" });
 
   return (
-    <section className="relative bg-ice overflow-hidden">
+    <section className="relative overflow-hidden" style={{ background: SPOTLIGHT_BG }}>
       <div ref={ref} className="grid lg:grid-cols-2 items-stretch">
-        <div className="relative w-full bg-ice flex items-center justify-center p-6">
+        <div className="relative w-full flex items-center justify-center p-6">
           <div className="relative h-[240px] sm:h-[300px] md:h-[340px] w-auto aspect-[896/1200]">
             <Image
               src="/images/homepage/glow-hero-light.png"
