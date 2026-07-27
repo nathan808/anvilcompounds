@@ -63,21 +63,31 @@ export default function HeroSection() {
         sizes="100vw"
         quality={90}
       />
-      <div className="absolute inset-0 bg-white/25" />
+      {/* Scrim — opaque near the text (left/top), fading away before it
+          reaches the vials, so the photo reads clearly instead of being
+          uniformly dulled. Direction flips to top-down on mobile, matching
+          the stacked layout. */}
+      <div
+        className="absolute inset-0 hidden md:block"
+        style={{ background: "linear-gradient(90deg, #EEF4FF 24%, rgba(238,244,255,0.86) 40%, rgba(238,244,255,0) 62%)" }}
+      />
+      <div
+        className="absolute inset-0 block md:hidden"
+        style={{ background: "linear-gradient(180deg, #EEF4FF 40%, rgba(238,244,255,0.88) 52%, rgba(238,244,255,0) 68%)" }}
+      />
 
-      {/* Content */}
+      {/* Content — left-aligned, capped narrow so it never reaches the vials */}
       <motion.div style={{ y, opacity }} className="relative z-10 w-full">
-        <div className="max-w-7xl mx-auto px-2 sm:px-6 md:px-10 pt-16 pb-16 md:pt-20 md:pb-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-10 pt-16 pb-16 md:pt-20 md:pb-20">
           <motion.div
             variants={container}
             initial="hidden"
             animate="show"
-            className="flex flex-col items-center text-center px-2 py-4 md:py-6"
-            style={{ background: "radial-gradient(ellipse 70% 85% at 50% 48%, rgba(255,255,255,0.62) 0%, rgba(255,255,255,0.18) 60%, transparent 100%)" }}
+            className="flex flex-col items-start text-left max-w-[420px] md:max-w-[480px]"
           >
 
             {/* Badge */}
-            <motion.div variants={item} className="flex items-center justify-center mb-4">
+            <motion.div variants={item} className="flex items-center mb-4">
               <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-blue-300/60 bg-white/70 backdrop-blur-sm">
                 <span className="w-1.5 h-1.5 rounded-full bg-blue-500 inline-block flex-shrink-0" />
                 <span className="text-[10px] md:text-xs font-mono text-blue-700 tracking-widest uppercase">
@@ -89,8 +99,8 @@ export default function HeroSection() {
             {/* Headline */}
             <motion.h1
               variants={item}
-              className="font-display font-800 leading-[0.95] mb-4 max-w-3xl"
-              style={{ fontSize: "clamp(2rem, 5vw, 4.5rem)", textShadow: "0 1px 12px rgba(255,255,255,0.95), 0 0px 2px rgba(255,255,255,0.7)" }}
+              className="font-display font-800 leading-[0.95] mb-4"
+              style={{ fontSize: "clamp(2rem, 4.6vw, 3.75rem)" }}
             >
               <span className="block font-500 text-gray-700">Research with</span>
               <span className="block" style={{ color: "#1D6ADB" }}>Conviction</span>
@@ -100,7 +110,7 @@ export default function HeroSection() {
             {/* Subheadline */}
             <motion.p
               variants={item}
-              className="font-body text-gray-700 text-sm md:text-base leading-relaxed mb-5 max-w-sm md:max-w-md"
+              className="font-body text-gray-700 text-sm md:text-base leading-relaxed mb-5"
             >
               Independently verified through multi-vial hexa-method testing
               per lot: Purity, Identity, Endotoxin and Heavy-Metal Screening.
@@ -109,7 +119,7 @@ export default function HeroSection() {
             </motion.p>
 
             {/* CTAs — stacked on mobile, row on sm+ */}
-            <motion.div variants={item} className="flex flex-col sm:flex-row flex-wrap justify-center gap-2.5 mb-4 w-full sm:w-auto">
+            <motion.div variants={item} className="flex flex-col sm:flex-row flex-wrap justify-start gap-2.5 mb-4 w-full sm:w-auto">
               <a
                 href="/catalog?catalog=full"
                 className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-display font-700 text-sm tracking-wide rounded-md transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/30 text-center"
@@ -131,12 +141,12 @@ export default function HeroSection() {
             </motion.div>
 
             {/* Shipping banner */}
-            <motion.div variants={item} className="mb-4 w-full max-w-sm md:max-w-md">
+            <motion.div variants={item} className="mb-4 w-full">
               <ShippingBanner theme="light" />
             </motion.div>
 
             {/* RUO disclaimer */}
-            <motion.p variants={item} className="font-mono text-[9px] md:text-[10px] text-gray-400 tracking-wide max-w-xs md:max-w-sm text-center">
+            <motion.p variants={item} className="font-mono text-[9px] md:text-[10px] text-gray-400 tracking-wide">
               For in vitro laboratory &amp; research use only. Not for human or animal use. 21+ only.
             </motion.p>
 

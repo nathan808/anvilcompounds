@@ -28,10 +28,10 @@ export default async function Home() {
       <MarqueeBar />
       <CatalogTeaser previewProducts={previewProducts} totalCount={products.length} />
       <FeaturedSpotlight />
+      <OperationsSection />
       <HowWeTestSection />
       <TrustSection />
       <InsideEveryBatchSection />
-      <OperationsSection />
       <Footer />
     </main>
   );

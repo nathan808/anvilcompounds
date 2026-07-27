@@ -15,12 +15,12 @@ export default function FeaturedSpotlight() {
   return (
     <section className="relative bg-navy-950 overflow-hidden">
       <div ref={ref} className="grid lg:grid-cols-2 items-stretch">
-        <div className="relative min-h-[320px] lg:min-h-[480px]">
+        <div className="relative min-h-[320px] lg:min-h-[480px] bg-navy-950">
           <Image
-            src="/images/homepage/glow-hero.jpg"
-            alt="Anvil Compounds GLOW research vial on a laboratory surface"
+            src="/images/homepage/glow-hero.png"
+            alt="Anvil Compounds BPC-157 research vial, lot-verified and 99%+ purity"
             fill
-            className="object-cover"
+            className="object-contain"
             sizes="(max-width: 1024px) 100vw, 50vw"
             loading="lazy"
           />
