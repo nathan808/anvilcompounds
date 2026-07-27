@@ -254,6 +254,7 @@ export async function getProductPageData(slug: string): Promise<ProductPageData 
       documentationMetrics,
       documentationFile:    meta["documentation_file"]          ?? null,
       documentationImage:   meta["documentation_image"]         ?? null,
+      hasCoa:               !IDS_WITHOUT_COA.has(wcId) && !!meta["documentation_file"],
       sdsFile:              SLUG_TO_SDS[slug]                   ?? null,
       moleculeImage:        SLUG_TO_MOLECULE_IMAGE[slug]        ?? null,
       documentationCaption: meta["documentation_caption"]       ?? "",
@@ -324,7 +325,7 @@ export interface ProductCard {
 }
 
 // Products without COA yet (Testing in Progress — no buy UI shown)
-const IDS_WITHOUT_COA = new Set([443, 445, 446, 450, 447, 449, 510, 511]);
+const IDS_WITHOUT_COA = new Set([443, 445, 446, 450, 447, 449, 510, 511, 333, 346]);
 
 const PRODUCT_PAGE_URLS: Record<string, string> = {
   "BPC-157":                                      "https://anvilcompounds.shop/product/bpc-157/",

@@ -40,6 +40,7 @@ export interface ProductPageData {
   documentationCaption?: string;
   sdsFile?: string | null;
   moleculeImage?: string | null;
+  hasCoa: boolean;
 
   propertiesTable: { label: string; value: string }[];
 
@@ -218,7 +219,7 @@ export default function ProductPageTemplate({
 }: {
   product: ProductPageData;
 }) {
-  const hasCoa = !!product.documentationFile;
+  const hasCoa = product.hasCoa;
 
   return (
     <>
