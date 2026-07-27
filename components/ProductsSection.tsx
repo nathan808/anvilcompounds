@@ -149,16 +149,21 @@ function slugifyProductName(name: string): string {
 }
 
 const FALLBACK_PRODUCTS: ProductCard[] = [
-  { id: 332, name: "BPC-157", category: "Repair & Recovery Research", description: "Body Protection Compound — a pentadecapeptide with notable tissue healing and regenerative properties under research conditions.", price: "$44", purity: "99.4%", badge: "Bestseller", badgeColor: "bg-blue-600/70 text-blue-100 border-blue-500/50", icon: "⬡", permalink: "https://anvilcompounds.shop/product/bpc-157/", image: "/products/bpc157.jpg", hasCoa: true },
-  { id: 447, name: "BPC-157 + TB-500", category: "Repair & Recovery Research", description: "Dual peptide recovery blend combining BPC-157 and TB-500 — studied for synergistic effects in tissue repair and cell migration research models.", price: "$54", purity: "99%+", badge: "Recovery Blend", badgeColor: "bg-orange-600/70 text-orange-100 border-orange-500/50", icon: "⬧", permalink: "https://anvilcompounds.shop/product/bpc-157-tb-500/", image: "/products/wolverine.jpg", hasCoa: true },
-  { id: 333, name: "GLP-TRZ", category: "Metabolic Research", description: "A dual incretin receptor agonist binding both GIP and GLP-1 receptors, under active clinical research.", price: "$54", purity: "99.1%", badge: "Advanced", badgeColor: "bg-cyan-600/70 text-cyan-100 border-cyan-500/50", icon: "◇", permalink: "https://anvilcompounds.shop/product/glp-trz/", image: "/products/glp-trz.png", hasCoa: true },
-  { id: 337, name: "GLP-RT", category: "Metabolic Research", description: "A triple receptor agonist targeting GIP, GLP-1, and glucagon receptors — at the frontier of current metabolic research.", price: "$64", purity: "99.0%", badge: "Cutting Edge", badgeColor: "bg-rose-600/70 text-rose-100 border-rose-500/50", icon: "⬟", permalink: "https://anvilcompounds.shop/product/glp-rt/", image: "/products/glp-rt.jpg", hasCoa: true },
-  { id: 335, name: "KLOW", category: "Longevity & Cosmetic Research", description: "A curated blend of four research-grade peptides, independently tested as a combined formulation.", price: "$89", purity: "99.3%", badge: "Exclusive Blend", badgeColor: "bg-purple-600/70 text-purple-100 border-purple-500/50", icon: "✦", permalink: "https://anvilcompounds.shop/product/klow/", image: "/products/klow.jpg", hasCoa: true },
-  { id: 354, name: "TB-500", category: "Repair & Recovery Research", description: "Synthetic analogue of Thymosin Beta-4, studied in cell migration, actin dynamics, and tissue modeling research models.", price: "$64", purity: "99%+", badge: "Recovery", badgeColor: "bg-amber-600/70 text-amber-100 border-amber-500/50", icon: "◉", permalink: "https://anvilcompounds.shop/product/tb-500/", image: "/products/tb500.jpg", hasCoa: true },
+  { id: 332, name: "BPC-157", category: "Repair & Recovery Research", description: "Body Protection Compound — a pentadecapeptide with notable tissue healing and regenerative properties under research conditions.", price: "$44", purity: "99.4%", badge: "High Demand", badgeColor: "bg-indigo-600/70 text-indigo-100 border-indigo-500/50", icon: "⬡", permalink: "https://anvilcompounds.shop/product/bpc-157/", image: "/products/bpc157.jpg", hasCoa: true },
+  { id: 447, name: "BPC-157 + TB-500", category: "Repair & Recovery Research", description: "Dual peptide recovery blend combining BPC-157 and TB-500 — studied for synergistic effects in tissue repair and cell migration research models.", price: "$54", purity: "99%+", badge: "Exclusive Blend", badgeColor: "bg-purple-600/70 text-purple-100 border-purple-500/50", icon: "⬧", permalink: "https://anvilcompounds.shop/product/bpc-157-tb-500/", image: "/products/wolverine.jpg", hasCoa: true },
+  { id: 333, name: "GLP-TRZ", category: "Metabolic Research", description: "A dual incretin receptor agonist binding both GIP and GLP-1 receptors, under active clinical research.", price: "$54", purity: "99.1%", badge: "Dual Agonist", badgeColor: "bg-cyan-600/70 text-cyan-100 border-cyan-500/50", icon: "◇", permalink: "https://anvilcompounds.shop/product/glp-trz/", image: "/products/glp-trz.png", hasCoa: false },
+  { id: 337, name: "GLP-RT", category: "Metabolic Research", description: "A triple receptor agonist targeting GIP, GLP-1, and glucagon receptors — at the frontier of current metabolic research.", price: "$64", purity: "99.0%", badge: "Triple Agonist", badgeColor: "bg-rose-600/70 text-rose-100 border-rose-500/50", icon: "⬟", permalink: "https://anvilcompounds.shop/product/glp-rt/", image: "/products/glp-rt.jpg", hasCoa: true },
+  { id: 335, name: "KLOW", category: "Longevity & Cosmetic Research", description: "A curated blend of four research-grade peptides, independently tested as a combined formulation.", price: "$89", purity: "99.3%", badge: "Premium Blend", badgeColor: "bg-fuchsia-600/70 text-fuchsia-100 border-fuchsia-500/50", icon: "✦", permalink: "https://anvilcompounds.shop/product/klow/", image: "/products/klow.jpg", hasCoa: true },
+  { id: 354, name: "TB-500", category: "Repair & Recovery Research", description: "Synthetic analogue of Thymosin Beta-4, studied in cell migration, actin dynamics, and tissue modeling research models.", price: "$64", purity: "99%+", badge: "Recovery Staple", badgeColor: "bg-amber-600/70 text-amber-100 border-amber-500/50", icon: "◉", permalink: "https://anvilcompounds.shop/product/tb-500/", image: "/products/tb500.jpg", hasCoa: true },
   { id: 336, name: "GHK-Cu", category: "Longevity & Cosmetic Research", description: "A naturally occurring copper complex with extensive research into cellular remodeling and tissue response.", price: "$34", purity: "99.5%", badge: "Entry Point", badgeColor: "bg-teal-600/70 text-teal-100 border-teal-500/50", icon: "⬢", permalink: "https://anvilcompounds.shop/product/ghk-cu/", image: "/products/ghkcu.jpg", hasCoa: true },
-  { id: 346, name: "MOTS-c", category: "Metabolic Research", description: "Mitochondrial-derived peptide studied in mitochondrial-nuclear communication, glucose metabolism, and cellular stress response.", price: "$44", purity: "99%+", badge: "Metabolic", badgeColor: "bg-violet-600/70 text-violet-100 border-violet-500/50", icon: "⬥", permalink: "https://anvilcompounds.shop/product/mots-c/", image: "/products/motsc.png", hasCoa: true },
-  { id: 510, name: "Semax", category: "Cognitive Research", description: "Synthetic heptapeptide analogue of ACTH(4-10), studied in research involving neurotrophic factor expression, BDNF signaling, and neuroprotective pathway models.", price: "$44", purity: "99%+", badge: "Neuropeptide", badgeColor: "bg-indigo-600/70 text-indigo-100 border-indigo-500/50", icon: "◈", permalink: "https://anvilcompounds.shop/product/semax/", image: "https://anvilcompounds.shop/wp-content/uploads/2026/07/semaxproductphoto.png", hasCoa: false },
-  { id: 511, name: "Selank", category: "Cognitive Research", description: "Synthetic heptapeptide analogue of tuftsin, studied in research involving GABAergic pathway modulation, neuropeptide signaling, and anxiety response models.", price: "$44", purity: "99%+", badge: "Neuropeptide", badgeColor: "bg-indigo-600/70 text-indigo-100 border-indigo-500/50", icon: "◉", permalink: "https://anvilcompounds.shop/product/selank/", image: "https://anvilcompounds.shop/wp-content/uploads/2026/07/selankproductphoto.png", hasCoa: false },
+  { id: 346, name: "MOTS-c", category: "Metabolic Research", description: "Mitochondrial-derived peptide studied in mitochondrial-nuclear communication, glucose metabolism, and cellular stress response.", price: "$44", purity: "99%+", badge: "Metabolic", badgeColor: "bg-violet-600/70 text-violet-100 border-violet-500/50", icon: "⬥", permalink: "https://anvilcompounds.shop/product/mots-c/", image: "/products/motsc.png", hasCoa: false },
+  { id: 443, name: "NAD+", category: "Metabolic Research", description: "Coenzyme central to cellular energy metabolism and redox reactions, studied in mitochondrial and aging research models.", price: "$54", purity: "99%+", badge: "Cellular Energy", badgeColor: "bg-emerald-600/70 text-emerald-100 border-emerald-500/50", icon: "◇", permalink: "https://anvilcompounds.shop/product/nad-plus/", image: "/products/nad.png", hasCoa: false },
+  { id: 446, name: "CJC-1295 + Ipamorelin", category: "Growth Pathway Research", description: "Combined growth-hormone secretagogue blend, studied for synergistic effects on GH pulsatility research models.", price: "$54", purity: "99%+", badge: "GH Blend", badgeColor: "bg-orange-600/70 text-orange-100 border-orange-500/50", icon: "⬧", permalink: "https://anvilcompounds.shop/product/cjc-1295-ipamorelin/", image: "/products/cjcipa.png", hasCoa: false },
+  { id: 445, name: "Tesamorelin", category: "Growth Pathway Research", description: "Synthetic GHRH analogue studied in research involving growth hormone axis regulation.", price: "$54", purity: "99%+", badge: "GHRH Research", badgeColor: "bg-yellow-600/70 text-yellow-100 border-yellow-500/50", icon: "⬟", permalink: "https://anvilcompounds.shop/product/tesamorelin/", image: "/products/tesa.png", hasCoa: false },
+  { id: 450, name: "5-Amino-1MQ", category: "Metabolic Research", description: "Small-molecule NNMT inhibitor studied in research involving cellular metabolism and adipocyte models.", price: "$54", purity: "99%+", badge: "Metabolic Support", badgeColor: "bg-lime-600/70 text-lime-100 border-lime-500/50", icon: "⬥", permalink: "https://anvilcompounds.shop/product/5-amino-1mq/", image: "/products/5amino.png", hasCoa: false },
+  { id: 449, name: "GLOW", category: "Longevity & Cosmetic Research", description: "A curated cosmetic-research peptide blend, independently tested as a combined formulation.", price: "$89", purity: "99%+", badge: "Cosmetic Blend", badgeColor: "bg-pink-600/70 text-pink-100 border-pink-500/50", icon: "✦", permalink: "https://anvilcompounds.shop/product/glow/", image: "/products/glow.jpg", hasCoa: false },
+  { id: 510, name: "Semax", category: "Cognitive Research", description: "Synthetic heptapeptide analogue of ACTH(4-10), studied in research involving neurotrophic factor expression, BDNF signaling, and neuroprotective pathway models.", price: "$44", purity: "99%+", badge: "Neuropeptide", badgeColor: "bg-blue-600/70 text-blue-100 border-blue-500/50", icon: "◈", permalink: "https://anvilcompounds.shop/product/semax/", image: "https://anvilcompounds.shop/wp-content/uploads/2026/07/semaxproductphoto.png", hasCoa: false },
+  { id: 511, name: "Selank", category: "Cognitive Research", description: "Synthetic heptapeptide analogue of tuftsin, studied in research involving GABAergic pathway modulation, neuropeptide signaling, and anxiety response models.", price: "$44", purity: "99%+", badge: "Anxiolytic Research", badgeColor: "bg-sky-600/70 text-sky-100 border-sky-500/50", icon: "◉", permalink: "https://anvilcompounds.shop/product/selank/", image: "https://anvilcompounds.shop/wp-content/uploads/2026/07/selankproductphoto.png", hasCoa: false },
   { id: 349, name: "Bacteriostatic Water", category: "Research Supplies", description: "0.9% benzyl alcohol sterile water. Standard reconstitution solvent for lyophilized peptide research. 30mL multi-use vial.", price: "$15", purity: "Sterility Certified", badge: "Essential Supply", badgeColor: "bg-slate-600/70 text-slate-100 border-slate-500/50", icon: "◎", permalink: "https://anvilcompounds.shop/product/bac-water/", image: null, hasCoa: true },
 ];
 
@@ -388,7 +393,16 @@ export default function ProductsSection() {
     return ordered;
   }, [products]);
 
+  // "Live" = has a COA and isn't login-gated. This is a catalog-merchandising
+  // property (independent of whether the *current viewer* happens to be
+  // logged in), so gating is checked statically via isGlpCompound rather
+  // than the glpGated/isAuthenticated flag used for card-level UI.
+  const isLive = (p: ProductCard) => p.hasCoa && !isGlpCompound(p.name);
+
   const byPopularity = (a: ProductCard, b: ProductCard) => {
+    const liveA = isLive(a) ? 0 : 1;
+    const liveB = isLive(b) ? 0 : 1;
+    if (liveA !== liveB) return liveA - liveB;
     const rankA = POPULARITY_ORDER[a.name] ?? 50;
     const rankB = POPULARITY_ORDER[b.name] ?? 50;
     return rankA - rankB;
@@ -475,9 +489,9 @@ export default function ProductsSection() {
                 className="font-display font-800 text-white mb-4"
                 style={{ fontSize: "clamp(2.4rem, 5vw, 4rem)" }}
               >
-                Reference materials
+                99% Pure Peptides
                 <br />
-                <span className="text-blue-400">&amp; research compounds</span>
+                <span className="text-blue-400">&amp; Research Reagents. Verified Per Lot.</span>
               </motion.h2>
 
               <motion.p
@@ -487,7 +501,8 @@ export default function ProductsSection() {
                 className="font-body text-white/45 text-lg max-w-xl"
               >
                 Each compound is a synthetic reference material supplied for
-                in-vitro laboratory research.
+                in-vitro laboratory research: HPLC, purity, mass-spec, and
+                endotoxin-verified per lot.
               </motion.p>
             </div>
 

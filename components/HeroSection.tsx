@@ -83,9 +83,11 @@ export default function HeroSection() {
               className="font-display font-800 leading-[0.95] mb-3 max-w-3xl"
               style={{ fontSize: "clamp(1.8rem, 4.5vw, 4rem)", textShadow: "0 1px 12px rgba(255,255,255,0.95), 0 0px 2px rgba(255,255,255,0.7)" }}
             >
-              <span className="block font-800" style={{ color: "#1D6ADB" }}>Independently Verified</span>
-              <span className="block text-gray-950">Research Compounds</span>
-              <span className="block text-gray-950">and reference materials</span>
+              <span className="block text-gray-950">Research with</span>
+              <span className="block">
+                <span className="font-800" style={{ color: "#1D6ADB" }}>Conviction</span>{" "}
+                <span className="text-gray-950">and Verification</span>
+              </span>
             </motion.h1>
 
             {/* Subheadline */}

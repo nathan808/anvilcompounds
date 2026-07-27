@@ -271,14 +271,40 @@ export async function getProductPageData(slug: string): Promise<ProductPageData 
 
 const ICONS = ["⬡", "◈", "◇", "✦", "⬢", "⬟"];
 
-const BADGES = [
-  { label: "Bestseller",     color: "bg-blue-600/70 text-blue-100 border-blue-500/50" },
-  { label: "High Demand",    color: "bg-indigo-600/70 text-indigo-100 border-indigo-500/50" },
-  { label: "Advanced",       color: "bg-cyan-600/70 text-cyan-100 border-cyan-500/50" },
-  { label: "Exclusive Blend",color: "bg-purple-600/70 text-purple-100 border-purple-500/50" },
-  { label: "Entry Point",    color: "bg-teal-600/70 text-teal-100 border-teal-500/50" },
-  { label: "Cutting Edge",   color: "bg-rose-600/70 text-rose-100 border-rose-500/50" },
-];
+const DEFAULT_BADGE = { label: "Verified", color: "bg-slate-600/70 text-slate-100 border-slate-500/50" };
+
+// Per-product badge — keyed on every name variant WooCommerce has used for
+// that product (see PRODUCT_PAGE_URLS / LOCAL_PRODUCT_IMAGES above for the
+// same variant lists). Falls back to DEFAULT_BADGE for any product not
+// listed here (e.g. a brand-new SKU) rather than cycling through an
+// unrelated rotation — a product's badge should never depend on its
+// position in the WooCommerce response.
+const PRODUCT_BADGES: Record<string, { label: string; color: string }> = {
+  "BPC-157":                                      { label: "High Demand",       color: "bg-indigo-600/70 text-indigo-100 border-indigo-500/50" },
+  "BPC-157 + TB-500":                              { label: "Exclusive Blend",   color: "bg-purple-600/70 text-purple-100 border-purple-500/50" },
+  "TB-500":                                       { label: "Recovery Staple",   color: "bg-amber-600/70 text-amber-100 border-amber-500/50" },
+  "KLOW":                                         { label: "Premium Blend",     color: "bg-fuchsia-600/70 text-fuchsia-100 border-fuchsia-500/50" },
+  "GLOW":                                         { label: "Cosmetic Blend",    color: "bg-pink-600/70 text-pink-100 border-pink-500/50" },
+  "GHK-Cu":                                       { label: "Entry Point",       color: "bg-teal-600/70 text-teal-100 border-teal-500/50" },
+  "T1rz":                                         { label: "Dual Agonist",      color: "bg-cyan-600/70 text-cyan-100 border-cyan-500/50" },
+  "Trz- dual receptor":                           { label: "Dual Agonist",      color: "bg-cyan-600/70 text-cyan-100 border-cyan-500/50" },
+  "Dual Receptor (T)":                            { label: "Dual Agonist",      color: "bg-cyan-600/70 text-cyan-100 border-cyan-500/50" },
+  "GLP-TRZ":                                      { label: "Dual Agonist",      color: "bg-cyan-600/70 text-cyan-100 border-cyan-500/50" },
+  "R3ta":                                         { label: "Triple Agonist",    color: "bg-rose-600/70 text-rose-100 border-rose-500/50" },
+  "Rta - triple agonist":                         { label: "Triple Agonist",    color: "bg-rose-600/70 text-rose-100 border-rose-500/50" },
+  "triple agonist (R)":                           { label: "Triple Agonist",    color: "bg-rose-600/70 text-rose-100 border-rose-500/50" },
+  "Triple Agonist (R)":                           { label: "Triple Agonist",    color: "bg-rose-600/70 text-rose-100 border-rose-500/50" },
+  "GLP-RT":                                       { label: "Triple Agonist",    color: "bg-rose-600/70 text-rose-100 border-rose-500/50" },
+  "MOTS-c":                                       { label: "Metabolic",         color: "bg-violet-600/70 text-violet-100 border-violet-500/50" },
+  "NAD+":                                         { label: "Cellular Energy",   color: "bg-emerald-600/70 text-emerald-100 border-emerald-500/50" },
+  "CJC-1295 + Ipamorelin":                        { label: "GH Blend",          color: "bg-orange-600/70 text-orange-100 border-orange-500/50" },
+  "Tesamorelin":                                  { label: "GHRH Research",     color: "bg-yellow-600/70 text-yellow-100 border-yellow-500/50" },
+  "5-Amino-1MQ":                                  { label: "Metabolic Support", color: "bg-lime-600/70 text-lime-100 border-lime-500/50" },
+  "Semax":                                        { label: "Neuropeptide",      color: "bg-blue-600/70 text-blue-100 border-blue-500/50" },
+  "Selank":                                       { label: "Anxiolytic Research", color: "bg-sky-600/70 text-sky-100 border-sky-500/50" },
+  "Bacteriostatic Water":                         { label: "Essential Supply",  color: "bg-slate-600/70 text-slate-100 border-slate-500/50" },
+  "Reconstitution Solution – for Laboratory Use": { label: "Essential Supply",  color: "bg-slate-600/70 text-slate-100 border-slate-500/50" },
+};
 
 function stripHtml(html: string): string {
   return html
@@ -372,7 +398,7 @@ const LOCAL_PRODUCT_IMAGES: Record<string, string> = {
 };
 
 export function mapProduct(product: WCProduct, index: number): ProductCard {
-  const badge = BADGES[index % BADGES.length];
+  const badge = PRODUCT_BADGES[product.name] ?? DEFAULT_BADGE;
   return {
     id:          product.id,
     name:        product.name,
