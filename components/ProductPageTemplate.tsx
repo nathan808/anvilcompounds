@@ -201,16 +201,22 @@ export default function ProductPageTemplate({
 
           {/* ── Desktop layout (>= lg): image + shipping + SDS on the left,
               everything else in a sticky right column, as before except
-              SDS moved under the shipping card. ── */}
-          <div className="hidden lg:grid lg:grid-cols-2 gap-12 xl:gap-20 items-start">
+              SDS moved under the shipping card. Image column uses the
+              "bleed" variant (borderless, fills column height) to reuse
+              FeaturedSpotlight's visual language per the homepage
+              integration brief. ── */}
+          <div className="hidden lg:grid lg:grid-cols-2 gap-12 xl:gap-20 items-stretch">
 
             {/* Left — product image + shipping banner + SDS preview */}
-            <div className="space-y-5">
-              <ProductImageGallery
-                productImage={product.image}
-                productName={product.name}
-                coaImage={product.documentationImage}
-              />
+            <div className="flex flex-col gap-5">
+              <div className="flex-1 min-h-0">
+                <ProductImageGallery
+                  productImage={product.image}
+                  productName={product.name}
+                  coaImage={product.documentationImage}
+                  variant="bleed"
+                />
+              </div>
               <ShippingBanner theme="dark" />
               <SdsPreviewButton productName={product.name} fileUrl={product.sdsFile} />
             </div>

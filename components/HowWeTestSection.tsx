@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+
 const methods = [
   {
     step: "01",
@@ -54,26 +56,39 @@ export default function HowWeTestSection() {
 
       <div className="relative z-10 max-w-7xl mx-auto px-6">
         {/* Header */}
-        <div className="max-w-2xl mb-20">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-6 h-px bg-blue-600" />
-            <span className="font-mono text-xs text-blue-400 tracking-[0.25em] uppercase">
-              003 / Anvil Standards
-            </span>
+        <div className="grid lg:grid-cols-[1fr_420px] gap-10 lg:gap-14 items-center mb-20">
+          <div className="max-w-2xl">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-6 h-px bg-blue-600" />
+              <span className="font-mono text-xs text-blue-400 tracking-[0.25em] uppercase">
+                003 / Anvil Standards
+              </span>
+            </div>
+
+            <h2
+              className="font-display font-800 text-white mb-5"
+              style={{ fontSize: "clamp(2.4rem, 5vw, 4rem)" }}
+            >
+              Anvil Standards:
+              <br />
+              <span className="text-white">Testing Protocol</span>
+            </h2>
+
+            <p className="font-body text-white/45 text-lg leading-relaxed">
+              Every lot that reaches our inventory clears three independent assays first. No shortcuts, no batch skips a step, and nothing lists in our catalog until the data confirms it meets spec.
+            </p>
           </div>
 
-          <h2
-            className="font-display font-800 text-white mb-5"
-            style={{ fontSize: "clamp(2.4rem, 5vw, 4rem)" }}
-          >
-            Anvil Standards:
-            <br />
-            <span className="text-white">Testing Protocol</span>
-          </h2>
-
-          <p className="font-body text-white/45 text-lg leading-relaxed">
-            Every lot that reaches our inventory clears three independent assays first. No shortcuts, no batch skips a step, and nothing lists in our catalog until the data confirms it meets spec.
-          </p>
+          <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden border border-white/10 hidden lg:block">
+            <Image
+              src="/images/homepage/hplc-instrument.jpg"
+              alt="HPLC instrument running a purity analysis with chromatogram on screen"
+              fill
+              className="object-cover"
+              sizes="420px"
+              loading="lazy"
+            />
+          </div>
         </div>
 
         {/* Methods */}

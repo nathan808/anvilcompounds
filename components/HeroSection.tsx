@@ -44,12 +44,21 @@ export default function HeroSection() {
       className="relative flex items-center overflow-hidden"
       style={{ minHeight: "clamp(480px, 66vh, 740px)" }}
     >
-      {/* Light background */}
+      {/* Background — responsive banner (desktop/mobile crops) */}
       <Image
-        src="/images/hero-bg.jpeg"
-        alt=""
+        src="/images/homepage/banner-desktop.jpg"
+        alt="Anvil Compounds research vials arranged in a laboratory"
         fill
-        className="object-cover object-center"
+        className="hidden md:block object-cover object-right"
+        priority
+        sizes="100vw"
+        quality={90}
+      />
+      <Image
+        src="/images/homepage/banner-mobile.jpg"
+        alt="Anvil Compounds research vials arranged in a laboratory"
+        fill
+        className="block md:hidden object-cover object-bottom"
         priority
         sizes="100vw"
         quality={90}
@@ -83,9 +92,9 @@ export default function HeroSection() {
               className="font-display font-800 leading-[0.95] mb-4 max-w-3xl"
               style={{ fontSize: "clamp(2rem, 5vw, 4.5rem)", textShadow: "0 1px 12px rgba(255,255,255,0.95), 0 0px 2px rgba(255,255,255,0.7)" }}
             >
-              <span className="block font-800" style={{ color: "#1D6ADB" }}>Independently Verified</span>
-              <span className="block text-gray-950">Research Compounds</span>
-              <span className="block text-gray-950">and reference materials</span>
+              <span className="block font-500 text-gray-700">Research with</span>
+              <span className="block" style={{ color: "#1D6ADB" }}>Conviction</span>
+              <span className="block text-gray-950">and Verification</span>
             </motion.h1>
 
             {/* Subheadline */}
@@ -93,9 +102,10 @@ export default function HeroSection() {
               variants={item}
               className="font-body text-gray-700 text-sm md:text-base leading-relaxed mb-5 max-w-sm md:max-w-md"
             >
-              Independently verified per lot: HPLC purity, mass-spec identity,
-              endotoxin and heavy-metal screening, multi-vial sampling. COA per
-              lot. For in-vitro research use only.
+              Independently verified through multi-vial hexa-method testing
+              per lot: Purity, Identity, Endotoxin and Heavy-Metal Screening.
+              Research compounds and reference materials vetted with high
+              standards and resilience.
             </motion.p>
 
             {/* CTAs — stacked on mobile, row on sm+ */}

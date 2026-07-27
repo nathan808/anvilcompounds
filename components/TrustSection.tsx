@@ -170,39 +170,6 @@ export default function TrustSection() {
             </motion.div>
           ))}
         </div>
-
-        {/* SoCal callout */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="mt-10 flex flex-col md:flex-row gap-4 md:items-center justify-between p-6 md:p-8 bg-navy-900 rounded-xl"
-        >
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <span className="w-2 h-2 rounded-full bg-blue-400 pulse-ring" />
-              <span className="font-mono text-xs text-blue-400 tracking-widest uppercase">Southern California</span>
-            </div>
-            <h3 className="font-display font-700 text-white text-xl">
-              Domestic. Reliable. Accountable.
-            </h3>
-            <p className="font-body text-white/40 text-sm mt-1">
-              All orders ship from our SoCal facility. USPS Priority, 2 to 5 business days.
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-3 shrink-0">
-            <div className="px-4 py-2.5 rounded-lg border border-blue-600/20 bg-blue-600/10">
-              <span className="font-mono text-xs text-blue-300 tracking-wider">USPS Priority</span>
-            </div>
-            <div className="px-4 py-2.5 rounded-lg border border-blue-600/20 bg-blue-600/10">
-              <span className="font-mono text-xs text-blue-300 tracking-wider">2-5 Day Delivery</span>
-            </div>
-            <div className="px-4 py-2.5 rounded-lg border border-blue-600/20 bg-blue-600/10">
-              <span className="font-mono text-xs text-blue-300 tracking-wider">Order Tracking</span>
-            </div>
-          </div>
-        </motion.div>
       </div>
     </section>
   );
