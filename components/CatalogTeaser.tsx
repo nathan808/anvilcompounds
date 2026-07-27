@@ -111,9 +111,9 @@ export default function CatalogTeaser({
           className="font-display font-800 text-white mb-3"
           style={{ fontSize: "clamp(2.1rem, 4.4vw, 3.5rem)" }}
         >
-          Reference materials
+          99% Pure Peptides
           <br />
-          <span className="text-blue-400">&amp; research compounds</span>
+          <span className="text-blue-400">&amp; Research Reagents. Verified Per Lot.</span>
         </motion.h2>
 
         <motion.p
@@ -123,7 +123,8 @@ export default function CatalogTeaser({
           className="font-body text-white/45 text-base max-w-xl mx-auto mb-6"
         >
           Each compound is a synthetic reference material supplied for
-          in-vitro laboratory research.
+          in-vitro laboratory research: HPLC, purity, mass-spec, and
+          endotoxin-verified per lot.
         </motion.p>
 
         {previewProducts.length > 0 && (

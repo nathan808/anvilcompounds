@@ -31,6 +31,19 @@ const config: Config = {
         mono: ["var(--font-space-mono)", "monospace"],
         logo: ["var(--font-oswald)", "sans-serif"],
       },
+      // Numeric weight utilities (font-400 … font-900) are used throughout
+      // components/ instead of Tailwind's named scale (font-bold etc.) —
+      // without this, those classes don't exist and silently apply no
+      // weight at all, which is why headings were rendering thinner than
+      // the Archivo 800/900 the design calls for.
+      fontWeight: {
+        "400": "400",
+        "500": "500",
+        "600": "600",
+        "700": "700",
+        "800": "800",
+        "900": "900",
+      },
       backgroundImage: {
         "grid-pattern":
           "linear-gradient(rgba(29,106,219,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(29,106,219,0.06) 1px, transparent 1px)",
