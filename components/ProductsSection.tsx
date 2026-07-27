@@ -68,12 +68,12 @@ const PRODUCT_IMAGES: Record<string, string> = {
   "GHK-Cu":                        "/products/ghkcu.jpg",
   "TB-500":                        "/products/tb500.jpg",
   "MOTS-c":                        "/products/motsc.png",
-  "BPC-157 + TB-500":              "/products/wolverine.png",
+  "BPC-157 + TB-500":              "/products/wolverine.jpg",
   "NAD+":                          "/products/nad.png",
   "Tesamorelin":                   "/products/tesa.png",
   "CJC-1295 + Ipamorelin":         "/products/cjcipa.png",
   "5-Amino-1MQ":                   "/products/5amino.png",
-  "GLOW":                          "/products/glow.png",
+  "GLOW":                          "/products/glow.jpg",
   "Semax":                         "https://anvilcompounds.shop/wp-content/uploads/2026/07/semaxproductphoto.png",
   "Selank":                        "https://anvilcompounds.shop/wp-content/uploads/2026/07/selankproductphoto.png",
 };
@@ -150,7 +150,7 @@ function slugifyProductName(name: string): string {
 
 const FALLBACK_PRODUCTS: ProductCard[] = [
   { id: 332, name: "BPC-157", category: "Repair & Recovery Research", description: "Body Protection Compound — a pentadecapeptide with notable tissue healing and regenerative properties under research conditions.", price: "$44", purity: "99.4%", badge: "Bestseller", badgeColor: "bg-blue-600/70 text-blue-100 border-blue-500/50", icon: "⬡", permalink: "https://anvilcompounds.shop/product/bpc-157/", image: "/products/bpc157.jpg", hasCoa: true },
-  { id: 447, name: "BPC-157 + TB-500", category: "Repair & Recovery Research", description: "Dual peptide recovery blend combining BPC-157 and TB-500 — studied for synergistic effects in tissue repair and cell migration research models.", price: "$54", purity: "99%+", badge: "Recovery Blend", badgeColor: "bg-orange-600/70 text-orange-100 border-orange-500/50", icon: "⬧", permalink: "https://anvilcompounds.shop/product/bpc-157-tb-500/", image: "/products/wolverine.png", hasCoa: false },
+  { id: 447, name: "BPC-157 + TB-500", category: "Repair & Recovery Research", description: "Dual peptide recovery blend combining BPC-157 and TB-500 — studied for synergistic effects in tissue repair and cell migration research models.", price: "$54", purity: "99%+", badge: "Recovery Blend", badgeColor: "bg-orange-600/70 text-orange-100 border-orange-500/50", icon: "⬧", permalink: "https://anvilcompounds.shop/product/bpc-157-tb-500/", image: "/products/wolverine.jpg", hasCoa: false },
   { id: 333, name: "GLP-TRZ", category: "Metabolic Research", description: "A dual incretin receptor agonist binding both GIP and GLP-1 receptors, under active clinical research.", price: "$54", purity: "99.1%", badge: "Advanced", badgeColor: "bg-cyan-600/70 text-cyan-100 border-cyan-500/50", icon: "◇", permalink: "https://anvilcompounds.shop/product/glp-trz/", image: "/products/glp-trz.png", hasCoa: true },
   { id: 337, name: "GLP-RT", category: "Metabolic Research", description: "A triple receptor agonist targeting GIP, GLP-1, and glucagon receptors — at the frontier of current metabolic research.", price: "$64", purity: "99.0%", badge: "Cutting Edge", badgeColor: "bg-rose-600/70 text-rose-100 border-rose-500/50", icon: "⬟", permalink: "https://anvilcompounds.shop/product/glp-rt/", image: "/products/glp-rt.jpg", hasCoa: true },
   { id: 335, name: "KLOW", category: "Longevity & Cosmetic Research", description: "A curated blend of four research-grade peptides, independently tested as a combined formulation.", price: "$89", purity: "99.3%", badge: "Exclusive Blend", badgeColor: "bg-purple-600/70 text-purple-100 border-purple-500/50", icon: "✦", permalink: "https://anvilcompounds.shop/product/klow/", image: "/products/klow.jpg", hasCoa: true },

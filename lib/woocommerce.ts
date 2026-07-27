@@ -362,12 +362,12 @@ const LOCAL_PRODUCT_IMAGES: Record<string, string> = {
   "GHK-Cu":                                       "/products/ghkcu.jpg",
   "TB-500":                                       "/products/tb500.jpg",
   "MOTS-c":                                       "/products/motsc.png",
-  "BPC-157 + TB-500":                              "/products/wolverine.png",
+  "BPC-157 + TB-500":                              "/products/wolverine.jpg",
   "NAD+":                                         "/products/nad.png",
   "Tesamorelin":                                  "/products/tesa.png",
   "CJC-1295 + Ipamorelin":                        "/products/cjcipa.png",
   "5-Amino-1MQ":                                  "/products/5amino.png",
-  "GLOW":                                         "/products/glow.png",
+  "GLOW":                                         "/products/glow.jpg",
   // Semax + Selank images served directly from WooCommerce gallery (no local copy)
 };
 
