@@ -162,7 +162,7 @@ const FALLBACK_PRODUCTS: ProductCard[] = [
   { id: 349, name: "Bacteriostatic Water", category: "Research Supplies", description: "0.9% benzyl alcohol sterile water. Standard reconstitution solvent for lyophilized peptide research. 30mL multi-use vial.", price: "$15", purity: "Sterility Certified", badge: "Essential Supply", badgeColor: "bg-slate-600/70 text-slate-100 border-slate-500/50", icon: "◎", permalink: "https://anvilcompounds.shop/product/bac-water/", image: null, hasCoa: true },
 ];
 
-function ProductCard({ product, index }: { product: ProductCard; index: number }) {
+export function ProductCard({ product, index }: { product: ProductCard; index: number }) {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-80px" });
   const { addItem, openCart } = useCart();

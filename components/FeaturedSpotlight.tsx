@@ -15,15 +15,17 @@ export default function FeaturedSpotlight() {
   return (
     <section className="relative bg-ice overflow-hidden">
       <div ref={ref} className="grid lg:grid-cols-2 items-stretch">
-        <div className="relative w-full aspect-[896/1200] bg-ice">
-          <Image
-            src="/images/homepage/glow-hero-light.png"
-            alt="Anvil Compounds BPC-157 research vial, lot-verified and 99%+ purity"
-            fill
-            className="object-contain"
-            sizes="(max-width: 1024px) 100vw, 50vw"
-            loading="lazy"
-          />
+        <div className="relative w-full bg-ice flex items-center justify-center p-6 lg:p-8">
+          <div className="relative w-full max-w-[80%] aspect-[896/1200]">
+            <Image
+              src="/images/homepage/glow-hero-light.png"
+              alt="Anvil Compounds BPC-157 research vial, lot-verified and 99%+ purity"
+              fill
+              className="object-contain"
+              sizes="(max-width: 1024px) 80vw, 40vw"
+              loading="lazy"
+            />
+          </div>
         </div>
 
         <motion.div
@@ -42,7 +44,7 @@ export default function FeaturedSpotlight() {
             Silver-sealed. Lot-verified. Research-grade.
           </h2>
           <p className="font-body text-navy-900/55 text-base leading-relaxed max-w-md">
-            Every vial ships with the same discipline behind it — a
+            Every vial ships with the same discipline behind it: a
             Certificate of Analysis covering purity, identity, and endotoxin
             screening for that exact lot. No batch skips a step.
           </p>

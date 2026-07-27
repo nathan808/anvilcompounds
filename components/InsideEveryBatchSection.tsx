@@ -46,7 +46,7 @@ export default function InsideEveryBatchSection() {
           </h2>
           <p className="font-body text-navy-900/55 text-base leading-relaxed mb-2.5">
             Anyone can print 99% pure on a label. Real people run the assays
-            that prove it — and put their name on the result.
+            that prove it, and put their name on the result.
           </p>
           <p className="font-body text-navy-900/55 text-base leading-relaxed">
             Each lot&rsquo;s data ships with it: purity, identity,

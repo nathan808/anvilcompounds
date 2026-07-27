@@ -39,12 +39,12 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const product = await getProductPageData(params.slug);
   if (!product) {
-    return { title: "Product — Anvil Compounds" };
+    return { title: "Product · Anvil Compounds" };
   }
   const displayTitle = getProductDisplayTitle(product.name, product.category);
   return {
-    title: `${displayTitle} — Anvil Compounds`,
-    description: product.subtitle || `${displayTitle} — research-grade compound. Independent hexa-method testing. Ships same day.`,
+    title: `${displayTitle} · Anvil Compounds`,
+    description: product.subtitle || `${displayTitle}: research-grade compound. Independent hexa-method testing. Ships same day.`,
   };
 }
 

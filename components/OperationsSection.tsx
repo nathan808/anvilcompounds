@@ -33,8 +33,8 @@ export default function OperationsSection() {
           </h2>
           <p className="font-body text-navy-900/55 text-base leading-relaxed mb-4 max-w-md">
             Prepared and dispatched from our Southern California facility.
-            USPS Priority, 2–5 business days, tracking at fulfillment —
-            discreet shipping on every order.
+            USPS Priority, 2–5 business days, tracking at fulfillment,
+            with discreet shipping on every order.
           </p>
 
           <div className="flex flex-wrap gap-2.5 mb-5">
@@ -69,14 +69,14 @@ export default function OperationsSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6, delay: 0.1 }}
-          className="relative w-full aspect-square rounded-2xl overflow-hidden border border-navy-900/10"
+          className="relative w-full max-w-[90%] mx-auto aspect-square rounded-2xl overflow-hidden border border-navy-900/10"
         >
           <Image
             src="/images/homepage/shipping-box.jpg"
             alt="Three Anvil Compounds vials packed in a protective shipping box with label"
             fill
             className="object-cover"
-            sizes="(max-width: 1024px) 100vw, 50vw"
+            sizes="(max-width: 1024px) 90vw, 45vw"
             loading="lazy"
           />
         </motion.div>

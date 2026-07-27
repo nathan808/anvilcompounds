@@ -255,7 +255,7 @@ export default function AddToCartButton({
         {added
           ? "✓ Added to Order"
           : qty > 1
-          ? `Add ${qty} Vials to Cart — $${lineTotal.toFixed(2)}`
+          ? `Add ${qty} Vials to Cart · $${lineTotal.toFixed(2)}`
           : "Add to Cart"}
       </button>
 

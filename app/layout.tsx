@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Syne, DM_Sans, DM_Mono, Oswald } from "next/font/google";
+import { Archivo, Inter, Space_Mono, Oswald } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import { CartProvider } from "@/lib/cartContext";
@@ -8,24 +8,24 @@ import { CheckoutProvider } from "@/lib/checkoutContext";
 import BackToTop from "@/components/BackToTop";
 import AgeGate from "@/components/AgeGate";
 
-const syne = Syne({
+const archivo = Archivo({
   subsets: ["latin"],
-  variable: "--font-syne",
-  weight: ["400", "600", "700", "800"],
+  variable: "--font-archivo",
+  weight: ["400", "500", "600", "700", "800", "900"],
   display: "swap",
 });
 
-const dmSans = DM_Sans({
+const inter = Inter({
   subsets: ["latin"],
-  variable: "--font-dm-sans",
-  weight: ["300", "400", "500", "600"],
+  variable: "--font-inter",
+  weight: ["400", "500", "600"],
   display: "swap",
 });
 
-const dmMono = DM_Mono({
+const spaceMono = Space_Mono({
   subsets: ["latin"],
-  variable: "--font-dm-mono",
-  weight: ["300", "400", "500"],
+  variable: "--font-space-mono",
+  weight: ["400", "700"],
   display: "swap",
 });
 
@@ -50,7 +50,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="scroll-smooth" data-theme="light">
-      <body className={`${syne.variable} ${dmSans.variable} ${dmMono.variable} ${oswald.variable} font-body`}>
+      <body className={`${archivo.variable} ${inter.variable} ${spaceMono.variable} ${oswald.variable} font-body`}>
         <AuthProvider>
           <CartProvider>
             <CheckoutProvider>
