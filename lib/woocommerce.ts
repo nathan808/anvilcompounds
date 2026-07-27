@@ -254,7 +254,7 @@ export async function getProductPageData(slug: string): Promise<ProductPageData 
       documentationMetrics,
       documentationFile:    meta["documentation_file"]          ?? null,
       documentationImage:   meta["documentation_image"]         ?? null,
-      hasCoa:               !IDS_WITHOUT_COA.has(wcId) && !!meta["documentation_file"],
+      hasCoa:               !IDS_WITHOUT_COA.has(wcId),
       sdsFile:              SLUG_TO_SDS[slug]                   ?? null,
       moleculeImage:        SLUG_TO_MOLECULE_IMAGE[slug]        ?? null,
       documentationCaption: meta["documentation_caption"]       ?? "",
