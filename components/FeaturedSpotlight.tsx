@@ -20,13 +20,13 @@ export default function FeaturedSpotlight() {
     <section className="relative overflow-hidden" style={{ background: SPOTLIGHT_BG }}>
       <div ref={ref} className="grid lg:grid-cols-2 items-stretch">
         <div className="relative w-full flex items-center justify-center p-6">
-          <div className="relative h-[240px] sm:h-[300px] md:h-[340px] w-auto aspect-[896/1200]">
+          <div className="relative h-[264px] sm:h-[330px] md:h-[374px] w-auto aspect-[896/1200]">
             <Image
               src="/images/homepage/glow-hero-light.png"
               alt="Anvil Compounds BPC-157 research vial, lot-verified and 99%+ purity"
               fill
               className="object-contain"
-              sizes="340px"
+              sizes="374px"
               loading="lazy"
             />
           </div>
