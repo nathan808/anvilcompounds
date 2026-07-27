@@ -23,8 +23,7 @@ export default function Navbar({ pushDown = false }: { pushDown?: boolean }) {
   const links = [
     { label: "Catalog", href: "/catalog?catalog=full" },
     { label: "COAs", href: "/coas" },
-    { label: "Journal", href: "/blog" },
-    { label: "FAQ", href: "/faq" },
+    { label: "Learn", href: "/learn" },
     { label: "Contact", href: "/#footer" },
   ];
 

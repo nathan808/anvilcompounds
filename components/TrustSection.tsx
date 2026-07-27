@@ -116,16 +116,6 @@ export default function TrustSection() {
             <br />
             <span className="text-blue-600">Standard</span>
           </motion.h2>
-
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={headerInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.7, delay: 0.2 }}
-            className="font-body text-navy-900/55 text-base leading-relaxed"
-          >
-            Anyone can print 99% pure on a label. We built our testing
-            pipeline so you never have to take our word for it.
-          </motion.p>
         </div>
 
         {/* Stats row */}

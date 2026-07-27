@@ -23,10 +23,9 @@ export default function Footer() {
       { label: "COA Verification",     href: "/coas" },
     ],
     Company: [
-      { label: "Why Anvil",        href: "/#trust" },
-      { label: "Research Journal", href: "/blog" },
-      { label: "FAQ",              href: "/faq" },
-      { label: "Contact",          href: "/#footer" },
+      { label: "Why Anvil", href: "/#trust" },
+      { label: "Learn",     href: "/learn" },
+      { label: "Contact",   href: "/#footer" },
     ],
   };
 

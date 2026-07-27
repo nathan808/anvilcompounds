@@ -184,7 +184,7 @@ export default async function BlogPostPage({
           <header className="max-w-3xl mx-auto px-6 pt-12 pb-8">
             {/* Back link */}
             <Link
-              href="/blog"
+              href="/learn?tab=journal"
               className="inline-flex items-center gap-2 font-mono text-xs text-blue-400/60 hover:text-blue-400 transition-colors mb-8 group"
             >
               <svg className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -301,7 +301,7 @@ export default async function BlogPostPage({
           {/* ── Back link bottom ─────────────────────────────────────────────── */}
           <div className="max-w-2xl mx-auto px-6 pb-16 text-center">
             <Link
-              href="/blog"
+              href="/learn?tab=journal"
               className="inline-flex items-center gap-2 font-mono text-xs text-blue-400/60 hover:text-blue-400 transition-colors group"
             >
               <svg className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">

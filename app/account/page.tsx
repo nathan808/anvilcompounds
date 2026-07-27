@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/lib/authContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import AccountDashboard from "@/components/AccountDashboard";
 import Link from "next/link";
 import { Suspense } from "react";
 
@@ -62,9 +63,20 @@ function AccountForm() {
     set("birthday", formatted);
   }, [form.birthday]);
 
+  // Arriving at /account with no specific continuation target (no redirect
+  // param, or one pointing back at /account itself) means the visitor wants
+  // their account dashboard, not to be bounced to the homepage — only a
+  // redirect that names an actual destination (checkout, a gated product,
+  // COAs) still auto-forwards once signed in.
+  const wantsDashboard = redirect === "/" || redirect === "/account";
+
   useEffect(() => {
-    if (hydrated && isAuthenticated) router.replace(redirect);
-  }, [hydrated, isAuthenticated, redirect, router]);
+    if (hydrated && isAuthenticated && !wantsDashboard) router.replace(redirect);
+  }, [hydrated, isAuthenticated, wantsDashboard, redirect, router]);
+
+  if (hydrated && isAuthenticated && wantsDashboard) {
+    return <AccountDashboard />;
+  }
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();

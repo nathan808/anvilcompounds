@@ -57,7 +57,7 @@ export default function OperationsSection() {
               Track an Order
             </a>
             <a
-              href="/faq"
+              href="/learn?tab=faq"
               className="px-5 py-2.5 border border-blue-300 hover:border-blue-400 text-blue-700 hover:text-blue-600 font-display font-600 text-sm tracking-wide rounded-md transition-all duration-300 bg-white/60 hover:bg-white/90"
             >
               Shipping FAQ →
