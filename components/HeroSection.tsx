@@ -85,8 +85,9 @@ export default function HeroSection() {
             >
               <span className="block text-gray-950">Research with</span>
               <span className="block">
-                <span className="font-800" style={{ color: "#1D6ADB" }}>Conviction</span>{" "}
-                <span className="text-gray-950">and Verification</span>
+                <span className="font-800 italic" style={{ color: "#1D6ADB" }}>Conviction</span>{" "}
+                <span className="text-gray-950">and</span>{" "}
+                <span className="font-800 italic" style={{ color: "#1D6ADB" }}>Verification</span>
               </span>
             </motion.h1>
 

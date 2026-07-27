@@ -489,7 +489,7 @@ export default function ProductsSection() {
                 className="font-display font-800 text-white mb-4"
                 style={{ fontSize: "clamp(2.4rem, 5vw, 4rem)" }}
               >
-                99% Pure Peptides
+                <span className="text-blue-400">99%+ Pure Peptides</span>
                 <br />
                 <span className="text-blue-400">&amp; Research Reagents. Verified Per Lot.</span>
               </motion.h2>

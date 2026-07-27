@@ -111,7 +111,7 @@ export default function CatalogTeaser({
           className="font-display font-800 text-white mb-3"
           style={{ fontSize: "clamp(2.1rem, 4.4vw, 3.5rem)" }}
         >
-          99% Pure Peptides
+          <span className="text-blue-400">99%+ Pure Peptides</span>
           <br />
           <span className="text-blue-400">&amp; Research Reagents. Verified Per Lot.</span>
         </motion.h2>
