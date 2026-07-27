@@ -1,12 +1,13 @@
-import Link from "next/link";
 import AddToCartButton from "@/app/products/[slug]/AddToCartButton";
 import ShippingBanner from "@/components/ShippingBanner";
 import ProductImageGallery from "@/components/ProductImageGallery";
 import ViewCoaButton from "@/components/ViewCoaButton";
 import SdsPreviewButton from "@/components/SdsPreviewButton";
-import InlineCoaViewer from "@/components/InlineCoaViewer";
 import PurchaseFooter from "@/components/PurchaseFooter";
+import { ProductCard as CatalogProductCard } from "@/components/ProductsSection";
 import { getProductDisplayTitle } from "@/lib/productTitle";
+import { PRODUCT_MECHANISMS } from "@/lib/productMechanisms";
+import type { ProductCard } from "@/lib/woocommerce";
 
 // ─── Data interface ────────────────────────────────────────────────────────────
 
@@ -39,17 +40,13 @@ export interface ProductPageData {
   documentationCaption?: string;
   sdsFile?: string | null;
   moleculeImage?: string | null;
+  hasCoa: boolean;
 
   propertiesTable: { label: string; value: string }[];
 
   shippingType: "standard" | "ambient";
 
-  relatedProducts: {
-    slug: string;
-    name: string;
-    category: string;
-    icon: string;
-  }[];
+  relatedProducts: ProductCard[];
 }
 
 // ─── Utility sub-components ────────────────────────────────────────────────────
@@ -124,6 +121,97 @@ function WithMoleculeVisual({
   );
 }
 
+// Renders a compound's pathway schematic as boxes + arrows: a root node
+// branching out to each researched node, each pointing to its outcome
+// label. Structure/labels are transcribed per-product from the compound's
+// SDS (see lib/productMechanisms.ts) — shape intentionally differs by
+// product rather than being forced into one fixed layout.
+function MechanismDiagram({
+  root,
+  branches,
+}: {
+  root: string;
+  branches: { node: string; outcome: string }[];
+}) {
+  return (
+    <div className="rounded-xl border border-white/10 bg-navy-800/40 p-5 md:p-6">
+      <div className="flex flex-col md:flex-row gap-4 md:items-center">
+        <div className="shrink-0 md:self-stretch flex items-center">
+          <div className="px-4 py-3 rounded-lg bg-navy-950 border border-blue-500/30 text-center md:min-w-[140px]">
+            <span className="font-display font-700 text-white text-sm leading-tight">{root}</span>
+          </div>
+        </div>
+
+        <div className="hidden md:block w-5 h-px bg-blue-600/40 shrink-0" />
+
+        <div className="flex-grow space-y-2.5">
+          {branches.map((b, i) => (
+            <div key={i} className="flex items-center gap-3 flex-wrap">
+              <span className="px-3 py-1.5 rounded-md bg-white/5 border border-white/10 font-mono text-xs text-blue-300">
+                {b.node}
+              </span>
+              <span className="text-blue-500/50">→</span>
+              <span className="font-mono text-xs text-white/50">{b.outcome}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Slot "02" — a compound's studied mechanisms/pathways, transcribed from
+// its SDS. Falls back to the legacy Research Applications list for the
+// handful of products (multi-peptide blends, reconstitution solvent) whose
+// SDS has no unified mechanism narrative to draw from — see
+// lib/productMechanisms.ts for exactly which products and why.
+function MechanismsBlock({ product }: { product: ProductPageData }) {
+  const mechanism = PRODUCT_MECHANISMS[product.slug];
+
+  if (mechanism) {
+    return (
+      <InfoBlock number="02" label={mechanism.sectionTitle}>
+        <div className="glass-card rounded-2xl p-8 space-y-6">
+          <p className="font-body text-white/60 leading-relaxed">{mechanism.intro}</p>
+
+          <ul className="space-y-4">
+            {mechanism.bullets.map((b, i) => (
+              <li key={i} className="flex items-start gap-3">
+                <span className="shrink-0 w-1.5 h-1.5 rounded-full bg-blue-500 mt-2" />
+                <p className="font-body text-white/65 leading-relaxed">
+                  <span className="font-display font-700 text-white">{b.title}.</span>{" "}
+                  {b.description}
+                </p>
+              </li>
+            ))}
+          </ul>
+
+          <MechanismDiagram root={mechanism.diagram.root} branches={mechanism.diagram.branches} />
+
+          <p className="font-mono text-xs text-white/30 leading-relaxed">{mechanism.caption}</p>
+        </div>
+      </InfoBlock>
+    );
+  }
+
+  return (
+    <InfoBlock number="02" label="Research Applications">
+      <div className="glass-card rounded-2xl p-8">
+        <ol className="space-y-5">
+          {product.researchApplications.map((item, i) => (
+            <li key={i} className="flex items-start gap-5">
+              <span className="shrink-0 font-mono text-xs text-blue-600/60 w-6 pt-0.5 tabular-nums">
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <p className="font-body text-white/65 leading-relaxed">{item}</p>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </InfoBlock>
+  );
+}
+
 // ─── Main template ─────────────────────────────────────────────────────────────
 
 export default function ProductPageTemplate({
@@ -131,7 +219,7 @@ export default function ProductPageTemplate({
 }: {
   product: ProductPageData;
 }) {
-  const hasCoa = !!product.documentationFile;
+  const hasCoa = product.hasCoa;
 
   return (
     <>
@@ -201,16 +289,22 @@ export default function ProductPageTemplate({
 
           {/* ── Desktop layout (>= lg): image + shipping + SDS on the left,
               everything else in a sticky right column, as before except
-              SDS moved under the shipping card. ── */}
-          <div className="hidden lg:grid lg:grid-cols-2 gap-12 xl:gap-20 items-start">
+              SDS moved under the shipping card. Image column uses the
+              "bleed" variant (borderless, fills column height) to reuse
+              FeaturedSpotlight's visual language per the homepage
+              integration brief. ── */}
+          <div className="hidden lg:grid lg:grid-cols-2 gap-12 xl:gap-20 items-stretch">
 
             {/* Left — product image + shipping banner + SDS preview */}
-            <div className="space-y-5">
-              <ProductImageGallery
-                productImage={product.image}
-                productName={product.name}
-                coaImage={product.documentationImage}
-              />
+            <div className="flex flex-col gap-5">
+              <div className="flex-1 min-h-0">
+                <ProductImageGallery
+                  productImage={product.image}
+                  productName={product.name}
+                  coaImage={product.documentationImage}
+                  variant="bleed"
+                />
+              </div>
               <ShippingBanner theme="dark" />
               <SdsPreviewButton productName={product.name} fileUrl={product.sdsFile} />
             </div>
@@ -267,62 +361,15 @@ export default function ProductPageTemplate({
         </div>
       </section>
 
-      {/* ── SECTION 2 — Trust badges ──────────────────────────────────────── */}
-      <section className="bg-navy-950 py-8">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            {product.trustBadges.map((badge) => (
-              <div
-                key={badge}
-                className="glass-card rounded-xl px-5 py-3 flex items-center gap-3"
-              >
-                <div className="w-1.5 h-1.5 rounded-full bg-blue-400 shrink-0" />
-                <span className="font-mono text-xs text-white/60 tracking-wider">
-                  {badge}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── SECTIONS 3-7 — Combined info block ────────────────────────────
-          One continuous section instead of five stacked ones: every block
+      {/* ── SECTIONS 1-4 — Combined info block ────────────────────────────
+          One continuous section instead of stacked ones: every block
           shares the same bg-navy-950, so separate py-16 wrappers per block
           only added dead space between them. space-y-14 below keeps clear
           separation without it. ── */}
       <section className="bg-navy-950 py-16">
         <div className="max-w-5xl mx-auto px-6 space-y-14">
 
-          <InfoBlock number="01" label={product.documentationHeading}>
-            {/* Metrics grid */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-              {product.documentationMetrics.map((metric) => (
-                <div key={metric.label} className="glass-card rounded-xl p-5">
-                  <p className="font-mono text-[10px] text-white/35 tracking-widest uppercase">
-                    {metric.label}
-                  </p>
-                  <p className="font-display font-700 text-white text-xl mt-1">
-                    {metric.value}
-                  </p>
-                </div>
-              ))}
-            </div>
-
-            <InlineCoaViewer
-              productName={product.name}
-              imageUrl={product.documentationImage}
-              fileUrl={product.documentationFile}
-            />
-
-            {product.documentationCaption && (
-              <p className="font-mono text-xs text-white/30 mt-4">
-                {product.documentationCaption}
-              </p>
-            )}
-          </InfoBlock>
-
-          <InfoBlock number="02" label="What it is">
+          <InfoBlock number="01" label="What it is">
             <WithMoleculeVisual
               image={!product.compositionBody ? product.moleculeImage : null}
               productName={product.name}
@@ -338,34 +385,9 @@ export default function ProductPageTemplate({
             </WithMoleculeVisual>
           </InfoBlock>
 
-          {product.compositionBody && (
-            <InfoBlock number="03" label="Composition">
-              <WithMoleculeVisual image={product.moleculeImage} productName={product.name}>
-                <div className="glass-card rounded-2xl p-8">
-                  <p className="font-body text-white/60 leading-relaxed">
-                    {product.compositionBody}
-                  </p>
-                </div>
-              </WithMoleculeVisual>
-            </InfoBlock>
-          )}
+          <MechanismsBlock product={product} />
 
-          <InfoBlock number="04" label="Research Applications">
-            <div className="glass-card rounded-2xl p-8">
-              <ol className="space-y-5">
-                {product.researchApplications.map((item, i) => (
-                  <li key={i} className="flex items-start gap-5">
-                    <span className="shrink-0 font-mono text-xs text-blue-600/60 w-6 pt-0.5 tabular-nums">
-                      {String(i + 1).padStart(2, "0")}
-                    </span>
-                    <p className="font-body text-white/65 leading-relaxed">{item}</p>
-                  </li>
-                ))}
-              </ol>
-            </div>
-          </InfoBlock>
-
-          <InfoBlock number="05" label="Properties">
+          <InfoBlock number="03" label="Properties">
             <div className="glass-card rounded-2xl overflow-hidden">
               <table className="w-full">
                 <tbody>
@@ -398,7 +420,7 @@ export default function ProductPageTemplate({
           <div className="glass-card rounded-2xl p-8 border-l-4 border-blue-600">
             <p className="font-body text-sm text-white/50 leading-relaxed">
               By completing your order you confirm all products are purchased for
-              legitimate in vitro laboratory research purposes only — not for human
+              legitimate in vitro laboratory research purposes only, not for human
               or veterinary injection or therapeutic use. Anvil Compounds is not a
               pharmacy or compounding facility.
             </p>
@@ -406,30 +428,13 @@ export default function ProductPageTemplate({
         </div>
       </section>
 
-      {/* ── SECTION 8 — Related compounds ────────────────────────────────── */}
+      {/* ── SECTION — Related compounds ──────────────────────────────────── */}
       {product.relatedProducts.length > 0 && (
         <Section>
-          <SectionLabel number="06" label="Related Compounds" />
+          <SectionLabel number="04" label="Related Compounds" />
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {product.relatedProducts.map((rel) => (
-              <Link
-                key={rel.slug}
-                href={`/products/${rel.slug}`}
-                className="glass-card rounded-2xl p-6 flex flex-col gap-4 group transition-all duration-300 hover:border-blue-500/40 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-blue-600/10 relative"
-              >
-                <span className="text-3xl text-blue-400/40">{rel.icon}</span>
-                <div className="flex-grow">
-                  <h3 className="font-display font-700 text-white text-lg group-hover:text-blue-300 transition-colors">
-                    {rel.name}
-                  </h3>
-                  <p className="font-mono text-xs text-slate-400/70 tracking-wider mt-1">
-                    {rel.category}
-                  </p>
-                </div>
-                <span className="absolute bottom-5 right-5 text-white/30 group-hover:text-blue-400 transition-colors font-body text-base">
-                  →
-                </span>
-              </Link>
+            {product.relatedProducts.map((rel, i) => (
+              <CatalogProductCard key={rel.id} product={rel} index={i} />
             ))}
           </div>
         </Section>

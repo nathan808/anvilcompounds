@@ -100,25 +100,6 @@ const SLUG_TO_CATEGORY: Record<string, string> = {
   "selank":                "Cognitive Research",
 };
 
-const SLUG_TO_ICON: Record<string, string> = {
-  "bpc-157":    "⬡",
-  "glp-trz":    "◇",
-  "glp-rt":     "⬟",
-  "klow":       "✦",
-  "ghk-cu":     "⬢",
-  "tb-500":     "◉",
-  "mots-c":     "⬥",
-  "bac-water":  "◎",
-  "nad-plus":              "◑",
-  "tesamorelin":           "◍",
-  "cjc-1295-ipamorelin":   "⬦",
-  "5-amino-1mq":           "◆",
-  "bpc-157-tb-500":        "⬧",
-  "glow":                  "✧",
-  "semax":                 "◈",
-  "selank":                "◉",
-};
-
 const RELATED_MAP: Record<string, string[]> = {
   "bpc-157":    ["tb-500", "bpc-157-tb-500", "glow"],
   "glp-trz":    ["glp-rt", "mots-c", "5-amino-1mq"],
@@ -237,25 +218,18 @@ export async function getProductPageData(slug: string): Promise<ProductPageData 
     const propertiesTable = parseRepeater(meta, "properties_table", ["label", "value"])
       .map((r) => ({ label: r.label ?? "", value: r.value ?? "" }));
 
+    // Related Compounds reuses the exact live catalog card (image, price,
+    // purity, badge, Add to Cart / View COA), so it's built from the same
+    // getProducts() data the /catalog page and homepage teaser use, rather
+    // than a bare slug/name/category lookup.
     const relatedSlugs = (RELATED_MAP[slug] ?? []).slice(0, 3);
-    const relatedIds = relatedSlugs.map((s) => SLUG_TO_WC_ID[s]).filter(Boolean);
-    const relatedNames: Record<number, string> = {};
-    if (relatedIds.length) {
-      const relatedRes = await fetch(
-        `${url}/wp-json/wc/v3/products?include=${relatedIds.join(",")}&per_page=${relatedIds.length}`,
-        { headers, ...opts }
-      );
-      if (relatedRes.ok) {
-        const relatedList: { id: number; name: string }[] = await relatedRes.json();
-        for (const r of relatedList) relatedNames[r.id] = r.name;
-      }
-    }
-    const relatedProducts = relatedSlugs.map((s) => ({
-      slug: s,
-      name:     relatedNames[SLUG_TO_WC_ID[s]] ?? SLUG_TO_NAME[s] ?? s,
-      category: SLUG_TO_CATEGORY[s] ?? "Research Compound",
-      icon:     SLUG_TO_ICON[s]     ?? "⬡",
-    }));
+    const catalogCards = await getProducts();
+    const relatedProducts = relatedSlugs
+      .map((s) => {
+        const name = SLUG_TO_NAME[s];
+        return catalogCards.find((c) => c.name === name);
+      })
+      .filter((c): c is ProductCard => c !== undefined);
 
     const basePrice = parseFloat(product.price || product.regular_price || "0");
 
@@ -280,6 +254,7 @@ export async function getProductPageData(slug: string): Promise<ProductPageData 
       documentationMetrics,
       documentationFile:    meta["documentation_file"]          ?? null,
       documentationImage:   meta["documentation_image"]         ?? null,
+      hasCoa:               !IDS_WITHOUT_COA.has(wcId) && !!meta["documentation_file"],
       sdsFile:              SLUG_TO_SDS[slug]                   ?? null,
       moleculeImage:        SLUG_TO_MOLECULE_IMAGE[slug]        ?? null,
       documentationCaption: meta["documentation_caption"]       ?? "",
@@ -350,7 +325,7 @@ export interface ProductCard {
 }
 
 // Products without COA yet (Testing in Progress — no buy UI shown)
-const IDS_WITHOUT_COA = new Set([443, 445, 446, 450, 447, 449, 510, 511]);
+const IDS_WITHOUT_COA = new Set([443, 445, 446, 450, 447, 449, 510, 511, 333, 346]);
 
 const PRODUCT_PAGE_URLS: Record<string, string> = {
   "BPC-157":                                      "https://anvilcompounds.shop/product/bpc-157/",

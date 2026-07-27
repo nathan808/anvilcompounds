@@ -26,9 +26,9 @@ const config: Config = {
         ice: "#EEF4FF",
       },
       fontFamily: {
-        display: ["var(--font-syne)", "sans-serif"],
-        body: ["var(--font-dm-sans)", "sans-serif"],
-        mono: ["var(--font-dm-mono)", "monospace"],
+        display: ["var(--font-archivo)", "sans-serif"],
+        body: ["var(--font-inter)", "sans-serif"],
+        mono: ["var(--font-space-mono)", "monospace"],
         logo: ["var(--font-oswald)", "sans-serif"],
       },
       backgroundImage: {

@@ -37,7 +37,7 @@ export default function Footer() {
 
       <div className="max-w-7xl mx-auto px-6">
         {/* Main footer content */}
-        <div className="py-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-10">
+        <div className="py-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8">
 
           {/* Brand column */}
           <div className="lg:col-span-2">
@@ -134,7 +134,7 @@ export default function Footer() {
         </div>
 
         {/* Disclaimer block */}
-        <div className="py-8 border-t border-white/5">
+        <div className="py-6 border-t border-white/5">
           <div className="p-5 rounded-xl bg-navy-800/50 border border-white/5 mb-8">
             <div className="flex items-start gap-3">
               <div className="shrink-0 w-5 h-5 rounded-full border border-yellow-500/50 flex items-center justify-center mt-0.5">

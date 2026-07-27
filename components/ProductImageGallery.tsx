@@ -13,9 +13,14 @@ interface ProductImageGalleryProps {
   productImage?: string | null;
   productName: string;
   coaImage?: string | null;
+  // "boxed" (default) = framed square card, used in the mobile flow.
+  // "bleed" = edge-to-edge, no border/radius, fills the column height —
+  // matches the FeaturedSpotlight band's visual language for the desktop
+  // PDP hero (see components/FeaturedSpotlight.tsx).
+  variant?: "boxed" | "bleed";
 }
 
-export default function ProductImageGallery({ productImage, productName, coaImage }: ProductImageGalleryProps) {
+export default function ProductImageGallery({ productImage, productName, coaImage, variant = "boxed" }: ProductImageGalleryProps) {
   const images: GalleryImage[] = [];
   if (productImage) images.push({ src: productImage, alt: productName, label: "Product" });
   if (coaImage) images.push({ src: coaImage, alt: `${productName} Certificate of Analysis`, label: "COA" });
@@ -37,15 +42,22 @@ export default function ProductImageGallery({ productImage, productName, coaImag
 
   const current = images[index];
   const showNav = images.length > 1;
+  const bleed = variant === "bleed";
 
   return (
-    <div className="relative">
-      <div className="relative w-full aspect-square max-w-lg mx-auto lg:max-w-none rounded-2xl overflow-hidden glass-card">
+    <div className={bleed ? "relative h-full" : "relative"}>
+      <div
+        className={
+          bleed
+            ? "relative w-full h-full min-h-[420px] lg:min-h-[560px] rounded-2xl overflow-hidden"
+            : "relative w-full aspect-square max-w-lg mx-auto lg:max-w-none rounded-2xl overflow-hidden glass-card"
+        }
+      >
         <Image
           src={current.src}
           alt={current.alt}
           fill
-          className="object-cover"
+          className={bleed ? "object-cover object-left" : "object-cover"}
           sizes="(max-width: 1024px) 100vw, 50vw"
           priority
         />

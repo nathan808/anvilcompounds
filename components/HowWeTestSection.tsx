@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+
 const methods = [
   {
     step: "01",
@@ -40,7 +42,7 @@ const methods = [
 
 export default function HowWeTestSection() {
   return (
-    <section id="testing" className="relative bg-navy-900 py-24 md:py-36 overflow-hidden">
+    <section id="testing" className="relative bg-navy-900 py-14 md:py-20 overflow-hidden">
       {/* Background elements */}
       <div className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full opacity-[0.04] blur-[120px] bg-blue-700 pointer-events-none" />
       <div
@@ -54,30 +56,43 @@ export default function HowWeTestSection() {
 
       <div className="relative z-10 max-w-7xl mx-auto px-6">
         {/* Header */}
-        <div className="max-w-2xl mb-20">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-6 h-px bg-blue-600" />
-            <span className="font-mono text-xs text-blue-400 tracking-[0.25em] uppercase">
-              003 / Anvil Standards
-            </span>
+        <div className="grid lg:grid-cols-[1fr_380px] gap-8 lg:gap-10 items-center mb-12">
+          <div className="max-w-2xl">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-6 h-px bg-blue-600" />
+              <span className="font-mono text-xs text-blue-400 tracking-[0.25em] uppercase">
+                003 / Anvil Standards
+              </span>
+            </div>
+
+            <h2
+              className="font-display font-800 text-white mb-4"
+              style={{ fontSize: "clamp(2.1rem, 4.4vw, 3.5rem)" }}
+            >
+              Anvil Standards:
+              <br />
+              <span className="text-white">Testing Protocol</span>
+            </h2>
+
+            <p className="font-body text-white/45 text-base leading-relaxed">
+              Every lot that reaches our inventory clears three independent assays first. No shortcuts, no batch skips a step, and nothing lists in our catalog until the data confirms it meets spec.
+            </p>
           </div>
 
-          <h2
-            className="font-display font-800 text-white mb-5"
-            style={{ fontSize: "clamp(2.4rem, 5vw, 4rem)" }}
-          >
-            Anvil Standards:
-            <br />
-            <span className="text-white">Testing Protocol</span>
-          </h2>
-
-          <p className="font-body text-white/45 text-lg leading-relaxed">
-            Every lot that reaches our inventory clears three independent assays first. No shortcuts, no batch skips a step, and nothing lists in our catalog until the data confirms it meets spec.
-          </p>
+          <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden border border-white/10 hidden lg:block">
+            <Image
+              src="/images/homepage/hplc-instrument.jpg"
+              alt="HPLC instrument running a purity analysis with chromatogram on screen"
+              fill
+              className="object-cover"
+              sizes="420px"
+              loading="lazy"
+            />
+          </div>
         </div>
 
         {/* Methods */}
-        <div className="space-y-6">
+        <div className="space-y-4">
           {methods.map((method) => (
             <MethodRow key={method.step} method={method} />
           ))}
@@ -86,7 +101,7 @@ export default function HowWeTestSection() {
         {/* COA callout */}
         <a
           href="/coas"
-          className="mt-14 p-6 md:p-8 rounded-xl border border-blue-600/20 bg-blue-600/5 flex flex-col md:flex-row gap-6 md:items-center hover:border-blue-500/40 hover:bg-blue-600/10 transition-all duration-300 cursor-pointer"
+          className="mt-8 p-5 md:p-6 rounded-xl border border-blue-600/20 bg-blue-600/5 flex flex-col md:flex-row gap-5 md:items-center hover:border-blue-500/40 hover:bg-blue-600/10 transition-all duration-300 cursor-pointer"
         >
           <div className="flex-grow">
             <h3 className="font-display font-700 text-white text-xl mb-2">
@@ -98,7 +113,7 @@ export default function HowWeTestSection() {
             </p>
           </div>
           <div className="shrink-0">
-            <div className="w-24 h-24 md:w-28 md:h-28 rounded-xl border-2 border-blue-600/30 bg-navy-800 flex items-center justify-center float">
+            <div className="w-20 h-20 md:w-24 md:h-24 rounded-xl border-2 border-blue-600/30 bg-navy-800 flex items-center justify-center float">
               <div className="grid grid-cols-3 gap-1.5 p-3">
                 {Array.from({ length: 9 }).map((_, k) => (
                   <div
@@ -125,9 +140,9 @@ export default function HowWeTestSection() {
 function MethodRow({ method }: { method: typeof methods[0] }) {
   return (
     <div
-      className="group relative glass-card rounded-xl p-6 md:p-8 hover:border-blue-500/30 transition-all duration-500 hover:-translate-x-1"
+      className="group relative glass-card rounded-xl p-5 md:p-6 hover:border-blue-500/30 transition-all duration-500 hover:-translate-x-1"
     >
-      <div className="flex flex-col md:flex-row gap-6 md:gap-10 md:items-start">
+      <div className="flex flex-col md:flex-row gap-5 md:gap-8 md:items-start">
         {/* Step number */}
         <div className="shrink-0 flex items-center gap-4">
           <div
