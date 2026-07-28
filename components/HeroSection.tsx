@@ -64,7 +64,7 @@ export default function HeroSection() {
             <motion.h1
               variants={item}
               className="font-heading font-700 leading-[0.95] mb-3 max-w-3xl"
-              style={{ fontSize: "clamp(1.8rem, 4.5vw, 4rem)", textShadow: "0 1px 12px rgba(255,255,255,0.95), 0 0px 2px rgba(255,255,255,0.7)" }}
+              style={{ fontSize: "clamp(1.98rem, 4.5vw, 4rem)", textShadow: "0 1px 12px rgba(255,255,255,0.95), 0 0px 2px rgba(255,255,255,0.7)" }}
             >
               <span className="block text-mock-ink">Research Peptides with</span>
               <span className="block">
@@ -110,19 +110,21 @@ export default function HeroSection() {
               </a>
             </motion.div>
 
-            {/* Vial graphic — mobile/tablet only; sits below the main text. Desktop shows it in the side column instead. */}
-            <motion.div variants={item} className="lg:hidden relative w-[260px] max-w-[70vw] aspect-square mb-3">
+            {/* Vial graphic — mobile/tablet only; sits below the main text, using the space
+                freed up by hiding the shipping banner on this breakpoint. Desktop shows the
+                vial in the side column instead (see below) and keeps the shipping banner. */}
+            <motion.div variants={item} className="lg:hidden relative w-[320px] max-w-[82vw] aspect-square mb-3">
               <Image
                 src="/images/homepage/hero-vial-callouts.png"
                 alt="Anvil Compounds BPC-157 research vial with 99%+ purity, lot-verified, and USA-based facility callouts"
                 fill
                 className="object-contain"
-                sizes="260px"
+                sizes="320px"
               />
             </motion.div>
 
-            {/* Shipping banner */}
-            <motion.div variants={item} className="mb-3 w-full max-w-sm md:max-w-md">
+            {/* Shipping banner — desktop only now; hidden on mobile to make room for the larger vial graphic above */}
+            <motion.div variants={item} className="hidden lg:block mb-3 w-full max-w-sm md:max-w-md">
               <ShippingBanner theme="light" />
             </motion.div>
 
@@ -135,13 +137,13 @@ export default function HeroSection() {
 
           {/* Vial graphic — desktop side column, proportional to the text block, never overlapping it */}
           <div className="hidden lg:flex items-center justify-center">
-            <div className="relative w-full max-w-[480px] aspect-square">
+            <div className="relative w-full max-w-[528px] aspect-square">
               <Image
                 src="/images/homepage/hero-vial-callouts.png"
                 alt="Anvil Compounds BPC-157 research vial with 99%+ purity, lot-verified, and USA-based facility callouts"
                 fill
                 className="object-contain"
-                sizes="480px"
+                sizes="528px"
                 priority
               />
             </div>
