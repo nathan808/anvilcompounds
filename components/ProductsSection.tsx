@@ -19,7 +19,7 @@ export const CATALOG_TRUST_BADGES: { icon: JSX.Element; label: JSX.Element }[] =
         <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5.106 14.4A2.25 2.25 0 004.447 16v.001c0 1.243 1.007 2.25 2.25 2.25h10.606a2.25 2.25 0 002.25-2.25v-.001a2.25 2.25 0 00-.659-1.591l-3.985-3.99a2.25 2.25 0 01-.659-1.591V3.104M9.75 3.104h4.5M9.75 3.104a48.667 48.667 0 014.5 0" />
       </svg>
     ),
-    label: <>Tested by <strong className="text-blue-400 font-600">Freedom Diagnostics</strong></>,
+    label: <>Tested by <strong className="text-mock-cobaltInk font-600">Freedom Diagnostics</strong></>,
   },
   {
     icon: (
@@ -27,7 +27,7 @@ export const CATALOG_TRUST_BADGES: { icon: JSX.Element; label: JSX.Element }[] =
         <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
       </svg>
     ),
-    label: <><strong className="text-blue-400 font-600">21+ verified</strong> researcher accounts</>,
+    label: <><strong className="text-mock-cobaltInk font-600">21+ verified</strong> researcher accounts</>,
   },
   {
     icon: (
@@ -35,7 +35,7 @@ export const CATALOG_TRUST_BADGES: { icon: JSX.Element; label: JSX.Element }[] =
         <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75M3.75 6.75h.007v.008H3.75V6.75zm0 5.25h.007v.008H3.75V12zm0 5.25h.007v.008H3.75v-.008zM3.75 5.25h16.5v13.5a1.5 1.5 0 01-1.5 1.5H5.25a1.5 1.5 0 01-1.5-1.5V5.25z" />
       </svg>
     ),
-    label: <><strong className="text-blue-400 font-600">COA</strong> on every lot</>,
+    label: <><strong className="text-mock-cobaltInk font-600">COA</strong> on every lot</>,
   },
   {
     icon: (
@@ -43,7 +43,7 @@ export const CATALOG_TRUST_BADGES: { icon: JSX.Element; label: JSX.Element }[] =
         <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" />
       </svg>
     ),
-    label: <><strong className="text-blue-400 font-600">Same-day dispatch</strong> before 12PM PST</>,
+    label: <><strong className="text-mock-cobaltInk font-600">Same-day dispatch</strong> before 12PM PST</>,
   },
 ];
 
@@ -203,7 +203,7 @@ export function ProductCard({ product, index }: { product: ProductCard; index: n
       transition={{ duration: 0.7, delay: index * 0.08, ease: [0.16, 1, 0.3, 1] }}
       className="group relative"
     >
-      <div className="glass-card rounded-xl overflow-hidden h-full flex flex-col transition-all duration-500 hover:border-blue-500/40 hover:shadow-xl hover:shadow-blue-600/10 hover:-translate-y-1">
+      <div className="bg-white border border-mock-line rounded-xl overflow-hidden h-full flex flex-col transition-all duration-500 hover:border-mock-cobalt/40 hover:shadow-xl hover:shadow-mock-cobalt/10 hover:-translate-y-1">
 
         {/* Product image -- container aspect matches the source photos
             (1500x1858) so object-contain fills it edge-to-edge with no
@@ -222,7 +222,7 @@ export function ProductCard({ product, index }: { product: ProductCard; index: n
             </div>
           ) : (
             <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-5xl text-blue-300/40">{product.icon}</span>
+              <span className="text-5xl text-mock-cobalt/30">{product.icon}</span>
             </div>
           )}
           {/* Badge overlay */}
@@ -233,18 +233,18 @@ export function ProductCard({ product, index }: { product: ProductCard; index: n
           </div>
           {/* COA-pending blur overlay */}
           {!product.hasCoa ? (
-            <div className="absolute inset-0 z-10 backdrop-blur-sm bg-navy-950/60 flex flex-col items-center justify-center gap-2">
+            <div className="absolute inset-0 z-10 backdrop-blur-sm bg-mock-graphite/70 flex flex-col items-center justify-center gap-2">
               <div className="w-2 h-2 rounded-full bg-yellow-400 animate-pulse" />
               <span className="font-mono text-[10px] text-yellow-300 tracking-[0.18em] uppercase text-center px-2">
                 Testing in Progress
               </span>
             </div>
           ) : glpGated ? (
-            <div className="absolute inset-0 z-10 backdrop-blur-sm bg-navy-950/60 flex flex-col items-center justify-center gap-2">
-              <svg className="w-4 h-4 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="absolute inset-0 z-10 backdrop-blur-sm bg-mock-graphite/70 flex flex-col items-center justify-center gap-2">
+              <svg className="w-4 h-4 text-mock-cobaltLight" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
-              <span className="font-mono text-[10px] text-blue-300 tracking-[0.18em] uppercase text-center px-2">
+              <span className="font-mono text-[10px] text-mock-cobaltLight tracking-[0.18em] uppercase text-center px-2">
                 Log In to Inquire
               </span>
             </div>
@@ -254,59 +254,59 @@ export function ProductCard({ product, index }: { product: ProductCard; index: n
         {/* Card content */}
         <div className="p-3 md:p-5 flex flex-col flex-grow">
           <div className="mb-2 md:mb-3">
-            <h3 className="font-display font-700 text-base md:text-xl text-white mb-0.5 leading-tight">
+            <h3 className="font-display font-700 text-base md:text-xl text-mock-navy mb-0.5 leading-tight">
               {getProductDisplayTitle(product.name, product.category)}
             </h3>
-            <span className="font-mono text-[10px] md:text-xs text-blue-400/70 tracking-widest uppercase">
+            <span className="font-mono text-[10px] md:text-xs text-mock-cobaltInk/70 tracking-widest uppercase">
               {product.category}
             </span>
           </div>
 
-          <p className="font-body text-xs md:text-sm text-white/45 leading-relaxed mb-3 md:mb-4 flex-grow line-clamp-3 md:line-clamp-none">
+          <p className="font-body text-xs md:text-sm text-mock-sub leading-relaxed mb-3 md:mb-4 flex-grow line-clamp-3 md:line-clamp-none">
             {product.description}
           </p>
 
           {/* Purity bar */}
           <div className="mb-3 md:mb-4">
             <div className="flex items-center justify-between mb-1">
-              <span className="font-mono text-[9px] md:text-xs text-white/35 tracking-widest uppercase">Verified Purity</span>
-              <span className="font-mono text-[10px] md:text-xs text-blue-400 font-500">{product.purity}</span>
+              <span className="font-mono text-[9px] md:text-xs text-mock-sub tracking-widest uppercase">Verified Purity</span>
+              <span className="font-mono text-[10px] md:text-xs text-mock-cobaltInk font-500">{product.purity}</span>
             </div>
-            <div className="h-0.5 md:h-1 w-full bg-white/8 rounded-full overflow-hidden">
+            <div className="h-0.5 md:h-1 w-full bg-mock-line rounded-full overflow-hidden">
               <motion.div
                 initial={{ width: 0 }}
                 animate={inView ? { width: product.purity } : {}}
                 transition={{ duration: 1.2, delay: index * 0.08 + 0.4, ease: [0.16, 1, 0.3, 1] }}
-                className="h-full bg-gradient-to-r from-blue-600 to-blue-400 rounded-full"
+                className="h-full bg-gradient-to-r from-mock-cobalt to-mock-cobaltLight rounded-full"
               />
             </div>
           </div>
 
           {/* Price + buttons */}
-          <div className="pt-2.5 md:pt-3.5 border-t border-white/8">
+          <div className="pt-2.5 md:pt-3.5 border-t border-mock-line">
             <div className="flex items-center justify-between mb-2 md:mb-3">
               <div>
-                <span className="font-mono text-[9px] md:text-xs text-white/30 block tracking-wider">From</span>
-                <span className="font-display font-800 text-lg md:text-2xl text-white">{product.price}</span>
+                <span className="font-mono text-[9px] md:text-xs text-mock-sub block tracking-wider">From</span>
+                <span className="font-display font-800 text-lg md:text-2xl text-mock-navy">{product.price}</span>
               </div>
             </div>
             <a
               href={glpGated ? loginHref : `/products/${slugifyProductName(product.name)}`}
-              className="block w-full text-center mb-1.5 md:mb-2 px-2 md:px-3 py-1.5 md:py-2 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-white/50 hover:text-white text-xs md:text-sm font-display font-600 rounded-lg transition-all duration-300"
+              className="block w-full text-center mb-1.5 md:mb-2 px-2 md:px-3 py-1.5 md:py-2 bg-mock-surface2 hover:bg-mock-line/60 border border-mock-line hover:border-mock-cobalt/30 text-mock-sub hover:text-mock-navy text-xs md:text-sm font-display font-600 rounded-lg transition-all duration-300"
             >
               View Information
             </a>
             <div className="flex gap-1.5 md:gap-2">
               <a
                 href={glpGated ? loginHref : "/coas"}
-                className="flex-1 text-center px-2 md:px-3 py-1.5 md:py-2 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-white/60 hover:text-white text-xs md:text-sm font-display font-600 rounded-lg transition-all duration-300"
+                className="flex-1 text-center px-2 md:px-3 py-1.5 md:py-2 bg-mock-surface2 hover:bg-mock-line/60 border border-mock-line hover:border-mock-cobalt/30 text-mock-sub hover:text-mock-navy text-xs md:text-sm font-display font-600 rounded-lg transition-all duration-300"
               >
                 View COA
               </a>
               {glpGated ? (
                 <button
                   onClick={() => router.push(loginHref)}
-                  className="flex-1 text-center px-2 md:px-3 py-1.5 md:py-2 border border-blue-500/40 bg-blue-600/10 hover:bg-blue-600/20 text-blue-300 hover:text-blue-200 text-xs md:text-sm font-display font-600 rounded-lg transition-all duration-300"
+                  className="flex-1 text-center px-2 md:px-3 py-1.5 md:py-2 border border-mock-cobalt/40 bg-mock-cobalt/10 hover:bg-mock-cobalt/20 text-mock-cobaltInk hover:text-mock-cobalt text-xs md:text-sm font-display font-600 rounded-lg transition-all duration-300"
                 >
                   Log In to Inquire
                 </button>
@@ -315,14 +315,14 @@ export function ProductCard({ product, index }: { product: ProductCard; index: n
                   onClick={handleAddToCart}
                   className={`flex-1 text-center px-2 md:px-3 py-1.5 md:py-2 border text-xs md:text-sm font-display font-600 rounded-lg transition-all duration-300 ${
                     added
-                      ? "bg-green-600/20 border-green-500/40 text-green-300"
-                      : "bg-blue-600/20 hover:bg-blue-600 border-blue-600/30 hover:border-blue-500 text-blue-300 hover:text-white"
+                      ? "bg-green-600/20 border-green-500/40 text-green-700"
+                      : "bg-mock-cobalt/10 hover:bg-mock-cobalt border-mock-cobalt/30 hover:border-mock-cobaltInk text-mock-cobaltInk hover:text-white"
                   }`}
                 >
                   {added ? "✓ Added" : "Add to Cart"}
                 </button>
               ) : (
-                <span className="flex-1 text-center px-2 md:px-3 py-1.5 md:py-2 border border-yellow-500/20 bg-yellow-500/5 text-yellow-400/70 text-[10px] md:text-xs font-mono rounded-lg cursor-default">
+                <span className="flex-1 text-center px-2 md:px-3 py-1.5 md:py-2 border border-yellow-500/30 bg-yellow-500/10 text-yellow-700 text-[10px] md:text-xs font-mono rounded-lg cursor-default">
                   Testing in Progress
                 </span>
               )}
@@ -336,14 +336,14 @@ export function ProductCard({ product, index }: { product: ProductCard; index: n
 
 function SkeletonCard() {
   return (
-    <div className="glass-card rounded-xl overflow-hidden animate-pulse">
-      <div className="w-full aspect-[1500/1858] bg-white/5" />
+    <div className="bg-white border border-mock-line rounded-xl overflow-hidden animate-pulse">
+      <div className="w-full aspect-[1500/1858] bg-mock-surface2" />
       <div className="p-3 md:p-5 space-y-2 md:space-y-3">
-        <div className="w-1/2 h-4 md:h-5 bg-white/5 rounded" />
-        <div className="w-1/3 h-2.5 md:h-3 bg-white/5 rounded" />
+        <div className="w-1/2 h-4 md:h-5 bg-mock-surface2 rounded" />
+        <div className="w-1/3 h-2.5 md:h-3 bg-mock-surface2 rounded" />
         <div className="space-y-1.5 md:space-y-2 pt-1.5 md:pt-2">
-          <div className="w-full h-2.5 md:h-3 bg-white/5 rounded" />
-          <div className="w-4/5 h-2.5 md:h-3 bg-white/5 rounded" />
+          <div className="w-full h-2.5 md:h-3 bg-mock-surface2 rounded" />
+          <div className="w-4/5 h-2.5 md:h-3 bg-mock-surface2 rounded" />
         </div>
       </div>
     </div>
@@ -443,9 +443,7 @@ export default function ProductsSection() {
     products.some((p) => HOME_HIDDEN_ON_ALL_COMPOUNDS.includes(p.name));
 
   return (
-    <section id="catalog" className="relative bg-navy-950 py-24 md:py-32">
-      <div className="absolute inset-0 mesh-bg opacity-60" />
-
+    <section id="catalog" className="relative bg-mock-page py-24 md:py-32">
       <div className="relative z-10 max-w-7xl mx-auto px-6">
         {/* Header */}
         <div ref={headerRef} className="mb-8">
@@ -458,10 +456,10 @@ export default function ProductsSection() {
             {CATALOG_TRUST_BADGES.map((badge, i) => (
               <div
                 key={i}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-white/10 bg-white/5"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-mock-line bg-white"
               >
-                <span className="text-blue-400 shrink-0">{badge.icon}</span>
-                <span className="font-mono text-[11px] text-white/50 tracking-wide whitespace-nowrap">
+                <span className="text-mock-cobaltInk shrink-0">{badge.icon}</span>
+                <span className="font-mono text-[11px] text-mock-sub tracking-wide whitespace-nowrap">
                   {badge.label}
                 </span>
               </div>
@@ -474,8 +472,8 @@ export default function ProductsSection() {
             transition={{ duration: 0.6 }}
             className="flex items-center gap-3 mb-4"
           >
-            <div className="w-6 h-px bg-blue-600" />
-            <span className="font-mono text-xs text-blue-400 tracking-[0.25em] uppercase">
+            <div className="w-6 h-px bg-mock-cobalt" />
+            <span className="font-mono text-xs text-mock-cobaltInk tracking-[0.25em] uppercase">
               002 / Research Catalog
             </span>
           </motion.div>
@@ -486,19 +484,19 @@ export default function ProductsSection() {
                 initial={{ opacity: 0, y: 30 }}
                 animate={headerInView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.7, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-                className="font-display font-800 text-white mb-4"
+                className="font-heading font-700 italic text-mock-cobalt mb-4"
                 style={{ fontSize: "clamp(2.4rem, 5vw, 4rem)" }}
               >
-                <span className="text-blue-400">99%+ Pure Peptides</span>
+                99%+ Pure Peptides
                 <br />
-                <span className="text-blue-400">&amp; Research Reagents. Verified Per Lot.</span>
+                &amp; Research Reagents. Verified Per Lot.
               </motion.h2>
 
               <motion.p
                 initial={{ opacity: 0, y: 20 }}
                 animate={headerInView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.7, delay: 0.2 }}
-                className="font-body text-white/45 text-lg max-w-xl"
+                className="font-body text-mock-sub text-lg max-w-xl"
               >
                 Each compound is a synthetic reference material supplied for
                 in-vitro laboratory research: HPLC, purity, mass-spec, and
@@ -515,7 +513,7 @@ export default function ProductsSection() {
             >
               <div className="relative">
                 <svg
-                  className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-mock-sub"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -527,12 +525,12 @@ export default function ProductsSection() {
                   placeholder="Search compounds..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 focus:border-blue-500/50 focus:bg-white/8 rounded-lg text-white placeholder-white/30 font-body text-sm outline-none transition-all duration-300"
+                  className="w-full pl-10 pr-4 py-2.5 bg-white border border-mock-line focus:border-mock-cobalt/50 rounded-lg text-mock-navy placeholder-mock-sub font-body text-sm outline-none transition-all duration-300"
                 />
                 {search && (
                   <button
                     onClick={() => setSearch("")}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-mock-sub hover:text-mock-navy transition-colors"
                   >
                     ✕
                   </button>
@@ -562,8 +560,8 @@ export default function ProductsSection() {
                   }}
                   className={`font-mono text-xs tracking-wide px-4 py-2 rounded-lg border transition-all duration-250 whitespace-nowrap ${
                     isActive
-                      ? "bg-blue-600 text-white border-blue-500 shadow-lg shadow-blue-600/25"
-                      : "bg-blue-600/10 text-blue-400 border-blue-500/25 hover:bg-blue-600/20 hover:border-blue-500/50 hover:text-blue-300"
+                      ? "bg-mock-cobalt text-white border-mock-cobaltInk shadow-lg shadow-mock-cobalt/25"
+                      : "bg-mock-cobalt/10 text-mock-cobaltInk border-mock-cobalt/25 hover:bg-mock-cobalt/20 hover:border-mock-cobalt/50 hover:text-mock-cobalt"
                   }`}
                 >
                   {cat}
@@ -587,7 +585,7 @@ export default function ProductsSection() {
                   </div>
                 ))
               : (
-                <div className="col-span-2 md:col-span-3 lg:col-span-4 text-center py-16 text-white/30 font-body">
+                <div className="col-span-2 md:col-span-3 lg:col-span-4 text-center py-16 text-mock-sub font-body">
                   No compounds match &ldquo;{search}&rdquo;
                 </div>
               )
@@ -599,7 +597,7 @@ export default function ProductsSection() {
           <div className="mt-6 flex justify-center md:hidden">
             <button
               onClick={() => setMobileShowAll(true)}
-              className="px-8 py-3 bg-blue-600 hover:bg-blue-500 text-white font-display font-700 text-sm tracking-wide rounded-md transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/30"
+              className="px-8 py-3 bg-mock-cobalt hover:bg-mock-cobaltInk text-white font-display font-700 text-sm tracking-wide rounded-md transition-all duration-300 hover:shadow-lg hover:shadow-mock-cobalt/30"
             >
               View Full Catalog
             </button>
@@ -621,7 +619,7 @@ export default function ProductsSection() {
                 // should actually show them, not hide them behind a second gate.
                 setMobileShowAll(true);
               }}
-              className="px-8 py-3 bg-blue-600 hover:bg-blue-500 text-white font-display font-700 text-sm tracking-wide rounded-md transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/30"
+              className="px-8 py-3 bg-mock-cobalt hover:bg-mock-cobaltInk text-white font-display font-700 text-sm tracking-wide rounded-md transition-all duration-300 hover:shadow-lg hover:shadow-mock-cobalt/30"
             >
               View All
             </button>
@@ -633,7 +631,7 @@ export default function ProductsSection() {
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.3 }}
-          className="mt-10 text-center font-mono text-xs text-white/25 tracking-wide"
+          className="mt-10 text-center font-mono text-xs text-mock-sub tracking-wide"
         >
           All products are for in vitro laboratory and research use only. Must be 21+ to purchase.
           Not intended for human or veterinary use.

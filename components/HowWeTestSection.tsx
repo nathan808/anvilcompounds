@@ -5,81 +5,53 @@ import Image from "next/image";
 const methods = [
   {
     step: "01",
-    name: "HPLC",
-    fullName: "High-Performance Liquid Chromatography",
-    role: "Purity Quantification",
+    name: "HPLC — Purity",
     description:
       "Each lot is run through a stationary phase under pressure, and the resulting chromatogram tells us exactly what's active compound and what's impurity, down to the ppm. Our purity floor is 99%. A batch that tests below it doesn't leave the lab.",
-    detail: "Detects impurities at parts-per-million sensitivity",
-    color: "from-blue-600 to-blue-400",
-    dotColor: "bg-blue-500",
   },
   {
     step: "02",
-    name: "Mass Spec",
-    fullName: "Mass Spectrometry",
-    role: "Molecular Identity Confirmation",
+    name: "Mass Spec — Identity",
     description:
       "Ionization and mass-to-charge analysis pins down the exact molecular identity of the compound in the vial. We're not trusting a label, we're measuring a molecule. If the spectrum doesn't match spec, the batch doesn't ship.",
-    detail: "Confirms molecular weight and structural identity",
-    color: "from-cyan-600 to-cyan-400",
-    dotColor: "bg-cyan-500",
   },
   {
     step: "03",
-    name: "Endotoxin Screen",
-    fullName: "Endotoxin (LAL) Screening",
-    role: "Bacterial Contamination Detection",
+    name: "Endotoxin (LAL)",
     description:
       "Every batch runs a Limulus Amebocyte Lysate assay for bacterial endotoxins, a screen most research suppliers skip to save time and cost. Endotoxin contamination has no smell and leaves no visible trace, which is exactly why we treat this test as mandatory, not optional.",
-    detail: "Uncommon in this industry. We run it on every batch anyway",
     detailLink: "/blog/endotoxin-problem-peptide-market",
     detailLinkLabel: "The endotoxin problem nobody in the peptide market talks about →",
-    color: "from-indigo-600 to-indigo-400",
-    dotColor: "bg-indigo-500",
   },
 ];
 
 export default function HowWeTestSection() {
   return (
-    <section id="testing" className="relative bg-navy-900 py-14 md:py-20 overflow-hidden">
-      {/* Background elements */}
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full opacity-[0.04] blur-[120px] bg-blue-700 pointer-events-none" />
-      <div
-        className="absolute inset-0 opacity-30"
-        style={{
-          backgroundImage:
-            "linear-gradient(rgba(29,106,219,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(29,106,219,0.05) 1px, transparent 1px)",
-          backgroundSize: "80px 80px",
-        }}
-      />
-
-      <div className="relative z-10 max-w-7xl mx-auto px-6">
-        {/* Header */}
+    <section id="testing" className="relative bg-mock-surface2 border-y border-mock-line py-[76px]">
+      <div className="max-w-7xl mx-auto px-6">
         <div className="grid lg:grid-cols-[1fr_380px] gap-8 lg:gap-10 items-center mb-12">
           <div className="max-w-2xl">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-6 h-px bg-blue-600" />
-              <span className="font-mono text-xs text-blue-400 tracking-[0.25em] uppercase">
+              <div className="w-6 h-px bg-mock-cobalt" />
+              <span className="font-mono text-xs text-mock-cobaltInk tracking-[0.25em] uppercase">
                 003 / Anvil Standards
               </span>
             </div>
 
             <h2
-              className="font-display font-800 text-white mb-4"
+              className="font-heading font-700 text-mock-navy mb-4"
               style={{ fontSize: "clamp(2.1rem, 4.4vw, 3.5rem)" }}
             >
-              Anvil Standards:
-              <br />
-              <span className="text-white">Testing Protocol</span>
+              Testing <span className="font-800 italic text-mock-cobalt">Protocol</span>
             </h2>
 
-            <p className="font-body text-white/45 text-base leading-relaxed">
-              Every lot that reaches our inventory clears three independent assays first. No shortcuts, no batch skips a step, and nothing lists in our catalog until the data confirms it meets spec.
+            <p className="font-body text-mock-sub text-base leading-relaxed">
+              Every lot clears independent assays before it lists. No shortcuts. No batch
+              skips a step. Nothing ships until the data confirms spec.
             </p>
           </div>
 
-          <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden border border-white/10 hidden lg:block">
+          <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden border border-mock-line hidden lg:block">
             <Image
               src="/images/homepage/hplc-instrument.jpg"
               alt="HPLC instrument running a purity analysis with chromatogram on screen"
@@ -91,29 +63,51 @@ export default function HowWeTestSection() {
           </div>
         </div>
 
-        {/* Methods */}
-        <div className="space-y-4">
+        {/* Proto cards — simple numbered cards matching the mockup */}
+        <div className="grid gap-3">
           {methods.map((method) => (
-            <MethodRow key={method.step} method={method} />
+            <div
+              key={method.step}
+              className="bg-white border border-mock-line rounded-xl p-4 md:p-[18px] flex gap-4"
+            >
+              <div
+                className="shrink-0 w-9 h-9 rounded-lg bg-mock-graphite text-mock-cobaltLight font-heading italic font-800 flex items-center justify-center"
+                style={{ fontSize: "15.4px" }}
+              >
+                {method.step}
+              </div>
+              <div>
+                <h4 className="font-display font-700 text-[15px] text-mock-navy">{method.name}</h4>
+                <p className="text-[13px] text-mock-sub mt-1 leading-relaxed">{method.description}</p>
+                {method.detailLink && (
+                  <a
+                    href={method.detailLink}
+                    className="inline-block mt-2 font-mono text-xs text-mock-cobaltInk hover:text-mock-cobalt animated-underline"
+                  >
+                    {method.detailLinkLabel}
+                  </a>
+                )}
+              </div>
+            </div>
           ))}
         </div>
 
         {/* COA callout */}
         <a
           href="/coas"
-          className="mt-8 p-5 md:p-6 rounded-xl border border-blue-600/20 bg-blue-600/5 flex flex-col md:flex-row gap-5 md:items-center hover:border-blue-500/40 hover:bg-blue-600/10 transition-all duration-300 cursor-pointer"
+          className="mt-8 p-5 md:p-6 rounded-xl border border-mock-line bg-white flex flex-col md:flex-row gap-5 md:items-center hover:border-mock-cobalt/40 hover:shadow-lg hover:shadow-mock-cobalt/5 transition-all duration-300 cursor-pointer"
         >
           <div className="flex-grow">
-            <h3 className="font-display font-700 text-white text-xl mb-2">
+            <h3 className="font-display font-700 text-mock-navy text-xl mb-2">
               Certificate of Analysis, Every Batch
             </h3>
-            <p className="font-body text-white/45 text-sm leading-relaxed max-w-lg">
+            <p className="font-body text-mock-sub text-sm leading-relaxed max-w-lg">
               Every order ships with a full COA covering all three assay results. Scan the QR
               code to confirm your batch against our independent testing portal.
             </p>
           </div>
           <div className="shrink-0">
-            <div className="w-20 h-20 md:w-24 md:h-24 rounded-xl border-2 border-blue-600/30 bg-navy-800 flex items-center justify-center float">
+            <div className="w-20 h-20 md:w-24 md:h-24 rounded-xl border-2 border-mock-cobalt/30 bg-mock-surface2 flex items-center justify-center float">
               <div className="grid grid-cols-3 gap-1.5 p-3">
                 {Array.from({ length: 9 }).map((_, k) => (
                   <div
@@ -121,10 +115,10 @@ export default function HowWeTestSection() {
                     className="w-4 h-4 rounded-sm"
                     style={{
                       backgroundColor: [0, 2, 6, 8].includes(k)
-                        ? "#1D6ADB"
+                        ? "#1F5AE0"
                         : Math.random() > 0.5
-                        ? "#0D1F3C"
-                        : "#4D94F0",
+                        ? "#0A2547"
+                        : "#7FA4EC",
                     }}
                   />
                 ))}
@@ -134,67 +128,5 @@ export default function HowWeTestSection() {
         </a>
       </div>
     </section>
-  );
-}
-
-function MethodRow({ method }: { method: typeof methods[0] }) {
-  return (
-    <div
-      className="group relative glass-card rounded-xl p-5 md:p-6 hover:border-blue-500/30 transition-all duration-500 hover:-translate-x-1"
-    >
-      <div className="flex flex-col md:flex-row gap-5 md:gap-8 md:items-start">
-        {/* Step number */}
-        <div className="shrink-0 flex items-center gap-4">
-          <div
-            className={`w-12 h-12 rounded-xl bg-gradient-to-br ${method.color} flex items-center justify-center`}
-          >
-            <span className="font-mono font-500 text-white text-sm">{method.step}</span>
-          </div>
-          <div className="md:hidden">
-            <span className="font-display font-800 text-xl text-white">{method.name}</span>
-            <span className="block font-mono text-xs text-blue-400/70 tracking-wider uppercase mt-0.5">
-              {method.role}
-            </span>
-          </div>
-        </div>
-
-        {/* Content */}
-        <div className="flex-grow">
-          <div className="hidden md:block mb-3">
-            <div className="flex items-center gap-4 flex-wrap">
-              <span className="font-display font-800 text-2xl text-white">{method.name}</span>
-              <span className="font-mono text-xs text-white/35 tracking-wider">{method.fullName}</span>
-              <span className={`w-1.5 h-1.5 rounded-full ${method.dotColor}`} />
-              <span className="font-mono text-xs text-blue-400 tracking-wider uppercase">
-                {method.role}
-              </span>
-            </div>
-          </div>
-          <p className="font-body text-white/50 text-sm md:text-base leading-relaxed mb-3">
-            {method.description}
-          </p>
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center gap-2">
-              <div className={`w-1 h-1 rounded-full ${method.dotColor}`} />
-              <span className="font-mono text-xs text-blue-300/60 italic">{method.detail}</span>
-            </div>
-            {method.detailLink && (
-              <a
-                href={method.detailLink}
-                className="font-mono text-xs text-blue-400/70 hover:text-blue-400 transition-colors animated-underline ml-3"
-                onClick={(e) => e.stopPropagation()}
-              >
-                {method.detailLinkLabel}
-              </a>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Left accent bar */}
-      <div
-        className={`absolute left-0 top-8 bottom-8 w-0.5 rounded-full bg-gradient-to-b ${method.color} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}
-      />
-    </div>
   );
 }

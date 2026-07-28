@@ -10,7 +10,7 @@ export const metadata = {
 
 export default function CatalogPage() {
   return (
-    <main className="bg-navy-950 min-h-screen">
+    <main className="bg-mock-page min-h-screen">
       <Navbar />
       <Suspense fallback={null}>
         <ProductsSection />

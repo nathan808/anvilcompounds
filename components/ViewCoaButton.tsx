@@ -33,7 +33,7 @@ export default function ViewCoaButton({ productName, imageUrl, fileUrl }: ViewCo
     return (
       <button
         disabled
-        className="w-full inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white/30 font-display font-700 text-sm opacity-40 cursor-not-allowed"
+        className="w-full inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-mock-surface2 border border-mock-line text-mock-sub font-display font-700 text-sm opacity-60 cursor-not-allowed"
       >
         COA Pending
       </button>
@@ -44,7 +44,7 @@ export default function ViewCoaButton({ productName, imageUrl, fileUrl }: ViewCo
     <>
       <button
         onClick={handleClick}
-        className="w-full inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl border border-blue-500/40 hover:border-blue-400 text-blue-400 hover:text-blue-300 font-display font-700 text-sm transition-all duration-200 bg-blue-600/5 hover:bg-blue-600/10"
+        className="w-full inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl border border-mock-cobalt/40 hover:border-mock-cobalt text-mock-cobaltInk hover:text-mock-cobalt font-display font-700 text-sm transition-all duration-200 bg-mock-cobalt/5 hover:bg-mock-cobalt/10"
       >
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />

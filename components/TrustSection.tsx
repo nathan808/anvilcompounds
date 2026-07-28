@@ -34,40 +34,20 @@ function CountUp({ end, suffix = "", decimals = 0 }: { end: number; suffix?: str
   );
 }
 
-const trustPillars = [
+const features = [
   {
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-6 h-6">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.745 3.745 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.745 3.745 0 013.296-1.043A3.745 3.745 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.745 3.745 0 013.296 1.043 3.745 3.745 0 011.043 3.296A3.745 3.745 0 0121 12z" />
-      </svg>
-    ),
     title: "Independent Testing",
     description: "We contract certified third-party labs instead of testing in-house, so results can't be quietly adjusted to pass a batch.",
   },
   {
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-6 h-6">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" />
-      </svg>
-    ),
     title: "Same-Day Dispatch",
     description: "Orders placed before 12PM PST ship the same day via USPS Priority Mail. Tracking provided at fulfillment.",
   },
   {
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-6 h-6">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 15.75l-2.489-2.489m0 0a3.375 3.375 0 10-4.773-4.773 3.375 3.375 0 004.774 4.774zM21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-      </svg>
-    ),
     title: "COA on Every Batch",
     description: "A Certificate of Analysis documenting all three test results ships with every order. Full transparency, no exceptions.",
   },
   {
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-6 h-6">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 01-.825-.242m9.345-8.334a2.126 2.126 0 00-.476-.095 48.64 48.64 0 00-8.048 0c-1.131.094-1.976 1.057-1.976 2.192v4.286c0 .837.46 1.58 1.155 1.951m9.345-8.334V6.637c0-1.621-1.152-3.026-2.76-3.235A48.455 48.455 0 0011.25 3c-2.115 0-4.198.137-6.24.402-1.608.209-2.76 1.614-2.76 3.235v6.226c0 1.621 1.152 3.026 2.76 3.235.577.075 1.157.14 1.74.194V21l4.155-4.155" />
-      </svg>
-    ),
     title: "Same-Day Support",
     description: "Weekday email support with same-day response guarantee. Damage claim? We ship free replacements within 48 hours.",
   },
@@ -85,11 +65,7 @@ export default function TrustSection() {
   const headerInView = useInView(headerRef, { once: true, margin: "-80px" });
 
   return (
-    <section id="trust" className="relative bg-ice py-14 md:py-20 overflow-hidden">
-      {/* Subtle blue gradient on light bg */}
-      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-blue-600/30 to-transparent" />
-      <div className="absolute inset-0 bg-gradient-to-br from-white via-ice to-blue-50 opacity-80" />
-
+    <section id="trust" className="relative bg-mock-page py-[76px] overflow-hidden">
       <div className="relative z-10 max-w-7xl mx-auto px-6">
         {/* Header */}
         <div ref={headerRef} className="max-w-2xl mb-10">
@@ -99,8 +75,8 @@ export default function TrustSection() {
             transition={{ duration: 0.6 }}
             className="flex items-center gap-3 mb-3"
           >
-            <div className="w-6 h-px bg-blue-600" />
-            <span className="font-mono text-xs text-blue-600 tracking-[0.25em] uppercase">
+            <div className="w-6 h-px bg-mock-cobalt" />
+            <span className="font-mono text-xs text-mock-cobaltInk tracking-[0.25em] uppercase">
               004 / Why Anvil
             </span>
           </motion.div>
@@ -109,13 +85,18 @@ export default function TrustSection() {
             initial={{ opacity: 0, y: 30 }}
             animate={headerInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.7, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-            className="font-display font-800 text-navy-900 mb-4"
+            className="font-heading font-700 text-mock-navy mb-4"
             style={{ fontSize: "clamp(2.1rem, 4.4vw, 3.5rem)" }}
           >
             Built Around One
             <br />
-            <span className="text-blue-600">Standard</span>
+            <span className="font-800 italic text-mock-cobalt">Standard</span>
           </motion.h2>
+
+          <p className="font-body text-mock-sub text-base">
+            Anyone can print 99% pure on a label. We built our pipeline so you never have to
+            take our word for it.
+          </p>
         </div>
 
         {/* Stats row */}
@@ -127,36 +108,31 @@ export default function TrustSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-60px" }}
               transition={{ duration: 0.6, delay: i * 0.08 }}
-              className="glass-card-light rounded-xl p-4 md:p-5 text-center"
+              className="bg-white border border-mock-line rounded-xl p-4 md:p-5 text-center"
             >
-              <div className="font-display font-800 text-navy-900 mb-1" style={{ fontSize: "clamp(1.8rem, 3.6vw, 2.7rem)" }}>
+              <div className="font-display font-900 text-mock-cobalt mb-1" style={{ fontSize: "clamp(1.8rem, 3.6vw, 2.7rem)" }}>
                 {"display" in stat ? stat.display : <CountUp end={stat.value} suffix={stat.suffix} />}
               </div>
-              <div className="font-mono text-xs text-navy-900/40 tracking-wider uppercase leading-snug">
+              <div className="font-mono text-xs text-mock-sub tracking-wider uppercase leading-snug">
                 {stat.label}
               </div>
             </motion.div>
           ))}
         </div>
 
-        {/* Pillars grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {trustPillars.map((pillar, i) => (
+        {/* Features grid — plain list, no icons, matching the mockup */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+          {features.map((feature, i) => (
             <motion.div
-              key={pillar.title}
+              key={feature.title}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-60px" }}
               transition={{ duration: 0.6, delay: i * 0.1 }}
-              className="glass-card-light rounded-xl p-5 flex gap-4"
+              className="bg-white border border-mock-line rounded-xl p-5"
             >
-              <div className="shrink-0 w-10 h-10 rounded-lg bg-blue-600/10 border border-blue-600/20 flex items-center justify-center text-blue-600">
-                {pillar.icon}
-              </div>
-              <div>
-                <h3 className="font-display font-700 text-navy-900 text-base mb-1.5">{pillar.title}</h3>
-                <p className="font-body text-navy-900/55 text-sm leading-relaxed">{pillar.description}</p>
-              </div>
+              <h4 className="font-display font-700 text-mock-navy text-[15px] mb-1.5">{feature.title}</h4>
+              <p className="font-body text-mock-sub text-sm leading-relaxed">{feature.description}</p>
             </motion.div>
           ))}
         </div>

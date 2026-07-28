@@ -15,14 +15,14 @@ export default function MarqueeBar() {
   const doubled = [...items, ...items];
 
   return (
-    <div className="relative overflow-hidden bg-blue-600/10 border-y border-blue-600/20 py-3">
-      <div className="marquee-track flex gap-12 w-max">
+    <div className="relative overflow-hidden bg-mock-graphite py-3">
+      <div className="marquee-track flex gap-6 w-max">
         {doubled.map((item, i) => (
-          <span key={i} className="flex items-center gap-4 shrink-0">
-            <span className="font-mono text-xs text-blue-300 tracking-[0.2em] uppercase whitespace-nowrap">
+          <span key={i} className="flex items-center gap-6 shrink-0">
+            <span className="font-mono text-xs text-[#DCE3EE] tracking-[0.16em] uppercase whitespace-nowrap">
               {item}
             </span>
-            <span className="w-1 h-1 rounded-full bg-blue-600 opacity-60" />
+            <span className="text-mock-cobaltLight text-xs">◆</span>
           </span>
         ))}
       </div>

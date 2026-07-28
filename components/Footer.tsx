@@ -30,27 +30,39 @@ export default function Footer() {
   };
 
   return (
-    <footer id="footer" className="relative bg-navy-950 border-t border-blue-600/10 overflow-hidden">
+    <footer id="footer" className="relative bg-mock-graphite border-t border-mock-cobalt/10 overflow-hidden">
       {/* Top gradient line */}
-      <div className="w-full h-px bg-gradient-to-r from-transparent via-blue-600/40 to-transparent" />
+      <div className="w-full h-px bg-gradient-to-r from-transparent via-mock-cobalt/40 to-transparent" />
 
       <div className="max-w-7xl mx-auto px-6">
+        {/* Signature */}
+        <div className="pt-12 md:pt-14">
+          <div
+            className="font-heading font-800 text-white leading-[1.05]"
+            style={{ fontSize: "clamp(26px, 3.4vw, 38px)" }}
+          >
+            Forged for research.
+            <br />
+            <span className="text-mock-cobaltLight italic font-700">Verified by data.</span>
+          </div>
+        </div>
+
         {/* Main footer content */}
-        <div className="py-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8">
+        <div className="pt-8 pb-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8">
 
           {/* Brand column */}
           <div className="lg:col-span-2">
             <div className="flex items-center gap-3 mb-5">
               <div className="relative w-8 h-8">
-                <div className="absolute inset-0 rounded bg-blue-600 rotate-45" />
-                <div className="absolute inset-[3px] rounded bg-navy-950 rotate-45" />
-                <div className="absolute inset-[6px] rounded bg-blue-600/80 rotate-45" />
+                <div className="absolute inset-0 rounded bg-mock-cobalt rotate-45" />
+                <div className="absolute inset-[3px] rounded bg-mock-graphite rotate-45" />
+                <div className="absolute inset-[6px] rounded bg-mock-cobalt/80 rotate-45" />
               </div>
               <span className="font-display font-700 text-xl text-white tracking-tight">
-                ANVIL<span className="text-blue-400 font-400 text-sm tracking-[0.2em] ml-1">COMPOUNDS</span>
+                ANVIL<span className="text-mock-cobaltLight font-400 text-sm tracking-[0.2em] ml-1">COMPOUNDS</span>
               </span>
             </div>
-            <p className="font-body text-white/40 text-sm leading-relaxed mb-6 max-w-xs">
+            <p className="font-body text-white/60 text-sm leading-relaxed mb-6 max-w-xs">
               Research-grade compounds independently verified to 99%+ purity through hexa-method
               testing. Based in Southern California.
             </p>
@@ -58,7 +70,7 @@ export default function Footer() {
             {/* Contact */}
             <a
               href="mailto:support@anvilcompounds.shop"
-              className="flex items-center gap-2 text-blue-400 hover:text-blue-300 font-mono text-xs tracking-wider transition-colors animated-underline mb-4"
+              className="flex items-center gap-2 text-mock-cobaltLight hover:text-white font-mono text-xs tracking-wider transition-colors animated-underline mb-4"
             >
               <svg viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 shrink-0">
                 <path d="M3 4a2 2 0 00-2 2v1.161l8.441 4.221a1.25 1.25 0 001.118 0L19 7.162V6a2 2 0 00-2-2H3z" />
@@ -70,7 +82,7 @@ export default function Footer() {
             {/* Phone */}
             <a
               href="tel:6196534735"
-              className="flex items-center gap-2 text-blue-400 hover:text-blue-300 font-mono text-xs tracking-wider transition-colors animated-underline mb-4"
+              className="flex items-center gap-2 text-mock-cobaltLight hover:text-white font-mono text-xs tracking-wider transition-colors animated-underline mb-4"
             >
               <svg viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 shrink-0">
                 <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
@@ -79,8 +91,8 @@ export default function Footer() {
             </a>
 
             {/* Address */}
-            <div className="flex items-start gap-2 font-mono text-xs text-white/30 tracking-wider leading-relaxed">
-              <svg className="w-3.5 h-3.5 text-white/20 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="flex items-start gap-2 font-mono text-xs text-white/55 tracking-wider leading-relaxed">
+              <svg className="w-3.5 h-3.5 text-white/40 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
@@ -94,7 +106,7 @@ export default function Footer() {
           {/* Link columns */}
           {Object.entries(links).map(([section, items]) => (
             <div key={section}>
-              <h4 className="font-mono text-xs text-blue-400/70 tracking-[0.2em] uppercase mb-5">
+              <h4 className="font-mono text-xs text-mock-cobaltLight/70 tracking-[0.2em] uppercase mb-5">
                 {section}
               </h4>
               <ul className="space-y-3">
@@ -102,7 +114,7 @@ export default function Footer() {
                   <li key={item.label}>
                     <a
                       href={item.href}
-                      className="font-body text-sm text-white/35 hover:text-white/70 transition-colors animated-underline"
+                      className="font-body text-sm text-white/60 hover:text-white transition-colors animated-underline"
                     >
                       {item.label}
                     </a>
@@ -114,7 +126,7 @@ export default function Footer() {
 
           {/* Legal / Policies column */}
           <div>
-            <h4 className="font-mono text-xs text-blue-400/70 tracking-[0.2em] uppercase mb-5">
+            <h4 className="font-mono text-xs text-mock-cobaltLight/70 tracking-[0.2em] uppercase mb-5">
               Legal
             </h4>
             <ul className="space-y-3">
@@ -134,15 +146,15 @@ export default function Footer() {
 
         {/* Disclaimer block */}
         <div className="py-6 border-t border-white/5">
-          <div className="p-5 rounded-xl bg-navy-800/50 border border-white/5 mb-8">
+          <div className="p-5 rounded-xl bg-white/5 border border-white/5 mb-8">
             <div className="flex items-start gap-3">
               <div className="shrink-0 w-5 h-5 rounded-full border border-yellow-500/50 flex items-center justify-center mt-0.5">
                 <span className="text-yellow-400 text-xs font-bold">!</span>
               </div>
-              <p className="font-mono text-xs text-white/30 leading-relaxed tracking-wide">
-                All products on this site are for <strong className="text-white/50">in vitro laboratory and research use only</strong>.
+              <p className="font-mono text-xs text-white/55 leading-relaxed tracking-wide">
+                All products on this site are for <strong className="text-white">in vitro laboratory and research use only</strong>.
                 They are not intended for use in humans, animals, or for any therapeutic, diagnostic, or clinical application.
-                You must be <strong className="text-white/50">21 years of age or older</strong> to purchase.
+                You must be <strong className="text-white">21 years of age or older</strong> to purchase.
                 By ordering, you confirm that you are a qualified researcher using these compounds in a licensed research facility.
                 Anvil Compounds makes no claims regarding the safety, efficacy, or legality of any compound for human use.
               </p>
@@ -150,8 +162,8 @@ export default function Footer() {
           </div>
 
           {/* FDA disclaimer */}
-          <div className="p-5 rounded-xl bg-navy-800/50 border border-white/5 mb-8">
-            <p className="font-mono text-xs text-white/30 leading-relaxed tracking-wide">
+          <div className="p-5 rounded-xl bg-white/5 border border-white/5 mb-8">
+            <p className="font-mono text-xs text-white/55 leading-relaxed tracking-wide">
               These products have not been evaluated by the Food and Drug Administration. They are not
               drugs, dietary supplements, or cosmetics, and are not intended to diagnose, treat, cure, or
               prevent any disease. No claim is made that any compound sold here is safe or effective for
@@ -160,13 +172,13 @@ export default function Footer() {
           </div>
 
           {/* Billing notice */}
-          <p className="font-mono text-xs text-white/30 text-center mb-6">
-            All transactions will appear on your statement as <span className="text-white/50">Anvil Holdings LLC</span>
+          <p className="font-mono text-xs text-white/55 text-center mb-6">
+            All transactions will appear on your statement as <span className="text-white">Anvil Holdings LLC</span>
           </p>
 
           {/* Bottom bar */}
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="font-mono text-xs text-white/20">
+            <p className="font-mono text-xs text-white/45">
               © {new Date().getFullYear()} Anvil Compounds. All rights reserved. San Diego, CA.
             </p>
             <div className="flex items-center gap-6 flex-wrap justify-center">
@@ -174,7 +186,7 @@ export default function Footer() {
                 <a
                   key={item.label}
                   href={item.href}
-                  className="font-mono text-xs text-white/25 hover:text-white/50 transition-colors"
+                  className="font-mono text-xs text-white/45 hover:text-white transition-colors"
                 >
                   {item.label}
                 </a>
