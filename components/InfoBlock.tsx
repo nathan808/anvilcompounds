@@ -15,7 +15,7 @@ export default function InfoBlock({
   label: string;
   children: React.ReactNode;
 }) {
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
 
   return (
     <div>
@@ -23,7 +23,11 @@ export default function InfoBlock({
         type="button"
         onClick={() => setOpen((prev) => !prev)}
         aria-expanded={open}
-        className="w-full flex items-center justify-between gap-3 mb-5 group"
+        className={`w-full flex items-center justify-between gap-3 mb-5 px-4 py-3 rounded-lg border transition-colors ${
+          open
+            ? "border-transparent bg-transparent px-0 py-0"
+            : "border-mock-line bg-mock-surface2 hover:bg-mock-line/40"
+        }`}
       >
         <div className="flex items-center gap-3">
           <div className="w-6 h-px bg-mock-cobalt" />

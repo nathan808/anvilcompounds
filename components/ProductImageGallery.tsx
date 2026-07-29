@@ -18,9 +18,14 @@ interface ProductImageGalleryProps {
   // matches the FeaturedSpotlight band's visual language for the desktop
   // PDP hero (see components/FeaturedSpotlight.tsx).
   variant?: "boxed" | "bleed";
+  // "cover" (default) = edge-to-edge crop. Fine for photos where the crop
+  // doesn't clip anything load-bearing. "contain" = full photo always
+  // visible, letterboxed if needed — a per-product override for photos
+  // (e.g. glp-rt) whose composition gets clipped by the default crop.
+  fit?: "cover" | "contain";
 }
 
-export default function ProductImageGallery({ productImage, productName, coaImage, variant = "boxed" }: ProductImageGalleryProps) {
+export default function ProductImageGallery({ productImage, productName, coaImage, variant = "boxed", fit = "cover" }: ProductImageGalleryProps) {
   const images: GalleryImage[] = [];
   if (productImage) images.push({ src: productImage, alt: productName, label: "Product" });
   if (coaImage) images.push({ src: coaImage, alt: `${productName} Certificate of Analysis`, label: "COA" });
@@ -43,21 +48,28 @@ export default function ProductImageGallery({ productImage, productName, coaImag
   const current = images[index];
   const showNav = images.length > 1;
   const bleed = variant === "bleed";
+  const contain = fit === "contain";
 
   return (
     <div className={bleed ? "relative h-full" : "relative"}>
       <div
         className={
           bleed
-            ? "relative w-full h-full min-h-[420px] lg:min-h-[560px] rounded-2xl overflow-hidden"
-            : "relative w-full aspect-square max-w-lg mx-auto lg:max-w-none rounded-2xl overflow-hidden bg-white border border-mock-line"
+            ? `relative w-full h-full min-h-[420px] lg:min-h-[560px] rounded-2xl overflow-hidden${contain ? " bg-white" : ""}`
+            : `relative w-full aspect-square max-w-lg mx-auto lg:max-w-none rounded-2xl overflow-hidden bg-white border border-mock-line`
         }
       >
         <Image
           src={current.src}
           alt={current.alt}
           fill
-          className={bleed ? "object-cover object-right" : "object-cover"}
+          className={
+            contain
+              ? "object-contain p-4 md:p-6"
+              : bleed
+              ? "object-cover object-left"
+              : "object-cover"
+          }
           sizes="(max-width: 1024px) 100vw, 50vw"
           priority
         />

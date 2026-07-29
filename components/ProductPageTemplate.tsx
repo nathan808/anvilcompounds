@@ -240,6 +240,7 @@ export default function ProductPageTemplate({
               productImage={product.image}
               productName={product.name}
               coaImage={product.documentationImage}
+              fit={product.slug === "glp-rt" ? "contain" : "cover"}
             />
 
             <AddToCartButton
@@ -283,6 +284,7 @@ export default function ProductPageTemplate({
                   productName={product.name}
                   coaImage={product.documentationImage}
                   variant="bleed"
+                  fit={product.slug === "glp-rt" ? "contain" : "cover"}
                 />
               </div>
               <ShippingBanner theme="light" />
