@@ -344,11 +344,12 @@ export default function ProductPageTemplate({
 
       {/* ── SECTIONS 1-4 — Combined info block ────────────────────────────
           One continuous section instead of stacked ones: every block
-          shares the same bg-mock-page, so separate py-16 wrappers per block
-          only added dead space between them. space-y-14 below keeps clear
-          separation without it. ── */}
+          shares the same bg-mock-page. Each block is now a collapsed-by-
+          default accordion row (see InfoBlock), so a tight space-y reads as
+          a cohesive accordion group instead of leaving large gaps of empty
+          page between short collapsed rows. ── */}
       <section className="bg-mock-page py-16">
-        <div className="max-w-5xl mx-auto px-6 space-y-14">
+        <div className="max-w-5xl mx-auto px-6 space-y-4">
 
           <InfoBlock number="01" label="What it is">
             <WithMoleculeVisual
