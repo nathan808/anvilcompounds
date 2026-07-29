@@ -240,7 +240,6 @@ export default function ProductPageTemplate({
               productImage={product.image}
               productName={product.name}
               coaImage={product.documentationImage}
-              fit={product.slug === "glp-rt" ? "contain" : "cover"}
             />
 
             <AddToCartButton
@@ -278,13 +277,13 @@ export default function ProductPageTemplate({
 
             {/* Left — product image + shipping banner + SDS preview */}
             <div className="flex flex-col gap-5">
-              <div className="flex-1 min-h-0">
+              <div className={product.slug === "glp-rt" ? "" : "flex-1 min-h-0"}>
                 <ProductImageGallery
                   productImage={product.image}
                   productName={product.name}
                   coaImage={product.documentationImage}
                   variant="bleed"
-                  fit={product.slug === "glp-rt" ? "contain" : "cover"}
+                  matchSourceAspect={product.slug === "glp-rt"}
                 />
               </div>
               <ShippingBanner theme="light" />
