@@ -15,7 +15,7 @@ export default function FeaturedSpotlight() {
       <div ref={ref} className="grid lg:grid-cols-2 items-stretch">
         {/* Framed card, object-contain so the full photo is always visible, never cropped */}
         <div className="relative w-full min-h-[400px] sm:min-h-[480px] lg:min-h-[600px] flex items-center justify-center p-8 md:p-10 lg:p-14">
-          <div className="relative w-full h-full max-w-[560px] rounded-2xl overflow-hidden border border-white/10 shadow-2xl shadow-black/30 bg-white/[0.03]">
+          <div className="relative w-full aspect-square max-w-[560px] rounded-2xl overflow-hidden border border-white/10 shadow-2xl shadow-black/30 bg-white/[0.03]">
             <Image
               src="/images/homepage/glow-scientist-hand.jpg"
               alt="Gloved researcher holding an Anvil Compounds GLOW research vial in a laboratory"

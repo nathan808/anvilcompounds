@@ -50,7 +50,20 @@ export default function HeroSection() {
             style={{ background: "radial-gradient(ellipse 70% 85% at 50% 48%, rgba(255,255,255,0.62) 0%, rgba(255,255,255,0.18) 60%, transparent 100%)" }}
           >
 
-            {/* Badge — hidden on mobile to make room for the vial graphic below the text */}
+            {/* Vial graphic — mobile/tablet only; sits above the headline. Desktop shows
+                the vial in the side column instead (see below) and keeps this hidden. */}
+            <motion.div variants={item} className="lg:hidden relative w-[320px] max-w-[82vw] aspect-square mb-2">
+              <Image
+                src="/images/homepage/hero-vial-callouts.png"
+                alt="Anvil Compounds BPC-157 research vial with 99%+ purity, lot-verified, and USA-based facility callouts"
+                fill
+                className="object-contain"
+                sizes="320px"
+                priority
+              />
+            </motion.div>
+
+            {/* Badge — hidden on mobile to make room for the vial graphic above the text */}
             <motion.div variants={item} className="hidden md:flex items-center justify-center lg:justify-start mb-3">
               <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-mock-line bg-white/70 backdrop-blur-sm">
                 <span className="w-1.5 h-1.5 rounded-full bg-mock-cobalt inline-block flex-shrink-0" />
@@ -108,19 +121,6 @@ export default function HeroSection() {
               >
                 Our Testing Process →
               </a>
-            </motion.div>
-
-            {/* Vial graphic — mobile/tablet only; sits below the main text, using the space
-                freed up by hiding the shipping banner on this breakpoint. Desktop shows the
-                vial in the side column instead (see below) and keeps the shipping banner. */}
-            <motion.div variants={item} className="lg:hidden relative w-[320px] max-w-[82vw] aspect-square mb-3">
-              <Image
-                src="/images/homepage/hero-vial-callouts.png"
-                alt="Anvil Compounds BPC-157 research vial with 99%+ purity, lot-verified, and USA-based facility callouts"
-                fill
-                className="object-contain"
-                sizes="320px"
-              />
             </motion.div>
 
             {/* Shipping banner — desktop only now; hidden on mobile to make room for the larger vial graphic above */}
