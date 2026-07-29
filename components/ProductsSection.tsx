@@ -484,25 +484,11 @@ export default function ProductsSection() {
                 initial={{ opacity: 0, y: 30 }}
                 animate={headerInView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.7, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-                className="font-heading font-700 text-mock-navy mb-4"
+                className="font-heading font-700 text-mock-navy"
                 style={{ fontSize: "clamp(2.4rem, 5vw, 4rem)" }}
               >
-                <span className="font-800 italic text-mock-cobalt">&gt;99%+ Purity Guaranteed</span>
-                <br />
                 <span>Peptide &amp; Research Reagent Catalog</span>
               </motion.h2>
-
-              <motion.p
-                initial={{ opacity: 0, y: 20 }}
-                animate={headerInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.7, delay: 0.2 }}
-                className="font-body text-mock-sub text-lg max-w-xl"
-              >
-                Each compound is a synthetic reference material supplied for
-                in-vitro laboratory research. Independently verified per lot: HPLC
-                purity, mass-spec identity, endotoxin and heavy-metal screening,
-                multi-vial sampling methods.
-              </motion.p>
             </div>
 
             {/* Search */}

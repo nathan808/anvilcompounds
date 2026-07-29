@@ -106,25 +106,11 @@ export default function CatalogTeaser({
           initial={{ opacity: 0, y: 30 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.7, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-          className="font-heading font-700 text-mock-navy mb-3"
+          className="font-heading font-700 text-mock-navy mb-6"
           style={{ fontSize: "clamp(1.9rem, 3.96vw, 3.15rem)" }}
         >
-          <span className="font-800 italic text-mock-cobalt">&gt;99%+ Purity Guaranteed</span>
-          <br />
           <span>Peptide &amp; Research Reagent Catalog</span>
         </motion.h2>
-
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.7, delay: 0.2 }}
-          className="font-body text-mock-sub text-base max-w-xl mx-auto mb-6"
-        >
-          Each compound is a synthetic reference material supplied for
-          in-vitro laboratory research. Independently verified per lot: HPLC
-          purity, mass-spec identity, endotoxin and heavy-metal screening,
-          multi-vial sampling methods.
-        </motion.p>
 
         {previewProducts.length > 0 && (
           <motion.div
