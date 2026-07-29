@@ -1,6 +1,7 @@
 import AddToCartButton from "@/app/products/[slug]/AddToCartButton";
 import ShippingBanner from "@/components/ShippingBanner";
 import ProductImageGallery from "@/components/ProductImageGallery";
+import InfoBlock from "@/components/InfoBlock";
 import ViewCoaButton from "@/components/ViewCoaButton";
 import SdsPreviewButton from "@/components/SdsPreviewButton";
 import PurchaseFooter from "@/components/PurchaseFooter";
@@ -69,27 +70,6 @@ function Section({ children }: { children: React.ReactNode }) {
     <section className="bg-mock-page py-16">
       <div className="max-w-5xl mx-auto px-6">{children}</div>
     </section>
-  );
-}
-
-// A single content block within the combined info section below — no
-// section/background of its own, just a label + body, so several of these
-// can sit close together without the dead space that comes from each one
-// being its own full-bleed section.
-function InfoBlock({
-  number,
-  label,
-  children,
-}: {
-  number: string;
-  label: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div>
-      <SectionLabel number={number} label={label} />
-      {children}
-    </div>
   );
 }
 

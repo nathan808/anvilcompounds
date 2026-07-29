@@ -57,7 +57,7 @@ export default function ProductImageGallery({ productImage, productName, coaImag
           src={current.src}
           alt={current.alt}
           fill
-          className={bleed ? "object-cover object-left" : "object-cover"}
+          className={bleed ? "object-cover object-right" : "object-cover"}
           sizes="(max-width: 1024px) 100vw, 50vw"
           priority
         />

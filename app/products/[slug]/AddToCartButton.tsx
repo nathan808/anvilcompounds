@@ -189,7 +189,7 @@ export default function AddToCartButton({
       {/* Volume pricing table */}
       <div className="rounded-xl border border-mock-line overflow-hidden">
         <div className="px-4 py-2.5 bg-mock-graphite border-b border-mock-line">
-          <span className="font-mono text-[10px] text-white/70 tracking-[0.2em] uppercase">Volume Pricing</span>
+          <span className="font-mono text-[10px] text-white tracking-[0.2em] uppercase">Volume Pricing</span>
         </div>
         <div className="divide-y divide-mock-line">
           {VOLUME_TIERS.map((tier, i) => {

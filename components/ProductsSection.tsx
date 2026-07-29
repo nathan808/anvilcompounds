@@ -107,17 +107,17 @@ const SLUG_MAP: Record<string, string> = {
 
 // Popularity rank — lower = more popular (shown first)
 const POPULARITY_ORDER: Record<string, number> = {
-  "BPC-157":                                      1,
-  "BPC-157 + TB-500":                              2,
-  "T1rz":                                         3,
-  "Trz- dual receptor":                           3,
-  "Dual Receptor (T)":                            3,
-  "R3ta":                                         4,
-  "Rta - triple agonist":                         4,
-  "triple agonist (R)":                           4,
-  "Triple Agonist (R)":                           4,
-  "GLP-TRZ":                                      3,
-  "GLP-RT":                                       4,
+  "BPC-157":                                      2,
+  "BPC-157 + TB-500":                              3,
+  "T1rz":                                         4,
+  "Trz- dual receptor":                           4,
+  "Dual Receptor (T)":                            4,
+  "R3ta":                                         0,
+  "Rta - triple agonist":                         0,
+  "triple agonist (R)":                           0,
+  "Triple Agonist (R)":                           0,
+  "GLP-TRZ":                                      4,
+  "GLP-RT":                                       0,
   "KLOW":                                         5,
   "GLOW":                                         6,
   "TB-500":                                       7,
@@ -233,7 +233,7 @@ export function ProductCard({ product, index }: { product: ProductCard; index: n
           </div>
           {/* COA-pending blur overlay */}
           {!product.hasCoa ? (
-            <div className="absolute inset-0 z-10 backdrop-blur-sm bg-mock-graphite/70 flex flex-col items-center justify-center gap-2">
+            <div className="absolute inset-0 z-10 backdrop-blur-md bg-mock-graphite/95 flex flex-col items-center justify-center gap-2">
               <div className="w-2 h-2 rounded-full bg-yellow-400 animate-pulse" />
               <span className="font-mono text-[10px] text-yellow-300 tracking-[0.18em] uppercase text-center px-2">
                 Testing in Progress
