@@ -1,6 +1,7 @@
 import AddToCartButton from "@/app/products/[slug]/AddToCartButton";
 import ShippingBanner from "@/components/ShippingBanner";
 import ProductImageGallery from "@/components/ProductImageGallery";
+import InfoBlock from "@/components/InfoBlock";
 import ViewCoaButton from "@/components/ViewCoaButton";
 import SdsPreviewButton from "@/components/SdsPreviewButton";
 import PurchaseFooter from "@/components/PurchaseFooter";
@@ -54,8 +55,8 @@ export interface ProductPageData {
 function SectionLabel({ number, label }: { number: string; label: string }) {
   return (
     <div className="flex items-center gap-3 mb-5">
-      <div className="w-6 h-px bg-blue-600" />
-      <span className="font-mono text-xs text-slate-400 tracking-[0.2em] uppercase">
+      <div className="w-6 h-px bg-mock-cobalt" />
+      <span className="font-mono text-xs text-mock-cobaltInk tracking-[0.2em] uppercase">
         {number} / {label}
       </span>
     </div>
@@ -66,30 +67,9 @@ function SectionLabel({ number, label }: { number: string; label: string }) {
 
 function Section({ children }: { children: React.ReactNode }) {
   return (
-    <section className="bg-navy-950 py-16">
+    <section className="bg-mock-page py-16">
       <div className="max-w-5xl mx-auto px-6">{children}</div>
     </section>
-  );
-}
-
-// A single content block within the combined info section below — no
-// section/background of its own, just a label + body, so several of these
-// can sit close together without the dead space that comes from each one
-// being its own full-bleed section.
-function InfoBlock({
-  number,
-  label,
-  children,
-}: {
-  number: string;
-  label: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div>
-      <SectionLabel number={number} label={label} />
-      {children}
-    </div>
   );
 }
 
@@ -134,24 +114,24 @@ function MechanismDiagram({
   branches: { node: string; outcome: string }[];
 }) {
   return (
-    <div className="rounded-xl border border-white/10 bg-navy-800/40 p-5 md:p-6">
+    <div className="rounded-xl border border-mock-line bg-mock-surface2 p-5 md:p-6">
       <div className="flex flex-col md:flex-row gap-4 md:items-center">
         <div className="shrink-0 md:self-stretch flex items-center">
-          <div className="px-4 py-3 rounded-lg bg-navy-950 border border-blue-500/30 text-center md:min-w-[140px]">
+          <div className="px-4 py-3 rounded-lg bg-mock-graphite border border-mock-cobalt/30 text-center md:min-w-[140px]">
             <span className="font-display font-700 text-white text-sm leading-tight">{root}</span>
           </div>
         </div>
 
-        <div className="hidden md:block w-5 h-px bg-blue-600/40 shrink-0" />
+        <div className="hidden md:block w-5 h-px bg-mock-cobalt/40 shrink-0" />
 
         <div className="flex-grow space-y-2.5">
           {branches.map((b, i) => (
             <div key={i} className="flex items-center gap-3 flex-wrap">
-              <span className="px-3 py-1.5 rounded-md bg-white/5 border border-white/10 font-mono text-xs text-blue-300">
+              <span className="px-3 py-1.5 rounded-md bg-white border border-mock-line font-mono text-xs text-mock-cobaltInk">
                 {b.node}
               </span>
-              <span className="text-blue-500/50">→</span>
-              <span className="font-mono text-xs text-white/50">{b.outcome}</span>
+              <span className="text-mock-cobalt/60">→</span>
+              <span className="font-mono text-xs text-mock-sub">{b.outcome}</span>
             </div>
           ))}
         </div>
@@ -171,15 +151,15 @@ function MechanismsBlock({ product }: { product: ProductPageData }) {
   if (mechanism) {
     return (
       <InfoBlock number="02" label={mechanism.sectionTitle}>
-        <div className="glass-card rounded-2xl p-8 space-y-6">
-          <p className="font-body text-white/60 leading-relaxed">{mechanism.intro}</p>
+        <div className="bg-white border border-mock-line rounded-2xl p-8 space-y-6">
+          <p className="font-body text-mock-sub leading-relaxed">{mechanism.intro}</p>
 
           <ul className="space-y-4">
             {mechanism.bullets.map((b, i) => (
               <li key={i} className="flex items-start gap-3">
-                <span className="shrink-0 w-1.5 h-1.5 rounded-full bg-blue-500 mt-2" />
-                <p className="font-body text-white/65 leading-relaxed">
-                  <span className="font-display font-700 text-white">{b.title}.</span>{" "}
+                <span className="shrink-0 w-1.5 h-1.5 rounded-full bg-mock-cobalt mt-2" />
+                <p className="font-body text-mock-sub leading-relaxed">
+                  <span className="font-display font-700 text-mock-navy">{b.title}.</span>{" "}
                   {b.description}
                 </p>
               </li>
@@ -188,7 +168,7 @@ function MechanismsBlock({ product }: { product: ProductPageData }) {
 
           <MechanismDiagram root={mechanism.diagram.root} branches={mechanism.diagram.branches} />
 
-          <p className="font-mono text-xs text-white/30 leading-relaxed">{mechanism.caption}</p>
+          <p className="font-mono text-xs text-mock-sub leading-relaxed">{mechanism.caption}</p>
         </div>
       </InfoBlock>
     );
@@ -196,14 +176,14 @@ function MechanismsBlock({ product }: { product: ProductPageData }) {
 
   return (
     <InfoBlock number="02" label="Research Applications">
-      <div className="glass-card rounded-2xl p-8">
+      <div className="bg-white border border-mock-line rounded-2xl p-8">
         <ol className="space-y-5">
           {product.researchApplications.map((item, i) => (
             <li key={i} className="flex items-start gap-5">
-              <span className="shrink-0 font-mono text-xs text-blue-600/60 w-6 pt-0.5 tabular-nums">
+              <span className="shrink-0 font-mono text-xs text-mock-cobaltInk/70 w-6 pt-0.5 tabular-nums">
                 {String(i + 1).padStart(2, "0")}
               </span>
-              <p className="font-body text-white/65 leading-relaxed">{item}</p>
+              <p className="font-body text-mock-sub leading-relaxed">{item}</p>
             </li>
           ))}
         </ol>
@@ -224,7 +204,7 @@ export default function ProductPageTemplate({
   return (
     <>
       {/* ── SECTION 1 — Hero header ───────────────────────────────────────── */}
-      <section className="bg-navy-950 py-16 md:py-24">
+      <section className="bg-mock-page py-16 md:py-24">
         <div className="max-w-7xl mx-auto px-6">
 
           {/* ── Mobile layout (< lg): category/disclaimer/name up top, buy
@@ -233,26 +213,26 @@ export default function ProductPageTemplate({
               pushed below. Renders its own AddToCartButton/ProductImageGallery
               instance (see note on the desktop block below). ── */}
           <div className="lg:hidden space-y-5">
-            <nav className="font-mono text-xs text-white/30">
+            <nav className="font-mono text-xs text-mock-sub">
               <span>Catalog</span>
-              <span className="mx-2 text-white/20">/</span>
-              <span className="text-slate-400/80">{product.category}</span>
+              <span className="mx-2 text-mock-sub/60">/</span>
+              <span className="text-mock-cobaltInk/80">{product.category}</span>
             </nav>
 
             <div className="inline-block">
-              <span className="font-mono text-[10px] text-white/35 tracking-[0.18em] uppercase border border-white/10 rounded-full px-3 py-1">
+              <span className="font-mono text-[10px] text-mock-sub tracking-[0.18em] uppercase border border-mock-line rounded-full px-3 py-1">
                 For laboratory and research use only
               </span>
             </div>
 
             <h1
-              className="font-display font-800 text-white leading-[1.05]"
+              className="font-heading font-700 text-mock-navy leading-[1.05]"
               style={{ fontSize: "clamp(2.5rem, 5vw, 4rem)" }}
             >
               {getProductDisplayTitle(product.name, product.category)}
             </h1>
 
-            <p className="font-mono text-xs text-slate-400 tracking-wider">
+            <p className="font-mono text-xs text-mock-sub tracking-wider">
               {product.subtitle}
             </p>
 
@@ -282,7 +262,7 @@ export default function ProductPageTemplate({
               <SdsPreviewButton productName={product.name} fileUrl={product.sdsFile} />
             </div>
 
-            <ShippingBanner theme="dark" />
+            <ShippingBanner theme="light" />
 
             <PurchaseFooter />
           </div>
@@ -297,44 +277,45 @@ export default function ProductPageTemplate({
 
             {/* Left — product image + shipping banner + SDS preview */}
             <div className="flex flex-col gap-5">
-              <div className="flex-1 min-h-0">
+              <div className={product.slug === "glp-rt" ? "" : "flex-1 min-h-0"}>
                 <ProductImageGallery
                   productImage={product.image}
                   productName={product.name}
                   coaImage={product.documentationImage}
                   variant="bleed"
+                  matchSourceAspect={product.slug === "glp-rt"}
                 />
               </div>
-              <ShippingBanner theme="dark" />
+              <ShippingBanner theme="light" />
               <SdsPreviewButton productName={product.name} fileUrl={product.sdsFile} />
             </div>
 
             {/* Right — buy column */}
             <div className="lg:sticky lg:top-24 space-y-5">
               {/* Breadcrumb */}
-              <nav className="font-mono text-xs text-white/30">
+              <nav className="font-mono text-xs text-mock-sub">
                 <span>Catalog</span>
-                <span className="mx-2 text-white/20">/</span>
-                <span className="text-slate-400/80">{product.category}</span>
+                <span className="mx-2 text-mock-sub/60">/</span>
+                <span className="text-mock-cobaltInk/80">{product.category}</span>
               </nav>
 
               {/* RUO pill */}
               <div className="inline-block">
-                <span className="font-mono text-[10px] text-white/35 tracking-[0.18em] uppercase border border-white/10 rounded-full px-3 py-1">
+                <span className="font-mono text-[10px] text-mock-sub tracking-[0.18em] uppercase border border-mock-line rounded-full px-3 py-1">
                   For laboratory and research use only
                 </span>
               </div>
 
               {/* Name */}
               <h1
-                className="font-display font-800 text-white leading-[1.05]"
+                className="font-heading font-700 text-mock-navy leading-[1.05]"
                 style={{ fontSize: "clamp(2.5rem, 5vw, 4rem)" }}
               >
                 {getProductDisplayTitle(product.name, product.category)}
               </h1>
 
               {/* Subtitle */}
-              <p className="font-mono text-xs text-slate-400 tracking-wider">
+              <p className="font-mono text-xs text-mock-sub tracking-wider">
                 {product.subtitle}
               </p>
 
@@ -363,22 +344,23 @@ export default function ProductPageTemplate({
 
       {/* ── SECTIONS 1-4 — Combined info block ────────────────────────────
           One continuous section instead of stacked ones: every block
-          shares the same bg-navy-950, so separate py-16 wrappers per block
-          only added dead space between them. space-y-14 below keeps clear
-          separation without it. ── */}
-      <section className="bg-navy-950 py-16">
-        <div className="max-w-5xl mx-auto px-6 space-y-14">
+          shares the same bg-mock-page. Each block is now a collapsed-by-
+          default accordion row (see InfoBlock), so a tight space-y reads as
+          a cohesive accordion group instead of leaving large gaps of empty
+          page between short collapsed rows. ── */}
+      <section className="bg-mock-page py-16">
+        <div className="max-w-5xl mx-auto px-6 space-y-4">
 
           <InfoBlock number="01" label="What it is">
             <WithMoleculeVisual
               image={!product.compositionBody ? product.moleculeImage : null}
               productName={product.name}
             >
-              <div className="glass-card rounded-2xl p-8">
-                <p className="font-display font-700 text-white text-xl mb-4">
+              <div className="bg-white border border-mock-line rounded-2xl p-8">
+                <p className="font-display font-700 text-mock-navy text-xl mb-4">
                   {product.whatItIsSubtitle}
                 </p>
-                <p className="font-body text-white/60 leading-relaxed">
+                <p className="font-body text-mock-sub leading-relaxed">
                   {product.whatItIsBody}
                 </p>
               </div>
@@ -388,20 +370,20 @@ export default function ProductPageTemplate({
           <MechanismsBlock product={product} />
 
           <InfoBlock number="03" label="Properties">
-            <div className="glass-card rounded-2xl overflow-hidden">
+            <div className="bg-white border border-mock-line rounded-2xl overflow-hidden">
               <table className="w-full">
                 <tbody>
                   {product.propertiesTable.map((row, i) => (
                     <tr
                       key={row.label}
-                      className={`border-b border-white/5 last:border-0 ${
-                        i % 2 === 0 ? "bg-white/[0.02]" : ""
+                      className={`border-b border-mock-line last:border-0 ${
+                        i % 2 === 0 ? "bg-mock-surface2" : ""
                       }`}
                     >
-                      <td className="px-6 md:px-8 py-4 font-mono text-xs text-white/30 tracking-widest uppercase whitespace-nowrap align-top w-48">
+                      <td className="px-6 md:px-8 py-4 font-mono text-xs text-mock-sub tracking-widest uppercase whitespace-nowrap align-top w-48">
                         {row.label}
                       </td>
-                      <td className="px-6 md:px-8 py-4 font-body text-sm text-white/70 leading-relaxed">
+                      <td className="px-6 md:px-8 py-4 font-body text-sm text-mock-navy leading-relaxed">
                         {row.value}
                       </td>
                     </tr>
@@ -415,10 +397,10 @@ export default function ProductPageTemplate({
       </section>
 
       {/* ── RUO disclaimer — tighter top spacing ─────────────────────────── */}
-      <section className="bg-navy-950 pb-12">
+      <section className="bg-mock-page pb-12">
         <div className="max-w-5xl mx-auto px-6">
-          <div className="glass-card rounded-2xl p-8 border-l-4 border-blue-600">
-            <p className="font-body text-sm text-white/50 leading-relaxed">
+          <div className="bg-white border border-mock-line rounded-2xl p-8 border-l-4 border-l-mock-cobalt">
+            <p className="font-body text-sm text-mock-sub leading-relaxed">
               By completing your order you confirm all products are purchased for
               legitimate in vitro laboratory research purposes only, not for human
               or veterinary injection or therapeutic use. Anvil Compounds is not a
@@ -441,9 +423,9 @@ export default function ProductPageTemplate({
       )}
 
       {/* ── Footer compliance ─────────────────────────────────────────────── */}
-      <section className="bg-navy-950 border-t border-white/5 py-8">
+      <section className="bg-mock-page border-t border-mock-line py-8">
         <div className="max-w-5xl mx-auto px-6 text-center">
-          <p className="font-mono text-[10px] text-white/20 tracking-wide leading-relaxed">
+          <p className="font-mono text-[10px] text-mock-sub tracking-wide leading-relaxed">
             Anvil Compounds products are intended solely for laboratory and
             investigational use. We do not market, sell, or promote products for
             human or veterinary consumption, therapeutic use, or clinical

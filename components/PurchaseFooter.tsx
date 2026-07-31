@@ -11,7 +11,7 @@ export default function PurchaseFooter() {
       <div className="hidden lg:block">
         <PaymentMethodsBar />
       </div>
-      <p className="text-center font-mono text-[10px] text-white/20 tracking-wide">
+      <p className="text-center font-mono text-[10px] text-mock-sub tracking-wide">
         RUO only · Not for human or veterinary use · 21+ required
       </p>
     </div>

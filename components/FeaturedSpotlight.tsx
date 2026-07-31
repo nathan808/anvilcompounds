@@ -5,28 +5,23 @@ import Image from "next/image";
 import { motion, useInView } from "framer-motion";
 
 // Split band pairing a single hero product shot with a short trust
-// statement + stat row. The section background is a gradient sampled
-// directly from the vial composite's own background (near-white top-left
-// fading to a pale blue-grey bottom-right) instead of the flat "ice" token,
-// so the image's edges dissolve into the section rather than showing a
-// visible seam.
-const SPOTLIGHT_BG = "linear-gradient(135deg, #ffffff 0%, #f2f5f8 55%, #eef2f6 100%)";
-
+// statement + stat row. Dark graphite section matching the approved mockup.
 export default function FeaturedSpotlight() {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-80px" });
 
   return (
-    <section className="relative overflow-hidden" style={{ background: SPOTLIGHT_BG }}>
+    <section className="relative overflow-hidden bg-mock-graphite">
       <div ref={ref} className="grid lg:grid-cols-2 items-stretch">
-        <div className="relative w-full flex items-center justify-center p-6">
-          <div className="relative h-[264px] sm:h-[330px] md:h-[374px] w-auto aspect-[896/1200]">
+        {/* Framed card, object-contain so the full photo is always visible, never cropped */}
+        <div className="relative w-full min-h-[400px] sm:min-h-[480px] lg:min-h-[600px] flex items-center justify-center p-8 md:p-10 lg:p-14">
+          <div className="relative w-full aspect-square max-w-[560px] rounded-2xl overflow-hidden border border-white/10 shadow-2xl shadow-black/30 bg-white/[0.03]">
             <Image
-              src="/images/homepage/glow-hero-light.png"
-              alt="Anvil Compounds BPC-157 research vial, lot-verified and 99%+ purity"
+              src="/images/homepage/glow-scientist-hand.jpg"
+              alt="Gloved researcher holding an Anvil Compounds GLOW research vial in a laboratory"
               fill
-              className="object-contain"
-              sizes="374px"
+              className="object-contain p-5 md:p-6"
+              sizes="(max-width: 1024px) 90vw, 45vw"
               loading="lazy"
             />
           </div>
@@ -38,32 +33,33 @@ export default function FeaturedSpotlight() {
           transition={{ duration: 0.6 }}
           className="flex flex-col justify-center gap-3 px-6 py-8 md:px-12 md:py-10"
         >
-          <span className="font-mono text-xs text-blue-600 tracking-[0.25em] uppercase">
+          <span className="font-mono text-xs text-mock-cobaltLight tracking-[0.25em] uppercase">
             A standard you can see
           </span>
           <h2
-            className="font-display font-800 text-navy-900 leading-[1.05]"
+            className="font-heading font-700 text-[#EAF0FA] leading-[1.05]"
             style={{ fontSize: "clamp(1.5rem, 2.8vw, 2.1rem)" }}
           >
-            Silver-sealed. Lot-verified. Research-grade.
+            Silver-sealed. Lot-verified.{" "}
+            <span className="font-800 italic text-mock-cobaltLight">Research-grade.</span>
           </h2>
-          <p className="font-body text-navy-900/55 text-sm leading-relaxed max-w-md">
+          <p className="font-body text-[#AEBBD0] text-sm leading-relaxed max-w-md">
             Every vial ships with the same discipline behind it: a
             Certificate of Analysis covering purity, identity, and endotoxin
             screening for that exact lot. No batch skips a step.
           </p>
           <div className="flex gap-6 mt-1">
             <div>
-              <span className="block font-display font-800 text-xl text-navy-900">99%+</span>
-              <span className="font-mono text-[10px] text-navy-900/40 tracking-wider uppercase">Minimum Purity</span>
+              <span className="block font-heading italic font-800 text-mock-cobaltLight" style={{ fontSize: "1.375rem" }}>99%+</span>
+              <span className="font-heading italic text-mock-cobaltLight tracking-wider uppercase" style={{ fontSize: "11px" }}>Minimum Purity</span>
             </div>
             <div>
-              <span className="block font-display font-800 text-xl text-navy-900">6×</span>
-              <span className="font-mono text-[10px] text-navy-900/40 tracking-wider uppercase">Verification Methods</span>
+              <span className="block font-heading italic font-800 text-mock-cobaltLight" style={{ fontSize: "1.375rem" }}>6×</span>
+              <span className="font-heading italic text-mock-cobaltLight tracking-wider uppercase" style={{ fontSize: "11px" }}>Verification Methods</span>
             </div>
             <div>
-              <span className="block font-display font-800 text-xl text-navy-900">COA</span>
-              <span className="font-mono text-[10px] text-navy-900/40 tracking-wider uppercase">Every Batch</span>
+              <span className="block font-heading italic font-800 text-mock-cobaltLight" style={{ fontSize: "1.375rem" }}>COA</span>
+              <span className="font-heading italic text-mock-cobaltLight tracking-wider uppercase" style={{ fontSize: "11px" }}>Every Batch</span>
             </div>
           </div>
         </motion.div>

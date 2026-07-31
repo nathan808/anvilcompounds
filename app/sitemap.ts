@@ -23,9 +23,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const blogSlugs = await getBlogSlugs();
 
   const staticRoutes: MetadataRoute.Sitemap = [
-    { url: BASE,         lastModified: new Date(), changeFrequency: "weekly",  priority: 1.0 },
-    { url: `${BASE}/faq`,   lastModified: new Date(), changeFrequency: "monthly", priority: 0.5 },
-    { url: `${BASE}/blog`,  lastModified: new Date(), changeFrequency: "daily",   priority: 0.8 },
+    { url: BASE,          lastModified: new Date(), changeFrequency: "weekly",  priority: 1.0 },
+    { url: `${BASE}/learn`, lastModified: new Date(), changeFrequency: "daily",   priority: 0.8 },
   ];
 
   const productRoutes: MetadataRoute.Sitemap = PRODUCT_SLUGS.map((slug) => ({

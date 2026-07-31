@@ -31,6 +31,10 @@ const nextConfig = {
       // redirect old links/bookmarks straight to the new canonical slugs.
       { source: "/products/t1rz",             destination: "/products/glp-trz", permanent: true },
       { source: "/products/r3ta",             destination: "/products/glp-rt", permanent: true },
+      // FAQ and the Journal index were merged into a single tabbed /learn hub.
+      // Individual /blog/[slug] posts are unaffected (no wildcard here).
+      { source: "/faq",                       destination: "/learn?tab=faq", permanent: true },
+      { source: "/blog",                      destination: "/learn?tab=journal", permanent: true },
     ];
   },
   images: {

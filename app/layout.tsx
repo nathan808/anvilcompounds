@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Archivo, Inter, Space_Mono, Oswald } from "next/font/google";
+import { Archivo, Inter, Space_Mono, Oswald, Playfair_Display } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import { CartProvider } from "@/lib/cartContext";
@@ -36,6 +36,14 @@ const oswald = Oswald({
   display: "swap",
 });
 
+const playfairDisplay = Playfair_Display({
+  subsets: ["latin"],
+  variable: "--font-playfair",
+  weight: ["600", "700", "800", "900"],
+  style: ["normal", "italic"],
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: "Anvil Compounds — Independently Verified. Every Batch.",
   description:
@@ -50,7 +58,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="scroll-smooth" data-theme="light">
-      <body className={`${archivo.variable} ${inter.variable} ${spaceMono.variable} ${oswald.variable} font-body`}>
+      <body className={`${archivo.variable} ${inter.variable} ${spaceMono.variable} ${oswald.variable} ${playfairDisplay.variable} font-body`}>
         <AuthProvider>
           <CartProvider>
             <CheckoutProvider>

@@ -254,7 +254,7 @@ export async function getProductPageData(slug: string): Promise<ProductPageData 
       documentationMetrics,
       documentationFile:    meta["documentation_file"]          ?? null,
       documentationImage:   meta["documentation_image"]         ?? null,
-      hasCoa:               !IDS_WITHOUT_COA.has(wcId) && !!meta["documentation_file"],
+      hasCoa:               !IDS_WITHOUT_COA.has(wcId),
       sdsFile:              SLUG_TO_SDS[slug]                   ?? null,
       moleculeImage:        SLUG_TO_MOLECULE_IMAGE[slug]        ?? null,
       documentationCaption: meta["documentation_caption"]       ?? "",
@@ -271,14 +271,40 @@ export async function getProductPageData(slug: string): Promise<ProductPageData 
 
 const ICONS = ["⬡", "◈", "◇", "✦", "⬢", "⬟"];
 
-const BADGES = [
-  { label: "Bestseller",     color: "bg-blue-600/70 text-blue-100 border-blue-500/50" },
-  { label: "High Demand",    color: "bg-indigo-600/70 text-indigo-100 border-indigo-500/50" },
-  { label: "Advanced",       color: "bg-cyan-600/70 text-cyan-100 border-cyan-500/50" },
-  { label: "Exclusive Blend",color: "bg-purple-600/70 text-purple-100 border-purple-500/50" },
-  { label: "Entry Point",    color: "bg-teal-600/70 text-teal-100 border-teal-500/50" },
-  { label: "Cutting Edge",   color: "bg-rose-600/70 text-rose-100 border-rose-500/50" },
-];
+const DEFAULT_BADGE = { label: "Verified", color: "bg-slate-600/70 text-slate-100 border-slate-500/50" };
+
+// Per-product badge — keyed on every name variant WooCommerce has used for
+// that product (see PRODUCT_PAGE_URLS / LOCAL_PRODUCT_IMAGES above for the
+// same variant lists). Falls back to DEFAULT_BADGE for any product not
+// listed here (e.g. a brand-new SKU) rather than cycling through an
+// unrelated rotation — a product's badge should never depend on its
+// position in the WooCommerce response.
+const PRODUCT_BADGES: Record<string, { label: string; color: string }> = {
+  "BPC-157":                                      { label: "High Demand",       color: "bg-indigo-600/70 text-indigo-100 border-indigo-500/50" },
+  "BPC-157 + TB-500":                              { label: "Exclusive Blend",   color: "bg-purple-600/70 text-purple-100 border-purple-500/50" },
+  "TB-500":                                       { label: "Recovery Staple",   color: "bg-amber-600/70 text-amber-100 border-amber-500/50" },
+  "KLOW":                                         { label: "Premium Blend",     color: "bg-fuchsia-600/70 text-fuchsia-100 border-fuchsia-500/50" },
+  "GLOW":                                         { label: "Cosmetic Blend",    color: "bg-pink-600/70 text-pink-100 border-pink-500/50" },
+  "GHK-Cu":                                       { label: "Entry Point",       color: "bg-teal-600/70 text-teal-100 border-teal-500/50" },
+  "T1rz":                                         { label: "Dual Agonist",      color: "bg-cyan-600/70 text-cyan-100 border-cyan-500/50" },
+  "Trz- dual receptor":                           { label: "Dual Agonist",      color: "bg-cyan-600/70 text-cyan-100 border-cyan-500/50" },
+  "Dual Receptor (T)":                            { label: "Dual Agonist",      color: "bg-cyan-600/70 text-cyan-100 border-cyan-500/50" },
+  "GLP-TRZ":                                      { label: "Dual Agonist",      color: "bg-cyan-600/70 text-cyan-100 border-cyan-500/50" },
+  "R3ta":                                         { label: "Triple Agonist",    color: "bg-rose-600/70 text-rose-100 border-rose-500/50" },
+  "Rta - triple agonist":                         { label: "Triple Agonist",    color: "bg-rose-600/70 text-rose-100 border-rose-500/50" },
+  "triple agonist (R)":                           { label: "Triple Agonist",    color: "bg-rose-600/70 text-rose-100 border-rose-500/50" },
+  "Triple Agonist (R)":                           { label: "Triple Agonist",    color: "bg-rose-600/70 text-rose-100 border-rose-500/50" },
+  "GLP-RT":                                       { label: "Triple Agonist",    color: "bg-rose-600/70 text-rose-100 border-rose-500/50" },
+  "MOTS-c":                                       { label: "Metabolic",         color: "bg-violet-600/70 text-violet-100 border-violet-500/50" },
+  "NAD+":                                         { label: "Cellular Energy",   color: "bg-emerald-600/70 text-emerald-100 border-emerald-500/50" },
+  "CJC-1295 + Ipamorelin":                        { label: "GH Blend",          color: "bg-orange-600/70 text-orange-100 border-orange-500/50" },
+  "Tesamorelin":                                  { label: "GHRH Research",     color: "bg-yellow-600/70 text-yellow-100 border-yellow-500/50" },
+  "5-Amino-1MQ":                                  { label: "Metabolic Support", color: "bg-lime-600/70 text-lime-100 border-lime-500/50" },
+  "Semax":                                        { label: "Neuropeptide",      color: "bg-blue-600/70 text-blue-100 border-blue-500/50" },
+  "Selank":                                       { label: "Anxiolytic Research", color: "bg-sky-600/70 text-sky-100 border-sky-500/50" },
+  "Bacteriostatic Water":                         { label: "Essential Supply",  color: "bg-slate-600/70 text-slate-100 border-slate-500/50" },
+  "Reconstitution Solution – for Laboratory Use": { label: "Essential Supply",  color: "bg-slate-600/70 text-slate-100 border-slate-500/50" },
+};
 
 function stripHtml(html: string): string {
   return html
@@ -325,7 +351,7 @@ export interface ProductCard {
 }
 
 // Products without COA yet (Testing in Progress — no buy UI shown)
-const IDS_WITHOUT_COA = new Set([443, 445, 446, 450, 447, 449, 510, 511, 333, 346]);
+const IDS_WITHOUT_COA = new Set([443, 445, 446, 450, 510, 511, 333, 346]);
 
 const PRODUCT_PAGE_URLS: Record<string, string> = {
   "BPC-157":                                      "https://anvilcompounds.shop/product/bpc-157/",
@@ -362,17 +388,17 @@ const LOCAL_PRODUCT_IMAGES: Record<string, string> = {
   "GHK-Cu":                                       "/products/ghkcu.jpg",
   "TB-500":                                       "/products/tb500.jpg",
   "MOTS-c":                                       "/products/motsc.png",
-  "BPC-157 + TB-500":                              "/products/wolverine.png",
+  "BPC-157 + TB-500":                              "/products/wolverine.jpg",
   "NAD+":                                         "/products/nad.png",
   "Tesamorelin":                                  "/products/tesa.png",
   "CJC-1295 + Ipamorelin":                        "/products/cjcipa.png",
   "5-Amino-1MQ":                                  "/products/5amino.png",
-  "GLOW":                                         "/products/glow.png",
+  "GLOW":                                         "/products/glow.jpg",
   // Semax + Selank images served directly from WooCommerce gallery (no local copy)
 };
 
 export function mapProduct(product: WCProduct, index: number): ProductCard {
-  const badge = BADGES[index % BADGES.length];
+  const badge = PRODUCT_BADGES[product.name] ?? DEFAULT_BADGE;
   return {
     id:          product.id,
     name:        product.name,

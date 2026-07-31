@@ -18,9 +18,17 @@ interface ProductImageGalleryProps {
   // matches the FeaturedSpotlight band's visual language for the desktop
   // PDP hero (see components/FeaturedSpotlight.tsx).
   variant?: "boxed" | "bleed";
+  // Bleed variant normally stretches to fill the column's full height,
+  // however tall that ends up being, and relies on object-cover to crop
+  // edge-to-edge — fine as long as the crop doesn't clip anything. Some
+  // photos (e.g. glp-rt, where the vial sits close enough to center that a
+  // tall stretched frame crops into the info card) need their frame shaped
+  // to the photo's own aspect ratio instead, so object-cover has nothing to
+  // crop — still edge-to-edge, no letterboxing, just a differently-shaped box.
+  matchSourceAspect?: boolean;
 }
 
-export default function ProductImageGallery({ productImage, productName, coaImage, variant = "boxed" }: ProductImageGalleryProps) {
+export default function ProductImageGallery({ productImage, productName, coaImage, variant = "boxed", matchSourceAspect = false }: ProductImageGalleryProps) {
   const images: GalleryImage[] = [];
   if (productImage) images.push({ src: productImage, alt: productName, label: "Product" });
   if (coaImage) images.push({ src: coaImage, alt: `${productName} Certificate of Analysis`, label: "COA" });
@@ -30,10 +38,10 @@ export default function ProductImageGallery({ productImage, productName, coaImag
   if (images.length === 0) {
     return (
       <div
-        className="glass-card rounded-2xl flex items-center justify-center max-w-lg mx-auto lg:max-w-none"
+        className="bg-white border border-mock-line rounded-2xl flex items-center justify-center max-w-lg mx-auto lg:max-w-none"
         style={{ minHeight: "420px" }}
       >
-        <span className="text-blue-400/20 select-none" style={{ fontSize: "6rem", lineHeight: 1 }}>
+        <span className="text-mock-cobalt/20 select-none" style={{ fontSize: "6rem", lineHeight: 1 }}>
           ⬡
         </span>
       </div>
@@ -45,19 +53,21 @@ export default function ProductImageGallery({ productImage, productName, coaImag
   const bleed = variant === "bleed";
 
   return (
-    <div className={bleed ? "relative h-full" : "relative"}>
+    <div className={bleed && !matchSourceAspect ? "relative h-full" : "relative w-full"}>
       <div
         className={
-          bleed
+          matchSourceAspect
+            ? "relative w-full aspect-[1500/1850] rounded-2xl overflow-hidden"
+            : bleed
             ? "relative w-full h-full min-h-[420px] lg:min-h-[560px] rounded-2xl overflow-hidden"
-            : "relative w-full aspect-square max-w-lg mx-auto lg:max-w-none rounded-2xl overflow-hidden glass-card"
+            : "relative w-full aspect-square max-w-lg mx-auto lg:max-w-none rounded-2xl overflow-hidden bg-white border border-mock-line"
         }
       >
         <Image
           src={current.src}
           alt={current.alt}
           fill
-          className={bleed ? "object-cover object-left" : "object-cover"}
+          className={bleed && !matchSourceAspect ? "object-cover object-left" : "object-cover"}
           sizes="(max-width: 1024px) 100vw, 50vw"
           priority
         />
@@ -67,7 +77,7 @@ export default function ProductImageGallery({ productImage, productName, coaImag
             <button
               onClick={() => setIndex((i) => (i - 1 + images.length) % images.length)}
               aria-label="Previous image"
-              className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-navy-950/60 backdrop-blur-sm border border-white/10 flex items-center justify-center text-white/70 hover:text-white hover:bg-navy-950/80 transition-colors"
+              className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-mock-graphite/70 backdrop-blur-sm border border-white/10 flex items-center justify-center text-white/70 hover:text-white hover:bg-mock-graphite/90 transition-colors"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -76,7 +86,7 @@ export default function ProductImageGallery({ productImage, productName, coaImag
             <button
               onClick={() => setIndex((i) => (i + 1) % images.length)}
               aria-label="Next image"
-              className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-navy-950/60 backdrop-blur-sm border border-white/10 flex items-center justify-center text-white/70 hover:text-white hover:bg-navy-950/80 transition-colors"
+              className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-mock-graphite/70 backdrop-blur-sm border border-white/10 flex items-center justify-center text-white/70 hover:text-white hover:bg-mock-graphite/90 transition-colors"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -91,8 +101,8 @@ export default function ProductImageGallery({ productImage, productName, coaImag
                   aria-label={`Show ${img.label} image`}
                   className={`px-2.5 py-1 rounded-full font-mono text-[9px] tracking-widest uppercase transition-colors ${
                     i === index
-                      ? "bg-blue-600 text-white"
-                      : "bg-navy-950/60 text-white/50 hover:text-white/80"
+                      ? "bg-mock-cobalt text-white"
+                      : "bg-mock-graphite/70 text-white/50 hover:text-white/80"
                   }`}
                 >
                   {img.label}

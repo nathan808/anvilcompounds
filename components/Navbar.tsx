@@ -23,8 +23,7 @@ export default function Navbar({ pushDown = false }: { pushDown?: boolean }) {
   const links = [
     { label: "Catalog", href: "/catalog?catalog=full" },
     { label: "COAs", href: "/coas" },
-    { label: "Journal", href: "/blog" },
-    { label: "FAQ", href: "/faq" },
+    { label: "Learn", href: "/learn" },
     { label: "Contact", href: "/#footer" },
   ];
 
@@ -36,15 +35,15 @@ export default function Navbar({ pushDown = false }: { pushDown?: boolean }) {
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
         className={`fixed ${pushDown ? "top-7" : "top-0"} left-0 right-0 z-50 transition-all duration-500 ${
           scrolled
-            ? "bg-navy-950/90 backdrop-blur-xl border-b border-blue-600/10 py-2"
+            ? "bg-mock-page/90 backdrop-blur-xl border-b border-mock-line py-2"
             : "bg-transparent py-3.5"
         }`}
       >
         <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
           {/* Logo */}
           <a href="/" className="flex items-center group">
-            <span className="font-logo font-700 text-xl tracking-tight text-white">
-              ANVIL<span className="text-blue-400 font-600 text-sm tracking-[0.2em] ml-1">COMPOUNDS</span>
+            <span className="font-logo font-700 text-xl tracking-tight text-mock-navy">
+              ANVIL<span className="text-mock-cobalt font-600 text-sm tracking-[0.2em] ml-1">COMPOUNDS</span>
             </span>
           </a>
 
@@ -54,7 +53,7 @@ export default function Navbar({ pushDown = false }: { pushDown?: boolean }) {
               <a
                 key={link.label}
                 href={link.href}
-                className="font-body text-sm text-white/60 hover:text-white animated-underline transition-colors duration-200"
+                className="font-heading text-sm text-mock-sub hover:text-mock-navy animated-underline transition-colors duration-200"
               >
                 {link.label}
               </a>
@@ -63,25 +62,25 @@ export default function Navbar({ pushDown = false }: { pushDown?: boolean }) {
 
           {/* Desktop CTA + Cart */}
           <div className="hidden md:flex items-center gap-3">
-            <span className="text-xs font-mono text-blue-400/70 tracking-widest uppercase">
+            <span className="text-xs font-mono text-mock-cobaltInk/70 tracking-widest uppercase">
               Research Use Only
             </span>
             <a
               href="/catalog?catalog=full"
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-display font-600 rounded transition-all duration-200 hover:shadow-lg hover:shadow-blue-600/30"
+              className="px-4 py-2 bg-mock-cobalt hover:bg-mock-cobaltInk text-white text-sm font-display font-600 rounded transition-all duration-200 hover:shadow-lg hover:shadow-mock-cobalt/30"
             >
               View Catalog
             </a>
             <button
               onClick={openCart}
-              className="relative p-2 rounded-lg hover:bg-white/5 text-white/50 hover:text-white transition-all duration-200"
+              className="relative p-2 rounded-lg hover:bg-black/5 text-mock-sub hover:text-mock-navy transition-all duration-200"
               aria-label="Open cart"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
               </svg>
               {itemCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-blue-600 text-white text-[9px] font-mono rounded-full flex items-center justify-center">
+                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-mock-cobalt text-white text-[9px] font-mono rounded-full flex items-center justify-center">
                   {itemCount > 9 ? "9+" : itemCount}
                 </span>
               )}
@@ -92,14 +91,14 @@ export default function Navbar({ pushDown = false }: { pushDown?: boolean }) {
           <div className="md:hidden flex items-center gap-1">
             <button
               onClick={openCart}
-              className="relative p-2 text-white/50 hover:text-white"
+              className="relative p-2 text-mock-sub hover:text-mock-navy"
               aria-label="Open cart"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
               </svg>
               {itemCount > 0 && (
-                <span className="absolute top-0.5 right-0.5 w-4 h-4 bg-blue-600 text-white text-[9px] font-mono rounded-full flex items-center justify-center">
+                <span className="absolute top-0.5 right-0.5 w-4 h-4 bg-mock-cobalt text-white text-[9px] font-mono rounded-full flex items-center justify-center">
                   {itemCount > 9 ? "9+" : itemCount}
                 </span>
               )}
@@ -108,9 +107,9 @@ export default function Navbar({ pushDown = false }: { pushDown?: boolean }) {
               className="flex flex-col gap-1.5 p-2"
               onClick={() => setMenuOpen(!menuOpen)}
             >
-              <span className={`block w-6 h-0.5 bg-blue-400 transition-all duration-300 ${menuOpen ? "rotate-45 translate-y-2" : ""}`} />
-              <span className={`block w-6 h-0.5 bg-blue-400 transition-all duration-300 ${menuOpen ? "opacity-0" : ""}`} />
-              <span className={`block w-6 h-0.5 bg-blue-400 transition-all duration-300 ${menuOpen ? "-rotate-45 -translate-y-2" : ""}`} />
+              <span className={`block w-6 h-0.5 bg-mock-cobalt transition-all duration-300 ${menuOpen ? "rotate-45 translate-y-2" : ""}`} />
+              <span className={`block w-6 h-0.5 bg-mock-cobalt transition-all duration-300 ${menuOpen ? "opacity-0" : ""}`} />
+              <span className={`block w-6 h-0.5 bg-mock-cobalt transition-all duration-300 ${menuOpen ? "-rotate-45 -translate-y-2" : ""}`} />
             </button>
           </div>
         </div>
@@ -122,7 +121,7 @@ export default function Navbar({ pushDown = false }: { pushDown?: boolean }) {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
-              className="md:hidden bg-navy-950 border-t border-blue-600/20"
+              className="md:hidden bg-mock-page border-t border-mock-line"
             >
               <div className="px-6 py-4 flex flex-col gap-4">
                 {links.map((link) => (
@@ -130,7 +129,7 @@ export default function Navbar({ pushDown = false }: { pushDown?: boolean }) {
                     key={link.label}
                     href={link.href}
                     onClick={() => setMenuOpen(false)}
-                    className="text-white hover:text-blue-400 font-body text-sm py-1 transition-colors"
+                    className="text-mock-navy hover:text-mock-cobalt font-heading text-sm py-1 transition-colors"
                   >
                     {link.label}
                   </a>
@@ -138,7 +137,7 @@ export default function Navbar({ pushDown = false }: { pushDown?: boolean }) {
                 <a
                   href="/catalog?catalog=full"
                   onClick={() => setMenuOpen(false)}
-                  className="mt-2 px-4 py-2.5 bg-blue-600 text-white text-sm font-display font-600 rounded text-center"
+                  className="mt-2 px-4 py-2.5 bg-mock-cobalt text-white text-sm font-display font-600 rounded text-center"
                 >
                   View Catalog
                 </a>

@@ -24,7 +24,7 @@ function PreviewCard({ product }: { product: ProductCard }) {
   return (
     <Link
       href={href}
-      className="group glass-card rounded-xl overflow-hidden flex flex-col transition-all duration-500 hover:border-blue-500/40 hover:shadow-xl hover:shadow-blue-600/10 hover:-translate-y-1"
+      className="group bg-white border border-mock-line rounded-xl overflow-hidden flex flex-col transition-all duration-500 hover:border-mock-cobalt/40 hover:shadow-xl hover:shadow-mock-cobalt/10 hover:-translate-y-1"
     >
       {/* Container aspect matches the source photos (1500x1858) so
           object-contain fills it edge-to-edge with no forced zoom --
@@ -47,20 +47,20 @@ function PreviewCard({ product }: { product: ProductCard }) {
 
         {/* Preview ribbon -- distinguishes these from the real catalog cards */}
         <div className="absolute top-2.5 left-2.5 z-20">
-          <span className="font-mono text-[9px] tracking-widest uppercase px-1.5 py-0.5 rounded-full border border-blue-400/40 bg-navy-950/70 text-blue-300 backdrop-blur-sm">
+          <span className="font-mono text-[9px] tracking-widest uppercase px-1.5 py-0.5 rounded-full border border-mock-cobaltLight/40 bg-mock-graphite/70 text-mock-cobaltLight backdrop-blur-sm">
             Preview
           </span>
         </div>
       </div>
 
       <div className="p-3 md:p-5">
-        <h3 className="font-display font-700 text-base md:text-xl text-white leading-tight mb-0.5 line-clamp-1">
+        <h3 className="font-display font-700 text-base md:text-xl text-mock-navy leading-tight mb-0.5 line-clamp-1">
           {getProductDisplayTitle(product.name, product.category)}
         </h3>
-        <span className="font-mono text-[9px] md:text-[10px] text-blue-400/70 tracking-widest uppercase block mb-2">
+        <span className="font-mono text-[9px] md:text-[10px] text-mock-cobaltInk/70 tracking-widest uppercase block mb-2">
           {product.category}
         </span>
-        <span className="inline-flex items-center gap-1 font-mono text-[10px] md:text-xs text-white/40 group-hover:text-blue-400 transition-colors duration-300">
+        <span className="inline-flex items-center gap-1 font-mono text-[10px] md:text-xs text-mock-sub group-hover:text-mock-cobalt transition-colors duration-300">
           <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
           </svg>
@@ -87,9 +87,7 @@ export default function CatalogTeaser({
   const inView = useInView(ref, { once: true });
 
   return (
-    <section className="relative bg-navy-950 py-14 md:py-20">
-      <div className="absolute inset-0 mesh-bg opacity-60" />
-
+    <section className="relative bg-mock-page py-[76px]">
       <div ref={ref} className="relative z-10 max-w-7xl mx-auto px-6 text-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -97,34 +95,22 @@ export default function CatalogTeaser({
           transition={{ duration: 0.6 }}
           className="flex items-center justify-center gap-3 mb-4"
         >
-          <div className="w-6 h-px bg-blue-600" />
-          <span className="font-mono text-xs text-blue-400 tracking-[0.25em] uppercase">
+          <div className="w-6 h-px bg-mock-cobalt" />
+          <span className="font-mono text-xs text-mock-cobaltInk tracking-[0.25em] uppercase">
             002 / Research Catalog
           </span>
-          <div className="w-6 h-px bg-blue-600" />
+          <div className="w-6 h-px bg-mock-cobalt" />
         </motion.div>
 
         <motion.h2
           initial={{ opacity: 0, y: 30 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.7, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-          className="font-display font-800 text-white mb-3"
-          style={{ fontSize: "clamp(2.1rem, 4.4vw, 3.5rem)" }}
+          className="font-heading font-700 text-mock-navy mb-6"
+          style={{ fontSize: "clamp(1.9rem, 3.96vw, 3.15rem)" }}
         >
-          Reference materials
-          <br />
-          <span className="text-blue-400">&amp; research compounds</span>
+          <span>Peptide &amp; Research Reagent Catalog</span>
         </motion.h2>
-
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.7, delay: 0.2 }}
-          className="font-body text-white/45 text-base max-w-xl mx-auto mb-6"
-        >
-          Each compound is a synthetic reference material supplied for
-          in-vitro laboratory research.
-        </motion.p>
 
         {previewProducts.length > 0 && (
           <motion.div
@@ -133,7 +119,7 @@ export default function CatalogTeaser({
             transition={{ duration: 0.7, delay: 0.25 }}
             className="mb-7"
           >
-            <p className="font-mono text-[11px] text-white/30 tracking-[0.2em] uppercase mb-3">
+            <p className="font-mono text-[11px] text-mock-sub tracking-[0.2em] uppercase mb-3">
               Showing {previewProducts.length} of {totalCount} compounds, verify to view
               full catalog &amp; pricing
             </p>
@@ -152,7 +138,7 @@ export default function CatalogTeaser({
         >
           <Link
             href="/catalog?catalog=full"
-            className="inline-block px-7 py-3 bg-blue-600 hover:bg-blue-500 text-white font-display font-700 text-sm tracking-wide rounded-md transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/30"
+            className="inline-block px-7 py-3 bg-mock-cobalt hover:bg-mock-cobaltInk text-white font-display font-700 text-sm tracking-wide rounded-md transition-all duration-300 hover:shadow-lg hover:shadow-mock-cobalt/30"
           >
             Browse Full Catalog →
           </Link>

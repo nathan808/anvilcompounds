@@ -14,24 +14,6 @@ const item = {
   show: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } },
 };
 
-const TESTING_METHODS = [
-  {
-    abbr: "HPLC",
-    result: "99%+ Purity",
-    desc: "Quantifies active compound vs. impurities at ppm sensitivity.",
-  },
-  {
-    abbr: "Mass Spec",
-    result: "Molecular ID",
-    desc: "Chemical proof of exact molecular weight and structural identity.",
-  },
-  {
-    abbr: "LAL Screen",
-    result: "Contamination-Free",
-    desc: "Endotoxin screening every batch, a step most vendors skip.",
-  },
-];
-
 export default function HeroSection() {
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
@@ -59,19 +41,33 @@ export default function HeroSection() {
       {/* Content */}
       <motion.div style={{ y, opacity }} className="relative z-10 w-full">
         <div className="max-w-7xl mx-auto px-2 sm:px-6 md:px-10 pt-12 pb-12 md:pt-16 md:pb-16">
+          <div className="grid lg:grid-cols-[1.15fr_0.85fr] gap-4 lg:gap-8 items-center">
           <motion.div
             variants={container}
             initial="hidden"
             animate="show"
-            className="flex flex-col items-center text-center px-2 py-3 md:py-5"
+            className="flex flex-col items-center text-center lg:items-start lg:text-left px-2 py-3 md:py-5"
             style={{ background: "radial-gradient(ellipse 70% 85% at 50% 48%, rgba(255,255,255,0.62) 0%, rgba(255,255,255,0.18) 60%, transparent 100%)" }}
           >
 
-            {/* Badge */}
-            <motion.div variants={item} className="flex items-center justify-center mb-3">
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-blue-300/60 bg-white/70 backdrop-blur-sm">
-                <span className="w-1.5 h-1.5 rounded-full bg-blue-500 inline-block flex-shrink-0" />
-                <span className="text-[10px] md:text-xs font-mono text-blue-700 tracking-widest uppercase">
+            {/* Vial graphic — mobile/tablet only; sits above the headline. Desktop shows
+                the vial in the side column instead (see below) and keeps this hidden. */}
+            <motion.div variants={item} className="lg:hidden relative w-[320px] max-w-[82vw] aspect-square mb-2">
+              <Image
+                src="/images/homepage/hero-vial-callouts.png"
+                alt="Anvil Compounds BPC-157 research vial with 99%+ purity, lot-verified, and USA-based facility callouts"
+                fill
+                className="object-contain"
+                sizes="320px"
+                priority
+              />
+            </motion.div>
+
+            {/* Badge — hidden on mobile to make room for the vial graphic above the text */}
+            <motion.div variants={item} className="hidden md:flex items-center justify-center lg:justify-start mb-3">
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-mock-line bg-white/70 backdrop-blur-sm">
+                <span className="w-1.5 h-1.5 rounded-full bg-mock-cobalt inline-block flex-shrink-0" />
+                <span className="text-[10px] md:text-xs font-mono text-mock-cobaltInk tracking-widest uppercase">
                   Research Grade · 99%+ Purity<span className="hidden sm:inline"> · USA-Based</span>
                 </span>
               </div>
@@ -80,98 +76,94 @@ export default function HeroSection() {
             {/* Headline */}
             <motion.h1
               variants={item}
-              className="font-display font-800 leading-[0.95] mb-3 max-w-3xl"
-              style={{ fontSize: "clamp(1.8rem, 4.5vw, 4rem)", textShadow: "0 1px 12px rgba(255,255,255,0.95), 0 0px 2px rgba(255,255,255,0.7)" }}
+              className="font-heading font-700 leading-[0.95] mb-3 max-w-3xl"
+              style={{ fontSize: "clamp(1.98rem, 4.5vw, 4rem)", textShadow: "0 1px 12px rgba(255,255,255,0.95), 0 0px 2px rgba(255,255,255,0.7)" }}
             >
-              <span className="block font-800" style={{ color: "#1D6ADB" }}>Independently Verified</span>
-              <span className="block text-gray-950">Research Compounds</span>
-              <span className="block text-gray-950">and reference materials</span>
+              <span className="block text-mock-ink">Research Peptides with</span>
+              <span className="block">
+                <span className="font-800 italic text-mock-cobalt">Conviction</span>{" "}
+                <span className="text-mock-ink">and</span>{" "}
+                <span className="font-800 italic text-mock-cobalt">Verification</span>
+              </span>
             </motion.h1>
 
             {/* Subheadline */}
             <motion.p
               variants={item}
-              className="font-body text-gray-700 text-sm md:text-base leading-relaxed mb-4 max-w-sm md:max-w-md"
+              className="font-body text-mock-sub text-sm md:text-base leading-relaxed mb-1 max-w-sm md:max-w-md"
             >
-              Independently verified per lot: HPLC purity, mass-spec identity,
-              endotoxin and heavy-metal screening, multi-vial sampling. COA per
-              lot. For in-vitro research use only.
+              &gt;99%+ purity threshold. Independently Verified + Scannable COAs per vial.
+            </motion.p>
+            <motion.p
+              variants={item}
+              className="font-body text-mock-sub text-xs md:text-sm leading-relaxed mb-4 max-w-sm md:max-w-md"
+            >
+              Southern California USA Based Facility
             </motion.p>
 
             {/* CTAs — stacked on mobile, row on sm+ */}
-            <motion.div variants={item} className="flex flex-col sm:flex-row flex-wrap justify-center gap-2.5 mb-3 w-full sm:w-auto">
+            <motion.div variants={item} className="flex flex-col sm:flex-row flex-wrap justify-center lg:justify-start gap-2.5 mb-3 w-full sm:w-auto">
               <a
                 href="/catalog?catalog=full"
-                className="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-display font-700 text-sm tracking-wide rounded-md transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/30 text-center"
+                className="px-6 py-2.5 bg-mock-cobalt hover:bg-mock-cobaltInk text-white font-display font-700 text-sm tracking-wide rounded-md transition-all duration-300 hover:shadow-lg hover:shadow-mock-cobalt/30 text-center"
               >
                 Explore Catalog
               </a>
               <a
                 href="/coas"
-                className="px-6 py-2.5 border border-blue-300 hover:border-blue-400 text-blue-700 hover:text-blue-600 font-display font-600 text-sm tracking-wide rounded-md transition-all duration-300 bg-white/60 hover:bg-white/90 text-center"
+                className="px-6 py-2.5 border border-mock-line hover:border-mock-cobalt text-mock-cobaltInk hover:text-mock-cobalt font-display font-600 text-sm tracking-wide rounded-md transition-all duration-300 bg-white/60 hover:bg-white/90 text-center"
               >
                 View COAs →
               </a>
               <a
                 href="#testing"
-                className="px-6 py-2.5 border border-gray-300 hover:border-gray-400 text-gray-700 hover:text-gray-900 font-display font-600 text-sm tracking-wide rounded-md transition-all duration-300 bg-white/60 hover:bg-white/90 text-center"
+                className="px-6 py-2.5 border border-mock-line hover:border-mock-sub text-mock-sub hover:text-mock-ink font-display font-600 text-sm tracking-wide rounded-md transition-all duration-300 bg-white/60 hover:bg-white/90 text-center"
               >
                 Our Testing Process →
               </a>
             </motion.div>
 
-            {/* Shipping banner */}
-            <motion.div variants={item} className="mb-3 w-full max-w-sm md:max-w-md">
+            {/* Shipping banner — desktop only now; hidden on mobile to make room for the larger vial graphic above */}
+            <motion.div variants={item} className="hidden lg:block mb-3 w-full max-w-sm md:max-w-md">
               <ShippingBanner theme="light" />
             </motion.div>
 
             {/* RUO disclaimer */}
-            <motion.p variants={item} className="font-mono text-[9px] md:text-[10px] text-gray-400 tracking-wide max-w-xs md:max-w-sm text-center">
+            <motion.p variants={item} className="font-mono text-[9px] md:text-[10px] text-mock-sub tracking-wide max-w-xs md:max-w-sm text-center lg:text-left">
               For in vitro laboratory &amp; research use only. Not for human or animal use. 21+ only.
             </motion.p>
 
           </motion.div>
+
+          {/* Vial graphic — desktop side column, proportional to the text block, never overlapping it */}
+          <div className="hidden lg:flex items-center justify-center">
+            <div className="relative w-full max-w-[528px] aspect-square">
+              <Image
+                src="/images/homepage/hero-vial-callouts.png"
+                alt="Anvil Compounds BPC-157 research vial with 99%+ purity, lot-verified, and USA-based facility callouts"
+                fill
+                className="object-contain"
+                sizes="528px"
+                priority
+              />
+            </div>
+          </div>
+          </div>
         </div>
       </motion.div>
 
-      {/* Testing methods strip — navy, pinned to bottom */}
-      <div className="absolute bottom-0 left-0 right-0 z-20 bg-navy-950/90 backdrop-blur-md border-t border-blue-400/10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-10 py-2.5 md:py-3">
-          <div className="grid grid-cols-3 divide-x divide-white/10">
-            {TESTING_METHODS.map((m) => (
-              <div key={m.abbr} className="px-3 sm:px-4 first:pl-0 last:pr-0 flex flex-col gap-0.5">
-                <div className="flex items-baseline gap-1.5 sm:gap-2 flex-wrap">
-                  <span className="font-mono text-[9px] sm:text-[10px] md:text-xs text-blue-400 font-600 tracking-widest uppercase whitespace-nowrap">
-                    {m.abbr}
-                  </span>
-                  <span className="font-mono text-[8px] sm:text-[9px] md:text-[10px] text-white/50 tracking-wide whitespace-nowrap hidden xs:block sm:block">
-                    {m.result}
-                  </span>
-                </div>
-                <p className="font-mono text-[9px] md:text-[10px] text-white/60 leading-snug hidden md:block">
-                  {m.desc}
-                </p>
-                <span className="font-mono text-[8px] text-white/50 tracking-wide block sm:hidden">
-                  {m.result}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
       {/* Scroll indicator — desktop only */}
       <motion.div
-        className="absolute bottom-16 left-1/2 -translate-x-1/2 hidden md:flex flex-col items-center gap-2 pointer-events-none"
+        className="absolute bottom-6 left-1/2 -translate-x-1/2 hidden md:flex flex-col items-center gap-2 pointer-events-none"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.5 }}
       >
-        <span className="text-[10px] font-mono text-gray-400 tracking-widest uppercase">Scroll</span>
+        <span className="text-[10px] font-mono text-mock-sub tracking-widest uppercase">Scroll</span>
         <motion.div
           animate={{ y: [0, 8, 0] }}
           transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-          className="w-px h-8 bg-gradient-to-b from-gray-300 to-transparent"
+          className="w-px h-8 bg-gradient-to-b from-mock-line to-transparent"
         />
       </motion.div>
     </section>

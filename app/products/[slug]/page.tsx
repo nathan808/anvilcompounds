@@ -60,7 +60,7 @@ export default async function ProductPage({
   return (
     <>
       <Navbar />
-      <main className="bg-navy-950 min-h-screen pt-16">
+      <main className="bg-mock-page min-h-screen pt-16">
         <ProductPageTemplate product={product} />
       </main>
       <Footer />
