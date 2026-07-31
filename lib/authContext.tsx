@@ -86,8 +86,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const storeUser = (u: AnvilUser) => {
+    // Persisting to localStorage can throw on some browsers (Safari Private
+    // Browsing, some in-app/social-media browsers, storage-restricted
+    // mobile configs) even though the login/register call itself already
+    // succeeded server-side. Falling through here would silently discard a
+    // successful login and block checkout (which requires isAuthenticated)
+    // — so the in-memory session always gets set regardless of whether it
+    // could be persisted; it just won't survive a reload/new tab on that
+    // specific browser.
     const record: StoredAuth = { ...u, storedAt: Date.now() };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(record));
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(record));
+    } catch {}
     setUser(u);
     setAuthError(null);
   };
@@ -201,7 +211,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = () => {
-    localStorage.removeItem(STORAGE_KEY);
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch {}
     setUser(null);
     setAuthError(null);
   };

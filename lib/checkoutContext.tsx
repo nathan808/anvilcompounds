@@ -80,8 +80,16 @@ export function CheckoutProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
+    // This runs on every keystroke in the checkout form (setStep1 fires on
+    // each field change). sessionStorage.setItem can throw on some browsers
+    // (Safari Private Browsing, some in-app/social browsers) — without this
+    // guard that throw would fire repeatedly while a customer is typing.
+    // Checkout progress just won't persist across a reload on those
+    // browsers; it still works fine within the current page session.
     if (hydrated) {
-      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      try {
+        sessionStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch {}
     }
   }, [state, hydrated]);
 

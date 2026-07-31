@@ -50,9 +50,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
+    // Guarded for the same reason as elsewhere in this app: localStorage
+    // writes can throw on some browsers (Safari Private Browsing, some
+    // in-app browsers), and this runs on every cart change. Without the
+    // guard, add-to-cart/qty changes would keep throwing on those browsers
+    // even though the in-memory cart state (and checkout) still work fine.
     if (hydrated) {
-      localStorage.setItem("anvil_cart", JSON.stringify(items));
-      localStorage.setItem("anvil_cart_saved_at", Date.now().toString());
+      try {
+        localStorage.setItem("anvil_cart", JSON.stringify(items));
+        localStorage.setItem("anvil_cart_saved_at", Date.now().toString());
+      } catch {}
     }
   }, [items, hydrated]);
 
