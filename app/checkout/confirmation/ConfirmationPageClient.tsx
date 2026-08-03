@@ -7,7 +7,7 @@ import Footer from "@/components/Footer";
 import PaymentInstructions from "@/components/PaymentInstructions";
 import { PaymentMethodId } from "@/lib/paymentMethods";
 
-const KNOWN_METHODS: PaymentMethodId[] = ["ethereum", "echeck", "zelle", "usdc_usdt", "ach", "stripe"];
+const KNOWN_METHODS: PaymentMethodId[] = ["bacs", "ethereum", "zelle", "usdc_usdt", "ach"];
 
 interface OrderStatus {
   orderNumber: string;

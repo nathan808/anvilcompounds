@@ -8,8 +8,8 @@ import PaymentInstructions from "@/components/PaymentInstructions";
 import { PAYMENT_CONFIG } from "@/lib/paymentConfig";
 import { PaymentMethodId } from "@/lib/paymentMethods";
 
-const VALID_METHODS: PaymentMethodId[] = ["ethereum", "echeck", "zelle", "usdc_usdt", "ach", "stripe"];
-const BANKFUL_METHODS: PaymentMethodId[] = ["ethereum", "echeck"];
+const VALID_METHODS: PaymentMethodId[] = ["bacs", "ethereum", "zelle", "usdc_usdt", "ach"];
+const BANKFUL_METHODS: PaymentMethodId[] = ["ethereum"];
 
 interface OrderStatus {
   orderId: number;
@@ -208,10 +208,10 @@ export default function PayPageClient({ method }: { method: string }) {
                     </div>
                   )}
 
-                  {(method === "usdc_usdt" || method === "ach" || method === "stripe") && (
+                  {(method === "usdc_usdt" || method === "ach") && (
                     <div className="glass-card rounded-2xl p-6">
                       {/* TODO: wire this button to the real integration boundary —
-                          NOWPayments (usdc_usdt), LinkMoney (ach), Stripe (stripe).
+                          NOWPayments (usdc_usdt), LinkMoney (ach).
                           Intentionally stubbed: no payment action happens here yet. */}
                       <button
                         type="button"

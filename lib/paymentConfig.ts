@@ -48,12 +48,11 @@ export const SUPPORT_EMAIL = "support@anvilcompounds.shop";
 // ──────────────────────────────────────────────────────────────────────────────
 
 export const PAYMENT_CONFIG = {
+  bacs: { status: "live" },
   zelle: { phone: "(619) 653-4735", maxOrder: 2000, status: "live" },
   ethereum: { status: "live" },
-  echeck: { status: "live" },
   usdc_usdt: { status: "placeholder" },
   ach: { status: "placeholder" },
-  stripe: { status: "placeholder" },
 } as const;
 
 // Order hold window for the Bankful/multi-step flow (CHECKOUT_SPEC.md "Order

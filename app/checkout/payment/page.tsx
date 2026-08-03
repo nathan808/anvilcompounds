@@ -17,17 +17,11 @@ import { PAYMENT_METHODS } from "@/lib/paymentMethods";
 export default function PaymentPage() {
   const router = useRouter();
   const { items, subtotal, clearCart } = useCart();
-  const { isAuthenticated, hydrated: authHydrated, user } = useAuth();
+  const { hydrated: authHydrated, user } = useAuth();
   const { step1, coupon, shipping, paymentMethodId, hydrated: checkoutHydrated } = useCheckout();
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [previewTotal, setPreviewTotal] = useState<number | null>(null);
-
-  useEffect(() => {
-    if (authHydrated && !isAuthenticated) {
-      router.replace("/account?redirect=/checkout");
-    }
-  }, [authHydrated, isAuthenticated, router]);
 
   useEffect(() => {
     // Skip while an order submission is in flight — handleContinue clears the
@@ -42,7 +36,7 @@ export default function PaymentPage() {
     }
   }, [checkoutHydrated, items.length, step1.ruoConfirmed, shipping, router, submitting]);
 
-  if (!authHydrated || !isAuthenticated || !checkoutHydrated) return null;
+  if (!authHydrated || !checkoutHydrated) return null;
 
   const selectedMeta = PAYMENT_METHODS.find((m) => m.id === paymentMethodId) ?? null;
   const couponDiscount = computeCouponDiscount(subtotal, coupon);
@@ -116,7 +110,11 @@ export default function PaymentPage() {
             </div>
             <h1 className="font-display font-800 text-white text-4xl">Choose Payment</h1>
             <p className="font-body text-white/40 mt-2">
-              Checking out as <span className="text-white/60">{user?.email}</span>
+              {user ? (
+                <>Checking out as <span className="text-white/60">{user.email}</span></>
+              ) : (
+                "Checking out as a guest"
+              )}
             </p>
           </div>
 
