@@ -14,21 +14,19 @@ interface ProductImageGalleryProps {
   productName: string;
   coaImage?: string | null;
   // "boxed" (default) = framed square card, used in the mobile flow.
-  // "bleed" = edge-to-edge, no border/radius, fills the column height —
+  // "bleed" = edge-to-edge, no border/radius, sized to the product photos'
+  // own aspect ratio (all product photos share ~1500x1850 dimensions) —
   // matches the FeaturedSpotlight band's visual language for the desktop
-  // PDP hero (see components/FeaturedSpotlight.tsx).
+  // PDP hero (see components/FeaturedSpotlight.tsx). Deliberately NOT
+  // stretched to fill the column's height: that used to make the frame's
+  // shape shift (and crop differently) every time the window was resized,
+  // since the buy-column's height changes with viewport width. Sizing from
+  // the photo's own aspect ratio instead means object-cover always has a
+  // box shaped exactly like the photo — full image, no crop, at any width.
   variant?: "boxed" | "bleed";
-  // Bleed variant normally stretches to fill the column's full height,
-  // however tall that ends up being, and relies on object-cover to crop
-  // edge-to-edge — fine as long as the crop doesn't clip anything. Some
-  // photos (e.g. glp-rt, where the vial sits close enough to center that a
-  // tall stretched frame crops into the info card) need their frame shaped
-  // to the photo's own aspect ratio instead, so object-cover has nothing to
-  // crop — still edge-to-edge, no letterboxing, just a differently-shaped box.
-  matchSourceAspect?: boolean;
 }
 
-export default function ProductImageGallery({ productImage, productName, coaImage, variant = "boxed", matchSourceAspect = false }: ProductImageGalleryProps) {
+export default function ProductImageGallery({ productImage, productName, coaImage, variant = "boxed" }: ProductImageGalleryProps) {
   const images: GalleryImage[] = [];
   if (productImage) images.push({ src: productImage, alt: productName, label: "Product" });
   if (coaImage) images.push({ src: coaImage, alt: `${productName} Certificate of Analysis`, label: "COA" });
@@ -53,13 +51,11 @@ export default function ProductImageGallery({ productImage, productName, coaImag
   const bleed = variant === "bleed";
 
   return (
-    <div className={bleed && !matchSourceAspect ? "relative h-full" : "relative w-full"}>
+    <div className="relative w-full">
       <div
         className={
-          matchSourceAspect
+          bleed
             ? "relative w-full aspect-[1500/1850] rounded-2xl overflow-hidden"
-            : bleed
-            ? "relative w-full h-full min-h-[420px] lg:min-h-[560px] rounded-2xl overflow-hidden"
             : "relative w-full aspect-square max-w-lg mx-auto lg:max-w-none rounded-2xl overflow-hidden bg-white border border-mock-line"
         }
       >
@@ -67,7 +63,7 @@ export default function ProductImageGallery({ productImage, productName, coaImag
           src={current.src}
           alt={current.alt}
           fill
-          className={bleed && !matchSourceAspect ? "object-cover object-left" : "object-cover"}
+          className="object-cover"
           sizes="(max-width: 1024px) 100vw, 50vw"
           priority
         />
