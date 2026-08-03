@@ -47,13 +47,14 @@ export const CATALOG_TRUST_BADGES: { icon: JSX.Element; label: JSX.Element }[] =
   },
 ];
 
-// Hidden by default under the "All Compounds" tab on the home page only —
-// revealed either by clicking "View All" at the bottom of that grid, or
-// immediately if arriving via a link that set ?catalog=full (Catalog nav,
-// "View Catalog" CTA, Explore Catalog banner button — see Navbar.tsx /
-// HeroSection.tsx). Never hidden under any specific category tab (e.g.
-// Metabolic Research) — only under the default "All Compounds" view.
-const HOME_HIDDEN_ON_ALL_COMPOUNDS = ["GLP-RT", "GLP-TRZ"];
+// Hidden by default under the "All Compounds" tab only — revealed either by
+// clicking "View All" at the bottom of that grid, or immediately if arriving
+// via a link that set ?catalog=full (Catalog nav, "View Catalog" CTA,
+// Explore Catalog banner button — see Navbar.tsx / HeroSection.tsx). Never
+// hidden under any specific category tab (e.g. Metabolic Research) — only
+// under the default "All Compounds" view. GLP-RT is deliberately NOT in this
+// list — it's the catalog's leading product and should always show first.
+const HOME_HIDDEN_ON_ALL_COMPOUNDS = ["GLP-TRZ"];
 
 const PRODUCT_IMAGES: Record<string, string> = {
   "BPC-157":                       "/products/bpc157.jpg",

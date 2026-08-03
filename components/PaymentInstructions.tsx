@@ -21,19 +21,19 @@ export interface PaymentInstructionCopy {
 // product name, compound name, or research-chemical term — the shared
 // context above (order number / total / hold date) is all that's available.
 export const PAYMENT_INSTRUCTIONS_COPY: Record<PaymentMethodId, PaymentInstructionCopy> = {
+  bacs: {
+    heading: "Pay With Credit Card Via Invoice",
+    trustLine: "",
+    lines: [
+      "Card payments are processed at the full posted price — no discount applies to this method.",
+      "Our team will follow up by email with a secure payment link to complete your payment by credit or debit card.",
+    ],
+  },
   ethereum: {
     heading: "Pay with Ethereum",
     trustLine: "Your bank statement will show a charge from Anvil Holdings LLC. This is our payment processing partner.",
     lines: [
       "You'll be redirected to our secure payment partner, Bankful, to complete your payment.",
-      "This method includes a 10% instant-payment discount, already reflected in your total.",
-    ],
-  },
-  echeck: {
-    heading: "Pay with E-check",
-    trustLine: "Your bank statement will show a charge from Anvil Holdings LLC. This is our payment processing partner.",
-    lines: [
-      "You'll be redirected to our secure payment partner, Bankful, to complete your payment by e-check.",
       "This method includes a 10% instant-payment discount, already reflected in your total.",
     ],
   },
@@ -60,14 +60,6 @@ export const PAYMENT_INSTRUCTIONS_COPY: Record<PaymentMethodId, PaymentInstructi
     lines: [
       "This payment method includes a 5% instant-payment discount, already reflected in your total.",
       "ACH transfer processing for this order will be available shortly. Our team will follow up by email with next steps.",
-    ],
-  },
-  stripe: {
-    heading: "Pay with Card",
-    trustLine: "",
-    lines: [
-      "Card payments are processed at the full posted price — no discount applies to this method.",
-      "Card payment processing for this order will be available shortly. Our team will follow up by email with next steps.",
     ],
   },
 };

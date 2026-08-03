@@ -13,7 +13,7 @@ import { getProducts } from "@/lib/woocommerce";
 // The 5 featured compounds shown unverified as a catalog preview on the
 // homepage. Everything else (pricing, the rest of the catalog) stays
 // behind the gate.
-const PREVIEW_NAMES = ["BPC-157", "GHK-Cu", "TB-500", "GLP-RT", "KLOW"];
+const PREVIEW_NAMES = ["GLP-RT", "BPC-157", "GHK-Cu", "TB-500", "KLOW"];
 
 export default async function Home() {
   const products = await getProducts().catch(() => []);

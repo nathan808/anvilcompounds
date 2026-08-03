@@ -13,15 +13,9 @@ import { useCheckout } from "@/lib/checkoutContext";
 
 export default function ShippingPage() {
   const { items } = useCart();
-  const { isAuthenticated, hydrated: authHydrated, user } = useAuth();
+  const { hydrated: authHydrated, user } = useAuth();
   const { step1, shipping, hydrated: checkoutHydrated } = useCheckout();
   const router = useRouter();
-
-  useEffect(() => {
-    if (authHydrated && !isAuthenticated) {
-      router.replace("/account?redirect=/checkout");
-    }
-  }, [authHydrated, isAuthenticated, router]);
 
   useEffect(() => {
     if (checkoutHydrated && (items.length === 0 || !step1.ruoConfirmed)) {
@@ -29,7 +23,7 @@ export default function ShippingPage() {
     }
   }, [checkoutHydrated, items.length, step1.ruoConfirmed, router]);
 
-  if (!authHydrated || !isAuthenticated || !checkoutHydrated) return null;
+  if (!authHydrated || !checkoutHydrated) return null;
 
   return (
     <>
@@ -51,7 +45,11 @@ export default function ShippingPage() {
             </div>
             <h1 className="font-display font-800 text-white text-4xl">Choose Shipping</h1>
             <p className="font-body text-white/40 mt-2">
-              Checking out as <span className="text-white/60">{user?.email}</span>
+              {user ? (
+                <>Checking out as <span className="text-white/60">{user.email}</span></>
+              ) : (
+                "Checking out as a guest"
+              )}
             </p>
           </div>
 

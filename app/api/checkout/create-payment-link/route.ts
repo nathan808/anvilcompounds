@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createPaymentLink, BankfulError, BankfulMethodId } from "@/lib/bankful";
 
-const VALID_METHODS: BankfulMethodId[] = ["ethereum", "echeck"];
+const VALID_METHODS: BankfulMethodId[] = ["ethereum"];
 
 export async function POST(req: NextRequest) {
   let body: { orderId?: number; orderKey?: string; method?: string };

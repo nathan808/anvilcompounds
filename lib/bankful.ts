@@ -8,7 +8,7 @@
 
 const BANKFUL_API_BASE = "https://api.paybybankful.com";
 
-export type BankfulMethodId = "ethereum" | "echeck";
+export type BankfulMethodId = "ethereum";
 
 export class BankfulError extends Error {
   code: "ORDER_KEY_MISMATCH" | "ORDER_NOT_PAYABLE" | "UPSTREAM_ERROR";
