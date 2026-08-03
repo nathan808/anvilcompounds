@@ -324,6 +324,17 @@ function getAttribute(product: WCProduct, name: string): string | undefined {
   return attr?.options[0];
 }
 
+// Full options list (not just the first) — used for the "Size" attribute,
+// which for variable products (e.g. GHK-Cu's 50mg/100mg) already comes back
+// on the base product list response, so the catalog card can show every mg
+// option without an extra per-product /variations fetch.
+function getAttributeOptions(product: WCProduct, name: string): string[] {
+  const attr = product.attributes.find(
+    (a) => a.name.toLowerCase() === name.toLowerCase()
+  );
+  return attr?.options ?? [];
+}
+
 export interface WCProduct {
   id: number;
   name: string;
@@ -348,6 +359,7 @@ export interface ProductCard {
   permalink: string;
   image: string | null;
   hasCoa: boolean;
+  sizes: string[];
 }
 
 // Products without COA yet (Testing in Progress — no buy UI shown)
@@ -412,6 +424,7 @@ export function mapProduct(product: WCProduct, index: number): ProductCard {
     permalink:   PRODUCT_PAGE_URLS[product.name] ?? product.permalink,
     image:       LOCAL_PRODUCT_IMAGES[product.name] ?? product.images[0]?.src ?? null,
     hasCoa:      !IDS_WITHOUT_COA.has(product.id),
+    sizes:       getAttributeOptions(product, "Size"),
   };
 }
 
