@@ -181,7 +181,8 @@ export function ProductCard({ product, index }: { product: ProductCard; index: n
   const glpGated = isGlpCompound(product.name) && !isAuthenticated;
   const loginHref = `/account?redirect=${encodeURIComponent(`/products/${slugifyProductName(product.name)}`)}`;
 
-  const handleAddToCart = useCallback(() => {
+  const handleAddToCart = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
     const priceNum = parseFloat(product.price.replace(/[^0-9.]/g, "")) || 0;
     addItem({
       slug: slugifyProductName(product.name),
@@ -195,6 +196,10 @@ export function ProductCard({ product, index }: { product: ProductCard; index: n
     setTimeout(() => setAdded(false), 2000);
   }, [product, addItem, openCart]);
 
+  const productHref = glpGated ? loginHref : `/products/${slugifyProductName(product.name)}`;
+
+  const goToProduct = () => router.push(productHref);
+
   return (
     <motion.div
       ref={ref}
@@ -203,7 +208,13 @@ export function ProductCard({ product, index }: { product: ProductCard; index: n
       transition={{ duration: 0.7, delay: index * 0.08, ease: [0.16, 1, 0.3, 1] }}
       className="group relative"
     >
-      <div className="bg-white border border-mock-line rounded-xl overflow-hidden h-full flex flex-col transition-all duration-500 hover:border-mock-cobalt/40 hover:shadow-xl hover:shadow-mock-cobalt/10 hover:-translate-y-1">
+      <div
+        onClick={goToProduct}
+        onKeyDown={(e) => { if (e.key === "Enter") goToProduct(); }}
+        role="link"
+        tabIndex={0}
+        className="bg-white border border-mock-line rounded-xl overflow-hidden h-full flex flex-col cursor-pointer transition-all duration-500 hover:border-mock-cobalt/40 hover:shadow-xl hover:shadow-mock-cobalt/10 hover:-translate-y-1"
+      >
 
         {/* Product image -- container aspect matches the source photos
             (1500x1858) so object-contain fills it edge-to-edge with no
@@ -252,8 +263,8 @@ export function ProductCard({ product, index }: { product: ProductCard; index: n
         </div>
 
         {/* Card content */}
-        <div className="p-3 md:p-5 flex flex-col flex-grow">
-          <div className="mb-2 md:mb-3">
+        <div className="p-3 md:p-4 flex flex-col flex-grow">
+          <div className="mb-2.5 md:mb-3">
             <h3 className="font-display font-700 text-base md:text-xl text-mock-navy mb-0.5 leading-tight">
               {getProductDisplayTitle(product.name, product.category)}
             </h3>
@@ -261,10 +272,6 @@ export function ProductCard({ product, index }: { product: ProductCard; index: n
               {product.category}
             </span>
           </div>
-
-          <p className="font-body text-xs md:text-sm text-mock-sub leading-relaxed mb-3 md:mb-4 flex-grow line-clamp-3 md:line-clamp-none">
-            {product.description}
-          </p>
 
           {/* Purity bar */}
           <div className="mb-3 md:mb-4">
@@ -290,22 +297,17 @@ export function ProductCard({ product, index }: { product: ProductCard; index: n
                 <span className="font-display font-800 text-lg md:text-2xl text-mock-navy">{product.price}</span>
               </div>
             </div>
-            <a
-              href={glpGated ? loginHref : `/products/${slugifyProductName(product.name)}`}
-              className="block w-full text-center mb-1.5 md:mb-2 px-2 md:px-3 py-1.5 md:py-2 bg-mock-surface2 hover:bg-mock-line/60 border border-mock-line hover:border-mock-cobalt/30 text-mock-sub hover:text-mock-navy text-xs md:text-sm font-display font-600 rounded-lg transition-all duration-300"
-            >
-              View Information
-            </a>
             <div className="flex gap-1.5 md:gap-2">
               <a
                 href={glpGated ? loginHref : "/coas"}
+                onClick={(e) => e.stopPropagation()}
                 className="flex-1 text-center px-2 md:px-3 py-1.5 md:py-2 bg-mock-surface2 hover:bg-mock-line/60 border border-mock-line hover:border-mock-cobalt/30 text-mock-sub hover:text-mock-navy text-xs md:text-sm font-display font-600 rounded-lg transition-all duration-300"
               >
                 View COA
               </a>
               {glpGated ? (
                 <button
-                  onClick={() => router.push(loginHref)}
+                  onClick={(e) => { e.stopPropagation(); router.push(loginHref); }}
                   className="flex-1 text-center px-2 md:px-3 py-1.5 md:py-2 border border-mock-cobalt/40 bg-mock-cobalt/10 hover:bg-mock-cobalt/20 text-mock-cobaltInk hover:text-mock-cobalt text-xs md:text-sm font-display font-600 rounded-lg transition-all duration-300"
                 >
                   Log In to Inquire
@@ -338,12 +340,12 @@ function SkeletonCard() {
   return (
     <div className="bg-white border border-mock-line rounded-xl overflow-hidden animate-pulse">
       <div className="w-full aspect-[1500/1858] bg-mock-surface2" />
-      <div className="p-3 md:p-5 space-y-2 md:space-y-3">
+      <div className="p-3 md:p-4 space-y-2 md:space-y-3">
         <div className="w-1/2 h-4 md:h-5 bg-mock-surface2 rounded" />
         <div className="w-1/3 h-2.5 md:h-3 bg-mock-surface2 rounded" />
-        <div className="space-y-1.5 md:space-y-2 pt-1.5 md:pt-2">
-          <div className="w-full h-2.5 md:h-3 bg-mock-surface2 rounded" />
-          <div className="w-4/5 h-2.5 md:h-3 bg-mock-surface2 rounded" />
+        <div className="pt-2.5 md:pt-3.5 space-y-2">
+          <div className="w-full h-1 bg-mock-surface2 rounded" />
+          <div className="w-2/3 h-6 bg-mock-surface2 rounded" />
         </div>
       </div>
     </div>
@@ -487,7 +489,7 @@ export default function ProductsSection() {
                 className="font-heading font-700 text-mock-navy"
                 style={{ fontSize: "clamp(2.4rem, 5vw, 4rem)" }}
               >
-                <span>Peptide &amp; Research Reagent Catalog</span>
+                <span>Product Catalog</span>
               </motion.h2>
             </div>
 

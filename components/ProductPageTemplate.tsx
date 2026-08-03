@@ -277,15 +277,12 @@ export default function ProductPageTemplate({
 
             {/* Left — product image + shipping banner + SDS preview */}
             <div className="flex flex-col gap-5">
-              <div className={product.slug === "glp-rt" ? "" : "flex-1 min-h-0"}>
-                <ProductImageGallery
-                  productImage={product.image}
-                  productName={product.name}
-                  coaImage={product.documentationImage}
-                  variant="bleed"
-                  matchSourceAspect={product.slug === "glp-rt"}
-                />
-              </div>
+              <ProductImageGallery
+                productImage={product.image}
+                productName={product.name}
+                coaImage={product.documentationImage}
+                variant="bleed"
+              />
               <ShippingBanner theme="light" />
               <SdsPreviewButton productName={product.name} fileUrl={product.sdsFile} />
             </div>
