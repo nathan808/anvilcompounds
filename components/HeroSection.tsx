@@ -24,7 +24,7 @@ export default function HeroSection() {
     <section
       ref={ref}
       className="relative flex items-center overflow-hidden"
-      style={{ minHeight: "clamp(430px, 58vh, 660px)" }}
+      style={{ minHeight: "clamp(344px, 46vh, 528px)" }}
     >
       {/* Light background */}
       <Image
@@ -40,32 +40,32 @@ export default function HeroSection() {
 
       {/* Content */}
       <motion.div style={{ y, opacity }} className="relative z-10 w-full">
-        <div className="max-w-7xl mx-auto px-2 sm:px-6 md:px-10 pt-12 pb-12 md:pt-16 md:pb-16">
-          <div className="grid lg:grid-cols-[1.15fr_0.85fr] gap-4 lg:gap-8 items-center">
+        <div className="max-w-7xl mx-auto px-2 sm:px-6 md:px-10 pt-10 pb-10 md:pt-12 md:pb-12">
+          <div className="grid lg:grid-cols-[1.15fr_0.85fr] gap-3 lg:gap-6 items-center">
           <motion.div
             variants={container}
             initial="hidden"
             animate="show"
-            className="flex flex-col items-center text-center lg:items-start lg:text-left px-2 py-3 md:py-5"
+            className="flex flex-col items-center text-center lg:items-start lg:text-left px-2 py-2 md:py-4"
             style={{ background: "radial-gradient(ellipse 70% 85% at 50% 48%, rgba(255,255,255,0.62) 0%, rgba(255,255,255,0.18) 60%, transparent 100%)" }}
           >
 
             {/* Vial graphic — mobile/tablet only; sits above the headline. Desktop shows
                 the vial in the side column instead (see below) and keeps this hidden. */}
-            <motion.div variants={item} className="lg:hidden relative w-[320px] max-w-[82vw] aspect-square mb-2">
+            <motion.div variants={item} className="lg:hidden relative w-[256px] max-w-[66vw] aspect-square mb-2">
               <Image
                 src="/images/homepage/hero-vial-callouts.png"
                 alt="Anvil Compounds BPC-157 research vial with 99%+ purity, lot-verified, and USA-based facility callouts"
                 fill
                 className="object-contain"
-                sizes="320px"
+                sizes="256px"
                 priority
               />
             </motion.div>
 
             {/* Badge — hidden on mobile to make room for the vial graphic above the text */}
-            <motion.div variants={item} className="hidden md:flex items-center justify-center lg:justify-start mb-3">
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-mock-line bg-white/70 backdrop-blur-sm">
+            <motion.div variants={item} className="hidden md:flex items-center justify-center lg:justify-start mb-2">
+              <div className="flex items-center gap-2 px-2.5 py-1 rounded-full border border-mock-line bg-white/70 backdrop-blur-sm">
                 <span className="w-1.5 h-1.5 rounded-full bg-mock-cobalt inline-block flex-shrink-0" />
                 <span className="text-[10px] md:text-xs font-mono text-mock-cobaltInk tracking-widest uppercase">
                   Research Grade · 99%+ Purity<span className="hidden sm:inline"> · USA-Based</span>
@@ -76,8 +76,8 @@ export default function HeroSection() {
             {/* Headline */}
             <motion.h1
               variants={item}
-              className="font-heading font-700 leading-[0.95] mb-3 max-w-3xl"
-              style={{ fontSize: "clamp(1.98rem, 4.5vw, 4rem)", textShadow: "0 1px 12px rgba(255,255,255,0.95), 0 0px 2px rgba(255,255,255,0.7)" }}
+              className="font-heading font-700 leading-[0.95] mb-2 max-w-3xl"
+              style={{ fontSize: "clamp(1.584rem, 3.6vw, 3.2rem)", textShadow: "0 1px 12px rgba(255,255,255,0.95), 0 0px 2px rgba(255,255,255,0.7)" }}
             >
               <span className="block text-mock-ink">Research Peptides with</span>
               <span className="block">
@@ -90,41 +90,41 @@ export default function HeroSection() {
             {/* Subheadline */}
             <motion.p
               variants={item}
-              className="font-body text-mock-sub text-sm md:text-base leading-relaxed mb-1 max-w-sm md:max-w-md"
+              className="font-body text-mock-sub text-xs md:text-sm leading-relaxed mb-1 max-w-sm md:max-w-md"
             >
               &gt;99%+ purity threshold. Independently Verified + Scannable COAs per vial.
             </motion.p>
             <motion.p
               variants={item}
-              className="font-body text-mock-sub text-xs md:text-sm leading-relaxed mb-4 max-w-sm md:max-w-md"
+              className="font-body text-mock-sub text-xs md:text-sm leading-relaxed mb-3 max-w-sm md:max-w-md"
             >
               Southern California USA Based Facility
             </motion.p>
 
             {/* CTAs — stacked on mobile, row on sm+ */}
-            <motion.div variants={item} className="flex flex-col sm:flex-row flex-wrap justify-center lg:justify-start gap-2.5 mb-3 w-full sm:w-auto">
+            <motion.div variants={item} className="flex flex-col sm:flex-row flex-wrap justify-center lg:justify-start gap-2 mb-2 w-full sm:w-auto">
               <a
                 href="/catalog?catalog=full"
-                className="px-6 py-2.5 bg-mock-cobalt hover:bg-mock-cobaltInk text-white font-display font-700 text-sm tracking-wide rounded-md transition-all duration-300 hover:shadow-lg hover:shadow-mock-cobalt/30 text-center"
+                className="px-5 py-2 bg-mock-cobalt hover:bg-mock-cobaltInk text-white font-display font-700 text-sm tracking-wide rounded-md transition-all duration-300 hover:shadow-lg hover:shadow-mock-cobalt/30 text-center"
               >
                 Explore Catalog
               </a>
               <a
                 href="/coas"
-                className="px-6 py-2.5 border border-mock-line hover:border-mock-cobalt text-mock-cobaltInk hover:text-mock-cobalt font-display font-600 text-sm tracking-wide rounded-md transition-all duration-300 bg-white/60 hover:bg-white/90 text-center"
+                className="px-5 py-2 border border-mock-line hover:border-mock-cobalt text-mock-cobaltInk hover:text-mock-cobalt font-display font-600 text-sm tracking-wide rounded-md transition-all duration-300 bg-white/60 hover:bg-white/90 text-center"
               >
                 View COAs →
               </a>
               <a
                 href="#testing"
-                className="px-6 py-2.5 border border-mock-line hover:border-mock-sub text-mock-sub hover:text-mock-ink font-display font-600 text-sm tracking-wide rounded-md transition-all duration-300 bg-white/60 hover:bg-white/90 text-center"
+                className="px-5 py-2 border border-mock-line hover:border-mock-sub text-mock-sub hover:text-mock-ink font-display font-600 text-sm tracking-wide rounded-md transition-all duration-300 bg-white/60 hover:bg-white/90 text-center"
               >
                 Our Testing Process →
               </a>
             </motion.div>
 
             {/* Shipping banner — desktop only now; hidden on mobile to make room for the larger vial graphic above */}
-            <motion.div variants={item} className="hidden lg:block mb-3 w-full max-w-sm md:max-w-md">
+            <motion.div variants={item} className="hidden lg:block mb-2 w-full max-w-sm md:max-w-md">
               <ShippingBanner theme="light" />
             </motion.div>
 
@@ -137,13 +137,13 @@ export default function HeroSection() {
 
           {/* Vial graphic — desktop side column, proportional to the text block, never overlapping it */}
           <div className="hidden lg:flex items-center justify-center">
-            <div className="relative w-full max-w-[528px] aspect-square">
+            <div className="relative w-full max-w-[422px] aspect-square">
               <Image
                 src="/images/homepage/hero-vial-callouts.png"
                 alt="Anvil Compounds BPC-157 research vial with 99%+ purity, lot-verified, and USA-based facility callouts"
                 fill
                 className="object-contain"
-                sizes="528px"
+                sizes="422px"
                 priority
               />
             </div>

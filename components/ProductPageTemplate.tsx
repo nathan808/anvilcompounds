@@ -277,12 +277,18 @@ export default function ProductPageTemplate({
 
             {/* Left — product image + shipping banner + SDS preview */}
             <div className="flex flex-col gap-5">
-              <ProductImageGallery
-                productImage={product.image}
-                productName={product.name}
-                coaImage={product.documentationImage}
-                variant="bleed"
-              />
+              {/* Image wrapper sized to 80% and centered — shrinks the framed
+                  photo without cropping anything (aspect ratio is preserved,
+                  it just scales down); shipping banner/SDS button below stay
+                  full column width. */}
+              <div className="w-[80%] mx-auto">
+                <ProductImageGallery
+                  productImage={product.image}
+                  productName={product.name}
+                  coaImage={product.documentationImage}
+                  variant="bleed"
+                />
+              </div>
               <ShippingBanner theme="light" />
               <SdsPreviewButton productName={product.name} fileUrl={product.sdsFile} />
             </div>
