@@ -95,7 +95,7 @@ export default function Step1Form() {
               type="email" required value={step1.email}
               onChange={(e) => setStep1({ email: e.target.value })}
               onBlur={handleEmailBlur}
-              placeholder="you@institution.edu" className={inputClass}
+              placeholder="you@institution.edu" className={inputClass} maxLength={254}
             />
           </div>
           <div>
@@ -103,7 +103,7 @@ export default function Step1Form() {
             <input
               type="tel" required value={step1.phone}
               onChange={(e) => setStep1({ phone: e.target.value })}
-              placeholder="(555) 000-0000" className={inputClass}
+              placeholder="(555) 000-0000" className={inputClass} maxLength={20}
             />
           </div>
         </div>
@@ -116,29 +116,29 @@ export default function Step1Form() {
             <div>
               <label className={labelClass}>First Name *</label>
               <input required value={step1.firstName} onChange={(e) => setStep1({ firstName: e.target.value })}
-                placeholder="First" className={inputClass} />
+                placeholder="First" className={inputClass} maxLength={50} />
             </div>
             <div>
               <label className={labelClass}>Last Name *</label>
               <input required value={step1.lastName} onChange={(e) => setStep1({ lastName: e.target.value })}
-                placeholder="Last" className={inputClass} />
+                placeholder="Last" className={inputClass} maxLength={50} />
             </div>
           </div>
           <div>
             <label className={labelClass}>Address *</label>
             <input required value={step1.address1} onChange={(e) => setStep1({ address1: e.target.value })}
-              placeholder="Street address" className={inputClass} />
+              placeholder="Street address" className={inputClass} maxLength={100} />
           </div>
           <div>
             <label className={labelClass}>Address Line 2</label>
             <input value={step1.address2} onChange={(e) => setStep1({ address2: e.target.value })}
-              placeholder="Apt, suite, lab, floor (optional)" className={inputClass} />
+              placeholder="Apt, suite, lab, floor (optional)" className={inputClass} maxLength={100} />
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
             <div className="col-span-2 sm:col-span-1">
               <label className={labelClass}>City *</label>
               <input required value={step1.city} onChange={(e) => setStep1({ city: e.target.value })}
-                placeholder="City" className={inputClass} />
+                placeholder="City" className={inputClass} maxLength={50} />
             </div>
             <div>
               <label className={labelClass}>State *</label>
