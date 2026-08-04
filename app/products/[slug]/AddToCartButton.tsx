@@ -95,52 +95,54 @@ export default function AddToCartButton({
   // ── Normal buy UI ───────────────────────────────────────────────────────────
   return (
     <div className="space-y-4">
-      {/* Price display */}
-      <div className="pt-1">
-        <div className="flex items-baseline gap-3 flex-wrap">
-          <span className="font-display font-800 text-3xl text-mock-navy">
-            ${unitPrice.toFixed(2)}
-          </span>
-          <span className="font-body text-sm text-mock-sub">/ vial</span>
-          {discount > 0 && (
-            <>
-              <span className="font-body text-sm text-mock-sub line-through">
-                ${basePrice.toFixed(2)}
-              </span>
-              <span className="font-mono text-xs text-green-700 bg-green-500/10 border border-green-500/30 rounded-full px-2 py-0.5">
-                {Math.round(discount * 100)}% off
-              </span>
-            </>
+      {/* Price display + size selector, side by side so mg options sit to
+          the right of the price instead of stacking below it. */}
+      <div className="pt-1 flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <div className="flex items-baseline gap-3 flex-wrap">
+            <span className="font-display font-800 text-3xl text-mock-navy">
+              ${unitPrice.toFixed(2)}
+            </span>
+            <span className="font-body text-sm text-mock-sub">/ vial</span>
+            {discount > 0 && (
+              <>
+                <span className="font-body text-sm text-mock-sub line-through">
+                  ${basePrice.toFixed(2)}
+                </span>
+                <span className="font-mono text-xs text-green-700 bg-green-500/10 border border-green-500/30 rounded-full px-2 py-0.5">
+                  {Math.round(discount * 100)}% off
+                </span>
+              </>
+            )}
+          </div>
+          {qty > 1 && (
+            <p className="font-mono text-xs text-mock-sub mt-1">
+              {qty} × ${unitPrice.toFixed(2)} = <span className="text-mock-navy">${lineTotal.toFixed(2)} total</span>
+            </p>
           )}
         </div>
-        {qty > 1 && (
-          <p className="font-mono text-xs text-mock-sub mt-1">
-            {qty} × ${unitPrice.toFixed(2)} = <span className="text-mock-navy">${lineTotal.toFixed(2)} total</span>
-          </p>
+
+        {sizes.length > 1 && (
+          <div className="text-right">
+            <p className="font-mono text-xs text-mock-sub tracking-widest uppercase mb-2">Select Size</p>
+            <div className="flex flex-wrap gap-2 justify-end">
+              {sizes.map((size, idx) => (
+                <button
+                  key={size}
+                  onClick={() => setSelectedIndex(idx)}
+                  className={`px-4 py-2 rounded-lg border font-mono text-sm font-500 transition-all duration-200 ${
+                    selectedIndex === idx
+                      ? "bg-mock-cobalt border-mock-cobaltInk text-white shadow-lg shadow-mock-cobalt/20"
+                      : "bg-mock-surface2 border-mock-line text-mock-sub hover:border-mock-cobalt/30 hover:text-mock-navy"
+                  }`}
+                >
+                  {size}
+                </button>
+              ))}
+            </div>
+          </div>
         )}
       </div>
-
-      {/* Size selector */}
-      {sizes.length > 1 && (
-        <div>
-          <p className="font-mono text-xs text-mock-sub tracking-widest uppercase mb-3">Select Size</p>
-          <div className="flex flex-wrap gap-2">
-            {sizes.map((size, idx) => (
-              <button
-                key={size}
-                onClick={() => setSelectedIndex(idx)}
-                className={`px-5 py-2.5 rounded-lg border font-mono text-sm font-500 transition-all duration-200 ${
-                  selectedIndex === idx
-                    ? "bg-mock-cobalt border-mock-cobaltInk text-white shadow-lg shadow-mock-cobalt/20"
-                    : "bg-mock-surface2 border-mock-line text-mock-sub hover:border-mock-cobalt/30 hover:text-mock-navy"
-                }`}
-              >
-                {size}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
 
       {/* Quantity selector */}
       <div>

@@ -292,28 +292,28 @@ export function ProductCard({ product, index }: { product: ProductCard; index: n
 
           {/* Price + buttons */}
           <div className="pt-2.5 md:pt-3.5 border-t border-mock-line">
-            <div className="flex items-center justify-between mb-2 md:mb-3">
+            <div className="flex items-start justify-between gap-2 mb-2 md:mb-3">
               <div>
                 <span className="font-mono text-[9px] md:text-xs text-mock-sub block tracking-wider">From</span>
                 <span className="font-display font-800 text-lg md:text-2xl text-mock-navy">{product.price}</span>
               </div>
-            </div>
 
-            {/* mg/size options — only shown for products with more than one
-                variation (e.g. GHK-Cu's 50mg/100mg); single-size products
-                render nothing here. */}
-            {product.sizes.length > 1 && (
-              <div className="flex flex-wrap gap-1.5 mb-2 md:mb-3">
-                {product.sizes.map((size) => (
-                  <span
-                    key={size}
-                    className="px-2 py-0.5 rounded-md border border-mock-line bg-mock-surface2 font-mono text-[10px] text-mock-sub"
-                  >
-                    {size}
-                  </span>
-                ))}
-              </div>
-            )}
+              {/* mg/size options — shown next to the price for every product
+                  that has size data, whether it's a single fixed mg or
+                  multiple variations (e.g. GHK-Cu's 50mg/100mg). */}
+              {product.sizes.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 justify-end">
+                  {product.sizes.map((size) => (
+                    <span
+                      key={size}
+                      className="px-2 py-0.5 rounded-md border border-mock-line bg-mock-surface2 font-mono text-[10px] text-mock-sub whitespace-nowrap"
+                    >
+                      {size}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
 
             <div className="flex gap-1.5 md:gap-2">
               <a
