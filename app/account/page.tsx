@@ -280,6 +280,8 @@ function AccountForm() {
           <p className="font-body text-white/40 text-sm">
             {redirect === "/checkout"
               ? "An account is required to place an order."
+              : redirect.includes("access=lab-guide")
+              ? "Sign in to view laboratory reconstitution reference data."
               : redirect.startsWith("/products/")
               ? "Log in to inquire about this compound."
               : redirect === "/coas"
