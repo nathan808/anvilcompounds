@@ -59,10 +59,10 @@ export default function ReconstitutionGuide({
       </p>
 
       <div className="space-y-6">
-        {vials.map(({ size, totalMg }) => (
+        {vials.map(({ size, label, totalMg }) => (
           <div key={size}>
             <p className="font-display font-800 text-mock-navy text-base mb-3">
-              {size} vial
+              {label} vial
             </p>
             <div className="border border-mock-line rounded-xl overflow-hidden">
               <table className="w-full">
