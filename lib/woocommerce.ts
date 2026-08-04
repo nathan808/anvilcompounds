@@ -133,6 +133,7 @@ interface WCProductFull {
   categories: { id: number; name: string; slug: string }[];
   images: { src: string; alt: string }[];
   meta_data: { id: number; key: string; value: string }[];
+  attributes: { name: string; options: string[] }[];
 }
 
 interface WCVariation {
@@ -197,12 +198,27 @@ export async function getProductPageData(slug: string): Promise<ProductPageData 
     const sortedVars = [...variations].sort(
       (a, b) => parseFloat(a.price || "0") - parseFloat(b.price || "0")
     );
-    const sizes = sortedVars
+    let sizes = sortedVars
       .map((v) => v.attributes.find((a) => a.name === "Size")?.option ?? "")
       .filter(Boolean);
-    const sizesPrices = sortedVars.map(
+    let sizesPrices = sortedVars.map(
       (v) => parseFloat(v.price || v.regular_price || product.price || "0")
     );
+
+    // Simple (non-variable) products have no /variations rows, but may still
+    // carry a fixed, non-variation "Size" attribute directly on the base
+    // product (e.g. KLOW's 80mg blend) — fall back to that so the mg pill
+    // and Reconstitution Guide still have something to read.
+    if (sizes.length === 0) {
+      const baseSizeAttr = product.attributes?.find(
+        (a) => a.name.toLowerCase() === "size"
+      );
+      if (baseSizeAttr?.options.length) {
+        sizes = baseSizeAttr.options;
+        const basePriceForFallback = parseFloat(product.price || product.regular_price || "0");
+        sizesPrices = baseSizeAttr.options.map(() => basePriceForFallback);
+      }
+    }
 
     const trustBadgesRaw = parseRepeater(meta, "trust_badges", ["badge"])
       .map((r) => r.badge)

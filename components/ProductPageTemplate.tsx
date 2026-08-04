@@ -5,9 +5,11 @@ import InfoBlock from "@/components/InfoBlock";
 import ViewCoaButton from "@/components/ViewCoaButton";
 import SdsPreviewButton from "@/components/SdsPreviewButton";
 import PurchaseFooter from "@/components/PurchaseFooter";
+import ReconstitutionGuide from "@/components/ReconstitutionGuide";
 import { ProductCard as CatalogProductCard } from "@/components/ProductsSection";
 import { getProductDisplayTitle } from "@/lib/productTitle";
 import { PRODUCT_MECHANISMS } from "@/lib/productMechanisms";
+import { parseReconVials } from "@/lib/reconstitution";
 import type { ProductCard } from "@/lib/woocommerce";
 
 // ─── Data interface ────────────────────────────────────────────────────────────
@@ -396,6 +398,12 @@ export default function ProductPageTemplate({
             </div>
           </InfoBlock>
 
+          {parseReconVials(product.sizes).length > 0 && (
+            <InfoBlock number="04" label="Reconstitution Guide">
+              <ReconstitutionGuide slug={product.slug} sizes={product.sizes} />
+            </InfoBlock>
+          )}
+
         </div>
       </section>
 
@@ -416,7 +424,7 @@ export default function ProductPageTemplate({
       {/* ── SECTION — Related compounds ──────────────────────────────────── */}
       {product.relatedProducts.length > 0 && (
         <Section>
-          <SectionLabel number="04" label="Related Compounds" />
+          <SectionLabel number="05" label="Related Compounds" />
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {product.relatedProducts.map((rel, i) => (
               <CatalogProductCard key={rel.id} product={rel} index={i} />
