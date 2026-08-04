@@ -122,7 +122,7 @@ export default function AddToCartButton({
           )}
         </div>
 
-        {sizes.length > 1 && (
+        {sizes.length > 1 ? (
           <div className="text-right">
             <p className="font-mono text-xs text-mock-sub tracking-widest uppercase mb-2">Select Size</p>
             <div className="flex flex-wrap gap-2 justify-end">
@@ -141,7 +141,14 @@ export default function AddToCartButton({
               ))}
             </div>
           </div>
-        )}
+        ) : sizes.length === 1 ? (
+          <div className="text-right">
+            <p className="font-mono text-xs text-mock-sub tracking-widest uppercase mb-2">Size</p>
+            <span className="inline-block px-4 py-2 rounded-lg border border-mock-line bg-mock-surface2 font-mono text-sm text-mock-navy whitespace-nowrap">
+              {sizes[0]}
+            </span>
+          </div>
+        ) : null}
       </div>
 
       {/* Quantity selector */}
