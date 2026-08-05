@@ -22,18 +22,20 @@ export interface PaymentInstructionCopy {
 // context above (order number / total / hold date) is all that's available.
 export const PAYMENT_INSTRUCTIONS_COPY: Record<PaymentMethodId, PaymentInstructionCopy> = {
   bacs: {
-    heading: "Pay With Credit Card Via Invoice",
+    heading: "Credit or debit card",
     trustLine: "",
     lines: [
+      "A secure payment link from Stripe, our card processor, arrives by email within 15 minutes.",
+      "Card details are entered on Stripe's page, never on this site.",
       "Card payments are processed at the full posted price — no discount applies to this method.",
-      "Our team will follow up by email with a secure payment link to complete your payment by credit or debit card.",
     ],
   },
   ethereum: {
     heading: "Pay with Ethereum",
     trustLine: "Your bank statement will show a charge from Anvil Holdings LLC. This is our payment processing partner.",
     lines: [
-      "You'll be redirected to our secure payment partner, Bankful, to complete your payment.",
+      "Send ETH from any wallet through Bankful's hosted checkout — the button below takes you there.",
+      "Amount is locked at the quoted rate. Network fees are separate. Confirms in minutes.",
       "This method includes a 10% instant-payment discount, already reflected in your total.",
     ],
   },
@@ -41,9 +43,9 @@ export const PAYMENT_INSTRUCTIONS_COPY: Record<PaymentMethodId, PaymentInstructi
     heading: "Pay with Zelle",
     trustLine: "",
     lines: [
-      "Send the exact total shown above via Zelle to the phone number provided.",
+      "Send from your bank's Zelle. Payment details are shown below — no need to wait for an email.",
       "In the Zelle memo, enter ONLY your order number. Do not describe the items.",
-      "Your order ships once payment is confirmed, typically within 1–4 hours during business hours.",
+      "Orders up to $2,000. Ships same business day once payment lands.",
     ],
   },
   usdc_usdt: {

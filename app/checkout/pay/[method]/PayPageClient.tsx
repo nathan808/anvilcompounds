@@ -5,8 +5,11 @@ import { useSearchParams } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PaymentInstructions from "@/components/PaymentInstructions";
-import { PAYMENT_CONFIG } from "@/lib/paymentConfig";
+import CreateAccountNudge from "@/components/CreateAccountNudge";
+import { PAYMENT_CONFIG, ORDER_HOLD_DAYS } from "@/lib/paymentConfig";
 import { PaymentMethodId } from "@/lib/paymentMethods";
+import { useCheckout } from "@/lib/checkoutContext";
+import { useAuth } from "@/lib/authContext";
 
 const VALID_METHODS: PaymentMethodId[] = ["bacs", "ethereum", "zelle", "usdc_usdt", "ach"];
 const BANKFUL_METHODS: PaymentMethodId[] = ["ethereum"];
@@ -40,6 +43,8 @@ export default function PayPageClient({ method }: { method: string }) {
   const [submitting, setSubmitting] = useState(false);
   const [linkError, setLinkError] = useState("");
   const [copiedField, setCopiedField] = useState<string | null>(null);
+  const { step1 } = useCheckout();
+  const { isAuthenticated } = useAuth();
 
   const isValidMethod = VALID_METHODS.includes(method as PaymentMethodId);
   const isBankfulMethod = BANKFUL_METHODS.includes(method as PaymentMethodId);
@@ -143,6 +148,28 @@ export default function PayPageClient({ method }: { method: string }) {
                 </div>
               ) : (
                 <>
+                  {(method === "bacs" || method === "zelle") && (
+                    <div className="glass-card rounded-2xl p-6 space-y-2 border-blue-500/20">
+                      <p className="font-display font-700 text-white text-base">
+                        Order #{order.orderNumber} placed. Nothing charged yet.
+                      </p>
+                      {method === "bacs" && (
+                        <p className="font-body text-sm text-white/60 leading-relaxed">
+                          Your payment link is on its way to{" "}
+                          <span className="text-white/80">{step1.email || "the email on your order"}</span>{" "}
+                          — usually within 15 minutes. If it hasn&apos;t arrived in 30, check spam and add
+                          support@anvilcompounds.shop to your contacts.
+                        </p>
+                      )}
+                      <p className="font-body text-sm text-white/50">
+                        Your order is held for {ORDER_HOLD_DAYS * 24} hours.
+                      </p>
+                      <p className="font-mono text-[11px] text-white/30">
+                        Questions about payment: support@anvilcompounds.shop
+                      </p>
+                    </div>
+                  )}
+
                   <PaymentInstructions
                     methodId={method as PaymentMethodId}
                     context={{
@@ -223,6 +250,10 @@ export default function PayPageClient({ method }: { method: string }) {
                     </div>
                   )}
                 </>
+              )}
+
+              {!isAuthenticated && (method === "bacs" || method === "zelle") && (
+                <CreateAccountNudge email={step1.email} orderId={order.orderId} orderKey={orderKey ?? undefined} />
               )}
             </div>
           )}

@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import PaymentMethodsBar from "@/components/PaymentMethodsBar";
 
 const POLICY_PAGES = [
   { label: "Privacy Policy",  href: "/legal/privacy-policy" },
@@ -169,6 +170,11 @@ export default function Footer() {
               prevent any disease. No claim is made that any compound sold here is safe or effective for
               any use in humans or animals.
             </p>
+          </div>
+
+          {/* Accepted payment methods */}
+          <div className="mb-6">
+            <PaymentMethodsBar />
           </div>
 
           {/* Billing notice */}
