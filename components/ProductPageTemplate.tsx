@@ -6,6 +6,7 @@ import ViewCoaButton from "@/components/ViewCoaButton";
 import SdsPreviewButton from "@/components/SdsPreviewButton";
 import PurchaseFooter from "@/components/PurchaseFooter";
 import ReconstitutionGuide from "@/components/ReconstitutionGuide";
+import ProductFaqBlock from "@/components/ProductFaqBlock";
 import { ProductCard as CatalogProductCard } from "@/components/ProductsSection";
 import { getProductDisplayTitle } from "@/lib/productTitle";
 import { PRODUCT_MECHANISMS } from "@/lib/productMechanisms";
@@ -404,6 +405,10 @@ export default function ProductPageTemplate({
             </InfoBlock>
           )}
 
+          <InfoBlock number="05" label="FAQ">
+            <ProductFaqBlock />
+          </InfoBlock>
+
         </div>
       </section>
 
@@ -424,7 +429,7 @@ export default function ProductPageTemplate({
       {/* ── SECTION — Related compounds ──────────────────────────────────── */}
       {product.relatedProducts.length > 0 && (
         <Section>
-          <SectionLabel number="05" label="Related Compounds" />
+          <SectionLabel number="06" label="Related Compounds" />
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {product.relatedProducts.map((rel, i) => (
               <CatalogProductCard key={rel.id} product={rel} index={i} />

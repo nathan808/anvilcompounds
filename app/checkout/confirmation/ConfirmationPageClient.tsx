@@ -5,7 +5,10 @@ import { useSearchParams } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PaymentInstructions from "@/components/PaymentInstructions";
+import CreateAccountNudge from "@/components/CreateAccountNudge";
 import { PaymentMethodId } from "@/lib/paymentMethods";
+import { useCheckout } from "@/lib/checkoutContext";
+import { useAuth } from "@/lib/authContext";
 
 const KNOWN_METHODS: PaymentMethodId[] = ["bacs", "ethereum", "zelle", "usdc_usdt", "ach"];
 
@@ -36,6 +39,8 @@ export default function ConfirmationPageClient() {
 
   const [order, setOrder] = useState<OrderStatus | null>(null);
   const [error, setError] = useState("");
+  const { step1 } = useCheckout();
+  const { isAuthenticated } = useAuth();
 
   useEffect(() => {
     if (!orderId) {
@@ -115,6 +120,12 @@ export default function ConfirmationPageClient() {
               <p className="font-body text-sm text-white/40">
                 Contact support@anvilcompounds.shop with any questions about this order.
               </p>
+            </div>
+          )}
+
+          {order && !isAuthenticated && (
+            <div className="mt-6">
+              <CreateAccountNudge email={step1.email} />
             </div>
           )}
 

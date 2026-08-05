@@ -7,6 +7,7 @@ import { useAuth } from "@/lib/authContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import AccountDashboard from "@/components/AccountDashboard";
+import GuestOrderLookup from "@/components/GuestOrderLookup";
 import Link from "next/link";
 import { Suspense } from "react";
 
@@ -38,10 +39,14 @@ function AccountForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect") ?? "/";
+  const claimOrder = searchParams.get("claimOrder");
+  const claimKey = searchParams.get("claimKey");
 
-  const [tab, setTab] = useState<"create" | "signin">("create");
+  const [tab, setTab] = useState<"create" | "signin" | "lookup">(
+    searchParams.get("tab") === "lookup" ? "lookup" : searchParams.get("tab") === "signin" ? "signin" : "create"
+  );
   const [form, setForm] = useState({
-    email: "",
+    email: searchParams.get("prefillEmail") ?? "",
     birthday: "",
     firstName: "",
     lastName: "",
@@ -57,6 +62,30 @@ function AccountForm() {
   const [twoFactorError, setTwoFactorError] = useState("");
 
   const set = (k: string, v: string) => setForm((p) => ({ ...p, [k]: v }));
+
+  // Best-effort: link the guest order the customer just placed (identified by
+  // claimOrder/claimKey, only ever present when CreateAccountNudge on the pay
+  // page generated this link) to the account they just created/signed into.
+  // Reads the token straight back out of localStorage rather than threading
+  // it through register()/login()'s return value, since storeUser() in
+  // authContext already writes it there synchronously before those resolve.
+  // Never blocks navigation — if this fails, the order is still findable via
+  // the guest order-lookup tab.
+  const attemptClaim = async () => {
+    if (!claimOrder || !claimKey) return;
+    try {
+      const stored = localStorage.getItem("anvil_auth");
+      const token = stored ? (JSON.parse(stored) as { token?: string }).token : null;
+      if (!token) return;
+      await fetch(`/api/orders/${claimOrder}/claim`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ orderKey: claimKey }),
+      });
+    } catch {
+      // Best-effort — see comment above.
+    }
+  };
 
   const handleBirthdayChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const formatted = formatBirthday(e.target.value, form.birthday);
@@ -107,6 +136,7 @@ function AccountForm() {
       } else {
         await login(form.email.toLowerCase().trim(), form.birthday);
       }
+      await attemptClaim();
       router.push(redirect);
     } catch (err: unknown) {
       const e = err as { code?: string; message?: string };
@@ -141,6 +171,7 @@ function AccountForm() {
     setTwoFactorStep("verifying");
     try {
       await verifyTwoFactor(twoFactorEmail, twoFactorCode);
+      await attemptClaim();
       router.push(redirect);
     } catch (err: unknown) {
       const e = err as { message?: string };
@@ -279,7 +310,7 @@ function AccountForm() {
           </h1>
           <p className="font-body text-white/40 text-sm">
             {redirect === "/checkout"
-              ? "An account is required to place an order."
+              ? "Optional — guest checkout is available. Sign in to track this order automatically."
               : redirect.includes("access=lab-guide")
               ? "Sign in to view laboratory reconstitution reference data."
               : redirect.startsWith("/products/")
@@ -292,7 +323,7 @@ function AccountForm() {
 
         {/* Tab toggle */}
         <div className="flex glass-card rounded-xl p-1 mb-8">
-          {(["create", "signin"] as const).map((t) => (
+          {(["create", "signin", "lookup"] as const).map((t) => (
             <button
               key={t}
               type="button"
@@ -303,11 +334,15 @@ function AccountForm() {
                   : "text-white/40 hover:text-white/70"
               }`}
             >
-              {t === "create" ? "Create Account" : "Sign In"}
+              {t === "create" ? "Create Account" : t === "signin" ? "Sign In" : "Find My Order"}
             </button>
           ))}
         </div>
 
+        {tab === "lookup" ? (
+          <GuestOrderLookup />
+        ) : (
+        <>
         {/* Form */}
         <div className="glass-card rounded-2xl p-8">
           <form onSubmit={handleSubmit} className="space-y-5">
@@ -447,6 +482,8 @@ function AccountForm() {
             </p>
           </div>
         </div>
+        </>
+        )}
 
         <p className="text-center mt-6 font-body text-sm text-white/30">
           <Link href="/" className="hover:text-white/60 transition-colors">
