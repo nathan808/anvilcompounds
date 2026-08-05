@@ -19,7 +19,7 @@ interface ShippingOption {
 
 export default function ShippingMethods() {
   const { subtotal } = useCart();
-  const { coupon, shipping, setShipping } = useCheckout();
+  const { coupon, shipping, setShipping, hydrated: checkoutHydrated } = useCheckout();
   const [options, setOptions] = useState<ShippingOption[] | null>(null);
   const [freeShipping, setFreeShipping] = useState<FreeShippingProgressData | null>(null);
   const [error, setError] = useState("");
@@ -32,6 +32,19 @@ export default function ShippingMethods() {
   const discountedSubtotal = postCouponSubtotal - volumeDiscount;
 
   useEffect(() => {
+    // Guard against a real race, not just a style nit: on a fresh page load,
+    // CartProvider (localStorage) and CheckoutProvider (sessionStorage)
+    // hydrate independently. Without waiting for checkoutHydrated, this
+    // effect can run while `shipping` is still its pre-hydration `null` —
+    // the resync check below sees nothing to correct, checkoutContext then
+    // finishes hydrating a moment later with the STALE selection, and since
+    // that alone doesn't change discountedSubtotal/coupon, this effect never
+    // reruns to catch it. Confirmed live: without this guard, a stale free
+    // ($0) Ground selection survived a full navigation to this page with a
+    // shrunk cart. Re-fetching once more after hydration finishes is a
+    // second, harmless network call in the case where shipping was already
+    // hydrated in time — the real fix is not skipping it when it wasn't.
+    if (!checkoutHydrated) return;
     let cancelled = false;
     setError("");
     setOptions(null);
@@ -49,14 +62,35 @@ export default function ShippingMethods() {
           setError("Could not load shipping methods. Please refresh and try again.");
           return;
         }
-        setOptions(data.methods);
+        const freshOptions: ShippingOption[] = data.methods;
+        setOptions(freshOptions);
         setFreeShipping(data.freeShipping ?? null);
+
+        // Re-sync any already-selected shipping (persisted in sessionStorage,
+        // so it survives across separate carts in the same tab) against the
+        // options we just fetched for the CURRENT subtotal. A method whose
+        // cost changed (e.g. Ground was free at $200+, isn't at $50) gets its
+        // stored cost corrected in place; a method that no longer exists gets
+        // cleared entirely, which re-disables "Continue to Payment" until the
+        // customer re-selects — otherwise a stale cost (most often a stale
+        // $0 "free shipping") rides through to the payment step and produces
+        // a client/server total mismatch ("Your cart has changed").
+        if (shipping) {
+          const stillValid = freshOptions.find(
+            (o) => o.methodId === shipping.methodId && o.instanceId === shipping.instanceId
+          );
+          if (!stillValid) {
+            setShipping(null);
+          } else if (stillValid.cost !== shipping.cost) {
+            setShipping({ methodId: stillValid.methodId, instanceId: stillValid.instanceId, title: stillValid.title, cost: stillValid.cost });
+          }
+        }
       })
       .catch(() => { if (!cancelled) setError("Could not load shipping methods. Please refresh and try again."); });
 
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [discountedSubtotal, coupon?.code]);
+  }, [checkoutHydrated, discountedSubtotal, coupon?.code]);
 
   if (error) {
     return <div className="px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 font-body text-sm">{error}</div>;

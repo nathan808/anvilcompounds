@@ -55,6 +55,14 @@ interface CheckoutContextType {
   paymentMethodId: PaymentMethodId | null;
   setPaymentMethodId: (id: PaymentMethodId | null) => void;
   hydrated: boolean;
+  // Resets coupon/shipping/paymentMethodId after a completed order —
+  // step1 (contact/address) is intentionally kept, since re-using it for the
+  // customer's next order is a convenience, not a pricing-correctness risk.
+  // Without this, a shipping selection made against one cart's subtotal (e.g.
+  // free Ground, unlocked at $150+) stays in sessionStorage and gets carried
+  // into a completely separate, smaller cart in the same tab — see
+  // ShippingMethods.tsx's own re-sync guard for the other half of this fix.
+  clearCheckout: () => void;
 }
 
 const CheckoutContext = createContext<CheckoutContextType | null>(null);
@@ -109,6 +117,10 @@ export function CheckoutProvider({ children }: { children: ReactNode }) {
     setState((prev) => ({ ...prev, paymentMethodId }));
   };
 
+  const clearCheckout = () => {
+    setState((prev) => ({ ...prev, coupon: null, shipping: null, paymentMethodId: null }));
+  };
+
   return (
     <CheckoutContext.Provider value={{
       step1: state.step1, setStep1,
@@ -116,6 +128,7 @@ export function CheckoutProvider({ children }: { children: ReactNode }) {
       shipping: state.shipping, setShipping,
       paymentMethodId: state.paymentMethodId, setPaymentMethodId,
       hydrated,
+      clearCheckout,
     }}>
       {children}
     </CheckoutContext.Provider>

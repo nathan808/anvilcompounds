@@ -32,6 +32,13 @@ export default function OrderSummary({ editableCoupon = true, showShipping = fal
   const [error, setError] = useState("");
   const [taxRate, setTaxRate] = useState(0);
   const [shippingTaxable, setShippingTaxable] = useState(false);
+  // Starts false whenever a tax lookup is needed, so the very first render's
+  // (necessarily tax-free) total never gets reported to onTotalChange. Without
+  // this, the payment page could capture a pre-tax preview total the instant
+  // it mounts and submit it if the customer clicks before the tax-rate fetch
+  // resolves — the server always includes tax, so that preview would never
+  // match, surfacing as a false "Your cart has changed" error.
+  const [taxResolved, setTaxResolved] = useState(!showShipping || !step1.state);
 
   const couponDiscount = computeCouponDiscount(subtotal, coupon);
   // postCouponSubtotal = coupon only — this is the WC line-item/tax base.
@@ -51,8 +58,9 @@ export default function OrderSummary({ editableCoupon = true, showShipping = fal
   const freeShippingProgress = useFreeShippingProgress(discountedSubtotal, !!coupon, showFreeShippingProgress);
 
   useEffect(() => {
-    if (!showShipping || !step1.state) { setTaxRate(0); setShippingTaxable(false); return; }
+    if (!showShipping || !step1.state) { setTaxRate(0); setShippingTaxable(false); setTaxResolved(true); return; }
     let cancelled = false;
+    setTaxResolved(false);
     fetch(`/api/checkout/tax-rate?state=${encodeURIComponent(step1.state)}`)
       .then((res) => res.json())
       .then((data) => {
@@ -60,7 +68,8 @@ export default function OrderSummary({ editableCoupon = true, showShipping = fal
         setTaxRate(typeof data.rate === "number" ? data.rate : 0);
         setShippingTaxable(!!data.shippingTaxable);
       })
-      .catch(() => { if (!cancelled) { setTaxRate(0); setShippingTaxable(false); } });
+      .catch(() => { if (!cancelled) { setTaxRate(0); setShippingTaxable(false); } })
+      .finally(() => { if (!cancelled) setTaxResolved(true); });
     return () => { cancelled = true; };
   }, [showShipping, step1.state]);
 
@@ -111,9 +120,10 @@ export default function OrderSummary({ editableCoupon = true, showShipping = fal
   const displayedTotal = showShipping || paymentDiscount ? total : discountedSubtotal;
 
   useEffect(() => {
+    if (!taxResolved) return;
     onTotalChange?.(displayedTotal);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [displayedTotal]);
+  }, [displayedTotal, taxResolved]);
 
   return (
     <div className="glass-card rounded-2xl p-6">

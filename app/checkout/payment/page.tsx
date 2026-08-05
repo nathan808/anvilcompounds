@@ -18,7 +18,7 @@ export default function PaymentPage() {
   const router = useRouter();
   const { items, subtotal, clearCart } = useCart();
   const { hydrated: authHydrated, user } = useAuth();
-  const { step1, coupon, shipping, paymentMethodId, hydrated: checkoutHydrated } = useCheckout();
+  const { step1, coupon, shipping, setShipping, paymentMethodId, hydrated: checkoutHydrated, clearCheckout } = useCheckout();
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [previewTotal, setPreviewTotal] = useState<number | null>(null);
@@ -35,6 +35,38 @@ export default function PaymentPage() {
       router.replace("/checkout/shipping");
     }
   }, [checkoutHydrated, items.length, step1.ruoConfirmed, shipping, router, submitting]);
+
+  // Guards the case ShippingMethods.tsx's own re-sync can't reach: landing on
+  // this page directly (browser back/forward, a stale tab) without Step 2
+  // ever re-mounting for the current cart. Re-validates the persisted
+  // shipping selection against live options for the CURRENT subtotal — most
+  // often catching a stale free-Ground ($0) left over from a previous,
+  // larger cart in the same tab. An invalid/stale selection is cleared,
+  // which makes the effect above bounce back to Step 2 to reselect.
+  useEffect(() => {
+    if (!checkoutHydrated || !shipping || submitting) return;
+    let cancelled = false;
+    const couponDiscount = computeCouponDiscount(subtotal, coupon);
+    const volumeDiscount = computeVolumeDiscount(subtotal, !!coupon);
+    const discountedSubtotal = subtotal - couponDiscount - volumeDiscount;
+    const params = new URLSearchParams({
+      subtotal: discountedSubtotal.toFixed(2),
+      hasCoupon: coupon ? "true" : "false",
+    });
+    fetch(`/api/checkout/shipping-methods?${params.toString()}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (cancelled || !data.methods) return;
+        const methods: { methodId: string; instanceId: string; cost: number }[] = data.methods;
+        const stillValid = methods.find((m) => m.methodId === shipping.methodId && m.instanceId === shipping.instanceId);
+        if (!stillValid || stillValid.cost !== shipping.cost) {
+          setShipping(null);
+        }
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [checkoutHydrated, subtotal, coupon?.code]);
 
   if (!authHydrated || !checkoutHydrated) return null;
 
@@ -83,6 +115,7 @@ export default function PaymentPage() {
         return;
       }
       clearCart();
+      clearCheckout();
       router.push(`/checkout/pay/${paymentMethodId}?order=${data.orderId}&key=${data.orderKey}`);
     } catch {
       setError("Something went wrong. Please try again or contact support@anvilcompounds.shop");
@@ -134,11 +167,11 @@ export default function PaymentPage() {
 
               <button
                 type="button"
-                disabled={!paymentMethodId || submitting}
+                disabled={!paymentMethodId || submitting || previewTotal === null}
                 onClick={handleContinue}
                 className="w-full py-4 bg-blue-600 hover:bg-blue-500 disabled:bg-blue-600/40 disabled:cursor-not-allowed text-white font-display font-700 text-base rounded-xl transition-all duration-300 hover:shadow-xl hover:shadow-blue-600/30"
               >
-                {submitting ? "Placing Order..." : "Continue to Payment →"}
+                {submitting ? "Placing Order..." : previewTotal === null ? "Calculating total…" : "Continue to Payment →"}
               </button>
             </div>
 
