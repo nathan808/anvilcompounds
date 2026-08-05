@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { resolveLineItem } from "@/lib/wcProducts";
+import { resolveLineItem, ResolvedLineItem } from "@/lib/wcProducts";
 import { fetchShippingOptions } from "@/lib/wcShipping";
 import { validateCoupon } from "@/lib/wcCoupon";
 import { computeCouponDiscount } from "@/lib/couponMath";
@@ -64,15 +64,25 @@ export async function POST(req: NextRequest) {
   }
 
   // ── 1. Line items — price comes ONLY from WooCommerce ─────────────────────
-  const resolvedItems = [];
-  for (const item of items) {
-    const resolved = await resolveLineItem(item.productId, item.size, item.quantity);
-    if (!resolved) {
-      console.error(`[place-order:${requestId}] FAIL: could not resolve product ${item.productId} (size "${item.size}", qty ${item.quantity})`);
-      return NextResponse.json({ error: `One of the items in your cart is no longer available (product ${item.productId}).` }, { status: 400 });
-    }
-    resolvedItems.push(resolved);
+  // Resolved concurrently: each call is 1-2 independent WC round-trips
+  // (product + variations), and they don't depend on each other, so awaiting
+  // them one at a time in a loop was pure added latency for multi-item carts.
+  // Tax rate lookup only needs billing.state, which is already known — kick
+  // it off here too and await the result down in step 5. Pure reordering,
+  // same validation and error messages as before.
+  const taxRatePromise = fetchTaxRate(billing.state);
+  taxRatePromise.catch(() => {}); // avoid an unhandled-rejection warning if an item fails to resolve below, before step 5 ever awaits this
+
+  const resolvedResults = await Promise.all(
+    items.map((item) => resolveLineItem(item.productId, item.size, item.quantity))
+  );
+  const failedIndex = resolvedResults.findIndex((r) => !r);
+  if (failedIndex !== -1) {
+    const item = items[failedIndex];
+    console.error(`[place-order:${requestId}] FAIL: could not resolve product ${item.productId} (size "${item.size}", qty ${item.quantity})`);
+    return NextResponse.json({ error: `One of the items in your cart is no longer available (product ${item.productId}).` }, { status: 400 });
   }
+  const resolvedItems = resolvedResults as ResolvedLineItem[];
   const subtotal = roundCurrency(resolvedItems.reduce((s, i) => s + i.lineTotal, 0));
 
   // ── 2. Coupon — validated against WC, discount computed server-side ───────
@@ -127,7 +137,7 @@ export async function POST(req: NextRequest) {
   let taxRate = 0;
   let shippingTaxable = false;
   try {
-    const taxInfo = await fetchTaxRate(billing.state);
+    const taxInfo = await taxRatePromise;
     taxRate = taxInfo.rate;
     shippingTaxable = taxInfo.shippingTaxable;
   } catch (err) {

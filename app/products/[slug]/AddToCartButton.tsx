@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useCart } from "@/lib/cartContext";
 import PurchaseFooter from "@/components/PurchaseFooter";
+import PaymentMethodsBar from "@/components/PaymentMethodsBar";
 import {
   VOLUME_TIERS,
   MAX_QTY_PER_ITEM,
@@ -279,6 +280,8 @@ export default function AddToCartButton({
         </svg>
         Proceed to Secure Checkout →
       </Link>
+
+      <PaymentMethodsBar />
 
       {showFooter && (
         <div className="pt-1">
