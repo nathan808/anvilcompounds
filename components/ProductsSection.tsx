@@ -246,7 +246,7 @@ export function ProductCard({ product, index }: { product: ProductCard; index: n
             </span>
           </div>
           {BOGO_ENABLED && (
-            <div className="absolute top-2.5 left-2.5 z-20">
+            <div className="absolute bottom-2.5 right-2.5 z-20">
               <span className="text-xs font-display font-700 tracking-wide px-2 py-0.5 rounded-full bg-mock-cobalt text-white shadow-md">
                 🎁 BOGO
               </span>

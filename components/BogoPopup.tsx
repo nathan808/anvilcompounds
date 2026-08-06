@@ -27,67 +27,6 @@ function isAgeGateBlocking(): boolean {
   return true;
 }
 
-// Same baked-in "Shop Now" position, as a % of the image's own box, as the
-// promo banner used previously — still valid here since the modal preserves
-// the image's exact aspect ratio (object-contain, nothing cropped).
-const SHOP_NOW_HOTSPOT = {
-  desktop: { left: "3.4%", top: "60.7%", width: "21.5%", height: "7.5%" },
-  mobile: { left: "8.1%", top: "76%", width: "83.6%", height: "8.2%" },
-};
-
-const SECONDARY_ROW = {
-  desktop: { left: "3.4%", top: "70.5%", width: "auto" },
-  mobile: { left: "8.1%", top: "86.5%", width: "83.6%" },
-};
-
-const SECONDARY_CTAS = [
-  { label: "View COAs →", href: "/coas" },
-  { label: "Our Testing Process →", href: "#testing" },
-];
-
-function ExploreCatalogHotspot({ variant, onNavigate }: { variant: "desktop" | "mobile"; onNavigate: () => void }) {
-  const pos = SHOP_NOW_HOTSPOT[variant];
-  return (
-    <a
-      href="/catalog?catalog=full"
-      aria-label="Explore Catalog"
-      onClick={onNavigate}
-      className="absolute flex items-center justify-center bg-mock-cobalt hover:bg-mock-cobaltInk text-white font-display font-700 tracking-wide rounded-md transition-all duration-300 hover:shadow-lg hover:shadow-mock-cobalt/30"
-      style={{
-        left: pos.left,
-        top: pos.top,
-        width: pos.width,
-        height: pos.height,
-        fontSize: "clamp(9px, 1.9vw, 16px)",
-        letterSpacing: "-0.02em",
-        whiteSpace: "nowrap",
-        padding: "0 2px",
-      }}
-    >
-      Explore Catalog
-    </a>
-  );
-}
-
-function SecondaryCtaRow({ variant, onNavigate }: { variant: "desktop" | "mobile"; onNavigate: () => void }) {
-  const pos = SECONDARY_ROW[variant];
-  return (
-    <div className="absolute flex items-center gap-1.5" style={{ left: pos.left, top: pos.top, width: pos.width }}>
-      {SECONDARY_CTAS.map((cta) => (
-        <a
-          key={cta.label}
-          href={cta.href}
-          onClick={onNavigate}
-          className="px-2.5 py-1 rounded bg-white/75 hover:bg-white border border-mock-line/70 backdrop-blur-sm text-mock-cobaltInk hover:text-mock-cobalt font-display font-600 tracking-wide transition-all duration-300 whitespace-nowrap"
-          style={{ fontSize: "clamp(7px, 1.35vw, 12px)" }}
-        >
-          {cta.label}
-        </a>
-      ))}
-    </div>
-  );
-}
-
 export default function BogoPopup() {
   const [open, setOpen] = useState(false);
 
@@ -170,30 +109,38 @@ export default function BogoPopup() {
               </svg>
             </button>
 
-            {/* Desktop art */}
-            <div className="hidden md:block relative w-full" style={{ aspectRatio: "1920 / 1071" }}>
-              <Image
-                src="/images/homepage/banner-b1g1-desktop.jpg"
-                alt="Buy one vial, get the second free — every 2nd matching vial free, automatic at checkout, plus free bacteriostatic water with every pair"
-                fill
-                className="object-contain"
-                sizes="(min-width: 768px) 576px"
-              />
-              <ExploreCatalogHotspot variant="desktop" onNavigate={close} />
-              <SecondaryCtaRow variant="desktop" onNavigate={close} />
-            </div>
+            <div className="bg-white">
+              {/* Desktop art */}
+              <div className="hidden md:block relative w-full" style={{ aspectRatio: "2400 / 1339" }}>
+                <Image
+                  src="/images/homepage/banner-b1g1-desktop.jpg"
+                  alt="Buy one vial, get the second free — every 2nd matching vial free, automatic at checkout, plus free bacteriostatic water with every pair"
+                  fill
+                  className="object-contain"
+                  sizes="(min-width: 768px) 576px"
+                />
+              </div>
 
-            {/* Mobile art */}
-            <div className="md:hidden relative w-full" style={{ aspectRatio: "1080 / 1395" }}>
-              <Image
-                src="/images/homepage/banner-b1g1-mobile.jpg"
-                alt="Buy one vial, get the second free — every 2nd matching vial free, automatic at checkout, plus free bacteriostatic water with every pair"
-                fill
-                className="object-contain"
-                sizes="90vw"
-              />
-              <ExploreCatalogHotspot variant="mobile" onNavigate={close} />
-              <SecondaryCtaRow variant="mobile" onNavigate={close} />
+              {/* Mobile art */}
+              <div className="md:hidden relative w-full" style={{ aspectRatio: "1080 / 1395" }}>
+                <Image
+                  src="/images/homepage/banner-b1g1-mobile.jpg"
+                  alt="Buy one vial, get the second free — every 2nd matching vial free, automatic at checkout, plus free bacteriostatic water with every pair"
+                  fill
+                  className="object-contain"
+                  sizes="90vw"
+                />
+              </div>
+
+              <div className="p-4">
+                <a
+                  href="/catalog?catalog=full"
+                  onClick={close}
+                  className="block w-full text-center py-3.5 bg-mock-cobalt hover:bg-mock-cobaltInk text-white font-display font-700 text-base rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-mock-cobalt/30"
+                >
+                  Shop Now →
+                </a>
+              </div>
             </div>
           </motion.div>
         </motion.div>
