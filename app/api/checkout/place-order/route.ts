@@ -9,6 +9,7 @@ import { PAYMENT_METHODS, PaymentMethodId } from "@/lib/paymentMethods";
 import { PAYMENT_CONFIG } from "@/lib/paymentConfig";
 import { computeVolumeDiscount, VOLUME_DISCOUNT_LABEL } from "@/lib/volumeDiscount";
 import { MAX_QTY_PER_ITEM } from "@/lib/volumePricing";
+import { computeBogoDiscount, BOGO_ENABLED, BOGO_LABEL, FREE_GIFT_PRODUCT_ID, FREE_GIFT_VARIATION_ID } from "@/lib/bogoDiscount";
 
 // The client sends ONLY identifiers and selections — never a price, total,
 // discount amount, or tax figure. Every money value below is derived
@@ -85,9 +86,18 @@ export async function POST(req: NextRequest) {
   const resolvedItems = resolvedResults as ResolvedLineItem[];
   const subtotal = roundCurrency(resolvedItems.reduce((s, i) => s + i.lineTotal, 0));
 
+  // ── 1b. BOGO launch promo — same-product pairs get their 2nd unit free.
+  //    When active it is the ONLY discount in effect: it suppresses coupons,
+  //    Volume Discount, and the payment-method discount below (see
+  //    lib/bogoDiscount.ts) ───────────────────────────────────────────────
+  const bogoDiscount = roundCurrency(
+    computeBogoDiscount(resolvedItems.map((i) => ({ quantity: i.quantity, unitPrice: i.unitPrice })))
+  );
+  const bogoActive = bogoDiscount > 0;
+
   // ── 2. Coupon — validated against WC, discount computed server-side ───────
   let coupon: { code: string; discountType: "percent" | "fixed_cart"; amount: number } | null = null;
-  if (couponCode) {
+  if (couponCode && !bogoActive) {
     const result = await validateCoupon(couponCode, subtotal);
     if (!result.valid) {
       console.warn(`[place-order:${requestId}] FAIL: coupon "${couponCode}" rejected — ${result.reason}`);
@@ -111,8 +121,8 @@ export async function POST(req: NextRequest) {
   // present). discountedSubtotal is the "compounding" base confirmed for
   // both the free-shipping threshold check and the payment-method discount
   // calculation — it is NOT the WC line-item/tax base (see above).
-  const volumeDiscount = roundCurrency(computeVolumeDiscount(subtotal, !!coupon));
-  const discountedSubtotal = postCouponSubtotal - volumeDiscount;
+  const volumeDiscount = bogoActive ? 0 : roundCurrency(computeVolumeDiscount(subtotal, !!coupon));
+  const discountedSubtotal = postCouponSubtotal - volumeDiscount - bogoDiscount;
 
   // ── 3. Shipping — cost comes from WC; instance_id must be a real, currently
   //      valid method for this cart, not merely well-formed ─────────────────
@@ -131,7 +141,7 @@ export async function POST(req: NextRequest) {
   const shippingCost = shippingMatch.cost; // already reflects the free-Ground-over-threshold override
 
   // ── 4. Payment-method discount — percentage comes from our own catalog ────
-  const paymentDiscountAmount = roundCurrency(discountedSubtotal * (methodMeta.discountPercent / 100));
+  const paymentDiscountAmount = bogoActive ? 0 : roundCurrency(discountedSubtotal * (methodMeta.discountPercent / 100));
 
   // ── 5. Tax ──────────────────────────────────────────────────────────────────
   let taxRate = 0;
@@ -144,10 +154,10 @@ export async function POST(req: NextRequest) {
     console.error(`[place-order:${requestId}] FAIL: could not load tax rate`, err);
     return NextResponse.json({ error: "Could not load tax rate" }, { status: 502 });
   }
-  const tax = computeTax(taxRate, postCouponSubtotal, [volumeDiscount, paymentDiscountAmount], shippingCost, shippingTaxable);
-  const expectedTotal = roundCurrency(postCouponSubtotal - volumeDiscount - paymentDiscountAmount + shippingCost + tax.totalTax);
+  const tax = computeTax(taxRate, postCouponSubtotal, [volumeDiscount, paymentDiscountAmount, bogoDiscount], shippingCost, shippingTaxable);
+  const expectedTotal = roundCurrency(postCouponSubtotal - volumeDiscount - paymentDiscountAmount - bogoDiscount + shippingCost + tax.totalTax);
 
-  console.log(`[place-order:${requestId}] Method: ${paymentMethodId} | subtotal:${subtotal} couponDiscount:${couponDiscount} volumeDiscount:${volumeDiscount} paymentDiscount:${paymentDiscountAmount} shipping:${shippingCost} taxRate:${taxRate} totalTax:${tax.totalTax} expectedTotal:${expectedTotal}`);
+  console.log(`[place-order:${requestId}] Method: ${paymentMethodId} | subtotal:${subtotal} couponDiscount:${couponDiscount} volumeDiscount:${volumeDiscount} bogoDiscount:${bogoDiscount} paymentDiscount:${paymentDiscountAmount} shipping:${shippingCost} taxRate:${taxRate} totalTax:${tax.totalTax} expectedTotal:${expectedTotal}`);
 
   // ── 6. Zelle cap, enforced server-side ─────────────────────────────────────
   if (paymentMethodId === "zelle" && expectedTotal > PAYMENT_CONFIG.zelle.maxOrder) {
@@ -180,19 +190,40 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "API not configured" }, { status: 500 });
   }
 
-  const lineItems = resolvedItems.map((item) => ({
-    product_id: item.productId,
-    ...(item.variationId ? { variation_id: item.variationId } : {}),
-    quantity: item.quantity,
-    subtotal: item.lineTotal.toFixed(2),
-    total: item.lineTotal.toFixed(2),
-  }));
+  const lineItems = [
+    ...resolvedItems.map((item) => ({
+      product_id: item.productId,
+      ...(item.variationId ? { variation_id: item.variationId } : {}),
+      quantity: item.quantity,
+      subtotal: item.lineTotal.toFixed(2),
+      total: item.lineTotal.toFixed(2),
+    })),
+    // Free gift bundled with every order for the launch promo — a real line
+    // item (not just a fee) so it appears on the packing slip for fulfillment.
+    ...(BOGO_ENABLED
+      ? [{
+          product_id: FREE_GIFT_PRODUCT_ID,
+          variation_id: FREE_GIFT_VARIATION_ID,
+          quantity: 1,
+          subtotal: "0.00",
+          total: "0.00",
+          meta_data: [{ key: "_anvil_free_gift", value: "yes" }],
+        }]
+      : []),
+  ];
 
   const feeLines = [
     ...(volumeDiscount > 0
       ? [{
           name: VOLUME_DISCOUNT_LABEL,
           total: (-volumeDiscount).toFixed(2),
+          tax_status: "none",
+        }]
+      : []),
+    ...(bogoDiscount > 0
+      ? [{
+          name: BOGO_LABEL,
+          total: (-bogoDiscount).toFixed(2),
           tax_status: "none",
         }]
       : []),

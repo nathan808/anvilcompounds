@@ -4,6 +4,7 @@ import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import Image from "next/image";
 import ShippingBanner from "@/components/ShippingBanner";
+import { BOGO_ENABLED, BOGO_LABEL } from "@/lib/bogoDiscount";
 
 const container = {
   hidden: {},
@@ -40,6 +41,12 @@ export default function HeroSection() {
 
       {/* Content */}
       <motion.div style={{ y, opacity }} className="relative z-10 w-full">
+        {/* Navbar floats transparent over this hero, so its own pt-10/12
+            below is tuned to just clear the plain navbar height. The BOGO
+            promo bar adds another fixed 36px (h-9) above it — without this
+            spacer, content at the very top of the flow renders underneath
+            the taller navbar+promo stack instead of below it. */}
+        {BOGO_ENABLED && <div className="h-9" />}
         <div className="max-w-7xl mx-auto px-2 sm:px-6 md:px-10 pt-10 pb-10 md:pt-12 md:pb-12">
           <div className="grid lg:grid-cols-[1.15fr_0.85fr] gap-3 lg:gap-6 items-center">
           <motion.div
@@ -72,6 +79,14 @@ export default function HeroSection() {
                 </span>
               </div>
             </motion.div>
+
+            {BOGO_ENABLED && (
+              <motion.div variants={item} className="mb-2">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-mock-cobalt text-white font-display font-700 text-xs md:text-sm tracking-wide shadow-lg shadow-mock-cobalt/30">
+                  🎁 {BOGO_LABEL} <span className="font-400 opacity-80">+ Free BAC Water</span>
+                </span>
+              </motion.div>
+            )}
 
             {/* Headline */}
             <motion.h1

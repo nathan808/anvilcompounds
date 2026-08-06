@@ -12,6 +12,7 @@ import { useAuth } from "@/lib/authContext";
 import { useCheckout } from "@/lib/checkoutContext";
 import { computeCouponDiscount } from "@/lib/couponMath";
 import { computeVolumeDiscount } from "@/lib/volumeDiscount";
+import { computeBogoDiscount } from "@/lib/bogoDiscount";
 import { PAYMENT_METHODS } from "@/lib/paymentMethods";
 
 export default function PaymentPage() {
@@ -46,9 +47,11 @@ export default function PaymentPage() {
   useEffect(() => {
     if (!checkoutHydrated || !shipping || submitting) return;
     let cancelled = false;
-    const couponDiscount = computeCouponDiscount(subtotal, coupon);
-    const volumeDiscount = computeVolumeDiscount(subtotal, !!coupon);
-    const discountedSubtotal = subtotal - couponDiscount - volumeDiscount;
+    const bogoDiscount = computeBogoDiscount(items.map((i) => ({ quantity: i.quantity, unitPrice: i.price })));
+    const bogoActive = bogoDiscount > 0;
+    const couponDiscount = bogoActive ? 0 : computeCouponDiscount(subtotal, coupon);
+    const volumeDiscount = bogoActive ? 0 : computeVolumeDiscount(subtotal, !!coupon);
+    const discountedSubtotal = subtotal - couponDiscount - volumeDiscount - bogoDiscount;
     const params = new URLSearchParams({
       subtotal: discountedSubtotal.toFixed(2),
       hasCoupon: coupon ? "true" : "false",
@@ -71,13 +74,15 @@ export default function PaymentPage() {
   if (!authHydrated || !checkoutHydrated) return null;
 
   const selectedMeta = PAYMENT_METHODS.find((m) => m.id === paymentMethodId) ?? null;
-  const couponDiscount = computeCouponDiscount(subtotal, coupon);
+  const bogoDiscount = computeBogoDiscount(items.map((i) => ({ quantity: i.quantity, unitPrice: i.price })));
+  const bogoActive = bogoDiscount > 0;
+  const couponDiscount = bogoActive ? 0 : computeCouponDiscount(subtotal, coupon);
   const postCouponSubtotal = subtotal - couponDiscount;
   // Compounding base — volume discount comes off first, THEN the
   // payment-method % applies to what's left (matches place-order/route.ts).
-  const volumeDiscount = computeVolumeDiscount(subtotal, !!coupon);
-  const discountedSubtotal = postCouponSubtotal - volumeDiscount;
-  const paymentDiscount = selectedMeta && selectedMeta.discountPercent > 0
+  const volumeDiscount = bogoActive ? 0 : computeVolumeDiscount(subtotal, !!coupon);
+  const discountedSubtotal = postCouponSubtotal - volumeDiscount - bogoDiscount;
+  const paymentDiscount = !bogoActive && selectedMeta && selectedMeta.discountPercent > 0
     ? { label: `Payment method discount (${selectedMeta.label})`, amount: discountedSubtotal * (selectedMeta.discountPercent / 100) }
     : null;
 

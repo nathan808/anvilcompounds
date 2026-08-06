@@ -6,6 +6,7 @@ import { useCart } from "@/lib/cartContext";
 import { useFreeShippingProgress } from "@/lib/useFreeShippingProgress";
 import FreeShippingProgress from "@/components/FreeShippingProgress";
 import PaymentMethodsBar from "@/components/PaymentMethodsBar";
+import { computeBogoDiscount, BOGO_ENABLED, BOGO_LABEL, FREE_GIFT_LABEL } from "@/lib/bogoDiscount";
 
 export default function CartDrawer() {
   const { items, isCartOpen, closeCart, removeItem, updateQty, itemCount, subtotal } = useCart();
@@ -13,6 +14,7 @@ export default function CartDrawer() {
   // exists in checkout's own context, starting at Step 1) — teaser here is
   // always based on the raw cart subtotal.
   const freeShippingProgress = useFreeShippingProgress(subtotal, false, isCartOpen && items.length > 0);
+  const bogoDiscount = computeBogoDiscount(items.map((i) => ({ quantity: i.quantity, unitPrice: i.price })));
 
   return (
     <AnimatePresence>
@@ -113,6 +115,21 @@ export default function CartDrawer() {
                         ${(item.price * item.quantity).toFixed(2)}
                       </span>
                     </div>
+
+                    {BOGO_ENABLED && (
+                      item.quantity % 2 === 0 ? (
+                        <p className="font-mono text-[10px] text-blue-400 tracking-wide mt-2">
+                          🎁 {BOGO_LABEL} applied — {Math.floor(item.quantity / 2)} unit{Math.floor(item.quantity / 2) > 1 ? "s" : ""} free
+                        </p>
+                      ) : (
+                        <button
+                          onClick={() => updateQty(item.slug, item.size, item.quantity + 1)}
+                          className="font-mono text-[10px] text-blue-400/80 hover:text-blue-400 tracking-wide mt-2 underline underline-offset-2"
+                        >
+                          Add 1 more — get it free
+                        </button>
+                      )
+                    )}
                   </div>
                 ))
               )}
@@ -121,10 +138,22 @@ export default function CartDrawer() {
             {/* Footer */}
             {items.length > 0 && (
               <div className="px-6 py-5 border-t border-white/8 space-y-4">
-                <FreeShippingProgress data={freeShippingProgress} subtotal={subtotal} />
+                <FreeShippingProgress data={freeShippingProgress} subtotal={subtotal} hasCoupon={bogoDiscount > 0} />
+                {bogoDiscount > 0 && (
+                  <div className="flex items-center justify-between">
+                    <span className="font-body text-sm text-blue-400">{BOGO_LABEL}</span>
+                    <span className="font-mono text-sm text-blue-400">-${bogoDiscount.toFixed(2)}</span>
+                  </div>
+                )}
+                {BOGO_ENABLED && (
+                  <div className="flex items-center justify-between">
+                    <span className="font-body text-sm text-blue-400">{FREE_GIFT_LABEL}</span>
+                    <span className="font-mono text-sm text-blue-400">$0.00</span>
+                  </div>
+                )}
                 <div className="flex items-center justify-between">
                   <span className="font-body text-white/50">Subtotal</span>
-                  <span className="font-display font-700 text-white text-xl">${subtotal.toFixed(2)}</span>
+                  <span className="font-display font-700 text-white text-xl">${(subtotal - bogoDiscount).toFixed(2)}</span>
                 </div>
                 <PaymentMethodsBar />
                 <p className="font-mono text-[10px] text-white/20 tracking-wide leading-relaxed text-center">

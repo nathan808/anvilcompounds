@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCart } from "@/lib/cartContext";
 import CartDrawer from "@/components/CartDrawer";
+import { BOGO_ENABLED } from "@/lib/bogoDiscount";
 
 // pushDown: true on pages that also render a fixed compliance bar above the
 // navbar (checkout flow) — both are fixed to the viewport, so without this
@@ -28,13 +29,27 @@ export default function Navbar({ pushDown = false }: { pushDown?: boolean }) {
     { label: "Contact", href: "/contact" },
   ];
 
+  // Checkout/contact pages already own the top slot with their own fixed
+  // compliance bar (pushDown=true) — skip the promo bar there rather than
+  // stacking three fixed bars; the deal is already visible in the order
+  // summary at that point in the flow.
+  const showPromo = BOGO_ENABLED && !pushDown;
+
   return (
     <>
+      {showPromo && (
+        <div className="fixed top-0 left-0 right-0 z-[60] h-9 flex items-center justify-center bg-mock-cobalt text-white overflow-hidden px-4">
+          <p className="font-mono text-[11px] md:text-xs font-700 tracking-wide text-center truncate">
+            🎁 LAUNCH DEAL — BUY 1 GET 1 FREE <span className="font-400 opacity-80">(same item, applied automatically)</span>
+            <span className="hidden sm:inline font-400 opacity-80"> · + Free Bacteriostatic Water on every order</span>
+          </p>
+        </div>
+      )}
       <motion.nav
         initial={{ y: -80, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-        className={`fixed ${pushDown ? "top-7" : "top-0"} left-0 right-0 z-50 transition-all duration-500 ${
+        className={`fixed ${pushDown ? "top-7" : showPromo ? "top-9" : "top-0"} left-0 right-0 z-50 transition-all duration-500 ${
           scrolled
             ? "bg-mock-page/90 backdrop-blur-xl border-b border-mock-line py-2"
             : "bg-transparent py-3.5"

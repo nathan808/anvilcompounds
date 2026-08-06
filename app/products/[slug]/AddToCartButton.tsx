@@ -14,6 +14,7 @@ import {
   getVolumeCTAText,
   getActiveTierIndex,
 } from "@/lib/volumePricing";
+import { BOGO_ENABLED, BOGO_LABEL } from "@/lib/bogoDiscount";
 
 interface Props {
   slug: string;
@@ -97,6 +98,14 @@ export default function AddToCartButton({
   // ── Normal buy UI ───────────────────────────────────────────────────────────
   return (
     <div className="space-y-4">
+      {BOGO_ENABLED && (
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-mock-cobalt/10 border border-mock-cobalt/20">
+          <span className="font-display font-700 text-xs text-mock-cobaltInk tracking-wide">
+            🎁 {BOGO_LABEL}
+          </span>
+          <span className="font-body text-xs text-mock-sub">— add 2 to unlock, applied automatically. + Free Bacteriostatic Water with every order.</span>
+        </div>
+      )}
       {/* Price display + size selector, side by side so mg options sit to
           the right of the price instead of stacking below it. */}
       <div className="pt-1 flex items-start justify-between gap-4 flex-wrap">

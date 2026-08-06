@@ -6,6 +6,7 @@ import { useCheckout } from "@/lib/checkoutContext";
 import { computeCouponDiscount } from "@/lib/couponMath";
 import { computeTax } from "@/lib/taxMath";
 import { computeVolumeDiscount, VOLUME_DISCOUNT_LABEL } from "@/lib/volumeDiscount";
+import { computeBogoDiscount, BOGO_ENABLED, BOGO_LABEL, FREE_GIFT_LABEL } from "@/lib/bogoDiscount";
 import { useFreeShippingProgress } from "@/lib/useFreeShippingProgress";
 import FreeShippingProgress from "@/components/FreeShippingProgress";
 
@@ -40,7 +41,13 @@ export default function OrderSummary({ editableCoupon = true, showShipping = fal
   // match, surfacing as a false "Your cart has changed" error.
   const [taxResolved, setTaxResolved] = useState(!showShipping || !step1.state);
 
-  const couponDiscount = computeCouponDiscount(subtotal, coupon);
+  // BOGO launch promo — same-product pairs get their 2nd unit free. When
+  // active it's the ONLY discount in effect (see lib/bogoDiscount.ts), so it
+  // suppresses the coupon, Volume Discount, and payment-method discount below.
+  const bogoDiscount = computeBogoDiscount(items.map((i) => ({ quantity: i.quantity, unitPrice: i.price })));
+  const bogoActive = bogoDiscount > 0;
+
+  const couponDiscount = bogoActive ? 0 : computeCouponDiscount(subtotal, coupon);
   // postCouponSubtotal = coupon only — this is the WC line-item/tax base.
   // Volume discount is a fee line (like the payment-method discount), NOT a
   // coupon, so it must not reduce this value (verified against a real order —
@@ -50,9 +57,9 @@ export default function OrderSummary({ editableCoupon = true, showShipping = fal
   // lib/volumeDiscount.ts), so at most one of couponDiscount/volumeDiscount
   // is ever nonzero. discountedSubtotal is the "compounding" base used for
   // the free-shipping threshold and (server-side) the payment-discount calc.
-  const volumeDiscount = computeVolumeDiscount(subtotal, !!coupon);
-  const discountedSubtotal = postCouponSubtotal - volumeDiscount;
-  const paymentDiscountAmount = paymentDiscount?.amount ?? 0;
+  const volumeDiscount = bogoActive ? 0 : computeVolumeDiscount(subtotal, !!coupon);
+  const discountedSubtotal = postCouponSubtotal - volumeDiscount - bogoDiscount;
+  const paymentDiscountAmount = bogoActive ? 0 : (paymentDiscount?.amount ?? 0);
   const shippingCost = showShipping ? (shipping?.cost ?? 0) : 0;
 
   const freeShippingProgress = useFreeShippingProgress(discountedSubtotal, !!coupon, showFreeShippingProgress);
@@ -73,8 +80,8 @@ export default function OrderSummary({ editableCoupon = true, showShipping = fal
     return () => { cancelled = true; };
   }, [showShipping, step1.state]);
 
-  const tax = computeTax(taxRate, postCouponSubtotal, [volumeDiscount, paymentDiscountAmount], shippingCost, shippingTaxable);
-  const total = postCouponSubtotal - volumeDiscount - paymentDiscountAmount + shippingCost + (showShipping ? tax.totalTax : 0);
+  const tax = computeTax(taxRate, postCouponSubtotal, [volumeDiscount, paymentDiscountAmount, bogoDiscount], shippingCost, shippingTaxable);
+  const total = postCouponSubtotal - volumeDiscount - paymentDiscountAmount - bogoDiscount + shippingCost + (showShipping ? tax.totalTax : 0);
 
   const applyCoupon = async () => {
     const trimmed = code.trim();
@@ -145,13 +152,17 @@ export default function OrderSummary({ editableCoupon = true, showShipping = fal
 
       {showFreeShippingProgress && (
         <div className="mb-4">
-          <FreeShippingProgress data={freeShippingProgress} subtotal={subtotal} hasCoupon={!!coupon} />
+          <FreeShippingProgress data={freeShippingProgress} subtotal={subtotal} hasCoupon={!!coupon || bogoActive} />
         </div>
       )}
 
       {editableCoupon ? (
         <div className="border-t border-white/8 pt-4 mb-4">
-          {coupon ? (
+          {bogoActive ? (
+            <p className="font-mono text-[10px] text-white/30 leading-relaxed">
+              Coupons aren&apos;t available during our Buy 1 Get 1 Free launch deal.
+            </p>
+          ) : coupon ? (
             <div className="flex items-center justify-between gap-3 px-3 py-2 rounded-lg bg-blue-600/10 border border-blue-500/20">
               <div>
                 <p className="font-mono text-xs text-blue-400 tracking-wide uppercase">{coupon.code}</p>
@@ -205,7 +216,7 @@ export default function OrderSummary({ editableCoupon = true, showShipping = fal
           <span className="font-body text-sm text-white/50">Subtotal</span>
           <span className="font-mono text-sm text-white/70">${subtotal.toFixed(2)}</span>
         </div>
-        {coupon && (
+        {coupon && !bogoActive && (
           <div className="flex items-center justify-between">
             <span className="font-body text-sm text-white/50">Coupon ({coupon.code})</span>
             <span className="font-mono text-sm text-blue-400">-${couponDiscount.toFixed(2)}</span>
@@ -215,6 +226,18 @@ export default function OrderSummary({ editableCoupon = true, showShipping = fal
           <div className="flex items-center justify-between">
             <span className="font-body text-sm text-white/50">{VOLUME_DISCOUNT_LABEL}</span>
             <span className="font-mono text-sm text-blue-400">-${volumeDiscount.toFixed(2)}</span>
+          </div>
+        )}
+        {bogoDiscount > 0 && (
+          <div className="flex items-center justify-between">
+            <span className="font-body text-sm text-blue-400">{BOGO_LABEL}</span>
+            <span className="font-mono text-sm text-blue-400">-${bogoDiscount.toFixed(2)}</span>
+          </div>
+        )}
+        {BOGO_ENABLED && (
+          <div className="flex items-center justify-between">
+            <span className="font-body text-sm text-blue-400">{FREE_GIFT_LABEL}</span>
+            <span className="font-mono text-sm text-blue-400">$0.00</span>
           </div>
         )}
         {paymentDiscount && paymentDiscountAmount > 0 && (

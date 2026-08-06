@@ -5,6 +5,7 @@ import { useCart } from "@/lib/cartContext";
 import { useCheckout } from "@/lib/checkoutContext";
 import { computeCouponDiscount } from "@/lib/couponMath";
 import { computeVolumeDiscount } from "@/lib/volumeDiscount";
+import { computeBogoDiscount } from "@/lib/bogoDiscount";
 import { FreeShippingProgress as FreeShippingProgressData } from "@/lib/useFreeShippingProgress";
 import FreeShippingProgress from "@/components/FreeShippingProgress";
 
@@ -18,18 +19,20 @@ interface ShippingOption {
 }
 
 export default function ShippingMethods() {
-  const { subtotal } = useCart();
+  const { items, subtotal } = useCart();
   const { coupon, shipping, setShipping, hydrated: checkoutHydrated } = useCheckout();
   const [options, setOptions] = useState<ShippingOption[] | null>(null);
   const [freeShipping, setFreeShipping] = useState<FreeShippingProgressData | null>(null);
   const [error, setError] = useState("");
 
-  const discount = computeCouponDiscount(subtotal, coupon);
+  const bogoDiscount = computeBogoDiscount(items.map((i) => ({ quantity: i.quantity, unitPrice: i.price })));
+  const bogoActive = bogoDiscount > 0;
+  const discount = bogoActive ? 0 : computeCouponDiscount(subtotal, coupon);
   const postCouponSubtotal = subtotal - discount;
   // Compounding base — matches place-order/route.ts's discountedSubtotal,
   // which is what free-shipping eligibility is actually evaluated against.
-  const volumeDiscount = computeVolumeDiscount(subtotal, !!coupon);
-  const discountedSubtotal = postCouponSubtotal - volumeDiscount;
+  const volumeDiscount = bogoActive ? 0 : computeVolumeDiscount(subtotal, !!coupon);
+  const discountedSubtotal = postCouponSubtotal - volumeDiscount - bogoDiscount;
 
   useEffect(() => {
     // Guard against a real race, not just a style nit: on a fresh page load,
@@ -114,7 +117,7 @@ export default function ShippingMethods() {
 
   return (
     <div className="space-y-4">
-      <FreeShippingProgress data={freeShipping} subtotal={subtotal} hasCoupon={!!coupon} />
+      <FreeShippingProgress data={freeShipping} subtotal={subtotal} hasCoupon={!!coupon || bogoActive} />
 
       {options.map((opt) => {
         const key = `${opt.methodId}:${opt.instanceId}`;

@@ -9,6 +9,7 @@ import { useCart } from "@/lib/cartContext";
 import { useAuth } from "@/lib/authContext";
 import { getProductDisplayTitle, isGlpCompound } from "@/lib/productTitle";
 import { simplifySizeLabel } from "@/lib/reconstitution";
+import { BOGO_ENABLED } from "@/lib/bogoDiscount";
 
 // Small credibility pills above the catalog header — same idea as a
 // competitor's "tested by / sold to / verified" badge row, adapted to what
@@ -244,6 +245,13 @@ export function ProductCard({ product, index }: { product: ProductCard; index: n
               {product.badge}
             </span>
           </div>
+          {BOGO_ENABLED && (
+            <div className="absolute top-2.5 left-2.5 z-20">
+              <span className="text-xs font-display font-700 tracking-wide px-2 py-0.5 rounded-full bg-mock-cobalt text-white shadow-md">
+                🎁 BOGO
+              </span>
+            </div>
+          )}
           {/* COA-pending blur overlay */}
           {!product.hasCoa ? (
             <div className="absolute inset-0 z-10 backdrop-blur-md bg-mock-graphite/95 flex flex-col items-center justify-center gap-2">

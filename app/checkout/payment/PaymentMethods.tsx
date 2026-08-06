@@ -6,6 +6,7 @@ import { useCheckout } from "@/lib/checkoutContext";
 import { computeCouponDiscount } from "@/lib/couponMath";
 import { computeTax } from "@/lib/taxMath";
 import { computeVolumeDiscount } from "@/lib/volumeDiscount";
+import { computeBogoDiscount, BOGO_LABEL } from "@/lib/bogoDiscount";
 import { PAYMENT_METHODS, GROUP_LABELS, GROUP_SUBHEADS, GROUP_ORDER } from "@/lib/paymentMethods";
 import { PAYMENT_CONFIG } from "@/lib/paymentConfig";
 import { CardNetworkLogos } from "@/components/PaymentLogos";
@@ -34,7 +35,7 @@ function CardExplainer() {
 }
 
 export default function PaymentMethods() {
-  const { subtotal } = useCart();
+  const { items, subtotal } = useCart();
   const { coupon, shipping, paymentMethodId, setPaymentMethodId, step1 } = useCheckout();
   const [taxRate, setTaxRate] = useState(0);
   const [shippingTaxable, setShippingTaxable] = useState(false);
@@ -59,10 +60,13 @@ export default function PaymentMethods() {
   // Passing the wrong one into computeTax would double-count the volume discount
   // (taxed once via the fee-line array below, again via a shrunk product base) —
   // see CHECKOUT_SPEC.md's postCouponSubtotal-vs-discountedSubtotal note.
-  const couponDiscount = computeCouponDiscount(subtotal, coupon);
+  const bogoDiscount = computeBogoDiscount(items.map((i) => ({ quantity: i.quantity, unitPrice: i.price })));
+  const bogoActive = bogoDiscount > 0;
+
+  const couponDiscount = bogoActive ? 0 : computeCouponDiscount(subtotal, coupon);
   const postCouponSubtotal = subtotal - couponDiscount;
-  const volumeDiscount = computeVolumeDiscount(subtotal, !!coupon);
-  const discountedSubtotal = postCouponSubtotal - volumeDiscount;
+  const volumeDiscount = bogoActive ? 0 : computeVolumeDiscount(subtotal, !!coupon);
+  const discountedSubtotal = postCouponSubtotal - volumeDiscount - bogoDiscount;
   const shippingCost = shipping?.cost ?? 0;
 
   return (
@@ -78,8 +82,8 @@ export default function PaymentMethods() {
             )}
             <div className={GROUP_SUBHEADS[group] ? "space-y-3 mt-4" : "space-y-3"}>
               {methods.map((method) => {
-                const discountAmount = discountedSubtotal * (method.discountPercent / 100);
-                const tax = computeTax(taxRate, postCouponSubtotal, [volumeDiscount, discountAmount], shippingCost, shippingTaxable);
+                const discountAmount = bogoActive ? 0 : discountedSubtotal * (method.discountPercent / 100);
+                const tax = computeTax(taxRate, postCouponSubtotal, [volumeDiscount, discountAmount, bogoDiscount], shippingCost, shippingTaxable);
                 const methodTotal = discountedSubtotal - discountAmount + shippingCost + tax.totalTax;
                 const isLive = PAYMENT_CONFIG[method.id].status === "live";
                 const overZelleCap = method.id === "zelle" && methodTotal > PAYMENT_CONFIG.zelle.maxOrder;
@@ -106,9 +110,14 @@ export default function PaymentMethods() {
                         <div>
                           <div className="flex items-center gap-2 flex-wrap">
                             <p className="font-display font-700 text-white text-sm">{method.label}</p>
-                            {method.discountPercent > 0 && (
+                            {method.discountPercent > 0 && !bogoActive && (
                               <span className="px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-400 font-mono text-[10px] tracking-wide">
                                 {method.discountPercent}% off
+                              </span>
+                            )}
+                            {method.discountPercent > 0 && bogoActive && (
+                              <span className="px-2 py-0.5 rounded-full bg-white/10 text-white/40 font-mono text-[10px] tracking-wide">
+                                Included in {BOGO_LABEL}
                               </span>
                             )}
                             {method.badge && (
