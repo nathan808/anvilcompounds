@@ -17,9 +17,9 @@ function CardExplainer() {
   return (
     <div className="mt-3 ml-8 space-y-2.5 p-4 rounded-lg bg-white/[0.03] border border-white/8">
       <p className="font-body text-xs text-white/55 leading-relaxed">
-        Place your order now — nothing is charged yet. A secure payment link from
-        Stripe, our card processor, arrives by email within 15 minutes. Card
-        details are entered on Stripe&apos;s page, never on this site.
+        Place your order now — nothing is charged yet. A secure payment link
+        arrives by email within 15 minutes. Card details are entered on our
+        processor&apos;s page, never on this site.
       </p>
       <p className="font-body text-xs text-white/55 leading-relaxed">
         Your order is placed and your lots are held. Nothing is charged until you

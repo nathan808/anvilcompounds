@@ -33,7 +33,7 @@ export interface ShippingResult {
 }
 
 const DELIVERY_ESTIMATES: Record<string, string> = {
-  ground: "2-3 business days",
+  ground: "3-5 business days",
   "2day": "2 business days",
   overnight: "Next business day",
 };

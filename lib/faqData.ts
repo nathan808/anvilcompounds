@@ -11,7 +11,7 @@ export const faqs: { category: string; items: FaqItem[] }[] = [
     items: [
       {
         q: "What payment methods do you accept?",
-        a: "Credit and debit card, via a secure Stripe payment link: place your order and the link arrives by email within 15 minutes, with a badge marking it as our secure-link option — no card details are ever entered on this site. Also live: Ethereum (via our payment partner Bankful, with an instant 10% discount) and Zelle to our business account (orders up to $2,000). ACH bank transfer and USDC/USDT are coming soon — check back for availability. Orders are held for 72 hours pending payment, after which they're released if no payment is received.",
+        a: "Credit and debit card, via a secure payment link: place your order and the link arrives by email within 15 minutes, with a badge marking it as our secure-link option — no card details are ever entered on this site. Also live: Ethereum (via our payment partner Bankful, with an instant 10% discount) and Zelle to our business account (orders up to $2,000). ACH bank transfer and USDC/USDT are coming soon — check back for availability. Orders are held for 72 hours pending payment, after which they're released if no payment is received.",
       },
       {
         q: "How long is my order held after checkout?",

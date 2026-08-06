@@ -16,6 +16,17 @@ export interface ReconVial {
   totalMg: number;
 }
 
+// Same "strip the compound names, keep the numbers" idea as ReconVial.label
+// above, but standalone (no parens, no totalMg) for contexts that just need
+// a compact display string — e.g. catalog cards, where a blend's raw WC
+// attribute label ("5mg BPC-157 + 5mg TB-500") is too long next to the price.
+// Single-component sizes ("10mg") already read fine and pass through as-is.
+export function simplifySizeLabel(size: string): string {
+  const matches = Array.from(size.matchAll(/([\d.]+)\s*mg/gi));
+  if (matches.length < 2) return size;
+  return matches.map((m) => `${m[1]}mg`).join(" + ");
+}
+
 export function parseReconVials(sizes: string[]): ReconVial[] {
   return sizes
     .map((size): ReconVial | null => {

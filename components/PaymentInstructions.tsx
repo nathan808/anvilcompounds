@@ -25,8 +25,8 @@ export const PAYMENT_INSTRUCTIONS_COPY: Record<PaymentMethodId, PaymentInstructi
     heading: "Credit or debit card",
     trustLine: "",
     lines: [
-      "A secure payment link from Stripe, our card processor, arrives by email within 15 minutes.",
-      "Card details are entered on Stripe's page, never on this site.",
+      "A secure payment link arrives by email within 15 minutes.",
+      "Card details are entered on our processor's page, never on this site.",
       "Card payments are processed at the full posted price — no discount applies to this method.",
     ],
   },

@@ -8,6 +8,7 @@ import type { ProductCard } from "@/lib/woocommerce";
 import { useCart } from "@/lib/cartContext";
 import { useAuth } from "@/lib/authContext";
 import { getProductDisplayTitle, isGlpCompound } from "@/lib/productTitle";
+import { simplifySizeLabel } from "@/lib/reconstitution";
 
 // Small credibility pills above the catalog header — same idea as a
 // competitor's "tested by / sold to / verified" badge row, adapted to what
@@ -308,7 +309,7 @@ export function ProductCard({ product, index }: { product: ProductCard; index: n
                       key={size}
                       className="px-2 py-0.5 rounded-md border border-mock-line bg-mock-surface2 font-mono text-[10px] text-mock-sub whitespace-nowrap"
                     >
-                      {size}
+                      {simplifySizeLabel(size)}
                     </span>
                   ))}
                 </div>

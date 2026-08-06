@@ -207,7 +207,7 @@ export default function ProductPageTemplate({
   return (
     <>
       {/* ── SECTION 1 — Hero header ───────────────────────────────────────── */}
-      <section className="bg-mock-page py-16 md:py-24">
+      <section className="bg-mock-page py-10 md:py-14">
         <div className="max-w-7xl mx-auto px-6">
 
           {/* ── Mobile layout (< lg): category/disclaimer/name up top, buy
@@ -275,8 +275,11 @@ export default function ProductPageTemplate({
               SDS moved under the shipping card. Image column uses the
               "bleed" variant (borderless, fills column height) to reuse
               FeaturedSpotlight's visual language per the homepage
-              integration brief. ── */}
-          <div className="hidden lg:grid lg:grid-cols-2 gap-12 xl:gap-20 items-stretch">
+              integration brief. Columns use items-start (not stretch) so a
+              shorter left column doesn't get invisibly stretched to match a
+              taller right column, which used to leave a dead gap under the
+              image/shipping/SDS block. ── */}
+          <div className="hidden lg:grid lg:grid-cols-2 gap-12 xl:gap-20 items-start">
 
             {/* Left — product image + shipping banner + SDS preview */}
             <div className="flex flex-col gap-5">
@@ -354,7 +357,7 @@ export default function ProductPageTemplate({
           default accordion row (see InfoBlock), so a tight space-y reads as
           a cohesive accordion group instead of leaving large gaps of empty
           page between short collapsed rows. ── */}
-      <section className="bg-mock-page py-16">
+      <section className="bg-mock-page py-12">
         <div className="max-w-5xl mx-auto px-6 space-y-4">
 
           <InfoBlock number="01" label="What it is">

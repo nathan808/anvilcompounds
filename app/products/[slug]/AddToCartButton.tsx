@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useCart } from "@/lib/cartContext";
 import PurchaseFooter from "@/components/PurchaseFooter";
 import PaymentMethodsBar from "@/components/PaymentMethodsBar";
+import { simplifySizeLabel } from "@/lib/reconstitution";
 import {
   VOLUME_TIERS,
   MAX_QTY_PER_ITEM,
@@ -137,7 +138,7 @@ export default function AddToCartButton({
                       : "bg-mock-surface2 border-mock-line text-mock-sub hover:border-mock-cobalt/30 hover:text-mock-navy"
                   }`}
                 >
-                  {size}
+                  {simplifySizeLabel(size)}
                 </button>
               ))}
             </div>
@@ -146,7 +147,7 @@ export default function AddToCartButton({
           <div className="text-right">
             <p className="font-mono text-xs text-mock-sub tracking-widest uppercase mb-2">Size</p>
             <span className="inline-block px-4 py-2 rounded-lg border border-mock-line bg-mock-surface2 font-mono text-sm text-mock-navy whitespace-nowrap">
-              {sizes[0]}
+              {simplifySizeLabel(sizes[0])}
             </span>
           </div>
         ) : null}

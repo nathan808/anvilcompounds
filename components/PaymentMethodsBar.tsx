@@ -4,7 +4,7 @@ import { CardNetworkLogos } from "@/components/PaymentLogos";
 // drawer, footer, and product pages. Two tiers, both reflecting only methods
 // that actually work today (checkout Step 3 is the source of truth — see
 // lib/paymentMethods.ts's `hidden` flag):
-//   - Top line: card, via Stripe-issued invoice link — live.
+//   - Top line: card, via a secure payment link — live.
 //   - Bottom line: the other live rails (Ethereum, Zelle). ACH and USDC/USDT
 //     are deliberately NOT listed here — PayPageClient.tsx shows a disabled
 //     "Not Yet Available" button for both, so claiming they're accepted would
