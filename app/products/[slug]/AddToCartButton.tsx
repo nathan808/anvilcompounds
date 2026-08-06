@@ -214,7 +214,11 @@ export default function AddToCartButton({
         <div className="divide-y divide-mock-line">
           {VOLUME_TIERS.map((tier, i) => {
             const isActive = i === activeTierIdx;
-            const tierPrice = getDiscountedPrice(basePrice, tier.min);
+            // The 2-vial tier is the BOGO launch promo, not a blended
+            // per-unit discount — show the 2nd-vial-free framing and the
+            // resulting average price, not the (unchanged, full) tier price.
+            const isBogoTier = tier.min === 2 && tier.max === 2;
+            const tierPrice = isBogoTier ? basePrice / 2 : getDiscountedPrice(basePrice, tier.min);
             return (
               <div
                 key={tier.label}
@@ -233,7 +237,11 @@ export default function AddToCartButton({
                   <span className={`font-mono text-sm ${isActive ? "text-mock-navy" : "text-mock-sub"}`}>
                     ${tierPrice.toFixed(2)} ea
                   </span>
-                  {tier.discount > 0 ? (
+                  {isBogoTier ? (
+                    <span className={`font-mono text-xs ${isActive ? "text-green-700 font-600" : "text-green-700/70"}`}>
+                      🎁 100% off 2nd
+                    </span>
+                  ) : tier.discount > 0 ? (
                     <span className={`font-mono text-xs ${isActive ? "text-mock-cobaltInk font-600" : "text-mock-sub"}`}>
                       {Math.round(tier.discount * 100)}% off
                     </span>

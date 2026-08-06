@@ -1,17 +1,23 @@
 export const MAX_QTY_PER_ITEM = 9;
 
+// The 2-vial tier carries no blended per-unit discount of its own — going
+// 1→2 is the BOGO launch promo (lib/bogoDiscount.ts), which makes the 2nd
+// unit free as its own fee line at checkout. Applying a discount here too
+// would double-discount that vial. 3-5 and 6-9 keep their own smaller,
+// separate volume discounts on top of whatever BOGO does at higher
+// quantities (functional, not just tier metadata: lines 26-28 below).
 export const VOLUME_TIERS = [
   { min: 1, max: 1, discount: 0,    label: "1 vial",    displayRange: "1 vial" },
-  { min: 2, max: 2, discount: 0.05, label: "2 vials",   displayRange: "2 vials" },
-  { min: 3, max: 5, discount: 0.10, label: "3–5 vials", displayRange: "3–5 vials" },
-  { min: 6, max: 9, discount: 0.15, label: "6–9 vials", displayRange: "6–9 vials" },
+  { min: 2, max: 2, discount: 0,    label: "2 vials",   displayRange: "2 vials" },
+  { min: 3, max: 5, discount: 0.05, label: "3–5 vials", displayRange: "3–5 vials" },
+  { min: 6, max: 9, discount: 0.10, label: "6–9 vials", displayRange: "6–9 vials" },
 ];
 
 export function getVolumeDiscount(qty: number): number {
   for (const tier of VOLUME_TIERS) {
     if (qty >= tier.min && qty <= tier.max) return tier.discount;
   }
-  return 0.15;
+  return 0.10;
 }
 
 export function getDiscountedPrice(basePrice: number, qty: number): number {
@@ -19,13 +25,13 @@ export function getDiscountedPrice(basePrice: number, qty: number): number {
 }
 
 export function getVolumeCTAText(qty: number): string {
-  if (qty >= 6) return "You're at our best rate — 15% off";
+  if (qty >= 6) return "You're at our best rate — 10% off";
   if (qty >= 3) {
     const needed = 6 - qty;
-    return `Add ${needed} more to unlock 15% off`;
+    return `Add ${needed} more to unlock 10% off`;
   }
-  if (qty === 2) return "Add 1 more to unlock 10% off";
-  return "Add 1 more to unlock 5% off";
+  if (qty === 2) return "Add 1 more to unlock 5% off";
+  return "Add 1 more to unlock Buy 1 Get 1 Free";
 }
 
 export function getActiveTierIndex(qty: number): number {
