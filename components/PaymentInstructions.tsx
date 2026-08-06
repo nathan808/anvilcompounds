@@ -22,7 +22,7 @@ export interface PaymentInstructionCopy {
 // context above (order number / total / hold date) is all that's available.
 export const PAYMENT_INSTRUCTIONS_COPY: Record<PaymentMethodId, PaymentInstructionCopy> = {
   bacs: {
-    heading: "Credit or debit card",
+    heading: "Pay With Credit Card Via Invoice",
     trustLine: "",
     lines: [
       "A secure payment link arrives by email within 15 minutes.",
