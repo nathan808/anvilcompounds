@@ -28,15 +28,18 @@ export default function HeroCarousel() {
   };
 
   return (
-    <div className="relative w-full overflow-hidden">
+    // Locked to the exact original hero height — both slides fit inside
+    // this, nothing grows it. Matches HeroSection's own minHeight exactly,
+    // so slide 1 renders identically to before the carousel existed.
+    <div className="relative w-full overflow-hidden" style={{ height: "clamp(344px, 46vh, 528px)" }}>
       <div
-        className="flex items-stretch transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"
+        className="flex items-stretch h-full transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"
         style={{ width: "200%", transform: `translateX(-${active * 50}%)` }}
       >
-        <div className="w-1/2 shrink-0">
+        <div className="w-1/2 h-full shrink-0">
           <HeroSection />
         </div>
-        <div className="w-1/2 shrink-0 bg-white">
+        <div className="w-1/2 h-full shrink-0">
           <PromoBannerSlide />
         </div>
       </div>
