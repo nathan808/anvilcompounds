@@ -21,6 +21,9 @@ export interface GuestOrderDetail {
   billingAddress: string;
   lineItems: { name: string; quantity: number; total: string }[];
   shipmentUpdates: { date: string; note: string }[];
+  orderKey: string;
+  paymentMethod: string;
+  trackingNumber: string | null;
 }
 
 interface WCOrder {
@@ -30,6 +33,8 @@ interface WCOrder {
   total: string;
   currency: string;
   date_created: string;
+  order_key: string;
+  payment_method: string;
   billing: {
     email?: string;
     address_1?: string;
@@ -39,6 +44,7 @@ interface WCOrder {
     postcode?: string;
   };
   line_items: { name: string; quantity: number; total: string }[];
+  meta_data: { key: string; value: string }[];
 }
 
 interface WCOrderNote {
@@ -122,6 +128,9 @@ export async function POST(req: NextRequest) {
       .join(", "),
     lineItems: order.line_items.map((li) => ({ name: li.name, quantity: li.quantity, total: li.total })),
     shipmentUpdates,
+    orderKey: order.order_key,
+    paymentMethod: order.payment_method,
+    trackingNumber: order.meta_data.find((m) => m.key === "tracking_number")?.value || null,
   };
 
   return NextResponse.json(detail);

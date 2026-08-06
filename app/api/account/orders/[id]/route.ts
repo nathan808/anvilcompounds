@@ -11,6 +11,14 @@ export interface AccountOrderDetail {
   billingAddress: string;
   lineItems: { name: string; quantity: number; total: string }[];
   shipmentUpdates: { date: string; note: string }[];
+  // Present only for orders still awaiting payment — lets the account page
+  // link straight back into the existing pay page (/checkout/pay/[method])
+  // to resume, rather than re-implementing any of that flow here.
+  orderKey: string;
+  paymentMethod: string;
+  // Ken-entered tracking number, when present — see the `tracking_number`
+  // meta-key comment below for how it actually gets set.
+  trackingNumber: string | null;
 }
 
 interface WCOrder {
@@ -21,6 +29,8 @@ interface WCOrder {
   currency: string;
   date_created: string;
   customer_id: number;
+  order_key: string;
+  payment_method: string;
   billing: {
     address_1?: string;
     address_2?: string;
@@ -29,6 +39,7 @@ interface WCOrder {
     postcode?: string;
   };
   line_items: { name: string; quantity: number; total: string }[];
+  meta_data: { key: string; value: string }[];
 }
 
 interface WCOrderNote {
@@ -44,12 +55,17 @@ function wcAuthHeader(): string | null {
   return "Basic " + Buffer.from(`${key}:${secret}`).toString("base64");
 }
 
-// No shipment-tracking plugin is installed on the WooCommerce backend, so
-// there's no carrier tracking-number field to read. Customer-visible order
-// notes are how fulfillment updates already reach customers (see WC admin
-// convention of adding a "note to customer" when marking an order shipped) —
-// surfacing those here is the honest way to show shipment progress with the
-// data that actually exists, rather than fabricating a tracking widget.
+// No shipment-tracking plugin/carrier API is installed on the WooCommerce
+// backend. Two sources of shipment info, both manual on Ken's side:
+//   - `tracking_number` order meta (no leading underscore, so it's NOT
+//     WooCommerce/WordPress "protected" meta — it should appear in the
+//     default WP admin "Custom Fields" box on the order screen without any
+//     plugin). Surfaced as a distinct, labeled field.
+//   - Customer-visible order notes (WC admin's "note to customer" when
+//     marking an order shipped) — kept as the general shipment-updates feed.
+// If Ken's WooCommerce is on newer HPOS order storage, the classic Custom
+// Fields box may not apply the same way — worth confirming meta actually
+// saves via this path before relying on it.
 export async function GET(
   req: NextRequest,
   { params }: { params: { id: string } }
@@ -108,6 +124,9 @@ export async function GET(
       .join(", "),
     lineItems: order.line_items.map((li) => ({ name: li.name, quantity: li.quantity, total: li.total })),
     shipmentUpdates,
+    orderKey: order.order_key,
+    paymentMethod: order.payment_method,
+    trackingNumber: order.meta_data.find((m) => m.key === "tracking_number")?.value || null,
   };
 
   return NextResponse.json(detail);

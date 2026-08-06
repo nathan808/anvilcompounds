@@ -26,7 +26,7 @@ export default function Footer() {
     Company: [
       { label: "Why Anvil", href: "/#trust" },
       { label: "Learn",     href: "/learn" },
-      { label: "Contact",   href: "/#footer" },
+      { label: "Contact",   href: "/contact" },
     ],
   };
 

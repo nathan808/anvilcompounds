@@ -2,6 +2,7 @@
 
 import { useState, FormEvent } from "react";
 import type { GuestOrderDetail } from "@/app/api/orders/lookup/route";
+import OrderDetailBody from "@/components/OrderDetailBody";
 
 const STATUS_STYLES: Record<string, string> = {
   "on-hold":   "bg-amber-500/15 text-amber-400 border-amber-500/25",
@@ -74,42 +75,21 @@ export default function GuestOrderLookup() {
           </span>
         </div>
 
-        <div className="space-y-1.5 border-t border-white/8 pt-4">
-          {order.lineItems.map((li, i) => (
-            <div key={i} className="flex items-center justify-between gap-4 text-sm">
-              <span className="font-body text-white/60">{li.name} × {li.quantity}</span>
-              <span className="font-mono text-white/50">${parseFloat(li.total).toFixed(2)}</span>
-            </div>
-          ))}
-          <div className="flex items-center justify-between pt-2">
+        <div className="border-t border-white/8">
+          <OrderDetailBody
+            orderId={order.id}
+            status={order.status}
+            paymentMethod={order.paymentMethod}
+            orderKey={order.orderKey}
+            lineItems={order.lineItems}
+            billingAddress={order.billingAddress}
+            trackingNumber={order.trackingNumber}
+            shipmentUpdates={order.shipmentUpdates}
+          />
+          <div className="flex items-center justify-between pt-2 border-t border-white/8 mt-4">
             <span className="font-body text-sm text-white/50">Total</span>
             <span className="font-display font-700 text-white">${parseFloat(order.total).toFixed(2)}</span>
           </div>
-        </div>
-
-        {order.billingAddress && (
-          <div className="border-t border-white/8 pt-4">
-            <p className="font-mono text-[10px] text-white/30 tracking-widest uppercase mb-1">Shipping To</p>
-            <p className="font-body text-sm text-white/60">{order.billingAddress}</p>
-          </div>
-        )}
-
-        <div className="border-t border-white/8 pt-4">
-          <p className="font-mono text-[10px] text-white/30 tracking-widest uppercase mb-2">Shipment Updates</p>
-          {order.shipmentUpdates.length > 0 ? (
-            <div className="space-y-2">
-              {order.shipmentUpdates.map((u, i) => (
-                <div key={i} className="flex gap-3 text-sm">
-                  <span className="font-mono text-[10px] text-blue-400/70 tracking-wide shrink-0 pt-0.5">{formatDate(u.date)}</span>
-                  <span className="font-body text-white/55">{u.note}</span>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="font-body text-sm text-white/30">
-              No updates yet — you&apos;ll see fulfillment and shipping notes here once they&apos;re added to your order.
-            </p>
-          )}
         </div>
 
         <button

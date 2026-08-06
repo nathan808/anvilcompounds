@@ -306,7 +306,7 @@ function AccountForm() {
             <div className="w-6 h-px bg-blue-600" />
           </div>
           <h1 className="font-display font-800 text-white text-3xl mb-2">
-            {tab === "create" ? "Create Account" : "Sign In"}
+            {tab === "create" ? "Create Account" : tab === "signin" ? "Sign In" : "Find My Order"}
           </h1>
           <p className="font-body text-white/40 text-sm">
             {redirect === "/checkout"
@@ -319,19 +319,27 @@ function AccountForm() {
               ? "Sign in to view this COA."
               : "Access your Anvil Compounds research account."}
           </p>
+
+          {tab === "create" && (
+            <div className="mt-4 flex items-center justify-center gap-2 flex-wrap">
+              <span className="px-3 py-1.5 rounded-full bg-blue-600/10 border border-blue-500/20 font-mono text-[10px] text-blue-300 tracking-wide uppercase">
+                No password · ~15 seconds
+              </span>
+            </div>
+          )}
         </div>
 
-        {/* Tab toggle */}
-        <div className="flex glass-card rounded-xl p-1 mb-8">
+        {/* Simple header tabs — underline style, matches the dashboard */}
+        <div className="flex items-center justify-center gap-6 border-b border-white/10 mb-8">
           {(["create", "signin", "lookup"] as const).map((t) => (
             <button
               key={t}
               type="button"
               onClick={() => { setTab(t); setError(""); }}
-              className={`flex-1 py-2.5 rounded-lg font-display font-600 text-sm transition-all duration-200 ${
+              className={`pb-3 -mb-px font-display font-600 text-sm border-b-2 transition-colors duration-200 ${
                 tab === t
-                  ? "bg-blue-600 text-white shadow-lg shadow-blue-600/20"
-                  : "text-white/40 hover:text-white/70"
+                  ? "border-blue-500 text-white"
+                  : "border-transparent text-white/40 hover:text-white/70"
               }`}
             >
               {t === "create" ? "Create Account" : t === "signin" ? "Sign In" : "Find My Order"}
@@ -343,6 +351,13 @@ function AccountForm() {
           <GuestOrderLookup />
         ) : (
         <>
+        {tab === "create" && (
+          <div className="mb-5 flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 text-center">
+            <span className="font-body text-xs text-white/40">Track &amp; manage your orders</span>
+            <span className="font-body text-xs text-white/40">Save your info for next time</span>
+            <span className="font-body text-xs text-white/40">Hear about offers first</span>
+          </div>
+        )}
         {/* Form */}
         <div className="glass-card rounded-2xl p-8">
           <form onSubmit={handleSubmit} className="space-y-5">

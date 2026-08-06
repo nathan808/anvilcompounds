@@ -6,6 +6,8 @@ import { useAuth } from "@/lib/authContext";
 import type { AccountProfile } from "@/app/api/account/profile/route";
 import type { OrderSummary } from "@/app/api/account/orders/route";
 import type { AccountOrderDetail } from "@/app/api/account/orders/[id]/route";
+import OrderDetailBody from "@/components/OrderDetailBody";
+import Link from "next/link";
 
 const US_STATES = [
   "AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA",
@@ -105,41 +107,16 @@ function OrderRow({ order, token }: { order: OrderSummary; token: string }) {
                   <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
                 </div>
               ) : detail ? (
-                <div className="space-y-4 pt-4">
-                  <div className="space-y-1.5">
-                    {detail.lineItems.map((li, i) => (
-                      <div key={i} className="flex items-center justify-between gap-4 text-sm">
-                        <span className="font-body text-white/60">{li.name} × {li.quantity}</span>
-                        <span className="font-mono text-white/50">${parseFloat(li.total).toFixed(2)}</span>
-                      </div>
-                    ))}
-                  </div>
-
-                  {detail.billingAddress && (
-                    <div>
-                      <p className="font-mono text-[10px] text-white/30 tracking-widest uppercase mb-1">Shipping To</p>
-                      <p className="font-body text-sm text-white/60">{detail.billingAddress}</p>
-                    </div>
-                  )}
-
-                  <div>
-                    <p className="font-mono text-[10px] text-white/30 tracking-widest uppercase mb-2">Shipment Updates</p>
-                    {detail.shipmentUpdates.length > 0 ? (
-                      <div className="space-y-2">
-                        {detail.shipmentUpdates.map((u, i) => (
-                          <div key={i} className="flex gap-3 text-sm">
-                            <span className="font-mono text-[10px] text-blue-400/70 tracking-wide shrink-0 pt-0.5">{formatDate(u.date)}</span>
-                            <span className="font-body text-white/55">{u.note}</span>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="font-body text-sm text-white/30">
-                        No updates yet — you&apos;ll see fulfillment and shipping notes here once they&apos;re added to your order.
-                      </p>
-                    )}
-                  </div>
-                </div>
+                <OrderDetailBody
+                  orderId={order.id}
+                  status={detail.status}
+                  paymentMethod={detail.paymentMethod}
+                  orderKey={detail.orderKey}
+                  lineItems={detail.lineItems}
+                  billingAddress={detail.billingAddress}
+                  trackingNumber={detail.trackingNumber}
+                  shipmentUpdates={detail.shipmentUpdates}
+                />
               ) : (
                 <p className="font-body text-sm text-white/30 pt-4">Could not load order details.</p>
               )}
@@ -337,7 +314,7 @@ export default function AccountDashboard() {
       <div className="relative z-10 max-w-2xl mx-auto px-6">
 
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between mb-6">
           <div>
             <div className="flex items-center gap-3 mb-2">
               <div className="w-6 h-px bg-blue-600" />
@@ -347,25 +324,33 @@ export default function AccountDashboard() {
               {user.firstName ? `Welcome, ${user.firstName}` : "Your Account"}
             </h1>
           </div>
-          <button
-            onClick={logout}
-            className="font-mono text-xs text-white/30 hover:text-white/60 tracking-wide transition-colors shrink-0"
-          >
-            Log out
-          </button>
+          <div className="flex items-center gap-4 shrink-0">
+            <Link
+              href="/contact"
+              className="font-mono text-xs text-white/30 hover:text-white/60 tracking-wide transition-colors"
+            >
+              Contact Support
+            </Link>
+            <button
+              onClick={logout}
+              className="font-mono text-xs text-white/30 hover:text-white/60 tracking-wide transition-colors"
+            >
+              Log out
+            </button>
+          </div>
         </div>
 
-        {/* Tab toggle */}
-        <div className="flex glass-card rounded-xl p-1 mb-6">
+        {/* Simple header tabs — underline style, standard ecom-account pattern */}
+        <div className="flex items-center gap-6 border-b border-white/10 mb-6">
           {(["orders", "profile"] as const).map((t) => (
             <button
               key={t}
               type="button"
               onClick={() => setTab(t)}
-              className={`flex-1 py-2.5 rounded-lg font-display font-600 text-sm transition-all duration-200 ${
+              className={`pb-3 -mb-px font-display font-600 text-sm border-b-2 transition-colors duration-200 ${
                 tab === t
-                  ? "bg-blue-600 text-white shadow-lg shadow-blue-600/20"
-                  : "text-white/40 hover:text-white/70"
+                  ? "border-blue-500 text-white"
+                  : "border-transparent text-white/40 hover:text-white/70"
               }`}
             >
               {t === "orders" ? "Orders" : "Profile"}
@@ -374,6 +359,12 @@ export default function AccountDashboard() {
         </div>
 
         {tab === "orders" ? <OrdersTab token={user.token} /> : <ProfileTab token={user.token} />}
+
+        <p className="font-mono text-[9px] text-white/20 tracking-wide leading-relaxed text-center mt-10 pt-6 border-t border-white/5">
+          Anvil Compounds products are intended solely for laboratory and investigational use.
+          We do not market, sell, or promote products for human or veterinary consumption,
+          therapeutic use, or clinical application. Must be 21+ to purchase.
+        </p>
       </div>
     </div>
   );

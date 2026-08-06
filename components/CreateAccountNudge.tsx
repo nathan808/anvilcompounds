@@ -31,8 +31,8 @@ export default function CreateAccountNudge({ email, orderId, orderKey }: Props) 
         </p>
         <p className="font-mono text-[11px] text-white/30 mt-0.5">
           {canClaim
-            ? "Create an account with just your email — we'll link this order to it."
-            : "Create an account with just your email — no password needed."}
+            ? "No password, ~15 seconds — we'll link this order to your new account."
+            : "No password, ~15 seconds — track orders and hear about offers first."}
         </p>
       </div>
       <Link
