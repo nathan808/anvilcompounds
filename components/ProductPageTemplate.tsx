@@ -25,6 +25,7 @@ export interface ProductPageData {
   priceUnit: string;
   sizes: string[];
   sizesPrices: number[];
+  sizesOriginalPrices: (number | null)[];
   wcProductId: number;
   image?: string | null;
 
@@ -250,6 +251,7 @@ export default function ProductPageTemplate({
               name={product.name}
               sizes={product.sizes}
               sizesPrices={product.sizesPrices}
+              sizesOriginalPrices={product.sizesOriginalPrices}
               priceNumber={product.priceNumber}
               wcProductId={product.wcProductId}
               hasCoa={hasCoa}
@@ -341,6 +343,7 @@ export default function ProductPageTemplate({
                 name={product.name}
                 sizes={product.sizes}
                 sizesPrices={product.sizesPrices}
+                sizesOriginalPrices={product.sizesOriginalPrices}
                 priceNumber={product.priceNumber}
                 wcProductId={product.wcProductId}
                 hasCoa={hasCoa}

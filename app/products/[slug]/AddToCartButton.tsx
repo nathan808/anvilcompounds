@@ -21,6 +21,7 @@ interface Props {
   name: string;
   sizes: string[];
   sizesPrices: number[];
+  sizesOriginalPrices?: (number | null)[];
   priceNumber: number;
   wcProductId: number;
   hasCoa: boolean;
@@ -34,6 +35,7 @@ export default function AddToCartButton({
   name,
   sizes,
   sizesPrices,
+  sizesOriginalPrices,
   priceNumber,
   wcProductId,
   hasCoa,
@@ -45,6 +47,7 @@ export default function AddToCartButton({
   const [added, setAdded] = useState(false);
 
   const basePrice = sizesPrices[selectedIndex] ?? priceNumber;
+  const originalBasePrice = sizesOriginalPrices?.[selectedIndex] ?? null;
   const selectedSize = sizes[selectedIndex] ?? "";
   const discount = getVolumeDiscount(qty);
   const unitPrice = getDiscountedPrice(basePrice, qty);
@@ -115,7 +118,7 @@ export default function AddToCartButton({
               ${unitPrice.toFixed(2)}
             </span>
             <span className="font-body text-sm text-mock-sub">/ vial</span>
-            {discount > 0 && (
+            {discount > 0 ? (
               <>
                 <span className="font-body text-sm text-mock-sub line-through">
                   ${basePrice.toFixed(2)}
@@ -124,7 +127,16 @@ export default function AddToCartButton({
                   {Math.round(discount * 100)}% off
                 </span>
               </>
-            )}
+            ) : originalBasePrice ? (
+              <>
+                <span className="font-body text-sm text-mock-sub line-through">
+                  ${originalBasePrice.toFixed(2)}
+                </span>
+                <span className="font-mono text-xs text-green-700 bg-green-500/10 border border-green-500/30 rounded-full px-2 py-0.5">
+                  Launch Price
+                </span>
+              </>
+            ) : null}
           </div>
           {qty > 1 && (
             <p className="font-mono text-xs text-mock-sub mt-1">

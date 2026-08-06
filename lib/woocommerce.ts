@@ -204,6 +204,13 @@ export async function getProductPageData(slug: string): Promise<ProductPageData 
     let sizesPrices = sortedVars.map(
       (v) => parseFloat(v.price || v.regular_price || product.price || "0")
     );
+    // Per-size "was" price for the launch sale (regular_price above the
+    // active price) — null for anything not currently on sale.
+    let sizesOriginalPrices: (number | null)[] = sortedVars.map((v) => {
+      const active = parseFloat(v.price || v.regular_price || product.price || "0");
+      const regular = parseFloat(v.regular_price || "0");
+      return regular > active ? regular : null;
+    });
 
     // Simple (non-variable) products have no /variations rows, but may still
     // carry a fixed, non-variation "Size" attribute directly on the base
@@ -217,6 +224,9 @@ export async function getProductPageData(slug: string): Promise<ProductPageData 
         sizes = baseSizeAttr.options;
         const basePriceForFallback = parseFloat(product.price || product.regular_price || "0");
         sizesPrices = baseSizeAttr.options.map(() => basePriceForFallback);
+        const regularForFallback = parseFloat(product.regular_price || "0");
+        const originalForFallback = regularForFallback > basePriceForFallback ? regularForFallback : null;
+        sizesOriginalPrices = baseSizeAttr.options.map(() => originalForFallback);
       }
     }
 
@@ -248,6 +258,8 @@ export async function getProductPageData(slug: string): Promise<ProductPageData 
       .filter((c): c is ProductCard => c !== undefined);
 
     const basePrice = parseFloat(product.price || product.regular_price || "0");
+    const regularBasePrice = parseFloat(product.regular_price || "0");
+    const originalBasePrice = regularBasePrice > basePrice ? regularBasePrice : null;
 
     return {
       slug,
@@ -259,6 +271,7 @@ export async function getProductPageData(slug: string): Promise<ProductPageData 
       priceUnit:   "/ vial",
       sizes:       sizes.length ? sizes : ["Standard"],
       sizesPrices: sizesPrices.length ? sizesPrices : [basePrice],
+      sizesOriginalPrices: sizesOriginalPrices.length ? sizesOriginalPrices : [originalBasePrice],
       wcProductId: product.id,
       image:       LOCAL_PRODUCT_IMAGES[product.name] ?? product.images[0]?.src ?? null,
       trustBadges,
@@ -354,8 +367,11 @@ function getAttributeOptions(product: WCProduct, name: string): string[] {
 export interface WCProduct {
   id: number;
   name: string;
+  type: string;
   short_description: string;
   price: string;
+  regular_price: string;
+  on_sale: boolean;
   permalink: string;
   categories: Array<{ name: string }>;
   attributes: Array<{ name: string; options: string[] }>;
@@ -368,6 +384,7 @@ export interface ProductCard {
   category: string;
   description: string;
   price: string;
+  originalPrice?: string;
   purity: string;
   badge: string;
   badgeColor: string;
@@ -425,14 +442,24 @@ const LOCAL_PRODUCT_IMAGES: Record<string, string> = {
   // Semax + Selank images served directly from WooCommerce gallery (no local copy)
 };
 
-export function mapProduct(product: WCProduct, index: number): ProductCard {
+export function mapProduct(product: WCProduct, index: number, originalPriceOverride?: string): ProductCard {
   const badge = PRODUCT_BADGES[product.name] ?? DEFAULT_BADGE;
+  // Variable products carry no top-level regular_price (WC only sets that
+  // per-variation) — the caller resolves the min-price variation's
+  // regular_price separately and passes it in as originalPriceOverride.
+  const originalPriceRaw = product.on_sale
+    ? (product.type === "variable" ? originalPriceOverride : product.regular_price)
+    : undefined;
+  const originalPrice = originalPriceRaw && parseFloat(originalPriceRaw) > parseFloat(product.price || "0")
+    ? `$${originalPriceRaw}`
+    : undefined;
   return {
     id:          product.id,
     name:        product.name,
     category:    stripHtml(product.categories[0]?.name ?? "Research Compound"),
     description: stripHtml(product.short_description) || "Research-grade compound with full COA documentation.",
     price:       product.price ? `$${product.price}` : "—",
+    originalPrice,
     purity:      getAttribute(product, "Purity") ?? "99%+",
     badge:       getAttribute(product, "Badge")  ?? badge.label,
     badgeColor:  badge.color,
@@ -463,7 +490,30 @@ export async function getProducts(): Promise<ProductCard[]> {
   if (!res.ok) throw new Error(`WooCommerce API error: ${res.status}`);
 
   const products: WCProduct[] = await res.json();
-  return products
-    .filter((p) => !LIBRARY_GUIDE_NAME_PATTERN.test(p.name))
-    .map(mapProduct);
+  const filtered = products.filter((p) => !LIBRARY_GUIDE_NAME_PATTERN.test(p.name));
+
+  // Variable products don't carry a top-level regular_price (WC only sets
+  // that per-variation), so for anything variable + on sale, fetch its
+  // variations to find the min-price one's regular_price — that's the
+  // "was" price shown crossed out next to the catalog card's "From $X".
+  const variableOnSale = filtered.filter((p) => p.type === "variable" && p.on_sale);
+  const originalPriceOverrides = new Map<number, string>();
+  if (variableOnSale.length) {
+    await Promise.all(
+      variableOnSale.map(async (p) => {
+        const varRes = await fetch(
+          `${url}/wp-json/wc/v3/products/${p.id}/variations?consumer_key=${key}&consumer_secret=${secret}&per_page=50`,
+          { next: { revalidate: 3600, tags: ["wc-products"] } }
+        );
+        if (!varRes.ok) return;
+        const variations: { price: string; regular_price: string }[] = await varRes.json();
+        const minVar = [...variations].sort(
+          (a, b) => parseFloat(a.price || "0") - parseFloat(b.price || "0")
+        )[0];
+        if (minVar?.regular_price) originalPriceOverrides.set(p.id, minVar.regular_price);
+      })
+    );
+  }
+
+  return filtered.map((p, i) => mapProduct(p, i, originalPriceOverrides.get(p.id)));
 }
