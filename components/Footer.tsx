@@ -177,11 +177,6 @@ export default function Footer() {
             <PaymentMethodsBar />
           </div>
 
-          {/* Billing notice */}
-          <p className="font-mono text-xs text-white/55 text-center mb-6">
-            All transactions will appear on your statement as <span className="text-white">Anvil Holdings LLC</span>
-          </p>
-
           {/* Bottom bar */}
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="font-mono text-xs text-white/45">
