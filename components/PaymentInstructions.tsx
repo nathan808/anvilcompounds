@@ -32,7 +32,7 @@ export const PAYMENT_INSTRUCTIONS_COPY: Record<PaymentMethodId, PaymentInstructi
   },
   ethereum: {
     heading: "Pay with Ethereum",
-    trustLine: "Your bank statement will show a charge from Anvil Holdings LLC. This is our payment processing partner.",
+    trustLine: "",
     lines: [
       "Send ETH from any wallet through Bankful's hosted checkout — the button below takes you there.",
       "Amount is locked at the quoted rate. Network fees are separate. Confirms in minutes.",

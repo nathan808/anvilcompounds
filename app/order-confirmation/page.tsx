@@ -214,14 +214,14 @@ function ConfirmationContent() {
           {/* Ethereum — via Bankful, instant 10% discount */}
           <PaymentBlock icon="Ξ" title="Ethereum" discount="10% instant discount" orderNumber={orderNum} timeline="A secure payment link is emailed to you separately.">
             <p className="font-body text-sm text-white/50">
-              Processed via our payment partner Bankful. Your bank statement will show a charge from Anvil Holdings LLC.
+              Processed via our payment partner Bankful.
             </p>
           </PaymentBlock>
 
           {/* E-check — via Bankful, instant 10% discount */}
           <PaymentBlock icon="✓" title="E-check" discount="10% instant discount" orderNumber={orderNum} timeline="A secure payment link is emailed to you separately.">
             <p className="font-body text-sm text-white/50">
-              Processed via our payment partner Bankful. Your bank statement will show a charge from Anvil Holdings LLC.
+              Processed via our payment partner Bankful.
             </p>
           </PaymentBlock>
 
