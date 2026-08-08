@@ -13,16 +13,15 @@ interface ProductImageGalleryProps {
   productImage?: string | null;
   productName: string;
   coaImage?: string | null;
-  // "boxed" (default) = framed square card, used in the mobile flow.
-  // "bleed" = edge-to-edge, no border/radius, sized to the product photos'
-  // own aspect ratio (all product photos share ~1500x1850 dimensions) —
-  // matches the FeaturedSpotlight band's visual language for the desktop
-  // PDP hero (see components/FeaturedSpotlight.tsx). Deliberately NOT
-  // stretched to fill the column's height: that used to make the frame's
-  // shape shift (and crop differently) every time the window was resized,
-  // since the buy-column's height changes with viewport width. Sizing from
-  // the photo's own aspect ratio instead means object-cover always has a
-  // box shaped exactly like the photo — full image, no crop, at any width.
+  // "boxed" (default) = framed card, used in the mobile flow.
+  // "bleed" = edge-to-edge, no border/radius — matches the FeaturedSpotlight
+  // band's visual language for the desktop PDP hero (see
+  // components/FeaturedSpotlight.tsx). Both variants size their frame to
+  // PRODUCT_PHOTO_ASPECT (all product photos share that ratio as of the
+  // Aug 2026 photo refresh) rather than a fixed square, so object-cover
+  // always has a box shaped exactly like the photo — full image, no crop,
+  // at any width. "boxed" used to force a square crop on mobile; matching
+  // the real ratio here fixed that.
   variant?: "boxed" | "bleed";
 }
 
@@ -55,8 +54,8 @@ export default function ProductImageGallery({ productImage, productName, coaImag
       <div
         className={
           bleed
-            ? "relative w-full aspect-[1500/1850] rounded-2xl overflow-hidden"
-            : "relative w-full aspect-square max-w-lg mx-auto lg:max-w-none rounded-2xl overflow-hidden bg-white border border-mock-line"
+            ? "relative w-full aspect-[3584/4800] rounded-2xl overflow-hidden"
+            : "relative w-full aspect-[3584/4800] max-w-lg mx-auto lg:max-w-none rounded-2xl overflow-hidden bg-white border border-mock-line"
         }
       >
         <Image

@@ -24,6 +24,8 @@ const KNOWN_SLUGS = [
   "5-amino-1mq",
   "bpc-157-tb-500",
   "glow",
+  "semax",
+  "selank",
 ];
 
 export default async function COAsPage() {

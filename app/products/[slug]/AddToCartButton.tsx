@@ -26,6 +26,12 @@ interface Props {
   wcProductId: number;
   hasCoa: boolean;
   showFooter?: boolean;
+  // Size selection is controlled from ProductHero when provided, so the
+  // product photo and COA button (rendered as siblings, not children, of
+  // this component) can switch in step with the chosen size. Falls back to
+  // owning its own state so this component still works standalone.
+  selectedIndex?: number;
+  onSelectIndex?: (index: number) => void;
 }
 
 const QUICK_PICKS = [1, 2, 5, 6, 9];
@@ -40,9 +46,13 @@ export default function AddToCartButton({
   wcProductId,
   hasCoa,
   showFooter = true,
+  selectedIndex: controlledIndex,
+  onSelectIndex,
 }: Props) {
   const { addItem, openCart } = useCart();
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [internalIndex, setInternalIndex] = useState(0);
+  const selectedIndex = controlledIndex ?? internalIndex;
+  const setSelectedIndex = onSelectIndex ?? setInternalIndex;
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
 
