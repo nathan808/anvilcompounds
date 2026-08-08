@@ -3,7 +3,6 @@ import InfoBlock from "@/components/InfoBlock";
 import ReconstitutionGuide from "@/components/ReconstitutionGuide";
 import ProductFaqBlock from "@/components/ProductFaqBlock";
 import { ProductCard as CatalogProductCard } from "@/components/ProductsSection";
-import { getProductDisplayTitle } from "@/lib/productTitle";
 import { PRODUCT_MECHANISMS } from "@/lib/productMechanisms";
 import { parseReconVials } from "@/lib/reconstitution";
 import type { ProductCard } from "@/lib/woocommerce";
