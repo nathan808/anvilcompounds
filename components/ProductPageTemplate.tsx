@@ -1,10 +1,5 @@
-import AddToCartButton from "@/app/products/[slug]/AddToCartButton";
-import ShippingBanner from "@/components/ShippingBanner";
-import ProductImageGallery from "@/components/ProductImageGallery";
+import ProductHero from "@/components/ProductHero";
 import InfoBlock from "@/components/InfoBlock";
-import ViewCoaButton from "@/components/ViewCoaButton";
-import SdsPreviewButton from "@/components/SdsPreviewButton";
-import PurchaseFooter from "@/components/PurchaseFooter";
 import ReconstitutionGuide from "@/components/ReconstitutionGuide";
 import ProductFaqBlock from "@/components/ProductFaqBlock";
 import { ProductCard as CatalogProductCard } from "@/components/ProductsSection";
@@ -26,6 +21,12 @@ export interface ProductPageData {
   sizes: string[];
   sizesPrices: number[];
   sizesOriginalPrices: (number | null)[];
+  // Per-size photo/COA, aligned index-for-index with `sizes`. Falls back to
+  // `image`/`documentationFile` for any size without its own (see
+  // getProductPageData in lib/woocommerce.ts) — always the same length as
+  // `sizes`, so callers don't need to null-check per index.
+  sizesImages: (string | null)[];
+  sizesDocumentationFiles: (string | null)[];
   wcProductId: number;
   image?: string | null;
 
@@ -203,156 +204,9 @@ export default function ProductPageTemplate({
 }: {
   product: ProductPageData;
 }) {
-  const hasCoa = product.hasCoa;
-
   return (
     <>
-      {/* ── SECTION 1 — Hero header ───────────────────────────────────────── */}
-      <section className="bg-mock-page py-10 md:py-14">
-        <div className="max-w-7xl mx-auto px-6">
-
-          {/* ── Mobile layout (< lg): category/disclaimer/name up top, buy
-              buttons right under pricing so they're visible without
-              scrolling, everything else (COA/SDS, shipping, payment info)
-              pushed below. Renders its own AddToCartButton/ProductImageGallery
-              instance (see note on the desktop block below). ── */}
-          <div className="lg:hidden space-y-5">
-            <nav className="font-mono text-xs text-mock-sub">
-              <span>Catalog</span>
-              <span className="mx-2 text-mock-sub/60">/</span>
-              <span className="text-mock-cobaltInk/80">{product.category}</span>
-            </nav>
-
-            <div className="inline-block">
-              <span className="font-mono text-[10px] text-mock-sub tracking-[0.18em] uppercase border border-mock-line rounded-full px-3 py-1">
-                For laboratory and research use only
-              </span>
-            </div>
-
-            <h1
-              className="font-heading font-700 text-mock-navy leading-[1.05]"
-              style={{ fontSize: "clamp(2.5rem, 5vw, 4rem)" }}
-            >
-              {getProductDisplayTitle(product.name, product.category)}
-            </h1>
-
-            <p className="font-mono text-xs text-mock-sub tracking-wider">
-              {product.subtitle}
-            </p>
-
-            <ProductImageGallery
-              productImage={product.image}
-              productName={product.name}
-              coaImage={product.documentationImage}
-            />
-
-            <AddToCartButton
-              slug={product.slug}
-              name={product.name}
-              sizes={product.sizes}
-              sizesPrices={product.sizesPrices}
-              sizesOriginalPrices={product.sizesOriginalPrices}
-              priceNumber={product.priceNumber}
-              wcProductId={product.wcProductId}
-              hasCoa={hasCoa}
-              showFooter={false}
-            />
-
-            <div className="space-y-3">
-              <ViewCoaButton
-                productName={product.name}
-                imageUrl={product.documentationImage}
-                fileUrl={product.documentationFile}
-              />
-              <SdsPreviewButton productName={product.name} fileUrl={product.sdsFile} />
-            </div>
-
-            <ShippingBanner theme="light" />
-
-            <PurchaseFooter />
-          </div>
-
-          {/* ── Desktop layout (>= lg): image + shipping + SDS on the left,
-              everything else in a sticky right column, as before except
-              SDS moved under the shipping card. Image column uses the
-              "bleed" variant (borderless, fills column height) to reuse
-              FeaturedSpotlight's visual language per the homepage
-              integration brief. Columns use items-start (not stretch) so a
-              shorter left column doesn't get invisibly stretched to match a
-              taller right column, which used to leave a dead gap under the
-              image/shipping/SDS block. ── */}
-          <div className="hidden lg:grid lg:grid-cols-2 gap-12 xl:gap-20 items-start">
-
-            {/* Left — product image + shipping banner + SDS preview */}
-            <div className="flex flex-col gap-5">
-              {/* Image wrapper sized to 80% and centered — shrinks the framed
-                  photo without cropping anything (aspect ratio is preserved,
-                  it just scales down); shipping banner/SDS button below stay
-                  full column width. */}
-              <div className="w-[80%] mx-auto">
-                <ProductImageGallery
-                  productImage={product.image}
-                  productName={product.name}
-                  coaImage={product.documentationImage}
-                  variant="bleed"
-                />
-              </div>
-              <ShippingBanner theme="light" />
-              <SdsPreviewButton productName={product.name} fileUrl={product.sdsFile} />
-            </div>
-
-            {/* Right — buy column */}
-            <div className="lg:sticky lg:top-24 space-y-5">
-              {/* Breadcrumb */}
-              <nav className="font-mono text-xs text-mock-sub">
-                <span>Catalog</span>
-                <span className="mx-2 text-mock-sub/60">/</span>
-                <span className="text-mock-cobaltInk/80">{product.category}</span>
-              </nav>
-
-              {/* RUO pill */}
-              <div className="inline-block">
-                <span className="font-mono text-[10px] text-mock-sub tracking-[0.18em] uppercase border border-mock-line rounded-full px-3 py-1">
-                  For laboratory and research use only
-                </span>
-              </div>
-
-              {/* Name */}
-              <h1
-                className="font-heading font-700 text-mock-navy leading-[1.05]"
-                style={{ fontSize: "clamp(2.5rem, 5vw, 4rem)" }}
-              >
-                {getProductDisplayTitle(product.name, product.category)}
-              </h1>
-
-              {/* Subtitle */}
-              <p className="font-mono text-xs text-mock-sub tracking-wider">
-                {product.subtitle}
-              </p>
-
-              {/* View COA — above Add to Cart */}
-              <ViewCoaButton
-                productName={product.name}
-                imageUrl={product.documentationImage}
-                fileUrl={product.documentationFile}
-              />
-
-              {/* Add to cart (renders its own payment-methods/RUO footer) */}
-              <AddToCartButton
-                slug={product.slug}
-                name={product.name}
-                sizes={product.sizes}
-                sizesPrices={product.sizesPrices}
-                sizesOriginalPrices={product.sizesOriginalPrices}
-                priceNumber={product.priceNumber}
-                wcProductId={product.wcProductId}
-                hasCoa={hasCoa}
-              />
-
-            </div>
-          </div>
-        </div>
-      </section>
+      <ProductHero product={product} />
 
       {/* ── SECTIONS 1-4 — Combined info block ────────────────────────────
           One continuous section instead of stacked ones: every block

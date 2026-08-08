@@ -141,6 +141,8 @@ interface WCVariation {
   price: string;
   regular_price: string;
   attributes: { id: number; name: string; option: string }[];
+  image?: { src: string } | null;
+  meta_data?: { id: number; key: string; value: string }[];
 }
 
 function buildMetaMap(metaData: { key: string; value: string }[]): Record<string, string> {
@@ -211,6 +213,17 @@ export async function getProductPageData(slug: string): Promise<ProductPageData 
       const regular = parseFloat(v.regular_price || "0");
       return regular > active ? regular : null;
     });
+    // Per-size photo + COA — read off each WC variation's own `image` and
+    // `documentation_file` meta (set via the variations API, same as any
+    // other per-variation field). Null here just means "this variation
+    // doesn't have its own" — resolved against the product-level fallback
+    // below, so a product can mix (e.g. one size with a dedicated photo,
+    // the other still sharing the base image) without extra plumbing.
+    let sizesImagesRaw: (string | null)[] = sortedVars.map((v) => v.image?.src ?? null);
+    let sizesDocFilesRaw: (string | null)[] = sortedVars.map((v) => {
+      const vMeta = buildMetaMap(v.meta_data ?? []);
+      return vMeta["documentation_file"] || null;
+    });
 
     // Simple (non-variable) products have no /variations rows, but may still
     // carry a fixed, non-variation "Size" attribute directly on the base
@@ -227,6 +240,8 @@ export async function getProductPageData(slug: string): Promise<ProductPageData 
         const regularForFallback = parseFloat(product.regular_price || "0");
         const originalForFallback = regularForFallback > basePriceForFallback ? regularForFallback : null;
         sizesOriginalPrices = baseSizeAttr.options.map(() => originalForFallback);
+        sizesImagesRaw = baseSizeAttr.options.map(() => null);
+        sizesDocFilesRaw = baseSizeAttr.options.map(() => null);
       }
     }
 
@@ -261,6 +276,11 @@ export async function getProductPageData(slug: string): Promise<ProductPageData 
     const regularBasePrice = parseFloat(product.regular_price || "0");
     const originalBasePrice = regularBasePrice > basePrice ? regularBasePrice : null;
 
+    const fallbackImage = LOCAL_PRODUCT_IMAGES[product.name] ?? product.images[0]?.src ?? null;
+    const fallbackDocFile = meta["documentation_file"] ?? null;
+    const sizesImages = (sizes.length ? sizesImagesRaw : [null]).map((img) => img ?? fallbackImage);
+    const sizesDocumentationFiles = (sizes.length ? sizesDocFilesRaw : [null]).map((f) => f ?? fallbackDocFile);
+
     return {
       slug,
       name:        product.name,
@@ -272,8 +292,10 @@ export async function getProductPageData(slug: string): Promise<ProductPageData 
       sizes:       sizes.length ? sizes : ["Standard"],
       sizesPrices: sizesPrices.length ? sizesPrices : [basePrice],
       sizesOriginalPrices: sizesOriginalPrices.length ? sizesOriginalPrices : [originalBasePrice],
+      sizesImages,
+      sizesDocumentationFiles,
       wcProductId: product.id,
-      image:       LOCAL_PRODUCT_IMAGES[product.name] ?? product.images[0]?.src ?? null,
+      image:       fallbackImage,
       trustBadges,
       whatItIsSubtitle:    meta["what_it_is_subtitle"]         ?? `${product.name} | Research Use Only`,
       whatItIsBody:        meta["what_it_is_body"]             ?? "",
@@ -395,8 +417,11 @@ export interface ProductCard {
   sizes: string[];
 }
 
-// Products without COA yet (Testing in Progress — no buy UI shown)
-const IDS_WITHOUT_COA = new Set([443, 445, 446, 450, 510, 511, 333, 346]);
+// Products without COA yet (Testing in Progress — no buy UI shown).
+// Empty as of the Aug 2026 COA batch — every SKU now has documentation_file
+// set (directly or per-size, on the WC product/variation), so nothing is
+// gated. Re-add a WC product ID here if a future SKU launches ahead of its COA.
+const IDS_WITHOUT_COA = new Set<number>([]);
 
 const PRODUCT_PAGE_URLS: Record<string, string> = {
   "BPC-157":                                      "https://anvilcompounds.shop/product/bpc-157/",
@@ -418,28 +443,38 @@ const PRODUCT_PAGE_URLS: Record<string, string> = {
   "BPC-157 + TB-500":                              "https://anvilcompounds.shop/product/bpc-157-tb-500/",
 };
 
+// Aug 2026 photo refresh — every entry now points at the new vial+COA-card
+// photography (see PRODUCT_PHOTO_ASPECT in ProductImageGallery.tsx for the
+// shared aspect ratio this whole batch was shot/exported at). GLP-TRZ and
+// GLP-RT default here to their 10mg shot; the actual per-size photo on the
+// product page comes from each WC variation's own `image` via
+// getProductPageData's sizesImages — this table is just the catalog-card /
+// no-variation-match fallback.
 const LOCAL_PRODUCT_IMAGES: Record<string, string> = {
   "BPC-157":                                      "/products/bpc157.jpg",
-  "T1rz":                                         "/products/glp-trz.png",
-  "Trz- dual receptor":                           "/products/glp-trz.png",
-  "Dual Receptor (T)":                            "/products/glp-trz.png",
-  "R3ta":                                         "/products/glp-rt.jpg",
-  "Rta - triple agonist":                         "/products/glp-rt.jpg",
-  "triple agonist (R)":                           "/products/glp-rt.jpg",
-  "Triple Agonist (R)":                           "/products/glp-rt.jpg",
-  "GLP-TRZ":                                      "/products/glp-trz.png",
-  "GLP-RT":                                       "/products/glp-rt.jpg",
+  "T1rz":                                         "/products/glp-trz-10mg.jpg",
+  "Trz- dual receptor":                           "/products/glp-trz-10mg.jpg",
+  "Dual Receptor (T)":                            "/products/glp-trz-10mg.jpg",
+  "R3ta":                                         "/products/glp-rt-10mg.jpg",
+  "Rta - triple agonist":                         "/products/glp-rt-10mg.jpg",
+  "triple agonist (R)":                           "/products/glp-rt-10mg.jpg",
+  "Triple Agonist (R)":                           "/products/glp-rt-10mg.jpg",
+  "GLP-TRZ":                                      "/products/glp-trz-10mg.jpg",
+  "GLP-RT":                                       "/products/glp-rt-10mg.jpg",
   "KLOW":                                         "/products/klow.jpg",
   "GHK-Cu":                                       "/products/ghkcu.jpg",
   "TB-500":                                       "/products/tb500.jpg",
-  "MOTS-c":                                       "/products/motsc.png",
+  "MOTS-c":                                       "/products/motsc.jpg",
   "BPC-157 + TB-500":                              "/products/wolverine.jpg",
-  "NAD+":                                         "/products/nad.png",
-  "Tesamorelin":                                  "/products/tesa.png",
-  "CJC-1295 + Ipamorelin":                        "/products/cjcipa.png",
-  "5-Amino-1MQ":                                  "/products/5amino.png",
+  "NAD+":                                         "/products/nad.jpg",
+  "Tesamorelin":                                  "/products/tesa.jpg",
+  "CJC-1295 + Ipamorelin":                        "/products/cjcipa.jpg",
+  "5-Amino-1MQ":                                  "/products/5amino.jpg",
   "GLOW":                                         "/products/glow.jpg",
-  // Semax + Selank images served directly from WooCommerce gallery (no local copy)
+  "Semax":                                        "/products/semax.jpg",
+  "Selank":                                       "/products/selank.jpg",
+  "Bacteriostatic Water":                         "/products/bacwater.jpg",
+  "Reconstitution Solution – for Laboratory Use": "/products/bacwater.jpg",
 };
 
 export function mapProduct(product: WCProduct, index: number, originalPriceOverride?: string): ProductCard {
