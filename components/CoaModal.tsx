@@ -48,15 +48,21 @@ export default function CoaModal({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[100] flex items-center justify-center p-2 md:p-6 bg-black/80 backdrop-blur-sm"
+          className="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto p-2 pt-6 md:p-6 md:pt-10 bg-black/80 backdrop-blur-sm"
           onClick={onClose}
         >
+          {/* Anchored to the top of the viewport (not vertically centered)
+              and sized ~10% smaller than before (was w-full/96vh) — on
+              mobile the footer's Close/Download row used to sit right at
+              the bottom edge of the screen, overlapping the browser's own
+              back-gesture/UI chrome. Shrinking + top-anchoring pushes that
+              row well clear of it. */}
           <motion.div
             initial={{ opacity: 0, scale: 0.96, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 10 }}
             transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            className="relative w-full max-w-6xl h-[96vh] md:h-[94vh] glass-card rounded-2xl overflow-hidden flex flex-col"
+            className="relative w-[90%] max-w-6xl h-[86vh] md:h-[85vh] glass-card rounded-2xl overflow-hidden flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between px-5 py-4 border-b border-white/10 shrink-0 gap-4 flex-wrap">
