@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { simplifySizeLabel } from "@/lib/reconstitution";
 
 interface CoaModalProps {
   open: boolean;
@@ -9,9 +10,26 @@ interface CoaModalProps {
   title: string;
   imageUrl?: string | null;
   fileUrl?: string | null;
+  // Optional per-size switcher — pass all three (from the COA library, for
+  // a multi-size product) to show pills that swap `fileUrl` without closing
+  // the modal. Omitted entirely on the product page, where size selection
+  // already lives in the buy column and this modal just shows whichever
+  // size's COA the page already resolved.
+  sizes?: string[];
+  selectedSizeIndex?: number;
+  onSelectSize?: (index: number) => void;
 }
 
-export default function CoaModal({ open, onClose, title, imageUrl, fileUrl }: CoaModalProps) {
+export default function CoaModal({
+  open,
+  onClose,
+  title,
+  imageUrl,
+  fileUrl,
+  sizes,
+  selectedSizeIndex = 0,
+  onSelectSize,
+}: CoaModalProps) {
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
@@ -41,19 +59,39 @@ export default function CoaModal({ open, onClose, title, imageUrl, fileUrl }: Co
             className="relative w-full max-w-6xl h-[96vh] md:h-[94vh] glass-card rounded-2xl overflow-hidden flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between px-5 py-4 border-b border-white/10 shrink-0">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-white/10 shrink-0 gap-4 flex-wrap">
               <h3 className="font-display font-700 text-white text-sm tracking-wide">
                 {title} — Certificate of Analysis
               </h3>
-              <button
-                onClick={onClose}
-                aria-label="Close"
-                className="w-8 h-8 rounded-full flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-colors"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
+
+              <div className="flex items-center gap-3">
+                {sizes && sizes.length > 1 && (
+                  <div className="flex items-center gap-1.5">
+                    {sizes.map((size, i) => (
+                      <button
+                        key={size}
+                        onClick={() => onSelectSize?.(i)}
+                        className={`px-3 py-1.5 rounded-lg border font-mono text-xs font-500 transition-all duration-200 ${
+                          i === selectedSizeIndex
+                            ? "bg-blue-600 border-blue-500 text-white"
+                            : "bg-white/5 border-white/10 text-white/50 hover:text-white/80 hover:border-white/20"
+                        }`}
+                      >
+                        {simplifySizeLabel(size)}
+                      </button>
+                    ))}
+                  </div>
+                )}
+                <button
+                  onClick={onClose}
+                  aria-label="Close"
+                  className="w-8 h-8 rounded-full flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-colors shrink-0"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
             </div>
 
             <div className="flex-1 min-h-0 bg-navy-950">

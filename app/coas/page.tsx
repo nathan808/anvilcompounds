@@ -9,6 +9,8 @@ export const metadata: Metadata = {
   description: "Certificates of Analysis for every Anvil Compounds research batch — HPLC, mass spectrometry, and endotoxin screening results.",
 };
 
+// Bacteriostatic Water (bac-water) is deliberately excluded — it's a
+// reconstitution solvent, not a tested research compound, so it has no COA.
 const KNOWN_SLUGS = [
   "bpc-157",
   "glp-trz",
@@ -16,7 +18,6 @@ const KNOWN_SLUGS = [
   "klow",
   "ghk-cu",
   "tb-500",
-  "bac-water",
   "mots-c",
   "nad-plus",
   "tesamorelin",
@@ -59,6 +60,8 @@ export default async function COAsPage() {
             documentationImage: p.documentationImage,
             documentationFile: p.documentationFile,
             documentationCaption: p.documentationCaption,
+            sizes: p.sizes,
+            sizesDocumentationFiles: p.sizesDocumentationFiles,
           }))}
         />
       </div>
