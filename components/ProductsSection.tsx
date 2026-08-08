@@ -281,7 +281,7 @@ export function ProductCard({ product, index }: { product: ProductCard; index: n
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
               <span className="font-mono text-[10px] text-mock-cobaltLight tracking-[0.18em] uppercase text-center px-2">
-                Log In to Inquire
+                Sign Up to Inquire
               </span>
             </div>
           ) : null}
@@ -360,7 +360,7 @@ export function ProductCard({ product, index }: { product: ProductCard; index: n
                   onClick={(e) => { e.stopPropagation(); router.push(loginHref); }}
                   className="flex-1 text-center px-2 md:px-3 py-1.5 md:py-2 border border-mock-cobalt/40 bg-mock-cobalt/10 hover:bg-mock-cobalt/20 text-mock-cobaltInk hover:text-mock-cobalt text-xs md:text-sm font-display font-600 rounded-lg transition-all duration-300"
                 >
-                  Log In to Inquire
+                  Sign Up to Inquire
                 </button>
               ) : product.hasCoa ? (
                 <button
