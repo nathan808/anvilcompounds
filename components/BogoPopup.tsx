@@ -6,6 +6,9 @@ import Image from "next/image";
 import { BOGO_ENABLED } from "@/lib/bogoDiscount";
 
 const SHOW_AFTER_MS = 5000;
+// sessionStorage (not localStorage) — the popup should reappear once per
+// browser session (new tab/window or after the browser fully closes), not
+// stay dismissed forever after the first time a visitor ever sees it.
 const SEEN_KEY = "anvil_bogo_popup_seen";
 
 // AgeGate.tsx sits at z-[999] and blocks the whole page until dismissed —
@@ -33,7 +36,7 @@ export default function BogoPopup() {
   useEffect(() => {
     if (!BOGO_ENABLED) return;
     if (typeof window === "undefined") return;
-    if (localStorage.getItem(SEEN_KEY)) return;
+    if (sessionStorage.getItem(SEEN_KEY)) return;
 
     let cancelled = false;
     let showTimer: ReturnType<typeof setTimeout> | undefined;
@@ -42,7 +45,7 @@ export default function BogoPopup() {
       showTimer = setTimeout(() => {
         if (cancelled) return;
         setOpen(true);
-        localStorage.setItem(SEEN_KEY, "1");
+        sessionStorage.setItem(SEEN_KEY, "1");
       }, SHOW_AFTER_MS);
     };
 

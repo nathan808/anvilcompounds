@@ -85,9 +85,9 @@ export default function CoaModal({
                 <button
                   onClick={onClose}
                   aria-label="Close"
-                  className="w-8 h-8 rounded-full flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-colors shrink-0"
+                  className="w-11 h-11 rounded-full flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-colors shrink-0"
                 >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
@@ -111,7 +111,16 @@ export default function CoaModal({
               )}
             </div>
 
-            <div className="px-5 py-3 border-t border-white/10 shrink-0 flex justify-end">
+            <div className="px-5 py-3 border-t border-white/10 shrink-0 flex items-center justify-between gap-4">
+              <button
+                onClick={onClose}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-white/15 bg-white/5 hover:bg-white/10 text-white/70 hover:text-white font-mono text-xs transition-colors"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                Close
+              </button>
               <a
                 href={fileUrl ?? imageUrl ?? "#"}
                 download

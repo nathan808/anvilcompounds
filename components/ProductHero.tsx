@@ -55,10 +55,21 @@ export default function ProductHero({ product }: { product: ProductPageData }) {
             {product.subtitle}
           </p>
 
-          <ProductImageGallery
-            productImage={currentImage}
+          {/* Sized to 90% and centered — shrinks the framed photo ~10%
+              without cropping anything (aspect ratio preserved, it just
+              scales down), matching the desktop image's own 80% treatment. */}
+          <div className="w-[90%] mx-auto">
+            <ProductImageGallery
+              productImage={currentImage}
+              productName={product.name}
+              coaImage={product.documentationImage}
+            />
+          </div>
+
+          <ViewCoaButton
             productName={product.name}
-            coaImage={product.documentationImage}
+            imageUrl={product.documentationImage}
+            fileUrl={currentDocFile}
           />
 
           <AddToCartButton
@@ -75,14 +86,7 @@ export default function ProductHero({ product }: { product: ProductPageData }) {
             onSelectIndex={setSelectedIndex}
           />
 
-          <div className="space-y-3">
-            <ViewCoaButton
-              productName={product.name}
-              imageUrl={product.documentationImage}
-              fileUrl={currentDocFile}
-            />
-            <SdsPreviewButton productName={product.name} fileUrl={product.sdsFile} />
-          </div>
+          <SdsPreviewButton productName={product.name} fileUrl={product.sdsFile} />
 
           <ShippingBanner theme="light" />
 
@@ -100,13 +104,26 @@ export default function ProductHero({ product }: { product: ProductPageData }) {
             image/shipping/SDS block. ── */}
         <div className="hidden lg:grid lg:grid-cols-2 gap-12 xl:gap-20 items-start">
 
-          {/* Left — product image + shipping banner + SDS preview */}
+          {/* Left — title + product image + shipping banner + SDS preview.
+              Title lives here (above the photo) rather than in the right
+              buy column, specifically so the buy column isn't spending its
+              vertical space on the ~clamp(2.5rem,5vw,4rem) heading — that
+              was pushing Add to Cart below the fold on shorter viewports.
+              Font size trimmed ~5% (was clamp(2.5rem,5vw,4rem)) since it no
+              longer needs to carry the same visual weight as a lone page
+              header once it's paired directly with the photo. */}
           <div className="flex flex-col gap-5">
-            {/* Image wrapper sized to 80% and centered — shrinks the framed
-                photo without cropping anything (aspect ratio is preserved,
-                it just scales down); shipping banner/SDS button below stay
-                full column width. */}
-            <div className="w-[80%] mx-auto">
+            <div className="w-[80%] mx-auto space-y-3">
+              <h1
+                className="font-heading font-700 text-mock-navy leading-[1.05]"
+                style={{ fontSize: "clamp(2.375rem, 4.75vw, 3.8rem)" }}
+              >
+                {getProductDisplayTitle(product.name, product.category)}
+              </h1>
+              {/* Image wrapper sized to 80% and centered — shrinks the framed
+                  photo without cropping anything (aspect ratio is preserved,
+                  it just scales down); shipping banner/SDS button below stay
+                  full column width. */}
               <ProductImageGallery
                 productImage={currentImage}
                 productName={product.name}
@@ -118,7 +135,10 @@ export default function ProductHero({ product }: { product: ProductPageData }) {
             <SdsPreviewButton productName={product.name} fileUrl={product.sdsFile} />
           </div>
 
-          {/* Right — buy column */}
+          {/* Right — buy column. No title here (moved to the left column,
+              above the image) so this content sits higher — Add to
+              Cart/checkout should be visible without scrolling on most
+              desktop viewports. */}
           <div className="lg:sticky lg:top-24 space-y-5">
             {/* Breadcrumb */}
             <nav className="font-mono text-xs text-mock-sub">
@@ -133,14 +153,6 @@ export default function ProductHero({ product }: { product: ProductPageData }) {
                 For laboratory and research use only
               </span>
             </div>
-
-            {/* Name */}
-            <h1
-              className="font-heading font-700 text-mock-navy leading-[1.05]"
-              style={{ fontSize: "clamp(2.5rem, 5vw, 4rem)" }}
-            >
-              {getProductDisplayTitle(product.name, product.category)}
-            </h1>
 
             {/* Subtitle */}
             <p className="font-mono text-xs text-mock-sub tracking-wider">

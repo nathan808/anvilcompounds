@@ -4,6 +4,7 @@ import { useRef, useEffect, useState, useCallback, useMemo } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion, useInView } from "framer-motion";
 import Image from "next/image";
+import Link from "next/link";
 import type { ProductCard } from "@/lib/woocommerce";
 import CoaModal from "@/components/CoaModal";
 import { useCart } from "@/lib/cartContext";
@@ -214,8 +215,6 @@ export function ProductCard({ product, index }: { product: ProductCard; index: n
 
   const productHref = glpGated ? loginHref : `/products/${slugifyProductName(product.name)}`;
 
-  const goToProduct = () => router.push(productHref);
-
   return (
     <motion.div
       ref={ref}
@@ -224,11 +223,13 @@ export function ProductCard({ product, index }: { product: ProductCard; index: n
       transition={{ duration: 0.7, delay: index * 0.08, ease: [0.16, 1, 0.3, 1] }}
       className="group relative"
     >
-      <div
-        onClick={goToProduct}
-        onKeyDown={(e) => { if (e.key === "Enter") goToProduct(); }}
-        role="link"
-        tabIndex={0}
+      {/* Link (not a div+onClick+router.push) so Next.js prefetches the
+          product page's RSC payload while the card is on screen — without
+          this, every click was a cold fetch with a visible delay. Nested
+          buttons (Add to Cart, View COA) stopPropagation() their clicks so
+          they don't trigger this Link's navigation. */}
+      <Link
+        href={productHref}
         className="bg-white border border-mock-line rounded-xl overflow-hidden h-full flex flex-col cursor-pointer transition-all duration-500 hover:border-mock-cobalt/40 hover:shadow-xl hover:shadow-mock-cobalt/10 hover:-translate-y-1"
       >
 
@@ -380,7 +381,7 @@ export function ProductCard({ product, index }: { product: ProductCard; index: n
             </div>
           </div>
         </div>
-      </div>
+      </Link>
 
       <CoaModal
         open={coaOpen}

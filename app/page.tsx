@@ -1,6 +1,5 @@
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
-import BogoPopup from "@/components/BogoPopup";
 import MarqueeBar from "@/components/MarqueeBar";
 import CatalogTeaser from "@/components/CatalogTeaser";
 import FeaturedSpotlight from "@/components/FeaturedSpotlight";
@@ -25,7 +24,6 @@ export default async function Home() {
   return (
     <main>
       <Navbar />
-      <BogoPopup />
       <HeroSection />
       <MarqueeBar />
       <CatalogTeaser previewProducts={previewProducts} totalCount={products.length} />
