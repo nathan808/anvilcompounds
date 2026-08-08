@@ -176,8 +176,12 @@ export default function AddToCartButton({
           </div>
         ) : sizes.length === 1 ? (
           <div className="text-right">
-            <p className="font-mono text-xs text-mock-sub tracking-widest uppercase mb-2">Size</p>
-            <span className="inline-block px-4 py-2 rounded-lg border border-mock-line bg-mock-surface2 font-mono text-sm text-mock-navy whitespace-nowrap">
+            <p className="font-mono text-xs text-mock-sub tracking-widest uppercase mb-2">Select Size</p>
+            {/* Styled to match the "selected" state of the multi-size
+                buttons above (blue fill) even though there's only one
+                option here and nothing to toggle — keeps the selected-size
+                treatment consistent across every product. */}
+            <span className="inline-block px-4 py-2 rounded-lg border border-mock-cobaltInk bg-mock-cobalt font-mono text-sm text-white shadow-lg shadow-mock-cobalt/20 whitespace-nowrap">
               {simplifySizeLabel(sizes[0])}
             </span>
           </div>
@@ -186,7 +190,7 @@ export default function AddToCartButton({
 
       {/* Quantity selector */}
       <div>
-        <p className="font-mono text-xs text-mock-sub tracking-widest uppercase mb-3">Quantity</p>
+        <p className="font-mono text-xs text-mock-sub tracking-widest uppercase mb-3">Select Quantity</p>
         <div className="flex items-center gap-3 mb-3">
           <button
             onClick={() => handleQtyChange(qty - 1)}

@@ -7,6 +7,7 @@ import { AuthProvider } from "@/lib/authContext";
 import { CheckoutProvider } from "@/lib/checkoutContext";
 import BackToTop from "@/components/BackToTop";
 import AgeGate from "@/components/AgeGate";
+import BogoPopup from "@/components/BogoPopup";
 
 const archivo = Archivo({
   subsets: ["latin"],
@@ -63,6 +64,7 @@ export default function RootLayout({
           <CartProvider>
             <CheckoutProvider>
               <AgeGate />
+              <BogoPopup />
               {children}
               <BackToTop />
             </CheckoutProvider>
