@@ -26,11 +26,11 @@ function PreviewCard({ product }: { product: ProductCard }) {
       href={href}
       className="group bg-white border border-mock-line rounded-xl overflow-hidden flex flex-col transition-all duration-500 hover:border-mock-cobalt/40 hover:shadow-xl hover:shadow-mock-cobalt/10 hover:-translate-y-1"
     >
-      {/* Container aspect matches the source photos (1500x1858) so
-          object-contain fills it edge-to-edge with no forced zoom --
-          keeps the full frame (vial + info card) in view instead of
-          center-cropping it. */}
-      <div className="relative w-full aspect-[1500/1858] bg-white overflow-hidden shrink-0">
+      {/* Container aspect matches the source photos (1195x1600, the Aug
+          2026 photo refresh) so object-contain fills it edge-to-edge with
+          no forced zoom and no letterboxed gap -- keeps the full frame
+          (vial + info card) in view instead of center-cropping it. */}
+      <div className="relative w-full aspect-[1195/1600] bg-white overflow-hidden shrink-0">
         {product.image ? (
           <Image
             src={product.image}
