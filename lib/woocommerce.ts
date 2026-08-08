@@ -398,6 +398,7 @@ export interface WCProduct {
   categories: Array<{ name: string }>;
   attributes: Array<{ name: string; options: string[] }>;
   images: Array<{ src: string; alt: string }>;
+  meta_data: Array<{ key: string; value: string }>;
 }
 
 export interface ProductCard {
@@ -415,6 +416,11 @@ export interface ProductCard {
   image: string | null;
   hasCoa: boolean;
   sizes: string[];
+  // Lets the catalog card open the COA directly (see ProductsSection.tsx)
+  // instead of routing to /coas. Product-level only — the card doesn't
+  // carry per-size COA switching, that lives on the product page/COA library.
+  documentationFile: string | null;
+  documentationImage: string | null;
 }
 
 // Products without COA yet (Testing in Progress — no buy UI shown).
@@ -477,8 +483,29 @@ const LOCAL_PRODUCT_IMAGES: Record<string, string> = {
   "Reconstitution Solution – for Laboratory Use": "/products/bacwater.jpg",
 };
 
+// Real lab-verified purity, pulled from the same documentation_metrics ACF
+// repeater the product page's Documentation & Quality table reads (see
+// getProductPageData). Falls back through the WC "Purity" attribute (rarely
+// set) to a generic "99%+" only if a product genuinely has no COA data yet.
+// The catalog card's bar-fill animation uses this string directly as a CSS
+// width, so a blend product's composite value (e.g. "BPC-157 99.53% ·
+// TB-500 99.16%" for Wolverine, which has no single combined-batch COA)
+// resolves to the lower of the two numbers rather than breaking the bar.
+function extractPurity(product: WCProduct): string | undefined {
+  const meta = buildMetaMap(product.meta_data ?? []);
+  const rows = parseRepeater(meta, "documentation_metrics", ["label", "value"]);
+  const purityRow = rows.find((r) => r.label?.trim().toLowerCase() === "purity");
+  const raw = purityRow?.value?.trim();
+  if (!raw || raw.toLowerCase() === "testing in progress") return undefined;
+
+  const matches = Array.from(raw.matchAll(/(\d+(?:\.\d+)?)\s*%/g)).map((m) => parseFloat(m[1]));
+  if (!matches.length) return raw; // descriptive value with no % in it — show as-is
+  return `${Math.min(...matches)}%`;
+}
+
 export function mapProduct(product: WCProduct, index: number, originalPriceOverride?: string): ProductCard {
   const badge = PRODUCT_BADGES[product.name] ?? DEFAULT_BADGE;
+  const meta = buildMetaMap(product.meta_data ?? []);
   // Variable products carry no top-level regular_price (WC only sets that
   // per-variation) — the caller resolves the min-price variation's
   // regular_price separately and passes it in as originalPriceOverride.
@@ -495,7 +522,7 @@ export function mapProduct(product: WCProduct, index: number, originalPriceOverr
     description: stripHtml(product.short_description) || "Research-grade compound with full COA documentation.",
     price:       product.price ? `$${product.price}` : "—",
     originalPrice,
-    purity:      getAttribute(product, "Purity") ?? "99%+",
+    purity:      getAttribute(product, "Purity") ?? extractPurity(product) ?? "99%+",
     badge:       getAttribute(product, "Badge")  ?? badge.label,
     badgeColor:  badge.color,
     icon:        ICONS[index % ICONS.length],
@@ -503,6 +530,8 @@ export function mapProduct(product: WCProduct, index: number, originalPriceOverr
     image:       LOCAL_PRODUCT_IMAGES[product.name] ?? product.images[0]?.src ?? null,
     hasCoa:      !IDS_WITHOUT_COA.has(product.id),
     sizes:       getAttributeOptions(product, "Size"),
+    documentationFile:  meta["documentation_file"]  ?? null,
+    documentationImage: meta["documentation_image"] ?? null,
   };
 }
 
