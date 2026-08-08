@@ -223,22 +223,27 @@ export function ProductCard({ product, index }: { product: ProductCard; index: n
       transition={{ duration: 0.7, delay: index * 0.08, ease: [0.16, 1, 0.3, 1] }}
       className="group relative"
     >
-      {/* Link (not a div+onClick+router.push) so Next.js prefetches the
-          product page's RSC payload while the card is on screen — without
-          this, every click was a cold fetch with a visible delay. Nested
-          buttons (Add to Cart, View COA) stopPropagation() their clicks so
-          they don't trigger this Link's navigation. */}
-      <Link
-        href={productHref}
-        className="bg-white border border-mock-line rounded-xl overflow-hidden h-full flex flex-col cursor-pointer transition-all duration-500 hover:border-mock-cobalt/40 hover:shadow-xl hover:shadow-mock-cobalt/10 hover:-translate-y-1"
-      >
+      {/* Outer card is a plain div, NOT a Link/anchor — the card contains
+          real <button> elements (Add to Cart, View COA), and a <button>
+          nested inside an <a> is invalid HTML that mobile Safari in
+          particular handles unreliably (stopPropagation() on the button
+          doesn't consistently suppress the anchor's own navigation, which
+          was causing "View COA" to both open the modal AND navigate to the
+          product page, then leaving a broken back-button history entry).
+          The clickable-to-navigate region (image + title/purity) is wrapped
+          in its own <Link> below with display:contents so it prefetches
+          without introducing an extra box in the flex layout; the
+          price/buttons row is a separate sibling, outside any anchor. */}
+      <div className="bg-white border border-mock-line rounded-xl overflow-hidden h-full flex flex-col transition-all duration-500 hover:border-mock-cobalt/40 hover:shadow-xl hover:shadow-mock-cobalt/10 hover:-translate-y-1">
+
+        <Link href={productHref} className="contents">
 
         {/* Product image -- container aspect matches the source photos
             (1195x1600, the Aug 2026 photo refresh) so object-contain fills
             it edge-to-edge with no forced zoom and no letterboxed gap,
             guaranteeing the full frame (vial + info card) is always visible
             instead of being center-cropped. */}
-        <div className="relative w-full aspect-[1195/1600] bg-white overflow-hidden shrink-0">
+        <div className="relative w-full aspect-[1195/1600] bg-white overflow-hidden shrink-0 cursor-pointer">
           {product.image ? (
             <div className="absolute inset-0">
               <Image
@@ -287,8 +292,11 @@ export function ProductCard({ product, index }: { product: ProductCard; index: n
           ) : null}
         </div>
 
-        {/* Card content */}
-        <div className="p-3 md:p-4 flex flex-col flex-grow">
+        {/* Card content — title/category + purity, still inside the Link
+            (clicking anywhere here navigates). flex-grow here (not on the
+            price/buttons block below) keeps equal-height cards in a row
+            even when titles wrap differently, same as before the split. */}
+        <div className="px-3 md:px-4 pt-3 md:pt-4 flex flex-col flex-grow cursor-pointer">
           <div className="mb-2.5 md:mb-3">
             <h3 className="font-display font-700 text-base md:text-xl text-mock-navy mb-0.5 leading-tight">
               {getProductDisplayTitle(product.name, product.category)}
@@ -313,75 +321,78 @@ export function ProductCard({ product, index }: { product: ProductCard; index: n
               />
             </div>
           </div>
+        </div>
+        </Link>
 
-          {/* Price + buttons */}
-          <div className="pt-2.5 md:pt-3.5 border-t border-mock-line">
-            <div className="flex items-start justify-between gap-2 mb-2 md:mb-3">
-              <div>
-                <span className="font-mono text-[9px] md:text-xs text-mock-sub block tracking-wider">From</span>
-                <div className="flex items-baseline gap-1.5 flex-wrap">
-                  <span className="font-display font-800 text-lg md:text-2xl text-mock-navy">{product.price}</span>
-                  {product.originalPrice && (
-                    <span className="font-body text-xs md:text-sm text-mock-sub line-through">{product.originalPrice}</span>
-                  )}
-                </div>
+        {/* Price + buttons — deliberately outside the Link (real <button>s
+            live here: Add to Cart, View COA). See the note on the outer
+            card div above for why. */}
+        <div className="px-3 md:px-4 pb-3 md:pb-4 pt-2.5 md:pt-3.5 border-t border-mock-line">
+          <div className="flex items-start justify-between gap-2 mb-2 md:mb-3">
+            <div>
+              <span className="font-mono text-[9px] md:text-xs text-mock-sub block tracking-wider">From</span>
+              <div className="flex items-baseline gap-1.5 flex-wrap">
+                <span className="font-display font-800 text-lg md:text-2xl text-mock-navy">{product.price}</span>
+                {product.originalPrice && (
+                  <span className="font-body text-xs md:text-sm text-mock-sub line-through">{product.originalPrice}</span>
+                )}
               </div>
-
-              {/* mg/size options — shown next to the price for every product
-                  that has size data, whether it's a single fixed mg or
-                  multiple variations (e.g. GHK-Cu's 50mg/100mg). */}
-              {product.sizes.length > 0 && (
-                <div className="flex flex-wrap gap-1.5 justify-end">
-                  {product.sizes.map((size) => (
-                    <span
-                      key={size}
-                      className="px-2 py-0.5 rounded-md border border-mock-line bg-mock-surface2 font-mono text-[10px] text-mock-sub whitespace-nowrap"
-                    >
-                      {simplifySizeLabel(size)}
-                    </span>
-                  ))}
-                </div>
-              )}
             </div>
 
-            <div className="flex gap-1.5 md:gap-2">
+            {/* mg/size options — shown next to the price for every product
+                that has size data, whether it's a single fixed mg or
+                multiple variations (e.g. GHK-Cu's 50mg/100mg). */}
+            {product.sizes.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 justify-end">
+                {product.sizes.map((size) => (
+                  <span
+                    key={size}
+                    className="px-2 py-0.5 rounded-md border border-mock-line bg-mock-surface2 font-mono text-[10px] text-mock-sub whitespace-nowrap"
+                  >
+                    {simplifySizeLabel(size)}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="flex gap-1.5 md:gap-2">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                if (glpGated) { router.push(loginHref); return; }
+                setCoaOpen(true);
+              }}
+              className="flex-1 text-center px-2 md:px-3 py-1.5 md:py-2 bg-mock-surface2 hover:bg-mock-line/60 border border-mock-line hover:border-mock-cobalt/30 text-mock-sub hover:text-mock-navy text-xs md:text-sm font-display font-600 rounded-lg transition-all duration-300"
+            >
+              View COA
+            </button>
+            {glpGated ? (
               <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (glpGated) { router.push(loginHref); return; }
-                  setCoaOpen(true);
-                }}
-                className="flex-1 text-center px-2 md:px-3 py-1.5 md:py-2 bg-mock-surface2 hover:bg-mock-line/60 border border-mock-line hover:border-mock-cobalt/30 text-mock-sub hover:text-mock-navy text-xs md:text-sm font-display font-600 rounded-lg transition-all duration-300"
+                onClick={(e) => { e.stopPropagation(); router.push(loginHref); }}
+                className="flex-1 text-center px-2 md:px-3 py-1.5 md:py-2 border border-mock-cobalt/40 bg-mock-cobalt/10 hover:bg-mock-cobalt/20 text-mock-cobaltInk hover:text-mock-cobalt text-xs md:text-sm font-display font-600 rounded-lg transition-all duration-300"
               >
-                View COA
+                Sign Up to Inquire
               </button>
-              {glpGated ? (
-                <button
-                  onClick={(e) => { e.stopPropagation(); router.push(loginHref); }}
-                  className="flex-1 text-center px-2 md:px-3 py-1.5 md:py-2 border border-mock-cobalt/40 bg-mock-cobalt/10 hover:bg-mock-cobalt/20 text-mock-cobaltInk hover:text-mock-cobalt text-xs md:text-sm font-display font-600 rounded-lg transition-all duration-300"
-                >
-                  Sign Up to Inquire
-                </button>
-              ) : product.hasCoa ? (
-                <button
-                  onClick={handleAddToCart}
-                  className={`flex-1 text-center px-2 md:px-3 py-1.5 md:py-2 border text-xs md:text-sm font-display font-600 rounded-lg transition-all duration-300 ${
-                    added
-                      ? "bg-green-600/20 border-green-500/40 text-green-700"
-                      : "bg-mock-cobalt/10 hover:bg-mock-cobalt border-mock-cobalt/30 hover:border-mock-cobaltInk text-mock-cobaltInk hover:text-white"
-                  }`}
-                >
-                  {added ? "✓ Added" : "Add to Cart"}
-                </button>
-              ) : (
-                <span className="flex-1 text-center px-2 md:px-3 py-1.5 md:py-2 border border-yellow-500/30 bg-yellow-500/10 text-yellow-700 text-[10px] md:text-xs font-mono rounded-lg cursor-default">
-                  Testing in Progress
-                </span>
-              )}
-            </div>
+            ) : product.hasCoa ? (
+              <button
+                onClick={handleAddToCart}
+                className={`flex-1 text-center px-2 md:px-3 py-1.5 md:py-2 border text-xs md:text-sm font-display font-600 rounded-lg transition-all duration-300 ${
+                  added
+                    ? "bg-green-600/20 border-green-500/40 text-green-700"
+                    : "bg-mock-cobalt/10 hover:bg-mock-cobalt border-mock-cobalt/30 hover:border-mock-cobaltInk text-mock-cobaltInk hover:text-white"
+                }`}
+              >
+                {added ? "✓ Added" : "Add to Cart"}
+              </button>
+            ) : (
+              <span className="flex-1 text-center px-2 md:px-3 py-1.5 md:py-2 border border-yellow-500/30 bg-yellow-500/10 text-yellow-700 text-[10px] md:text-xs font-mono rounded-lg cursor-default">
+                Testing in Progress
+              </span>
+            )}
           </div>
         </div>
-      </Link>
+      </div>
 
       <CoaModal
         open={coaOpen}
@@ -418,6 +429,7 @@ export default function ProductsSection() {
   const [search, setSearch] = useState("");
   const [mobileShowAll, setMobileShowAll] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("All Compounds");
+  const [categoryMenuOpen, setCategoryMenuOpen] = useState(false);
 
   const searchParams = useSearchParams();
   // Arrived via a link that set ?catalog=full (Catalog nav / View Catalog /
@@ -595,34 +607,90 @@ export default function ProductsSection() {
           </div>
         </div>
 
-        {/* Category filter buttons */}
+        {/* Category filter — desktop keeps the pill row; mobile collapses
+            it into a foldable menu instead of wrapping across several rows
+            of small pills, which ate a lot of vertical space above the fold. */}
         {!loading && categories.length > 1 && (
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={headerInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.6, delay: 0.35 }}
-            className="mb-6 flex flex-wrap gap-2"
+            className="mb-6"
           >
-            {categories.map((cat) => {
-              const isActive = selectedCategory === cat;
-              return (
-                <button
-                  key={cat}
-                  onClick={() => {
-                    setSelectedCategory(cat);
-                    setMobileShowAll(false);
-                    setRevealedViaClick(false);
-                  }}
-                  className={`font-mono text-xs tracking-wide px-4 py-2 rounded-lg border transition-all duration-250 whitespace-nowrap ${
-                    isActive
-                      ? "bg-mock-cobalt text-white border-mock-cobaltInk shadow-lg shadow-mock-cobalt/25"
-                      : "bg-mock-cobalt/10 text-mock-cobaltInk border-mock-cobalt/25 hover:bg-mock-cobalt/20 hover:border-mock-cobalt/50 hover:text-mock-cobalt"
-                  }`}
+            {/* Desktop / tablet — unchanged pill row */}
+            <div className="hidden md:flex flex-wrap gap-2">
+              {categories.map((cat) => {
+                const isActive = selectedCategory === cat;
+                return (
+                  <button
+                    key={cat}
+                    onClick={() => {
+                      setSelectedCategory(cat);
+                      setMobileShowAll(false);
+                      setRevealedViaClick(false);
+                    }}
+                    className={`font-mono text-xs tracking-wide px-4 py-2 rounded-lg border transition-all duration-250 whitespace-nowrap ${
+                      isActive
+                        ? "bg-mock-cobalt text-white border-mock-cobaltInk shadow-lg shadow-mock-cobalt/25"
+                        : "bg-mock-cobalt/10 text-mock-cobaltInk border-mock-cobalt/25 hover:bg-mock-cobalt/20 hover:border-mock-cobalt/50 hover:text-mock-cobalt"
+                    }`}
+                  >
+                    {cat}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Mobile — foldable menu: a single toggle showing the current
+                category, expanding to a full list of tappable rows. */}
+            <div className="md:hidden relative">
+              <button
+                onClick={() => setCategoryMenuOpen((o) => !o)}
+                aria-expanded={categoryMenuOpen}
+                className="w-full flex items-center justify-between gap-2 px-4 py-3 rounded-lg border border-mock-cobalt/25 bg-mock-cobalt/10 text-mock-cobaltInk transition-colors"
+              >
+                <span className="flex items-center gap-2.5 font-mono text-xs tracking-wide">
+                  <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
+                  {selectedCategory}
+                </span>
+                <svg
+                  className={`w-4 h-4 shrink-0 transition-transform duration-200 ${categoryMenuOpen ? "rotate-180" : ""}`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
                 >
-                  {cat}
-                </button>
-              );
-            })}
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+
+              {categoryMenuOpen && (
+                <div className="absolute z-30 mt-1.5 w-full rounded-lg border border-mock-line bg-white shadow-xl overflow-hidden">
+                  {categories.map((cat) => {
+                    const isActive = selectedCategory === cat;
+                    return (
+                      <button
+                        key={cat}
+                        onClick={() => {
+                          setSelectedCategory(cat);
+                          setMobileShowAll(false);
+                          setRevealedViaClick(false);
+                          setCategoryMenuOpen(false);
+                        }}
+                        className={`w-full text-left px-4 py-3 font-mono text-xs tracking-wide border-b border-mock-line last:border-0 transition-colors ${
+                          isActive
+                            ? "bg-mock-cobalt text-white"
+                            : "text-mock-sub hover:bg-mock-surface2 hover:text-mock-navy"
+                        }`}
+                      >
+                        {cat}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           </motion.div>
         )}
 
