@@ -100,7 +100,7 @@ export default function CoaModal({
               </div>
             </div>
 
-            <div className="flex-1 min-h-0 bg-navy-950">
+            <div className="flex-1 min-h-0 bg-navy-950 relative">
               {imageUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -115,9 +115,39 @@ export default function CoaModal({
                   COA not available
                 </div>
               )}
+
+              {/* Mobile only — floating Close/Download cluster anchored to
+                  the bottom-right corner of the preview itself (not the
+                  header/top, which is a stretch to reach one-handed on a
+                  tall phone). Desktop keeps the footer bar below instead. */}
+              <div className="md:hidden absolute bottom-4 right-4 z-20 flex flex-col items-end gap-2">
+                <button
+                  onClick={onClose}
+                  className="inline-flex items-center gap-1.5 pl-3 pr-4 py-2 rounded-full bg-black/75 backdrop-blur-sm border border-white/15 text-white font-mono text-xs shadow-lg"
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                  Close
+                </button>
+                <a
+                  href={fileUrl ?? imageUrl ?? "#"}
+                  download
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 pl-3 pr-4 py-2 rounded-full bg-blue-600/90 backdrop-blur-sm border border-blue-400/30 text-white font-mono text-xs shadow-lg"
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3" />
+                  </svg>
+                  Download
+                </a>
+              </div>
             </div>
 
-            <div className="px-5 py-3 border-t border-white/10 shrink-0 flex items-center justify-between gap-4">
+            {/* Footer — desktop only now (mobile uses the floating cluster
+                above, overlaid on the preview instead of a separate bar). */}
+            <div className="hidden md:flex px-5 py-3 border-t border-white/10 shrink-0 items-center justify-between gap-4">
               <button
                 onClick={onClose}
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-white/15 bg-white/5 hover:bg-white/10 text-white/70 hover:text-white font-mono text-xs transition-colors"
