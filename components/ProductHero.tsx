@@ -7,7 +7,6 @@ import ProductImageGallery from "@/components/ProductImageGallery";
 import ViewCoaButton from "@/components/ViewCoaButton";
 import SdsPreviewButton from "@/components/SdsPreviewButton";
 import PurchaseFooter from "@/components/PurchaseFooter";
-import { getProductDisplayTitle } from "@/lib/productTitle";
 import type { ProductPageData } from "@/components/ProductPageTemplate";
 
 // Owns the selected-size index so the product photo and COA button (siblings
@@ -48,7 +47,7 @@ export default function ProductHero({ product }: { product: ProductPageData }) {
             className="font-heading font-700 text-mock-navy leading-[1.05]"
             style={{ fontSize: "clamp(2.5rem, 5vw, 4rem)" }}
           >
-            {getProductDisplayTitle(product.name, product.category)}
+            {product.name}
           </h1>
 
           <p className="font-mono text-xs text-mock-sub tracking-wider">
@@ -118,7 +117,7 @@ export default function ProductHero({ product }: { product: ProductPageData }) {
                 className="font-heading font-700 text-mock-navy leading-[1.05]"
                 style={{ fontSize: "clamp(2.375rem, 4.75vw, 3.8rem)" }}
               >
-                {getProductDisplayTitle(product.name, product.category)}
+                {product.name}
               </h1>
               {/* Image wrapper sized to 80% and centered — shrinks the framed
                   photo without cropping anything (aspect ratio is preserved,
