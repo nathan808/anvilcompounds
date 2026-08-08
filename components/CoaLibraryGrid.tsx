@@ -13,6 +13,12 @@ interface CoaProduct {
   documentationImage?: string | null;
   documentationFile?: string | null;
   documentationCaption?: string;
+  // Per-size COA, aligned index-for-index with `sizes` — same shape as the
+  // product page (see ProductHero) so a multi-size product like GLP-RT or
+  // GLP-TRZ can show the right COA for whichever size is selected instead
+  // of one COA for the whole product.
+  sizes?: string[];
+  sizesDocumentationFiles?: (string | null)[];
 }
 
 export default function CoaLibraryGrid({ products }: { products: CoaProduct[] }) {
@@ -20,6 +26,7 @@ export default function CoaLibraryGrid({ products }: { products: CoaProduct[] })
   const { isAuthenticated } = useAuth();
   const [query, setQuery] = useState("");
   const [active, setActive] = useState<CoaProduct | null>(null);
+  const [activeSizeIndex, setActiveSizeIndex] = useState(0);
 
   const handleView = (product: CoaProduct) => {
     // GLP compounds' COAs are gated behind login; everything else stays
@@ -29,6 +36,7 @@ export default function CoaLibraryGrid({ products }: { products: CoaProduct[] })
       router.push("/account?redirect=/coas");
       return;
     }
+    setActiveSizeIndex(0);
     setActive(product);
   };
 
@@ -67,7 +75,11 @@ export default function CoaLibraryGrid({ products }: { products: CoaProduct[] })
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {filtered.map((product) => {
-            const hasCoa = Boolean(product.documentationImage || product.documentationFile);
+            const hasCoa = Boolean(
+              product.documentationImage ||
+              product.documentationFile ||
+              product.sizesDocumentationFiles?.some(Boolean)
+            );
             return (
               <button
                 key={product.slug}
@@ -117,7 +129,10 @@ export default function CoaLibraryGrid({ products }: { products: CoaProduct[] })
         onClose={() => setActive(null)}
         title={active?.name ?? ""}
         imageUrl={active?.documentationImage}
-        fileUrl={active?.documentationFile}
+        fileUrl={active?.sizesDocumentationFiles?.[activeSizeIndex] ?? active?.documentationFile}
+        sizes={active && (active.sizes?.length ?? 0) > 1 ? active.sizes : undefined}
+        selectedSizeIndex={activeSizeIndex}
+        onSelectSize={setActiveSizeIndex}
       />
     </>
   );
