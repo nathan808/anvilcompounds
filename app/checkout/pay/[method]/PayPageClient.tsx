@@ -170,6 +170,19 @@ export default function PayPageClient({ method }: { method: string }) {
                     </div>
                   )}
 
+                  {method === "bacs" && (
+                    <div className="px-4 py-3 rounded-xl bg-blue-600/10 border border-blue-500/30">
+                      <p className="font-body text-sm text-white/80 font-600 leading-relaxed">
+                        Your card will be charged by{" "}
+                        <span className="text-blue-300">AC Health &amp; Consulting</span>, our
+                        payment processing partner. Your bank or card statement will show{" "}
+                        <span className="text-blue-300">&quot;AC Health &amp; Consulting&quot;</span>,
+                        not &quot;Anvil Compounds.&quot; This is the correct charge for your
+                        order — please don&apos;t report it as unrecognized.
+                      </p>
+                    </div>
+                  )}
+
                   <PaymentInstructions
                     methodId={method as PaymentMethodId}
                     context={{
