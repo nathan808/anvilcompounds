@@ -1,8 +1,11 @@
-// Launch promo: "Buy 1 Get 1 Free" — same product/variation only. For every 2
-// units of the same line, the 2nd unit is free. When active on an order it is
-// the ONLY discount in effect: it suppresses coupons, the $200+ Volume
-// Discount, and the payment-method (crypto/ACH) discount entirely (confirmed
-// with the store owner — exactly one discount mechanism at a time).
+// Launch promo: "Buy 1 Get 1 Free" — same product/variation only, and capped
+// at ONE free unit per checkout (order-wide, not per line — confirmed with
+// the store owner). The first line item with quantity >= 2 (in cart order)
+// is the one that earns the free unit; additional pairs, whether on that
+// same line or any other, don't stack further discount. When active on an
+// order it is the ONLY discount in effect: it suppresses coupons, the $200+
+// Volume Discount, and the payment-method (crypto/ACH) discount entirely
+// (confirmed with the store owner — exactly one discount mechanism at a time).
 //
 // Single kill switch — flip to false and redeploy to end the promo. No date
 // logic; the store owner will ask for it to be turned off when the launch
@@ -15,9 +18,18 @@ export interface BogoLineItem {
   unitPrice: number;
 }
 
+// Index of the single line item (cart order) that carries the one-per-
+// checkout free unit, or -1 if no line qualifies (every line has qty < 2).
+// Exported separately from computeBogoDiscount so per-line UI (cart drawer)
+// can show the "applied" state on the correct line and nowhere else.
+export function getBogoLineIndex(items: BogoLineItem[]): number {
+  if (!BOGO_ENABLED) return -1;
+  return items.findIndex((item) => item.quantity >= 2);
+}
+
 export function computeBogoDiscount(items: BogoLineItem[]): number {
-  if (!BOGO_ENABLED) return 0;
-  return items.reduce((sum, item) => sum + Math.floor(item.quantity / 2) * item.unitPrice, 0);
+  const index = getBogoLineIndex(items);
+  return index === -1 ? 0 : items[index].unitPrice;
 }
 
 // Free gift, bundled with every order (not tied to the BOGO pairing above) —

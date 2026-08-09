@@ -6,7 +6,7 @@ import { useCart } from "@/lib/cartContext";
 import { useFreeShippingProgress } from "@/lib/useFreeShippingProgress";
 import FreeShippingProgress from "@/components/FreeShippingProgress";
 import PaymentMethodsBar from "@/components/PaymentMethodsBar";
-import { computeBogoDiscount, BOGO_ENABLED, BOGO_LABEL, FREE_GIFT_LABEL } from "@/lib/bogoDiscount";
+import { computeBogoDiscount, getBogoLineIndex, BOGO_ENABLED, BOGO_LABEL, FREE_GIFT_LABEL } from "@/lib/bogoDiscount";
 
 export default function CartDrawer() {
   const { items, isCartOpen, closeCart, removeItem, updateQty, itemCount, subtotal } = useCart();
@@ -15,6 +15,7 @@ export default function CartDrawer() {
   // always based on the raw cart subtotal.
   const freeShippingProgress = useFreeShippingProgress(subtotal, false, isCartOpen && items.length > 0);
   const bogoDiscount = computeBogoDiscount(items.map((i) => ({ quantity: i.quantity, unitPrice: i.price })));
+  const bogoLineIndex = getBogoLineIndex(items.map((i) => ({ quantity: i.quantity, unitPrice: i.price })));
 
   return (
     <AnimatePresence>
@@ -77,7 +78,7 @@ export default function CartDrawer() {
                   </Link>
                 </div>
               ) : (
-                items.map((item) => (
+                items.map((item, itemIndex) => (
                   <div key={`${item.slug}-${item.size}`} className="glass-card rounded-xl p-4">
                     <div className="flex items-start justify-between gap-3 mb-3">
                       <div className="flex-1 min-w-0">
@@ -117,18 +118,18 @@ export default function CartDrawer() {
                     </div>
 
                     {BOGO_ENABLED && (
-                      item.quantity % 2 === 0 ? (
+                      itemIndex === bogoLineIndex ? (
                         <p className="font-mono text-[10px] text-blue-400 tracking-wide mt-2">
-                          🎁 {BOGO_LABEL} applied — {Math.floor(item.quantity / 2)} unit{Math.floor(item.quantity / 2) > 1 ? "s" : ""} free
+                          🎁 {BOGO_LABEL} applied — 1 unit free
                         </p>
-                      ) : (
+                      ) : bogoLineIndex === -1 && item.quantity % 2 === 1 ? (
                         <button
                           onClick={() => updateQty(item.slug, item.size, item.quantity + 1)}
                           className="font-mono text-[10px] text-blue-400/80 hover:text-blue-400 tracking-wide mt-2 underline underline-offset-2"
                         >
                           Add 1 more — get it free
                         </button>
-                      )
+                      ) : null
                     )}
                   </div>
                 ))
