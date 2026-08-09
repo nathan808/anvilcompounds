@@ -46,6 +46,10 @@ export interface ProductPageData {
   sdsFile?: string | null;
   moleculeImage?: string | null;
   hasCoa: boolean;
+  // false only for supply/accessory items that will never have a lab COA
+  // (see NO_COA_REQUIRED_IDS in lib/woocommerce.ts) — hides the COA button
+  // on the product page entirely instead of a perpetual "COA Pending" state.
+  coaApplicable: boolean;
 
   propertiesTable: { label: string; value: string }[];
 

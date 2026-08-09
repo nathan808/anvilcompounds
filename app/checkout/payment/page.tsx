@@ -47,7 +47,7 @@ export default function PaymentPage() {
   useEffect(() => {
     if (!checkoutHydrated || !shipping || submitting) return;
     let cancelled = false;
-    const bogoDiscount = computeBogoDiscount(items.map((i) => ({ quantity: i.quantity, unitPrice: i.price })));
+    const bogoDiscount = computeBogoDiscount(items.map((i) => ({ quantity: i.quantity, unitPrice: i.price, productId: i.wcProductId })));
     const bogoActive = bogoDiscount > 0;
     const couponDiscount = bogoActive ? 0 : computeCouponDiscount(subtotal, coupon);
     const volumeDiscount = bogoActive ? 0 : computeVolumeDiscount(subtotal, !!coupon);
@@ -74,7 +74,7 @@ export default function PaymentPage() {
   if (!authHydrated || !checkoutHydrated) return null;
 
   const selectedMeta = PAYMENT_METHODS.find((m) => m.id === paymentMethodId) ?? null;
-  const bogoDiscount = computeBogoDiscount(items.map((i) => ({ quantity: i.quantity, unitPrice: i.price })));
+  const bogoDiscount = computeBogoDiscount(items.map((i) => ({ quantity: i.quantity, unitPrice: i.price, productId: i.wcProductId })));
   const bogoActive = bogoDiscount > 0;
   const couponDiscount = bogoActive ? 0 : computeCouponDiscount(subtotal, coupon);
   const postCouponSubtotal = subtotal - couponDiscount;

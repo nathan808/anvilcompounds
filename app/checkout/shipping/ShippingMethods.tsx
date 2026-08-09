@@ -25,7 +25,7 @@ export default function ShippingMethods() {
   const [freeShipping, setFreeShipping] = useState<FreeShippingProgressData | null>(null);
   const [error, setError] = useState("");
 
-  const bogoDiscount = computeBogoDiscount(items.map((i) => ({ quantity: i.quantity, unitPrice: i.price })));
+  const bogoDiscount = computeBogoDiscount(items.map((i) => ({ quantity: i.quantity, unitPrice: i.price, productId: i.wcProductId })));
   const bogoActive = bogoDiscount > 0;
   const discount = bogoActive ? 0 : computeCouponDiscount(subtotal, coupon);
   const postCouponSubtotal = subtotal - discount;

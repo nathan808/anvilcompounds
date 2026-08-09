@@ -306,6 +306,7 @@ export async function getProductPageData(slug: string): Promise<ProductPageData 
       documentationFile:    meta["documentation_file"]          ?? null,
       documentationImage:   meta["documentation_image"]         ?? null,
       hasCoa:               !IDS_WITHOUT_COA.has(wcId),
+      coaApplicable:        !NO_COA_REQUIRED_IDS.has(wcId),
       sdsFile:              SLUG_TO_SDS[slug]                   ?? null,
       moleculeImage:        SLUG_TO_MOLECULE_IMAGE[slug]        ?? null,
       documentationCaption: meta["documentation_caption"]       ?? "",
@@ -415,6 +416,10 @@ export interface ProductCard {
   permalink: string;
   image: string | null;
   hasCoa: boolean;
+  // false only for supply/accessory items that will never have a lab COA
+  // (see NO_COA_REQUIRED_IDS) — hides the "View COA" button entirely rather
+  // than opening a modal with nothing in it.
+  coaApplicable: boolean;
   sizes: string[];
   // Lets the catalog card open the COA directly (see ProductsSection.tsx)
   // instead of routing to /coas. Product-level only — the card doesn't
@@ -428,6 +433,13 @@ export interface ProductCard {
 // set (directly or per-size, on the WC product/variation), so nothing is
 // gated. Re-add a WC product ID here if a future SKU launches ahead of its COA.
 const IDS_WITHOUT_COA = new Set<number>([]);
+
+// Supply/accessory items that will never have a lab COA (not a tested
+// compound) — distinct from IDS_WITHOUT_COA, which means "COA coming soon."
+// Products here get no COA button/UI at all, on the product page or catalog
+// card, instead of a perpetual "COA Pending" state. Currently just the
+// Reconstitution Solution (349), a plain benzyl-alcohol solvent.
+const NO_COA_REQUIRED_IDS = new Set<number>([349]);
 
 const PRODUCT_PAGE_URLS: Record<string, string> = {
   "BPC-157":                                      "https://anvilcompounds.shop/product/bpc-157/",
@@ -529,6 +541,7 @@ export function mapProduct(product: WCProduct, index: number, originalPriceOverr
     permalink:   PRODUCT_PAGE_URLS[product.name] ?? product.permalink,
     image:       LOCAL_PRODUCT_IMAGES[product.name] ?? product.images[0]?.src ?? null,
     hasCoa:      !IDS_WITHOUT_COA.has(product.id),
+    coaApplicable: !NO_COA_REQUIRED_IDS.has(product.id),
     sizes:       getAttributeOptions(product, "Size"),
     documentationFile:  meta["documentation_file"]  ?? null,
     documentationImage: meta["documentation_image"] ?? null,
