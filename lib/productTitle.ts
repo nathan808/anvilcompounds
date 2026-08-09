@@ -2,7 +2,11 @@
 // `name` used for cart items, WC order line items, slug/image/popularity
 // lookups, or anything sent to WooCommerce. Titles only.
 
-const NON_COMPOUND_CATEGORY = "Research Supplies"; // e.g. Bacteriostatic Water — not a peptide
+// Categories whose products aren't a single peptide, so the generic
+// "Research Peptide" suffix doesn't apply: Research Supplies (e.g.
+// Bacteriostatic Water) and Research Bundles (multiple products co-shipped,
+// already named things like "Energy Research Bundle").
+const NON_COMPOUND_CATEGORIES = new Set(["Research Supplies", "Research Bundles"]);
 
 // Products whose chemical class isn't a peptide get their own suffix instead
 // of the generic "Research Peptide".
@@ -16,7 +20,7 @@ export function isGlpCompound(name: string): boolean {
 }
 
 export function getProductDisplayTitle(name: string, category?: string): string {
-  if (category === NON_COMPOUND_CATEGORY) return name;
+  if (category && NON_COMPOUND_CATEGORIES.has(category)) return name;
   if (TITLE_OVERRIDES[name]) return TITLE_OVERRIDES[name];
   return isGlpCompound(name) ? `${name} Research Reagent` : `${name} Research Peptide`;
 }
