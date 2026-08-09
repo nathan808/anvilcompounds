@@ -57,7 +57,7 @@ export async function GET() {
   try {
     const res = await fetch(
       `${WP_URL}/wp-json/wp/v2/posts?_embed&per_page=20&orderby=date&order=desc&status=publish`,
-      { next: { revalidate: 3600 } }
+      { next: { revalidate: 3600, tags: ["wp-posts"] } }
     );
     if (!res.ok) return NextResponse.json({ posts: [] });
     const raw = (await res.json()) as Record<string, unknown>[];
