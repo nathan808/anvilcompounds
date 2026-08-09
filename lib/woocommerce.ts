@@ -20,6 +20,16 @@ const SLUG_TO_WC_ID: Record<string, number> = {
   "glow":                  449,
   "semax":                 510,
   "selank":                511,
+  // Research Bundles — Aug 2026. Each is a variable product with one
+  // variation spelling out the mix (same pattern as the existing
+  // BPC-157+TB-500 "Wolverine" bundle, id 447), reusing the real
+  // individually-tested COAs of the component compounds rather than a new
+  // lab test — see scripts/create-bundle-products.js for how these were built.
+  "energy-research-bundle":     1041,
+  "ghrh-bundle":                1043,
+  "metabolic-research-bundle":  1045,
+  "full-research-bundle":       1047,
+  "cognitive-research-bundle":  1049,
 };
 
 // Safety Data Sheets — static files under public/documents/sds/, keyed by
@@ -79,6 +89,11 @@ const SLUG_TO_NAME: Record<string, string> = {
   "glow":                  "GLOW",
   "semax":                 "Semax",
   "selank":                "Selank",
+  "energy-research-bundle":     "Energy Research Bundle",
+  "ghrh-bundle":                "GHRH Bundle",
+  "metabolic-research-bundle":  "Metabolic Research Bundle",
+  "full-research-bundle":       "Full Research Bundle",
+  "cognitive-research-bundle":  "Cognitive Research Bundle",
 };
 
 const SLUG_TO_CATEGORY: Record<string, string> = {
@@ -98,6 +113,11 @@ const SLUG_TO_CATEGORY: Record<string, string> = {
   "glow":                  "Longevity & Cosmetic Research",
   "semax":                 "Cognitive Research",
   "selank":                "Cognitive Research",
+  "energy-research-bundle":     "Research Bundles",
+  "ghrh-bundle":                "Research Bundles",
+  "metabolic-research-bundle":  "Research Bundles",
+  "full-research-bundle":       "Research Bundles",
+  "cognitive-research-bundle":  "Research Bundles",
 };
 
 const RELATED_MAP: Record<string, string[]> = {
@@ -117,6 +137,11 @@ const RELATED_MAP: Record<string, string[]> = {
   "glow":                ["klow", "ghk-cu", "bpc-157-tb-500"],
   "semax":               ["selank", "bpc-157", "mots-c"],
   "selank":              ["semax", "bpc-157", "ghk-cu"],
+  "energy-research-bundle":     ["mots-c", "nad-plus", "metabolic-research-bundle"],
+  "ghrh-bundle":                ["glp-rt", "cjc-1295-ipamorelin", "full-research-bundle"],
+  "metabolic-research-bundle":  ["mots-c", "glp-rt", "energy-research-bundle"],
+  "full-research-bundle":       ["glp-rt", "nad-plus", "cjc-1295-ipamorelin"],
+  "cognitive-research-bundle":  ["semax", "selank"],
 };
 
 const FALLBACK_TRUST_BADGES = ["99%+ purity", "Endotoxin screened", "COA verified", "Same-day shipping"];
@@ -356,6 +381,11 @@ const PRODUCT_BADGES: Record<string, { label: string; color: string }> = {
   "Selank":                                       { label: "Anxiolytic Research", color: "bg-sky-600/70 text-sky-100 border-sky-500/50" },
   "Bacteriostatic Water":                         { label: "Essential Supply",  color: "bg-slate-600/70 text-slate-100 border-slate-500/50" },
   "Reconstitution Solution – for Laboratory Use": { label: "Essential Supply",  color: "bg-slate-600/70 text-slate-100 border-slate-500/50" },
+  "Energy Research Bundle":                       { label: "Bundle Deal",       color: "bg-green-600/70 text-green-100 border-green-500/50" },
+  "GHRH Bundle":                                  { label: "Bundle Deal",       color: "bg-green-600/70 text-green-100 border-green-500/50" },
+  "Metabolic Research Bundle":                    { label: "Bundle Deal",       color: "bg-green-600/70 text-green-100 border-green-500/50" },
+  "Full Research Bundle":                         { label: "Bundle Deal",       color: "bg-green-600/70 text-green-100 border-green-500/50" },
+  "Cognitive Research Bundle":                    { label: "Bundle Deal",       color: "bg-green-600/70 text-green-100 border-green-500/50" },
 };
 
 function stripHtml(html: string): string {
@@ -459,6 +489,11 @@ const PRODUCT_PAGE_URLS: Record<string, string> = {
   "Reconstitution Solution – for Laboratory Use": "https://anvilcompounds.shop/product/bacteriostatic-water/",
   "MOTS-c":                                       "https://anvilcompounds.shop/product/mots-c/",
   "BPC-157 + TB-500":                              "https://anvilcompounds.shop/product/bpc-157-tb-500/",
+  "Energy Research Bundle":                       "https://anvilcompounds.shop/product/energy-research-bundle/",
+  "GHRH Bundle":                                  "https://anvilcompounds.shop/product/ghrh-bundle/",
+  "Metabolic Research Bundle":                    "https://anvilcompounds.shop/product/metabolic-research-bundle/",
+  "Full Research Bundle":                         "https://anvilcompounds.shop/product/full-research-bundle/",
+  "Cognitive Research Bundle":                    "https://anvilcompounds.shop/product/cognitive-research-bundle/",
 };
 
 // Aug 2026 photo refresh — every entry now points at the new vial+COA-card
@@ -493,6 +528,11 @@ const LOCAL_PRODUCT_IMAGES: Record<string, string> = {
   "Selank":                                       "/products/selank.jpg",
   "Bacteriostatic Water":                         "/products/bacwater.jpg",
   "Reconstitution Solution – for Laboratory Use": "/products/bacwater.jpg",
+  "Energy Research Bundle":                       "/products/energy-bundle.jpg",
+  "GHRH Bundle":                                  "/products/ghrh-bundle.jpg",
+  "Metabolic Research Bundle":                    "/products/metabolic-bundle.jpg",
+  "Full Research Bundle":                         "/products/full-bundle.jpg",
+  "Cognitive Research Bundle":                    "/products/cognitive-bundle.jpg",
 };
 
 // Real lab-verified purity, pulled from the same documentation_metrics ACF
