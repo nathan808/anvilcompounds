@@ -6,7 +6,7 @@ import { useCart } from "@/lib/cartContext";
 import { useFreeShippingProgress } from "@/lib/useFreeShippingProgress";
 import FreeShippingProgress from "@/components/FreeShippingProgress";
 import PaymentMethodsBar from "@/components/PaymentMethodsBar";
-import { computeBogoDiscount, getBogoLineIndex, BOGO_ENABLED, BOGO_LABEL, FREE_GIFT_LABEL } from "@/lib/bogoDiscount";
+import { computeBogoDiscount, getBogoLineIndex, BOGO_ENABLED, BOGO_LABEL, BOGO_EXCLUDED_PRODUCT_IDS, FREE_GIFT_LABEL } from "@/lib/bogoDiscount";
 
 export default function CartDrawer() {
   const { items, isCartOpen, closeCart, removeItem, updateQty, itemCount, subtotal } = useCart();
@@ -117,10 +117,14 @@ export default function CartDrawer() {
                       </span>
                     </div>
 
-                    {BOGO_ENABLED && (
+                    {BOGO_ENABLED && !BOGO_EXCLUDED_PRODUCT_IDS.has(item.wcProductId) && (
                       itemIndex === bogoLineIndex ? (
                         <p className="font-mono text-[10px] text-blue-400 tracking-wide mt-2">
-                          🎁 {BOGO_LABEL} applied — 1 unit free
+                          🎁 {BOGO_LABEL} applied — 1 unit free (one per order)
+                        </p>
+                      ) : item.quantity >= 2 && bogoLineIndex !== -1 ? (
+                        <p className="font-mono text-[10px] text-white/30 tracking-wide mt-2">
+                          BOGO already used on another item — one discount per order.
                         </p>
                       ) : bogoLineIndex === -1 && item.quantity % 2 === 1 ? (
                         <button
@@ -141,9 +145,14 @@ export default function CartDrawer() {
               <div className="px-6 py-5 border-t border-white/8 space-y-4">
                 <FreeShippingProgress data={freeShippingProgress} subtotal={subtotal} hasCoupon={bogoDiscount > 0} />
                 {bogoDiscount > 0 && (
-                  <div className="flex items-center justify-between">
-                    <span className="font-body text-sm text-blue-400">{BOGO_LABEL}</span>
-                    <span className="font-mono text-sm text-blue-400">-${bogoDiscount.toFixed(2)}</span>
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <span className="font-body text-sm text-blue-400">{BOGO_LABEL}</span>
+                      <span className="font-mono text-sm text-blue-400">-${bogoDiscount.toFixed(2)}</span>
+                    </div>
+                    <p className="font-mono text-[10px] text-white/25 mt-0.5">
+                      Limited to one free unit per order.
+                    </p>
                   </div>
                 )}
                 {BOGO_ENABLED && (
