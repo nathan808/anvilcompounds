@@ -65,11 +65,13 @@ export default function ProductHero({ product }: { product: ProductPageData }) {
             />
           </div>
 
-          <ViewCoaButton
-            productName={product.name}
-            imageUrl={product.documentationImage}
-            fileUrl={currentDocFile}
-          />
+          {product.coaApplicable && (
+            <ViewCoaButton
+              productName={product.name}
+              imageUrl={product.documentationImage}
+              fileUrl={currentDocFile}
+            />
+          )}
 
           <AddToCartButton
             slug={product.slug}
@@ -159,11 +161,13 @@ export default function ProductHero({ product }: { product: ProductPageData }) {
             </p>
 
             {/* View COA — above Add to Cart */}
-            <ViewCoaButton
-              productName={product.name}
-              imageUrl={product.documentationImage}
-              fileUrl={currentDocFile}
-            />
+            {product.coaApplicable && (
+              <ViewCoaButton
+                productName={product.name}
+                imageUrl={product.documentationImage}
+                fileUrl={currentDocFile}
+              />
+            )}
 
             {/* Add to cart (renders its own payment-methods/RUO footer) */}
             <AddToCartButton

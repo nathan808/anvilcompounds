@@ -14,8 +14,8 @@ export default function CartDrawer() {
   // exists in checkout's own context, starting at Step 1) — teaser here is
   // always based on the raw cart subtotal.
   const freeShippingProgress = useFreeShippingProgress(subtotal, false, isCartOpen && items.length > 0);
-  const bogoDiscount = computeBogoDiscount(items.map((i) => ({ quantity: i.quantity, unitPrice: i.price })));
-  const bogoLineIndex = getBogoLineIndex(items.map((i) => ({ quantity: i.quantity, unitPrice: i.price })));
+  const bogoDiscount = computeBogoDiscount(items.map((i) => ({ quantity: i.quantity, unitPrice: i.price, productId: i.wcProductId })));
+  const bogoLineIndex = getBogoLineIndex(items.map((i) => ({ quantity: i.quantity, unitPrice: i.price, productId: i.wcProductId })));
 
   return (
     <AnimatePresence>

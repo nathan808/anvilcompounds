@@ -44,7 +44,7 @@ export default function OrderSummary({ editableCoupon = true, showShipping = fal
   // BOGO launch promo — same-product pairs get their 2nd unit free. When
   // active it's the ONLY discount in effect (see lib/bogoDiscount.ts), so it
   // suppresses the coupon, Volume Discount, and payment-method discount below.
-  const bogoDiscount = computeBogoDiscount(items.map((i) => ({ quantity: i.quantity, unitPrice: i.price })));
+  const bogoDiscount = computeBogoDiscount(items.map((i) => ({ quantity: i.quantity, unitPrice: i.price, productId: i.wcProductId })));
   const bogoActive = bogoDiscount > 0;
 
   const couponDiscount = bogoActive ? 0 : computeCouponDiscount(subtotal, coupon);
