@@ -13,11 +13,15 @@
 export const BOGO_ENABLED = true;
 export const BOGO_LABEL = "Buy 1 Get 1 Free";
 
-// Accessory/supply items excluded from the BOGO pairing — currently just the
-// Reconstitution Solution (WC id 349), which is already bundled free with
-// every order (see FREE_GIFT_PRODUCT_ID below) and isn't meant to also
-// consume the order's one BOGO free-unit slot if a customer buys extra.
-export const BOGO_EXCLUDED_PRODUCT_IDS = new Set<number>([349]);
+// Accessory/supply items excluded from the BOGO pairing:
+// - 349 (Reconstitution Solution) is already bundled free with every order
+//   (see FREE_GIFT_PRODUCT_ID below) and isn't meant to also consume the
+//   order's one BOGO free-unit slot if a customer buys extra.
+// - 1041/1043/1045/1047/1049 are the Research Bundles — already discounted
+//   ~15% off the sum of their component prices, so stacking BOGO on top
+//   would mean two bundles for close to half price (confirmed with the
+//   store owner — bundles don't participate in BOGO).
+export const BOGO_EXCLUDED_PRODUCT_IDS = new Set<number>([349, 1041, 1043, 1045, 1047, 1049]);
 
 export interface BogoLineItem {
   quantity: number;

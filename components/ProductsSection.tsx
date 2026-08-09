@@ -158,6 +158,7 @@ const CATEGORY_ORDER = [
   "Longevity & Cosmetic Research",
   "Growth Pathway Research",
   "Research Supplies",
+  "Research Bundles",
 ];
 
 function slugifyProductName(name: string): string {
@@ -181,6 +182,11 @@ const FALLBACK_PRODUCTS: ProductCard[] = [
   { id: 510, name: "Semax", category: "Cognitive Research", description: "Synthetic heptapeptide analogue of ACTH(4-10), studied in research involving neurotrophic factor expression, BDNF signaling, and neuroprotective pathway models.", price: "$54", purity: "99%+", badge: "Neuropeptide", badgeColor: "bg-blue-600/70 text-blue-100 border-blue-500/50", icon: "◈", permalink: "https://anvilcompounds.shop/product/semax/", image: "https://anvilcompounds.shop/wp-content/uploads/2026/07/semaxproductphoto.png", hasCoa: false, coaApplicable: true, sizes: [], documentationFile: null, documentationImage: null },
   { id: 511, name: "Selank", category: "Cognitive Research", description: "Synthetic heptapeptide analogue of tuftsin, studied in research involving GABAergic pathway modulation, neuropeptide signaling, and anxiety response models.", price: "$54", purity: "99%+", badge: "Anxiolytic Research", badgeColor: "bg-sky-600/70 text-sky-100 border-sky-500/50", icon: "◉", permalink: "https://anvilcompounds.shop/product/selank/", image: "https://anvilcompounds.shop/wp-content/uploads/2026/07/selankproductphoto.png", hasCoa: false, coaApplicable: true, sizes: [], documentationFile: null, documentationImage: null },
   { id: 349, name: "Bacteriostatic Water", category: "Research Supplies", description: "0.9% benzyl alcohol sterile water. Standard reconstitution solvent for lyophilized peptide research. 3mL multi-use vial.", price: "$9", purity: "Sterility Certified", badge: "Essential Supply", badgeColor: "bg-slate-600/70 text-slate-100 border-slate-500/50", icon: "◎", permalink: "https://anvilcompounds.shop/product/bac-water/", image: null, hasCoa: true, coaApplicable: false, sizes: [], documentationFile: null, documentationImage: null },
+  { id: 1041, name: "Energy Research Bundle", category: "Research Bundles", description: "MOTS-C 10mg + NAD+ 500mg, bundled and individually vialed.", price: "$105", purity: "99%+", badge: "Bundle Deal", badgeColor: "bg-green-600/70 text-green-100 border-green-500/50", icon: "✦", permalink: "https://anvilcompounds.shop/product/energy-research-bundle/", image: "/products/energy-bundle.jpg", hasCoa: true, coaApplicable: true, sizes: [], documentationFile: null, documentationImage: null },
+  { id: 1043, name: "GHRH Bundle", category: "Research Bundles", description: "Retatrutide 10mg + CJC-1295/Ipamorelin 5+5mg, bundled and individually vialed.", price: "$130", purity: "99%+", badge: "Bundle Deal", badgeColor: "bg-green-600/70 text-green-100 border-green-500/50", icon: "✦", permalink: "https://anvilcompounds.shop/product/ghrh-bundle/", image: "/products/ghrh-bundle.jpg", hasCoa: true, coaApplicable: true, sizes: [], documentationFile: null, documentationImage: null },
+  { id: 1045, name: "Metabolic Research Bundle", category: "Research Bundles", description: "MOTS-C 10mg + Retatrutide 10mg, bundled and individually vialed.", price: "$125", purity: "99%+", badge: "Bundle Deal", badgeColor: "bg-green-600/70 text-green-100 border-green-500/50", icon: "✦", permalink: "https://anvilcompounds.shop/product/metabolic-research-bundle/", image: "/products/metabolic-bundle.jpg", hasCoa: true, coaApplicable: true, sizes: [], documentationFile: null, documentationImage: null },
+  { id: 1047, name: "Full Research Bundle", category: "Research Bundles", description: "Retatrutide + NAD+ + CJC-1295/Ipamorelin + GHK-Cu, bundled and individually vialed.", price: "$240", purity: "99%+", badge: "Bundle Deal", badgeColor: "bg-green-600/70 text-green-100 border-green-500/50", icon: "✦", permalink: "https://anvilcompounds.shop/product/full-research-bundle/", image: "/products/full-bundle.jpg", hasCoa: true, coaApplicable: true, sizes: [], documentationFile: null, documentationImage: null },
+  { id: 1049, name: "Cognitive Research Bundle", category: "Research Bundles", description: "Semax 10mg + Selank 10mg, bundled and individually vialed.", price: "$90", purity: "99%+", badge: "Bundle Deal", badgeColor: "bg-green-600/70 text-green-100 border-green-500/50", icon: "✦", permalink: "https://anvilcompounds.shop/product/cognitive-research-bundle/", image: "/products/cognitive-bundle.jpg", hasCoa: true, coaApplicable: true, sizes: [], documentationFile: null, documentationImage: null },
 ];
 
 export function ProductCard({ product, index }: { product: ProductCard; index: number }) {
@@ -430,10 +436,15 @@ export default function ProductsSection() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [mobileShowAll, setMobileShowAll] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState("All Compounds");
+  const searchParams = useSearchParams();
+  // Deep-link support for e.g. the homepage BundlesTeaser's "Browse All
+  // Bundles" CTA (?category=Research+Bundles) — falls back to "All
+  // Compounds" for a plain /catalog visit, same as before.
+  const [selectedCategory, setSelectedCategory] = useState(
+    () => searchParams.get("category") || "All Compounds"
+  );
   const [categoryMenuOpen, setCategoryMenuOpen] = useState(false);
 
-  const searchParams = useSearchParams();
   // Arrived via a link that set ?catalog=full (Catalog nav / View Catalog /
   // Explore Catalog) — GLP-RT/GLP-TRZ show in their normal sorted position
   // (first row) immediately, no click needed.
@@ -474,6 +485,13 @@ export default function ProductsSection() {
   const isLive = (p: ProductCard) => p.hasCoa && !isGlpCompound(p.name);
 
   const byPopularity = (a: ProductCard, b: ProductCard) => {
+    // Bundles always sort after every individual compound, regardless of
+    // category tab or leading-row/popularity rank — per the catalog spec,
+    // bundle cards live below the single-compound cards, never mixed in.
+    const bundleA = a.category === "Research Bundles" ? 1 : 0;
+    const bundleB = b.category === "Research Bundles" ? 1 : 0;
+    if (bundleA !== bundleB) return bundleA - bundleB;
+
     // Leading row is pinned regardless of the live/gated + popularity sort
     // below — everything else keeps its existing relative order.
     const leadA = LEADING_ROW_ORDER[a.name];
@@ -609,90 +627,65 @@ export default function ProductsSection() {
           </div>
         </div>
 
-        {/* Category filter — desktop keeps the pill row; mobile collapses
-            it into a foldable menu instead of wrapping across several rows
-            of small pills, which ate a lot of vertical space above the fold. */}
+        {/* Category filter — one collapsible dropdown at every screen size
+            (desktop used to keep an always-expanded pill row, but that
+            wraps across multiple lines now that there are 8 categories;
+            a single toggle stays clean regardless of how many get added
+            later). Full-width on mobile, a fixed comfortable width on
+            desktop so it doesn't stretch edge-to-edge on a wide screen. */}
         {!loading && categories.length > 1 && (
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={headerInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.6, delay: 0.35 }}
-            className="mb-6"
+            className="mb-6 relative w-full md:w-80"
           >
-            {/* Desktop / tablet — unchanged pill row */}
-            <div className="hidden md:flex flex-wrap gap-2">
-              {categories.map((cat) => {
-                const isActive = selectedCategory === cat;
-                return (
-                  <button
-                    key={cat}
-                    onClick={() => {
-                      setSelectedCategory(cat);
-                      setMobileShowAll(false);
-                      setRevealedViaClick(false);
-                    }}
-                    className={`font-mono text-xs tracking-wide px-4 py-2 rounded-lg border transition-all duration-250 whitespace-nowrap ${
-                      isActive
-                        ? "bg-mock-cobalt text-white border-mock-cobaltInk shadow-lg shadow-mock-cobalt/25"
-                        : "bg-mock-cobalt/10 text-mock-cobaltInk border-mock-cobalt/25 hover:bg-mock-cobalt/20 hover:border-mock-cobalt/50 hover:text-mock-cobalt"
-                    }`}
-                  >
-                    {cat}
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Mobile — foldable menu: a single toggle showing the current
-                category, expanding to a full list of tappable rows. */}
-            <div className="md:hidden relative">
-              <button
-                onClick={() => setCategoryMenuOpen((o) => !o)}
-                aria-expanded={categoryMenuOpen}
-                className="w-full flex items-center justify-between gap-2 px-4 py-3 rounded-lg border border-mock-cobalt/25 bg-mock-cobalt/10 text-mock-cobaltInk transition-colors"
-              >
-                <span className="flex items-center gap-2.5 font-mono text-xs tracking-wide">
-                  <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                  </svg>
-                  {selectedCategory}
-                </span>
-                <svg
-                  className={`w-4 h-4 shrink-0 transition-transform duration-200 ${categoryMenuOpen ? "rotate-180" : ""}`}
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            <button
+              onClick={() => setCategoryMenuOpen((o) => !o)}
+              aria-expanded={categoryMenuOpen}
+              className="w-full flex items-center justify-between gap-2 px-4 py-3 rounded-lg border border-mock-cobalt/25 bg-mock-cobalt/10 text-mock-cobaltInk hover:bg-mock-cobalt/15 transition-colors"
+            >
+              <span className="flex items-center gap-2.5 font-mono text-xs tracking-wide">
+                <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
-              </button>
+                {selectedCategory}
+              </span>
+              <svg
+                className={`w-4 h-4 shrink-0 transition-transform duration-200 ${categoryMenuOpen ? "rotate-180" : ""}`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
 
-              {categoryMenuOpen && (
-                <div className="absolute z-30 mt-1.5 w-full rounded-lg border border-mock-line bg-white shadow-xl overflow-hidden">
-                  {categories.map((cat) => {
-                    const isActive = selectedCategory === cat;
-                    return (
-                      <button
-                        key={cat}
-                        onClick={() => {
-                          setSelectedCategory(cat);
-                          setMobileShowAll(false);
-                          setRevealedViaClick(false);
-                          setCategoryMenuOpen(false);
-                        }}
-                        className={`w-full text-left px-4 py-3 font-mono text-xs tracking-wide border-b border-mock-line last:border-0 transition-colors ${
-                          isActive
-                            ? "bg-mock-cobalt text-white"
-                            : "text-mock-sub hover:bg-mock-surface2 hover:text-mock-navy"
-                        }`}
-                      >
-                        {cat}
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
+            {categoryMenuOpen && (
+              <div className="absolute z-30 mt-1.5 w-full rounded-lg border border-mock-line bg-white shadow-xl overflow-hidden">
+                {categories.map((cat) => {
+                  const isActive = selectedCategory === cat;
+                  return (
+                    <button
+                      key={cat}
+                      onClick={() => {
+                        setSelectedCategory(cat);
+                        setMobileShowAll(false);
+                        setRevealedViaClick(false);
+                        setCategoryMenuOpen(false);
+                      }}
+                      className={`w-full text-left px-4 py-3 font-mono text-xs tracking-wide border-b border-mock-line last:border-0 transition-colors ${
+                        isActive
+                          ? "bg-mock-cobalt text-white"
+                          : "text-mock-sub hover:bg-mock-surface2 hover:text-mock-navy"
+                      }`}
+                    >
+                      {cat}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </motion.div>
         )}
 

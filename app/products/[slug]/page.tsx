@@ -26,6 +26,11 @@ const KNOWN_SLUGS = [
   "glow",
   "semax",
   "selank",
+  "energy-research-bundle",
+  "ghrh-bundle",
+  "metabolic-research-bundle",
+  "full-research-bundle",
+  "cognitive-research-bundle",
 ];
 
 export async function generateStaticParams() {
