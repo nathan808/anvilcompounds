@@ -38,7 +38,7 @@ async function getPost(slug: string): Promise<PostFull | null> {
   try {
     const res = await fetch(
       `${WP_URL}/wp-json/wp/v2/posts?slug=${encodeURIComponent(slug)}&_embed&status=publish`,
-      { next: { revalidate: 3600 } }
+      { next: { revalidate: 3600, tags: ["wp-posts"] } }
     );
     if (!res.ok) return null;
     const posts = await res.json() as Record<string, unknown>[];
@@ -68,7 +68,7 @@ async function getAllPosts(): Promise<PostCard[]> {
   try {
     const res = await fetch(
       `${WP_URL}/wp-json/wp/v2/posts?_embed&per_page=20&orderby=date&order=desc&status=publish`,
-      { next: { revalidate: 3600 } }
+      { next: { revalidate: 3600, tags: ["wp-posts"] } }
     );
     if (!res.ok) return [];
     const raw = await res.json();
