@@ -347,8 +347,11 @@ export function ProductCard({ product, index }: { product: ProductCard; index: n
 
             {/* mg/size options — shown next to the price for every product
                 that has size data, whether it's a single fixed mg or
-                multiple variations (e.g. GHK-Cu's 50mg/100mg). */}
-            {product.sizes.length > 0 && (
+                multiple variations (e.g. GHK-Cu's 50mg/100mg). Skipped for
+                bundles: their one "variation" is a composite dose string
+                (e.g. "10mg MOTS-C + 500mg NAD+") that isn't a real size
+                choice and just reads as clutter next to the price. */}
+            {product.sizes.length > 0 && product.category !== "Research Bundles" && (
               <div className="flex flex-wrap gap-1.5 justify-end">
                 {product.sizes.map((size) => (
                   <span
