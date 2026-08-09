@@ -14,7 +14,7 @@ import {
   getVolumeCTAText,
   getActiveTierIndex,
 } from "@/lib/volumePricing";
-import { BOGO_ENABLED, BOGO_LABEL } from "@/lib/bogoDiscount";
+import { BOGO_ENABLED, BOGO_LABEL, BOGO_EXCLUDED_PRODUCT_IDS, getBogoLineIndex } from "@/lib/bogoDiscount";
 
 interface Props {
   slug: string;
@@ -49,7 +49,7 @@ export default function AddToCartButton({
   selectedIndex: controlledIndex,
   onSelectIndex,
 }: Props) {
-  const { addItem, openCart } = useCart();
+  const { addItem, openCart, items: cartItems } = useCart();
   const [internalIndex, setInternalIndex] = useState(0);
   const selectedIndex = controlledIndex ?? internalIndex;
   const setSelectedIndex = onSelectIndex ?? setInternalIndex;
@@ -64,6 +64,22 @@ export default function AddToCartButton({
   const lineTotal = unitPrice * qty;
   const activeTierIdx = getActiveTierIndex(qty);
   const ctaText = getVolumeCTAText(qty);
+
+  // BOGO preview — mirrors the exact one-free-unit-per-checkout cap used at
+  // checkout (lib/bogoDiscount.ts) by simulating this selection appended to
+  // whatever's already in the cart. Keeps this page's shown total honest:
+  // it only shows a discount when the cart would actually give one, e.g.
+  // not when another line already claimed the order's one free unit.
+  const isBogoExcluded = BOGO_EXCLUDED_PRODUCT_IDS.has(wcProductId);
+  const bogoPreviewItems = [
+    ...cartItems.map((i) => ({ quantity: i.quantity, unitPrice: i.price, productId: i.wcProductId })),
+    { quantity: qty, unitPrice, productId: wcProductId },
+  ];
+  const bogoLineIndex = BOGO_ENABLED ? getBogoLineIndex(bogoPreviewItems) : -1;
+  const thisLineGetsBogo = bogoLineIndex === bogoPreviewItems.length - 1;
+  const bogoUsedElsewhere = BOGO_ENABLED && !isBogoExcluded && qty >= 2 && !thisLineGetsBogo;
+  const bogoDiscountForLine = thisLineGetsBogo ? unitPrice : 0;
+  const discountedLineTotal = lineTotal - bogoDiscountForLine;
 
   const handleQtyChange = (next: number) => {
     setQty(Math.min(MAX_QTY_PER_ITEM, Math.max(1, next)));
@@ -111,12 +127,16 @@ export default function AddToCartButton({
   // ── Normal buy UI ───────────────────────────────────────────────────────────
   return (
     <div className="space-y-4">
-      {BOGO_ENABLED && (
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-mock-cobalt/10 border border-mock-cobalt/20">
+      {BOGO_ENABLED && !isBogoExcluded && (
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-mock-cobalt/10 border border-mock-cobalt/20 flex-wrap">
           <span className="font-display font-700 text-xs text-mock-cobaltInk tracking-wide">
             🎁 {BOGO_LABEL}
           </span>
-          <span className="font-body text-xs text-mock-sub">— add 2 to unlock, applied automatically. + Free Bacteriostatic Water with every order.</span>
+          <span className="font-body text-xs text-mock-sub">
+            {bogoUsedElsewhere
+              ? "— already applied to another item in your cart. One BOGO discount per order."
+              : "— add 2 to unlock, applied automatically. Limited to one per order. + Free Bacteriostatic Water with every order."}
+          </span>
         </div>
       )}
       {/* Price display + size selector, side by side so mg options sit to
@@ -149,9 +169,29 @@ export default function AddToCartButton({
             ) : null}
           </div>
           {qty > 1 && (
-            <p className="font-mono text-xs text-mock-sub mt-1">
-              {qty} × ${unitPrice.toFixed(2)} = <span className="text-mock-navy">${lineTotal.toFixed(2)} total</span>
-            </p>
+            <div className="mt-1 space-y-0.5">
+              <p className="font-mono text-xs text-mock-sub">
+                {qty} × ${unitPrice.toFixed(2)} ={" "}
+                {thisLineGetsBogo ? (
+                  <>
+                    <span className="line-through text-mock-sub/50">${lineTotal.toFixed(2)}</span>{" "}
+                    <span className="text-mock-navy font-600">${discountedLineTotal.toFixed(2)} total</span>
+                  </>
+                ) : (
+                  <span className="text-mock-navy">${lineTotal.toFixed(2)} total</span>
+                )}
+              </p>
+              {thisLineGetsBogo && (
+                <p className="font-mono text-[11px] text-green-700">
+                  🎁 1 vial free — Buy 1 Get 1 Free applied (one per order)
+                </p>
+              )}
+              {bogoUsedElsewhere && (
+                <p className="font-mono text-[11px] text-mock-sub">
+                  Buy 1 Get 1 Free already used on another item in your cart — one discount per order.
+                </p>
+              )}
+            </div>
           )}
         </div>
 
@@ -309,7 +349,7 @@ export default function AddToCartButton({
         {added
           ? "✓ Added to Order"
           : qty > 1
-          ? `Add ${qty} Vials to Cart · $${lineTotal.toFixed(2)}`
+          ? `Add ${qty} Vials to Cart · $${discountedLineTotal.toFixed(2)}`
           : "Add to Cart"}
       </button>
 
