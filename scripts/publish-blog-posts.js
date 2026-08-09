@@ -173,7 +173,68 @@ const POSTS = [
       ]) +
       `\n<hr>\n<p>Follow the Anvil Research Journal for more on the biology most people never hear about.</p>`,
   },
+  {
+    // Source: "Operational Discipline / How every Anvil lot earns its way
+    // onto the site" in Blog drafts.md. That draft carried internal review
+    // notes flagging two things not safe to publish as originally written:
+    // (1) a placeholder stat block claiming "6x Verification Methods" and
+    //     "endotoxin every lot" that the draft itself says to hold until
+    //     per-lot testing scope is confirmed — using the draft's own
+    //     already-confirmed alternative instead: "3 Independent Assays
+    //     (HPLC / MS / Endotoxin)".
+    // (2) an earlier framing of the "Inside the Lab" section that risked
+    //     implying Anvil runs its own assays — the draft already contains
+    //     its own corrected rewrite (independent third-party testing only,
+    //     no named lab staff), which is what's used below.
+    // All production-note text (register/format briefing, HOLD flags,
+    // "CORRECTED FRAME" annotations, bracketed placement markers) is
+    // editorial metadata, not reader-facing copy, and is excluded here.
+    title: "How every Anvil lot earns its way onto the site",
+    slug: "how-we-test-every-lot",
+    category: "Research Standards",
+    excerpt:
+      "Every lot on the site clears independent HPLC, mass spec, and endotoxin testing before it's listed. Here's exactly what that process looks like, lot by lot.",
+    content:
+      `<p><strong>99%+ Minimum Purity · 3 Independent Assays (HPLC · MS · Endotoxin) · COA Every Lot</strong></p>` +
+      `\n<h2>Nothing lists until the data clears it</h2>\n` +
+      paragraphs([
+        "Every compound in the catalog has a gate in front of it, and the gate is the data.",
+        "A lot does not go live because a supplier says it's good, because the last batch was good, or because we're eager to list it. It goes live when the assays on that specific batch come back and confirm it meets our standard — and not one hour before. Every lot clears independent analysis before it appears on the site. No shortcuts. No batch skips a step. Nothing ships until the numbers confirm spec.",
+        "That's a boring rule, and boring is the point. The unglamorous part of this business — paying for testing, waiting for results, occasionally rejecting a batch that doesn't meet the standard — is the part that actually protects you. We'd rather hold a listing for two weeks than put a vial on the site that hasn't earned it.",
+      ]) +
+      `\n<h2>What ships with every vial</h2>\n` +
+      paragraphs([
+        "Every vial ships with the same discipline behind it: a Certificate of Analysis for that exact lot, covering purity, identity, and endotoxin screening. Not a generic document. Not a COA from an earlier batch reused across everything that came after it. The lot-specific data for the lot in your hands.",
+        "The lot number on the COA matches the lot number printed on the vial label, which traces back through our inventory to the supplier documentation chain. You read the numbers before your experiment, not after — because the data ships with the material, not on request, not eventually.",
+        "No batch skips a step. That's the entire operating principle, stated as plainly as it can be stated.",
+      ]) +
+      `\n<h2>HPLC — Purity</h2>\n` +
+      paragraphs([
+        "Every lot is run through high-performance liquid chromatography. The sample is dissolved and pushed under pressure through a column packed with a stationary phase, and the compounds inside separate by how strongly each one interacts with that column. A detector records them on the way out, producing a chromatogram — a chart where the target compound shows up as a tall, narrow peak and impurities show up as smaller ones.",
+        "Purity is the area of the main peak divided by the total area of all peaks. It tells us, down to trace levels, exactly how much of the sample is active compound and how much is everything else — degradation products, residual materials, synthesis byproducts.",
+        "Our purity floor is 99%. A batch that tests below it doesn't leave the lab. There's no rounding up, no \"close enough,\" no listing it at a discount. Below spec means it doesn't exist as far as the catalog is concerned.",
+      ]) +
+      `\n<h2>Mass Spec — Identity</h2>\n` +
+      paragraphs([
+        "Purity tells you how much. It doesn't tell you what. For that, every lot goes through mass spectrometry.",
+        "The compound is ionized and analyzed by mass-to-charge ratio, which pins down its exact molecular identity. Every peptide has a known theoretical mass set by its sequence; the spectrum either matches that mass or it doesn't. We're not trusting a label — we're measuring the molecule and confirming it's the one the label claims.",
+        "If the spectrum doesn't match spec, the batch doesn't ship. A vial can be 99% pure and still be the wrong compound; identity testing is what closes that gap. Purity and identity together are the difference between \"this sample is clean\" and \"this sample is clean and it's what you ordered.\"",
+      ]) +
+      `\n<h2>Inside the Lab</h2>\n` +
+      paragraphs([
+        "The assays that prove a lot meets spec aren't run by us. That's deliberate, and it's the whole point.",
+        "Our testing is done at Freedom Diagnostics, an accredited independent laboratory that doesn't sell peptides and has no stake in what our results say. Real analysts run the chromatography and the mass spec, and a named analyst signs off on each result inside the lab's own system. They don't know what we hope the number will be, and we don't pay them based on the outcome.",
+        "That independence is what makes the number worth anything. A purity figure a vendor generates for themselves is a marketing claim. A purity figure produced by a lab with no interest in the answer, published to that lab's own public database, is evidence. Each lot's data — purity, identity, contamination screen — ships with the material and traces back to a record we can't edit.",
+        "Read the numbers before your experiment, not after. And if you want to confirm they're real, don't take our word for it: the verification link goes to the lab, not to us.",
+      ]) +
+      `\n<hr>\n<p><strong>Browse catalog and verify lot documentation at anvilcompounds.shop</strong><br>Independent testing · Freedom Diagnostics public-database verified</p>`,
+  },
 ];
+
+async function postExists(slug) {
+  const found = await apiFetch(`/wp-json/wp/v2/posts?slug=${encodeURIComponent(slug)}&status=publish,draft`);
+  return found.length > 0;
+}
 
 async function main() {
   console.log("Resolving categories...");
@@ -184,6 +245,10 @@ async function main() {
   console.log("Category IDs:", categoryIds);
 
   for (const post of POSTS) {
+    if (await postExists(post.slug)) {
+      console.log(`\nSkipping (already exists): ${post.title}`);
+      continue;
+    }
     console.log(`\nPublishing: ${post.title}`);
     const created = await apiFetch(`/wp-json/wp/v2/posts`, {
       method: "POST",
