@@ -1,24 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
-import crypto from "crypto";
-
-function derivePassword(email: string, birthday: string): string {
-  const secret = process.env.ANVIL_AUTH_SECRET ?? "anvil_research_2024";
-  return crypto
-    .createHmac("sha256", secret)
-    .update(`${email.toLowerCase().trim()}:${birthday}`)
-    .digest("hex")
-    .slice(0, 32);
-}
+import { derivePassword, toE164 } from "@/lib/wcAuth";
 
 export async function POST(req: NextRequest) {
   try {
-    const { email, birthday, firstName, lastName, researchAffiliationConfirmed } = await req.json();
+    const { email, birthday, firstName, lastName, researchAffiliationConfirmed, phone } = await req.json();
 
     if (!email || !birthday || !firstName || !lastName || !researchAffiliationConfirmed) {
       return NextResponse.json(
         { error: "INVALID_INPUT", message: "All fields are required." },
         { status: 400 }
       );
+    }
+
+    let e164Phone: string | null = null;
+    if (phone) {
+      e164Phone = toE164(phone);
+      if (!e164Phone) {
+        return NextResponse.json(
+          { error: "INVALID_INPUT", message: "Please enter a valid phone number, or leave it blank." },
+          { status: 400 }
+        );
+      }
     }
 
     const wcUrl = process.env.WC_URL;
@@ -49,6 +51,7 @@ export async function POST(req: NextRequest) {
         first_name: firstName,
         last_name: lastName,
         username: email,
+        ...(e164Phone ? { billing: { phone: e164Phone } } : {}),
         meta_data: [
           { key: "anvil_birthday", value: birthday },
           { key: "anvil_research_affiliation_confirmed", value: "true" },
@@ -93,44 +96,11 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Get JWT using derived password
-    const jwtRes = await fetch(`${wcUrl}/wp-json/jwt-auth/v1/token`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username: email, password }),
-    });
-
-    if (jwtRes.status === 404) {
-      return NextResponse.json(
-        {
-          error: "AUTH_NOT_CONFIGURED",
-          message:
-            "Account login is being configured. Please contact support@anvilcompounds.shop.",
-        },
-        { status: 503 }
-      );
-    }
-
-    if (!jwtRes.ok) {
-      const jwtErr = (await jwtRes.json().catch(() => ({}))) as { message?: string };
-      return NextResponse.json(
-        {
-          error: "AUTH_FAILED",
-          message: jwtErr.message ?? "Account created but sign-in failed. Please try signing in.",
-        },
-        { status: 401 }
-      );
-    }
-
-    const jwtData = (await jwtRes.json()) as { token: string };
-
-    return NextResponse.json({
-      token: jwtData.token,
-      email,
-      firstName,
-      lastName,
-      wcCustomerId,
-    });
+    // Account creation only — the client signs in immediately after via
+    // NextAuth's "credentials-dob" provider (see lib/authOptions.ts), which
+    // does the same derive-password → fetch-WP-JWT work this route used to
+    // do inline, so it isn't duplicated in two places.
+    return NextResponse.json({ success: true, email, wcCustomerId });
   } catch (err) {
     console.error("Register error:", err);
     return NextResponse.json(

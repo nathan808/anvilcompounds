@@ -3,11 +3,17 @@
 import {
   createContext,
   useContext,
-  useEffect,
   useState,
   ReactNode,
 } from "react";
+import { SessionProvider, useSession, signIn, signOut } from "next-auth/react";
 
+// Public shape is unchanged from the pre-NextAuth version on purpose — every
+// consumer (checkout, COA gating, ProductsSection, ReconstitutionGuide,
+// AccountDashboard, etc.) reads user/isAuthenticated/hydrated and never
+// touched localStorage directly, so none of them need to change now that
+// the session itself is owned by next-auth (see SessionProvider below)
+// instead of a hand-rolled localStorage blob.
 export interface AnvilUser {
   email: string;
   firstName: string;
@@ -16,120 +22,75 @@ export interface AnvilUser {
   token: string;
 }
 
-interface StoredAuth extends AnvilUser {
-  storedAt: number;
-}
-
 interface AuthContextType {
   user: AnvilUser | null;
   isAuthenticated: boolean;
   hydrated: boolean;
+  // True right after a brand-new Google sign-in (or an existing WC customer
+  // missing anvil_birthday) — no usable WP JWT yet until DOB + RUO ack are
+  // submitted via completeProfile(). See app/account/page.tsx.
+  needsCompletion: boolean;
   authError: string | null;
-  login: (email: string, birthday: string) => Promise<void>;
+  login: (identifier: string, birthday: string) => Promise<void>;
+  loginWithCode: (identifier: string, code: string) => Promise<void>;
   register: (
     email: string,
     birthday: string,
     firstName: string,
     lastName: string,
-    researchAffiliationConfirmed: boolean
+    researchAffiliationConfirmed: boolean,
+    phone?: string
   ) => Promise<void>;
-  sendTwoFactor: (email: string) => Promise<void>;
-  verifyTwoFactor: (email: string, code: string) => Promise<void>;
+  loginWithGoogle: () => Promise<void>;
+  completeProfile: (birthday: string, researchAffiliationConfirmed: boolean, phone?: string) => Promise<void>;
+  sendTwoFactor: (identifier: string) => Promise<void>;
   logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-const STORAGE_KEY = "anvil_auth";
-
-function getJwtExpiry(token: string): number | null {
-  try {
-    const parts = token.split(".");
-    if (parts.length !== 3) return null;
-    const payload = JSON.parse(
-      Buffer.from(parts[1], "base64").toString("utf8")
-    ) as { exp?: number };
-    return typeof payload.exp === "number" ? payload.exp : null;
-  } catch {
-    return null;
-  }
+function isEmail(identifier: string): boolean {
+  return identifier.includes("@");
 }
 
-function isTokenExpired(token: string): boolean {
-  const exp = getJwtExpiry(token);
-  if (exp === null) return false;
-  return Date.now() / 1000 > exp;
-}
-
-export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<AnvilUser | null>(null);
-  const [hydrated, setHydrated] = useState(false);
+function InnerAuthProvider({ children }: { children: ReactNode }) {
+  const { data: session, status, update } = useSession();
   const [authError, setAuthError] = useState<string | null>(null);
 
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        const parsed: StoredAuth = JSON.parse(stored);
-        if (parsed.token && !isTokenExpired(parsed.token)) {
-          const { storedAt: _s, ...userFields } = parsed;
-          void _s;
-          setUser(userFields);
-        } else {
-          localStorage.removeItem(STORAGE_KEY);
+  const hydrated = status !== "loading";
+  const user: AnvilUser | null =
+    session?.user && session.user.wcCustomerId
+      ? {
+          email: session.user.email,
+          firstName: session.user.firstName,
+          lastName: session.user.lastName,
+          wcCustomerId: session.user.wcCustomerId,
+          token: session.user.wpJwt,
         }
-      }
-    } catch {
-      localStorage.removeItem(STORAGE_KEY);
-    }
-    setHydrated(true);
-  }, []);
+      : null;
+  const needsCompletion = !!session?.user?.needsCompletion;
+  // A Google account mid-completion is a real (signed-in) session but has
+  // no WP JWT yet — isAuthenticated stays false until that's resolved, same
+  // as the pre-NextAuth flow where nothing was considered "logged in" until
+  // a JWT existed.
+  const isAuthenticated = !!user && !!user.token;
 
-  const storeUser = (u: AnvilUser) => {
-    // Persisting to localStorage can throw on some browsers (Safari Private
-    // Browsing, some in-app/social-media browsers, storage-restricted
-    // mobile configs) even though the login/register call itself already
-    // succeeded server-side. Falling through here would silently discard a
-    // successful login and block checkout (which requires isAuthenticated)
-    // — so the in-memory session always gets set regardless of whether it
-    // could be persisted; it just won't survive a reload/new tab on that
-    // specific browser.
-    const record: StoredAuth = { ...u, storedAt: Date.now() };
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(record));
-    } catch {}
-    setUser(u);
+  const login = async (identifier: string, birthday: string) => {
     setAuthError(null);
+    const res = await signIn("credentials-dob", { identifier, birthday, redirect: false });
+    if (res?.error) {
+      setAuthError("AUTH_FAILED");
+      throw Object.assign(new Error("Incorrect details, or no account found."), { code: "AUTH_FAILED" });
+    }
   };
 
-  const login = async (email: string, birthday: string) => {
+  const loginWithCode = async (identifier: string, code: string) => {
     setAuthError(null);
-    const res = await fetch("/api/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, birthday }),
-    });
-    const data = (await res.json()) as {
-      token?: string;
-      email?: string;
-      firstName?: string;
-      lastName?: string;
-      wcCustomerId?: number;
-      error?: string;
-      message?: string;
-    };
-    if (!res.ok || data.error) {
-      const err = data as { error: string; message: string };
-      setAuthError(err.error ?? "LOGIN_FAILED");
-      throw Object.assign(new Error(err.message ?? "Login failed"), { code: err.error });
+    const res = await signIn("credentials-otp", { identifier, code, redirect: false });
+    if (res?.error) {
+      setAuthError("VERIFY_FAILED");
+      throw Object.assign(new Error("Invalid or expired code."), { code: "VERIFY_FAILED" });
     }
-    storeUser({
-      token: data.token!,
-      email: data.email!,
-      firstName: data.firstName ?? "",
-      lastName: data.lastName ?? "",
-      wcCustomerId: data.wcCustomerId ?? 0,
-    });
   };
 
   const register = async (
@@ -137,88 +98,65 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     birthday: string,
     firstName: string,
     lastName: string,
-    researchAffiliationConfirmed: boolean
+    researchAffiliationConfirmed: boolean,
+    phone?: string
   ) => {
     setAuthError(null);
     const res = await fetch("/api/auth/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, birthday, firstName, lastName, researchAffiliationConfirmed }),
+      body: JSON.stringify({ email, birthday, firstName, lastName, researchAffiliationConfirmed, phone }),
     });
-    const data = (await res.json()) as {
-      token?: string;
-      email?: string;
-      firstName?: string;
-      lastName?: string;
-      wcCustomerId?: number;
-      error?: string;
-      message?: string;
-    };
+    const data = (await res.json()) as { error?: string; message?: string };
     if (!res.ok || data.error) {
-      const err = data as { error: string; message: string };
-      setAuthError(err.error ?? "REGISTER_FAILED");
-      throw Object.assign(new Error(err.message ?? "Registration failed"), { code: err.error });
+      setAuthError(data.error ?? "REGISTER_FAILED");
+      throw Object.assign(new Error(data.message ?? "Registration failed"), { code: data.error });
     }
-    storeUser({
-      token: data.token!,
-      email: data.email!,
-      firstName: data.firstName ?? firstName,
-      lastName: data.lastName ?? lastName,
-      wcCustomerId: data.wcCustomerId ?? 0,
-    });
+    // Registration only creates the WC customer — sign in right after with
+    // the same credentials to establish the actual session/JWT.
+    await login(email, birthday);
   };
 
-  const sendTwoFactor = async (email: string) => {
-    const res = await fetch("/api/auth/send-2fa", {
+  const loginWithGoogle = async () => {
+    setAuthError(null);
+    await signIn("google", { callbackUrl: "/account" });
+  };
+
+  const completeProfile = async (birthday: string, researchAffiliationConfirmed: boolean, phone?: string) => {
+    setAuthError(null);
+    const res = await fetch("/api/auth/complete-profile", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email }),
+      body: JSON.stringify({ birthday, researchAffiliationConfirmed, phone }),
+    });
+    const data = (await res.json()) as { wpJwt?: string; firstName?: string; lastName?: string; error?: string };
+    if (!res.ok || data.error) {
+      setAuthError("COMPLETE_PROFILE_FAILED");
+      throw Object.assign(new Error(data.error ?? "Could not complete your profile."), { code: "COMPLETE_PROFILE_FAILED" });
+    }
+    // Pushes the new WP JWT into the NextAuth token via the jwt callback's
+    // trigger === "update" branch (see lib/authOptions.ts).
+    await update({ wpJwt: data.wpJwt, firstName: data.firstName, lastName: data.lastName });
+  };
+
+  const sendTwoFactor = async (identifier: string) => {
+    const endpoint = isEmail(identifier) ? "/api/auth/send-2fa" : "/api/auth/send-phone-otp";
+    const payload = isEmail(identifier) ? { email: identifier } : { phone: identifier };
+    const res = await fetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
     });
     if (!res.ok) {
-      const data = (await res.json()) as { message?: string };
-      throw new Error(data.message ?? "Failed to send code.");
+      const data = (await res.json()) as { message?: string; error?: string };
+      throw new Error(data.message ?? data.error ?? "Failed to send code.");
     }
-  };
-
-  const verifyTwoFactor = async (email: string, code: string) => {
-    setAuthError(null);
-    const res = await fetch("/api/auth/verify-2fa", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, code }),
-    });
-    const data = (await res.json()) as {
-      token?: string;
-      email?: string;
-      firstName?: string;
-      lastName?: string;
-      wcCustomerId?: number;
-      error?: string;
-      message?: string;
-    };
-    if (!res.ok || data.error) {
-      const err = data as { error: string; message: string };
-      setAuthError(err.error ?? "VERIFY_FAILED");
-      throw Object.assign(new Error(err.message ?? "Verification failed"), { code: err.error });
-    }
-    storeUser({
-      token: data.token!,
-      email: data.email!,
-      firstName: data.firstName ?? "",
-      lastName: data.lastName ?? "",
-      wcCustomerId: data.wcCustomerId ?? 0,
-    });
   };
 
   const logout = () => {
-    try {
-      localStorage.removeItem(STORAGE_KEY);
-    } catch {}
-    setUser(null);
     setAuthError(null);
+    signOut({ callbackUrl: "/" });
   };
-
-  const isAuthenticated = !!user && !isTokenExpired(user.token);
 
   return (
     <AuthContext.Provider
@@ -226,16 +164,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         user,
         isAuthenticated,
         hydrated,
+        needsCompletion,
         authError,
         login,
+        loginWithCode,
         register,
+        loginWithGoogle,
+        completeProfile,
         sendTwoFactor,
-        verifyTwoFactor,
         logout,
       }}
     >
       {children}
     </AuthContext.Provider>
+  );
+}
+
+export function AuthProvider({ children }: { children: ReactNode }) {
+  return (
+    <SessionProvider>
+      <InnerAuthProvider>{children}</InnerAuthProvider>
+    </SessionProvider>
   );
 }
 

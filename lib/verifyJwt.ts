@@ -1,15 +1,15 @@
 // Verifies a customer's JWT (issued by the JWT Auth plugin on the WordPress
-// backend — see app/api/auth/login|register|verify-2fa) and returns the
-// WooCommerce customer ID it belongs to, WITHOUT trusting anything the
-// client claims about its own identity.
+// backend — minted by every NextAuth provider in lib/authOptions.ts) and
+// returns the WooCommerce customer ID it belongs to, WITHOUT trusting
+// anything the client claims about its own identity.
 //
 // The JWT Auth plugin owns the signing secret (this app never has it), so
 // signature/expiry verification has to happen against WordPress itself via
 // its /token/validate endpoint — decoding the payload locally only tells you
 // what the token *claims*, not whether it's genuine. Once validated, the
 // embedded WP user ID is trustworthy — and WooCommerce customers are just
-// WP users, so that ID IS the customer ID (same numbers used everywhere
-// else in this codebase, e.g. wcCustomerId from /api/auth/login).
+// WP users, so that ID IS the customer ID (same numbers exposed as
+// session.user.wcCustomerId everywhere else in this codebase).
 
 interface JwtPayload {
   data?: { user?: { id?: string | number } };
