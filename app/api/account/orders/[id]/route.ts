@@ -19,6 +19,7 @@ export interface AccountOrderDetail {
   // Ken-entered tracking number, when present — see the `tracking_number`
   // meta-key comment below for how it actually gets set.
   trackingNumber: string | null;
+  trackingCarrier: string;
 }
 
 interface WCOrder {
@@ -57,10 +58,12 @@ function wcAuthHeader(): string | null {
 
 // No shipment-tracking plugin/carrier API is installed on the WooCommerce
 // backend. Two sources of shipment info, both manual on Ken's side:
-//   - `tracking_number` order meta (no leading underscore, so it's NOT
-//     WooCommerce/WordPress "protected" meta — it should appear in the
-//     default WP admin "Custom Fields" box on the order screen without any
-//     plugin). Surfaced as a distinct, labeled field.
+//   - `tracking_number` order meta, plus optional `tracking_carrier` (no
+//     leading underscore on either, so neither is WooCommerce/WordPress
+//     "protected" meta — both should appear in the default WP admin "Custom
+//     Fields" box on the order screen without any plugin). Carrier defaults
+//     to USPS when unset, since that's the only carrier Ken currently ships
+//     with. Surfaced as a distinct, labeled field with a USPS tracking link.
 //   - Customer-visible order notes (WC admin's "note to customer" when
 //     marking an order shipped) — kept as the general shipment-updates feed.
 // If Ken's WooCommerce is on newer HPOS order storage, the classic Custom
@@ -127,6 +130,7 @@ export async function GET(
     orderKey: order.order_key,
     paymentMethod: order.payment_method,
     trackingNumber: order.meta_data.find((m) => m.key === "tracking_number")?.value || null,
+    trackingCarrier: order.meta_data.find((m) => m.key === "tracking_carrier")?.value || "USPS",
   };
 
   return NextResponse.json(detail);

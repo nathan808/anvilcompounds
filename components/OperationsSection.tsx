@@ -51,7 +51,7 @@ export default function OperationsSection() {
 
           <div className="flex flex-wrap gap-2.5">
             <a
-              href="/account"
+              href="/account?tab=tracking"
               className="px-5 py-2.5 bg-mock-cobalt hover:bg-mock-cobaltInk text-white font-display font-700 text-sm tracking-wide rounded-md transition-all duration-300"
             >
               Track an Order

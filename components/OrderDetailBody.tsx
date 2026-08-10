@@ -11,7 +11,17 @@ interface Props {
   lineItems: { name: string; quantity: number; total: string }[];
   billingAddress: string;
   trackingNumber: string | null;
+  trackingCarrier: string;
   shipmentUpdates: { date: string; note: string }[];
+}
+
+// Only USPS is a shipping carrier Ken actually uses today (see
+// tracking_carrier meta comment in app/api/account/orders/[id]/route.ts) —
+// other carrier values still display the raw tracking number, just without
+// a guessed-at tracking URL.
+function trackingUrl(carrier: string, number: string): string | null {
+  if (carrier.trim().toUpperCase() !== "USPS") return null;
+  return `https://tools.usps.com/go/TrackConfirmAction?tLabels=${encodeURIComponent(number)}`;
 }
 
 // Shared between the authenticated account order view (AccountDashboard)
@@ -26,9 +36,11 @@ export default function OrderDetailBody({
   lineItems,
   billingAddress,
   trackingNumber,
+  trackingCarrier,
   shipmentUpdates,
 }: Props) {
   const [copied, setCopied] = useState(false);
+  const trackUrl = trackingNumber ? trackingUrl(trackingCarrier, trackingNumber) : null;
 
   const copyTracking = () => {
     if (!trackingNumber) return;
@@ -73,7 +85,7 @@ export default function OrderDetailBody({
       {trackingNumber && (
         <div>
           <p className="font-mono text-[10px] text-white/30 tracking-widest uppercase mb-1">Tracking Number</p>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <span className="font-mono text-sm text-white/80">{trackingNumber}</span>
             <button
               type="button"
@@ -82,6 +94,16 @@ export default function OrderDetailBody({
             >
               {copied ? "Copied!" : "Copy"}
             </button>
+            {trackUrl && (
+              <a
+                href={trackUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-mono text-[10px] text-blue-400 hover:text-blue-300 transition-colors"
+              >
+                Track Package →
+              </a>
+            )}
           </div>
         </div>
       )}

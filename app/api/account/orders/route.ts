@@ -10,6 +10,10 @@ export interface OrderSummary {
   dateCreated: string;
   itemSummary: string;
   itemCount: number;
+  // See app/api/account/orders/[id]/route.ts for why these are unprefixed
+  // `tracking_number`/`tracking_carrier` meta keys, not `_tracking_number`.
+  trackingNumber: string | null;
+  trackingCarrier: string;
 }
 
 interface WCOrder {
@@ -20,6 +24,7 @@ interface WCOrder {
   currency: string;
   date_created: string;
   line_items: { name: string; quantity: number }[];
+  meta_data: { key: string; value: string }[];
 }
 
 export async function GET(req: NextRequest) {
@@ -54,6 +59,8 @@ export async function GET(req: NextRequest) {
     dateCreated: o.date_created,
     itemCount: o.line_items.reduce((n, li) => n + li.quantity, 0),
     itemSummary: o.line_items.map((li) => li.name).join(", "),
+    trackingNumber: o.meta_data.find((m) => m.key === "tracking_number")?.value || null,
+    trackingCarrier: o.meta_data.find((m) => m.key === "tracking_carrier")?.value || "USPS",
   }));
 
   return NextResponse.json(summaries);

@@ -84,6 +84,7 @@ export default function GuestOrderLookup() {
             lineItems={order.lineItems}
             billingAddress={order.billingAddress}
             trackingNumber={order.trackingNumber}
+            trackingCarrier={order.trackingCarrier}
             shipmentUpdates={order.shipmentUpdates}
           />
           <div className="flex items-center justify-between pt-2 border-t border-white/8 mt-4">

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, FormEvent } from "react";
+import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/lib/authContext";
 import type { AccountProfile } from "@/app/api/account/profile/route";
@@ -115,6 +116,7 @@ function OrderRow({ order, token }: { order: OrderSummary; token: string }) {
                   lineItems={detail.lineItems}
                   billingAddress={detail.billingAddress}
                   trackingNumber={detail.trackingNumber}
+                  trackingCarrier={detail.trackingCarrier}
                   shipmentUpdates={detail.shipmentUpdates}
                 />
               ) : (
@@ -171,6 +173,109 @@ function OrdersTab({ token }: { token: string }) {
     <div className="space-y-3">
       {orders.map((order) => (
         <OrderRow key={order.id} order={order} token={token} />
+      ))}
+    </div>
+  );
+}
+
+// ─── Tracking tab ──────────────────────────────────────────────────────────────
+
+// Status copy for orders with no tracking number yet — distinct from
+// STATUS_LABELS above, which is written for the Orders tab's badge and stays
+// terse/generic ("Processing"); here we're explicitly telling the customer
+// what's happening with their shipment.
+const TRACKING_STATUS_COPY: Record<string, string> = {
+  "on-hold": "Awaiting payment",
+  pending: "Awaiting payment",
+  processing: "Preparing shipment",
+  completed: "Delivered",
+  cancelled: "Order cancelled",
+  refunded: "Refunded",
+  failed: "Payment failed",
+};
+
+function trackingUrl(carrier: string, number: string): string | null {
+  if (carrier.trim().toUpperCase() !== "USPS") return null;
+  return `https://tools.usps.com/go/TrackConfirmAction?tLabels=${encodeURIComponent(number)}`;
+}
+
+function TrackingRow({ order }: { order: OrderSummary }) {
+  const url = order.trackingNumber ? trackingUrl(order.trackingCarrier, order.trackingNumber) : null;
+
+  return (
+    <div className="glass-card rounded-xl px-5 py-4 flex items-center justify-between gap-4">
+      <div className="min-w-0">
+        <div className="flex items-center gap-2.5 mb-1">
+          <span className="font-display font-700 text-white text-sm">Order #{order.number}</span>
+          <StatusBadge status={order.status} />
+        </div>
+        <p className="font-mono text-[10px] text-white/30 tracking-wide">{formatDate(order.dateCreated)}</p>
+      </div>
+      <div className="text-right shrink-0">
+        {order.trackingNumber ? (
+          <>
+            <p className="font-mono text-sm text-white/80">{order.trackingNumber}</p>
+            {url && (
+              <a
+                href={url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-mono text-xs text-blue-400 hover:text-blue-300 transition-colors"
+              >
+                Track Package →
+              </a>
+            )}
+          </>
+        ) : (
+          <p className="font-body text-sm text-white/40">
+            {TRACKING_STATUS_COPY[order.status] ?? "No tracking yet"}
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function TrackingTab({ token }: { token: string }) {
+  const [orders, setOrders] = useState<OrderSummary[] | null>(null);
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/account/orders", { headers: { Authorization: `Bearer ${token}` } })
+      .then((r) => {
+        if (!r.ok) throw new Error();
+        return r.json() as Promise<OrderSummary[]>;
+      })
+      .then(setOrders)
+      .catch(() => setError(true));
+  }, [token]);
+
+  if (error) {
+    return <p className="font-body text-sm text-white/30 text-center py-12">Could not load your orders. Please try again later.</p>;
+  }
+
+  if (!orders) {
+    return (
+      <div className="space-y-3">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <div key={i} className="glass-card rounded-xl h-16 animate-pulse" />
+        ))}
+      </div>
+    );
+  }
+
+  if (orders.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <p className="font-body text-white/40 text-sm">You haven&apos;t placed any orders yet.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      {orders.map((order) => (
+        <TrackingRow key={order.id} order={order} />
       ))}
     </div>
   );
@@ -304,7 +409,12 @@ function ProfileTab({ token }: { token: string }) {
 
 export default function AccountDashboard() {
   const { user, logout } = useAuth();
-  const [tab, setTab] = useState<"orders" | "profile">("orders");
+  const searchParams = useSearchParams();
+  // Lets the homepage "Track an Order" CTA (/account?tab=tracking) land
+  // directly on the Tracking tab instead of defaulting to Orders.
+  const [tab, setTab] = useState<"orders" | "tracking" | "profile">(
+    searchParams.get("tab") === "tracking" ? "tracking" : searchParams.get("tab") === "profile" ? "profile" : "orders"
+  );
 
   if (!user) return null;
 
@@ -342,7 +452,7 @@ export default function AccountDashboard() {
 
         {/* Simple header tabs — underline style, standard ecom-account pattern */}
         <div className="flex items-center gap-6 border-b border-white/10 mb-6">
-          {(["orders", "profile"] as const).map((t) => (
+          {(["orders", "tracking", "profile"] as const).map((t) => (
             <button
               key={t}
               type="button"
@@ -353,12 +463,12 @@ export default function AccountDashboard() {
                   : "border-transparent text-white/40 hover:text-white/70"
               }`}
             >
-              {t === "orders" ? "Orders" : "Profile"}
+              {t === "orders" ? "Orders" : t === "tracking" ? "Tracking" : "Profile"}
             </button>
           ))}
         </div>
 
-        {tab === "orders" ? <OrdersTab token={user.token} /> : <ProfileTab token={user.token} />}
+        {tab === "orders" ? <OrdersTab token={user.token} /> : tab === "tracking" ? <TrackingTab token={user.token} /> : <ProfileTab token={user.token} />}
 
         <p className="font-mono text-[9px] text-white/20 tracking-wide leading-relaxed text-center mt-10 pt-6 border-t border-white/5">
           Anvil Compounds products are intended solely for laboratory and investigational use.

@@ -24,6 +24,7 @@ export interface GuestOrderDetail {
   orderKey: string;
   paymentMethod: string;
   trackingNumber: string | null;
+  trackingCarrier: string;
 }
 
 interface WCOrder {
@@ -131,6 +132,7 @@ export async function POST(req: NextRequest) {
     orderKey: order.order_key,
     paymentMethod: order.payment_method,
     trackingNumber: order.meta_data.find((m) => m.key === "tracking_number")?.value || null,
+    trackingCarrier: order.meta_data.find((m) => m.key === "tracking_carrier")?.value || "USPS",
   };
 
   return NextResponse.json(detail);
