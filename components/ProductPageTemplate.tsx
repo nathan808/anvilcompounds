@@ -302,7 +302,9 @@ export default function ProductPageTemplate({
       )}
 
       {/* ── Footer compliance ─────────────────────────────────────────────── */}
-      <section className="bg-mock-page border-t border-mock-line py-8">
+      {/* id targeted by AddToCartButton's mobile sticky bar so it un-sticks
+          before covering this text — see stickyBarOnMobile in AddToCartButton.tsx. */}
+      <section id="compliance-footer" className="bg-mock-page border-t border-mock-line py-8">
         <div className="max-w-5xl mx-auto px-6 text-center">
           <p className="font-mono text-[10px] text-mock-sub tracking-wide leading-relaxed">
             Anvil Compounds products are intended solely for laboratory and

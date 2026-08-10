@@ -7,7 +7,7 @@ import Footer from "@/components/Footer";
 const SUPPORT_EMAIL = "support@anvilcompounds.shop";
 
 function ContactForm() {
-  const [form, setForm] = useState({ name: "", email: "", message: "" });
+  const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
   const [submitting, setSubmitting] = useState(false);
   const [status, setStatus] = useState<"idle" | "sent" | "error">("idle");
   const [error, setError] = useState("");
@@ -35,7 +35,7 @@ function ContactForm() {
         return;
       }
       setStatus("sent");
-      setForm({ name: "", email: "", message: "" });
+      setForm({ name: "", email: "", subject: "", message: "" });
     } catch {
       setError("Something went wrong. Please try again.");
       setStatus("error");
@@ -69,6 +69,10 @@ function ContactForm() {
       <div>
         <label className={labelClass}>Email *</label>
         <input type="email" required value={form.email} onChange={(e) => set("email", e.target.value)} placeholder="you@institution.edu" className={inputClass} maxLength={254} />
+      </div>
+      <div>
+        <label className={labelClass}>Subject</label>
+        <input value={form.subject} onChange={(e) => set("subject", e.target.value)} placeholder="What's this about? (optional)" className={inputClass} maxLength={200} />
       </div>
       <div>
         <label className={labelClass}>Message *</label>

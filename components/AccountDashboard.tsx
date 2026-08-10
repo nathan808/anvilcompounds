@@ -4,7 +4,8 @@ import { useState, useEffect, useCallback, FormEvent } from "react";
 import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/lib/authContext";
-import type { AccountProfile } from "@/app/api/account/profile/route";
+import type { AccountDetails } from "@/app/api/account/profile/route";
+import type { AccountAddresses, AddressFields } from "@/app/api/account/addresses/route";
 import type { OrderSummary } from "@/app/api/account/orders/route";
 import type { AccountOrderDetail } from "@/app/api/account/orders/[id]/route";
 import OrderDetailBody from "@/components/OrderDetailBody";
@@ -281,26 +282,38 @@ function TrackingTab({ token }: { token: string }) {
   );
 }
 
-// ─── Profile tab ───────────────────────────────────────────────────────────────
+// ─── Shared form styles ─────────────────────────────────────────────────────────
 
-function ProfileTab({ token }: { token: string }) {
-  const [profile, setProfile] = useState<AccountProfile | null>(null);
-  const [form, setForm] = useState<AccountProfile | null>(null);
+const inputClass = "w-full px-4 py-3 bg-white/5 border border-white/10 focus:border-blue-500/50 focus:bg-white/8 rounded-xl text-white placeholder-white/20 font-body text-sm outline-none transition-all duration-300";
+const labelClass = "block font-mono text-xs text-white/40 tracking-widest uppercase mb-2";
+
+function StatusMessage({ status, savedText }: { status: "idle" | "saved" | "error"; savedText: string }) {
+  if (status === "saved") {
+    return <div className="px-4 py-3 rounded-xl bg-green-500/10 border border-green-500/20 text-green-400 font-body text-sm">{savedText}</div>;
+  }
+  if (status === "error") {
+    return <div className="px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 font-body text-sm">Something went wrong. Please try again.</div>;
+  }
+  return null;
+}
+
+// ─── Account Details tab ────────────────────────────────────────────────────────
+
+function AccountDetailsTab({ token }: { token: string }) {
+  const [details, setDetails] = useState<AccountDetails | null>(null);
+  const [form, setForm] = useState<AccountDetails | null>(null);
   const [saving, setSaving] = useState(false);
   const [status, setStatus] = useState<"idle" | "saved" | "error">("idle");
 
   useEffect(() => {
     fetch("/api/account/profile", { headers: { Authorization: `Bearer ${token}` } })
       .then((r) => (r.ok ? r.json() : null))
-      .then((data) => { setProfile(data); setForm(data); });
+      .then((data) => { setDetails(data); setForm(data); });
   }, [token]);
 
-  const set = (k: keyof AccountProfile, v: string) => setForm((p) => (p ? { ...p, [k]: v } : p));
+  const set = (k: keyof AccountDetails, v: string) => setForm((p) => (p ? { ...p, [k]: v } : p));
 
-  const isValid = !!form &&
-    form.firstName.trim().length > 0 &&
-    form.lastName.trim().length > 0 &&
-    (form.zip.trim() === "" || ZIP_RE.test(form.zip.trim()));
+  const isValid = !!form && form.firstName.trim().length > 0 && form.lastName.trim().length > 0;
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -313,10 +326,10 @@ function ProfileTab({ token }: { token: string }) {
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify(form),
       });
-      if (!res.ok) throw new Error();
-      const updated = (await res.json()) as AccountProfile;
-      setProfile(updated);
-      setForm(updated);
+      const data = (await res.json()) as AccountDetails & { error?: string };
+      if (!res.ok || data.error) throw new Error();
+      setDetails(data);
+      setForm(data);
       setStatus("saved");
     } catch {
       setStatus("error");
@@ -325,21 +338,15 @@ function ProfileTab({ token }: { token: string }) {
     }
   };
 
-  const inputClass = "w-full px-4 py-3 bg-white/5 border border-white/10 focus:border-blue-500/50 focus:bg-white/8 rounded-xl text-white placeholder-white/20 font-body text-sm outline-none transition-all duration-300";
-  const labelClass = "block font-mono text-xs text-white/40 tracking-widest uppercase mb-2";
-
-  if (!form || !profile) {
-    return (
-      <div className="glass-card rounded-2xl p-8 animate-pulse h-96" />
-    );
+  if (!form || !details) {
+    return <div className="glass-card rounded-2xl p-8 animate-pulse h-72" />;
   }
 
   return (
     <form onSubmit={handleSubmit} className="glass-card rounded-2xl p-6 md:p-8 space-y-5">
-      {/* Read-only credentials */}
       <div className="pb-5 border-b border-white/5">
         <p className={labelClass}>Email</p>
-        <p className="font-body text-sm text-white/70 mb-3">{profile.email}</p>
+        <p className="font-body text-sm text-white/70 mb-3">{details.email}</p>
         <p className="font-mono text-[10px] text-white/25 tracking-wide leading-relaxed">
           Email and date of birth are tied to your sign-in and can&apos;t be changed here —
           contact support@anvilcompounds.shop to update either.
@@ -349,11 +356,11 @@ function ProfileTab({ token }: { token: string }) {
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className={labelClass}>First Name *</label>
-          <input required value={form.firstName} onChange={(e) => set("firstName", e.target.value)} className={inputClass} />
+          <input required value={form.firstName} onChange={(e) => set("firstName", e.target.value)} className={inputClass} maxLength={60} />
         </div>
         <div>
           <label className={labelClass}>Last Name *</label>
-          <input required value={form.lastName} onChange={(e) => set("lastName", e.target.value)} className={inputClass} />
+          <input required value={form.lastName} onChange={(e) => set("lastName", e.target.value)} className={inputClass} maxLength={60} />
         </div>
       </div>
 
@@ -362,35 +369,136 @@ function ProfileTab({ token }: { token: string }) {
         <input value={form.phone} onChange={(e) => set("phone", e.target.value)} placeholder="(555) 555-5555" className={inputClass} />
       </div>
 
-      <div className="pt-3">
-        <p className="font-mono text-xs text-blue-400 tracking-[0.2em] uppercase mb-4">Shipping Address</p>
-        <div className="space-y-4">
-          <input value={form.address1} onChange={(e) => set("address1", e.target.value)} placeholder="Address line 1" className={inputClass} />
-          <input value={form.address2} onChange={(e) => set("address2", e.target.value)} placeholder="Address line 2 (optional)" className={inputClass} />
-          <div className="grid grid-cols-2 gap-4">
-            <input value={form.city} onChange={(e) => set("city", e.target.value)} placeholder="City" className={inputClass} />
-            <select value={form.state} onChange={(e) => set("state", e.target.value)} className={inputClass}>
-              <option value="">State</option>
-              {US_STATES.map((s) => <option key={s} value={s}>{s}</option>)}
-            </select>
-          </div>
-          <input
-            value={form.zip}
-            onChange={(e) => set("zip", e.target.value)}
-            placeholder="ZIP code"
-            className={`${inputClass} max-w-[160px]`}
-          />
-        </div>
-      </div>
+      <StatusMessage status={status} savedText="Account details updated." />
 
-      {status === "saved" && (
-        <div className="px-4 py-3 rounded-xl bg-green-500/10 border border-green-500/20 text-green-400 font-body text-sm">
-          Profile updated.
+      <button
+        type="submit"
+        disabled={saving || !isValid}
+        className="w-full py-3.5 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-display font-700 text-sm rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-blue-600/30"
+      >
+        {saving ? "Saving..." : "Save Changes"}
+      </button>
+    </form>
+  );
+}
+
+// ─── Addresses tab ───────────────────────────────────────────────────────────────
+
+const BLANK_ADDRESS: AddressFields = { firstName: "", lastName: "", address1: "", address2: "", city: "", state: "", zip: "" };
+
+function AddressFieldset({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: AddressFields;
+  onChange: (next: AddressFields) => void;
+}) {
+  const set = (k: keyof AddressFields, v: string) => onChange({ ...value, [k]: v });
+  return (
+    <div>
+      <p className="font-mono text-xs text-blue-400 tracking-[0.2em] uppercase mb-4">{label}</p>
+      <div className="space-y-4">
+        <div className="grid grid-cols-2 gap-4">
+          <input value={value.firstName} onChange={(e) => set("firstName", e.target.value)} placeholder="First name" className={inputClass} />
+          <input value={value.lastName} onChange={(e) => set("lastName", e.target.value)} placeholder="Last name" className={inputClass} />
         </div>
-      )}
+        <input value={value.address1} onChange={(e) => set("address1", e.target.value)} placeholder="Address line 1" className={inputClass} />
+        <input value={value.address2} onChange={(e) => set("address2", e.target.value)} placeholder="Address line 2 (optional)" className={inputClass} />
+        <div className="grid grid-cols-2 gap-4">
+          <input value={value.city} onChange={(e) => set("city", e.target.value)} placeholder="City" className={inputClass} />
+          <select value={value.state} onChange={(e) => set("state", e.target.value)} className={inputClass}>
+            <option value="">State</option>
+            {US_STATES.map((s) => <option key={s} value={s}>{s}</option>)}
+          </select>
+        </div>
+        <input
+          value={value.zip}
+          onChange={(e) => set("zip", e.target.value)}
+          placeholder="ZIP code"
+          className={`${inputClass} max-w-[160px]`}
+        />
+      </div>
+    </div>
+  );
+}
+
+function isAddressBlank(a: AddressFields): boolean {
+  return !a.firstName.trim() && !a.lastName.trim() && !a.address1.trim() &&
+    !a.address2.trim() && !a.city.trim() && !a.state.trim() && !a.zip.trim();
+}
+
+function isAddressComplete(a: AddressFields): boolean {
+  return !!a.firstName.trim() && !!a.lastName.trim() && !!a.address1.trim() &&
+    !!a.city.trim() && !!a.state.trim() && ZIP_RE.test(a.zip.trim());
+}
+
+function AddressesTab({ token }: { token: string }) {
+  const [addresses, setAddresses] = useState<AccountAddresses | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [status, setStatus] = useState<"idle" | "saved" | "error">("idle");
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    fetch("/api/account/addresses", { headers: { Authorization: `Bearer ${token}` } })
+      .then((r) => (r.ok ? r.json() : null))
+      .then(setAddresses);
+  }, [token]);
+
+  const isValid = !!addresses &&
+    (isAddressBlank(addresses.billing) || isAddressComplete(addresses.billing)) &&
+    (isAddressBlank(addresses.shipping) || isAddressComplete(addresses.shipping));
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!addresses || !isValid) return;
+    setSaving(true);
+    setStatus("idle");
+    setError("");
+    try {
+      const res = await fetch("/api/account/addresses", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify(addresses),
+      });
+      const data = (await res.json()) as AccountAddresses & { error?: string };
+      if (!res.ok || data.error) {
+        setError((data as { error?: string }).error ?? "Something went wrong. Please try again.");
+        setStatus("error");
+        return;
+      }
+      setAddresses(data);
+      setStatus("saved");
+    } catch {
+      setError("Something went wrong. Please try again.");
+      setStatus("error");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (!addresses) {
+    return <div className="glass-card rounded-2xl p-8 animate-pulse h-96" />;
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="glass-card rounded-2xl p-6 md:p-8 space-y-8">
+      <AddressFieldset
+        label="Billing Address"
+        value={addresses.billing}
+        onChange={(billing) => setAddresses({ ...addresses, billing })}
+      />
+      <AddressFieldset
+        label="Shipping Address"
+        value={addresses.shipping}
+        onChange={(shipping) => setAddresses({ ...addresses, shipping })}
+      />
+
+      {status === "saved" && <StatusMessage status="saved" savedText="Addresses updated." />}
       {status === "error" && (
         <div className="px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 font-body text-sm">
-          Something went wrong. Please try again.
+          {error || "Something went wrong. Please try again."}
         </div>
       )}
 
@@ -405,15 +513,303 @@ function ProfileTab({ token }: { token: string }) {
   );
 }
 
+// ─── Contact Support tab ─────────────────────────────────────────────────────────
+
+function ContactSupportTab({ token, email }: { token: string; email: string }) {
+  const [subject, setSubject] = useState("");
+  const [message, setMessage] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [status, setStatus] = useState<"idle" | "sent" | "error">("idle");
+  const [error, setError] = useState("");
+
+  const isValid = subject.trim().length > 0 && message.trim().length > 0;
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!isValid) return;
+    setSubmitting(true);
+    setStatus("idle");
+    setError("");
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ name: email, email, subject, message }),
+      });
+      const data = await res.json();
+      if (!res.ok || data.error) {
+        setError(data.error ?? "Something went wrong. Please try again.");
+        setStatus("error");
+        return;
+      }
+      setSubject("");
+      setMessage("");
+      setStatus("sent");
+    } catch {
+      setError("Something went wrong. Please try again.");
+      setStatus("error");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  if (status === "sent") {
+    return (
+      <div className="glass-card rounded-2xl p-8 text-center">
+        <p className="font-display font-700 text-white text-lg mb-2">Message sent</p>
+        <p className="font-body text-sm text-white/50 mb-4">
+          We&apos;ll get back to you at {email}, usually within one business day.
+        </p>
+        <button
+          type="button"
+          onClick={() => setStatus("idle")}
+          className="font-mono text-xs text-blue-400 hover:text-blue-300 transition-colors"
+        >
+          Send another message
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="glass-card rounded-2xl p-6 md:p-8 space-y-5">
+      <p className="font-body text-sm text-white/50">
+        Sent to our support team from {email} — we&apos;ll reply there.
+      </p>
+      <div>
+        <label className={labelClass}>Subject *</label>
+        <input required value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="What's this about?" className={inputClass} maxLength={200} />
+      </div>
+      <div>
+        <label className={labelClass}>Message *</label>
+        <textarea
+          required
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          placeholder="How can we help?"
+          rows={6}
+          maxLength={4000}
+          className={`${inputClass} resize-none`}
+        />
+      </div>
+      {status === "error" && (
+        <div className="px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 font-body text-sm">{error}</div>
+      )}
+      <button
+        type="submit"
+        disabled={submitting || !isValid}
+        className="w-full py-3.5 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-display font-700 text-sm rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-blue-600/30"
+      >
+        {submitting ? "Sending..." : "Send Message →"}
+      </button>
+    </form>
+  );
+}
+
+// ─── Report a Problem tab ─────────────────────────────────────────────────────────
+
+const ISSUE_TYPES: { value: string; label: string }[] = [
+  { value: "wrong_item", label: "Wrong item received" },
+  { value: "didnt_arrive", label: "Order didn't arrive" },
+  { value: "damaged", label: "Item arrived damaged" },
+  { value: "other", label: "Other" },
+];
+
+const MAX_PHOTO_BYTES = 4 * 1024 * 1024; // keep in sync with app/api/account/report-problem/route.ts
+
+function fileToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      // reader.result is "data:<mime>;base64,<data>" — Resend's attachments
+      // API wants just the base64 payload.
+      const result = reader.result as string;
+      resolve(result.slice(result.indexOf(",") + 1));
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+function ReportProblemTab({ token }: { token: string }) {
+  const [orders, setOrders] = useState<OrderSummary[] | null>(null);
+  const [orderId, setOrderId] = useState("");
+  const [issueType, setIssueType] = useState("");
+  const [description, setDescription] = useState("");
+  const [photo, setPhoto] = useState<File | null>(null);
+  const [photoError, setPhotoError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [status, setStatus] = useState<"idle" | "sent" | "error">("idle");
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    fetch("/api/account/orders", { headers: { Authorization: `Bearer ${token}` } })
+      .then((r) => (r.ok ? r.json() : []))
+      .then(setOrders)
+      .catch(() => setOrders([]));
+  }, [token]);
+
+  const isValid = !!orderId && !!issueType && description.trim().length > 0 && !photoError;
+
+  const handlePhotoChange = (file: File | null) => {
+    setPhotoError("");
+    if (file && file.size > MAX_PHOTO_BYTES) {
+      setPhotoError("Photo must be under 4MB.");
+      setPhoto(null);
+      return;
+    }
+    setPhoto(file);
+  };
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!isValid) return;
+    setSubmitting(true);
+    setStatus("idle");
+    setError("");
+    try {
+      const photoPayload = photo
+        ? { photoBase64: await fileToBase64(photo), photoFilename: photo.name, photoMimeType: photo.type }
+        : {};
+      const res = await fetch("/api/account/report-problem", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ orderId: Number(orderId), issueType, description, ...photoPayload }),
+      });
+      const data = await res.json();
+      if (!res.ok || data.error) {
+        setError(data.error ?? "Something went wrong. Please try again.");
+        setStatus("error");
+        return;
+      }
+      setOrderId("");
+      setIssueType("");
+      setDescription("");
+      setPhoto(null);
+      setStatus("sent");
+    } catch {
+      setError("Something went wrong. Please try again.");
+      setStatus("error");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  if (status === "sent") {
+    return (
+      <div className="glass-card rounded-2xl p-8 text-center">
+        <p className="font-display font-700 text-white text-lg mb-2">Report submitted</p>
+        <p className="font-body text-sm text-white/50 mb-4">
+          Our support team has been notified and will follow up by email, usually within one business day.
+        </p>
+        <button
+          type="button"
+          onClick={() => setStatus("idle")}
+          className="font-mono text-xs text-blue-400 hover:text-blue-300 transition-colors"
+        >
+          Report another issue
+        </button>
+      </div>
+    );
+  }
+
+  if (!orders) {
+    return <div className="glass-card rounded-2xl p-8 animate-pulse h-96" />;
+  }
+
+  if (orders.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <p className="font-body text-white/40 text-sm">You don&apos;t have any orders to report an issue with yet.</p>
+      </div>
+    );
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="glass-card rounded-2xl p-6 md:p-8 space-y-5">
+      <div>
+        <label className={labelClass}>Order *</label>
+        <select required value={orderId} onChange={(e) => setOrderId(e.target.value)} className={inputClass}>
+          <option value="">Select an order</option>
+          {orders.map((o) => (
+            <option key={o.id} value={o.id}>
+              #{o.number} — {formatDate(o.dateCreated)} — {o.itemSummary}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div>
+        <label className={labelClass}>Issue Type *</label>
+        <select required value={issueType} onChange={(e) => setIssueType(e.target.value)} className={inputClass}>
+          <option value="">Select an issue</option>
+          {ISSUE_TYPES.map((t) => (
+            <option key={t.value} value={t.value}>{t.label}</option>
+          ))}
+        </select>
+      </div>
+
+      <div>
+        <label className={labelClass}>Description *</label>
+        <textarea
+          required
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          placeholder="Tell us what happened"
+          rows={5}
+          maxLength={2000}
+          className={`${inputClass} resize-none`}
+        />
+      </div>
+
+      <div>
+        <label className={labelClass}>Photo (optional)</label>
+        <input
+          type="file"
+          accept="image/*"
+          onChange={(e) => handlePhotoChange(e.target.files?.[0] ?? null)}
+          className="w-full text-sm text-white/50 font-body file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-white/10 file:text-white file:font-mono file:text-xs file:cursor-pointer hover:file:bg-white/15"
+        />
+        {photoError && <p className="font-mono text-[10px] text-red-400 mt-1.5">{photoError}</p>}
+      </div>
+
+      {status === "error" && (
+        <div className="px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 font-body text-sm">{error}</div>
+      )}
+
+      <button
+        type="submit"
+        disabled={submitting || !isValid}
+        className="w-full py-3.5 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-display font-700 text-sm rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-blue-600/30"
+      >
+        {submitting ? "Submitting..." : "Submit Report"}
+      </button>
+    </form>
+  );
+}
+
 // ─── Dashboard shell ────────────────────────────────────────────────────────────
+
+const TABS = ["orders", "tracking", "addresses", "details", "support", "report"] as const;
+type Tab = (typeof TABS)[number];
+
+const TAB_LABELS: Record<Tab, string> = {
+  orders: "Orders",
+  tracking: "Tracking",
+  addresses: "Addresses",
+  details: "Account Details",
+  support: "Contact Support",
+  report: "Report a Problem",
+};
 
 export default function AccountDashboard() {
   const { user, logout } = useAuth();
   const searchParams = useSearchParams();
   // Lets the homepage "Track an Order" CTA (/account?tab=tracking) land
   // directly on the Tracking tab instead of defaulting to Orders.
-  const [tab, setTab] = useState<"orders" | "tracking" | "profile">(
-    searchParams.get("tab") === "tracking" ? "tracking" : searchParams.get("tab") === "profile" ? "profile" : "orders"
+  const requestedTab = searchParams.get("tab");
+  const [tab, setTab] = useState<Tab>(
+    (TABS as readonly string[]).includes(requestedTab ?? "") ? (requestedTab as Tab) : "orders"
   );
 
   if (!user) return null;
@@ -450,25 +846,32 @@ export default function AccountDashboard() {
           </div>
         </div>
 
-        {/* Simple header tabs — underline style, standard ecom-account pattern */}
-        <div className="flex items-center gap-6 border-b border-white/10 mb-6">
-          {(["orders", "tracking", "profile"] as const).map((t) => (
+        {/* Simple header tabs — underline style, standard ecom-account pattern.
+            Horizontally scrollable (overflow-x-auto + whitespace-nowrap) since
+            six tabs don't fit the max-w-2xl container on narrow screens. */}
+        <div className="flex items-center gap-6 border-b border-white/10 mb-6 overflow-x-auto whitespace-nowrap">
+          {TABS.map((t) => (
             <button
               key={t}
               type="button"
               onClick={() => setTab(t)}
-              className={`pb-3 -mb-px font-display font-600 text-sm border-b-2 transition-colors duration-200 ${
+              className={`pb-3 -mb-px shrink-0 font-display font-600 text-sm border-b-2 transition-colors duration-200 ${
                 tab === t
                   ? "border-blue-500 text-white"
                   : "border-transparent text-white/40 hover:text-white/70"
               }`}
             >
-              {t === "orders" ? "Orders" : t === "tracking" ? "Tracking" : "Profile"}
+              {TAB_LABELS[t]}
             </button>
           ))}
         </div>
 
-        {tab === "orders" ? <OrdersTab token={user.token} /> : tab === "tracking" ? <TrackingTab token={user.token} /> : <ProfileTab token={user.token} />}
+        {tab === "orders" && <OrdersTab token={user.token} />}
+        {tab === "tracking" && <TrackingTab token={user.token} />}
+        {tab === "addresses" && <AddressesTab token={user.token} />}
+        {tab === "details" && <AccountDetailsTab token={user.token} />}
+        {tab === "support" && <ContactSupportTab token={user.token} email={user.email} />}
+        {tab === "report" && <ReportProblemTab token={user.token} />}
 
         <p className="font-mono text-[9px] text-white/20 tracking-wide leading-relaxed text-center mt-10 pt-6 border-t border-white/5">
           Anvil Compounds products are intended solely for laboratory and investigational use.

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getAuthenticatedCustomerId, getBearerToken } from "@/lib/verifyJwt";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const SUPPORT_EMAIL = "support@anvilcompounds.shop";
@@ -19,7 +20,7 @@ function escapeHtml(s: string): string {
 // so an unconfigured key is reported as a real error rather than a silent
 // "success" that actually loses the message.
 export async function POST(req: NextRequest) {
-  let body: { name?: string; email?: string; message?: string };
+  let body: { name?: string; email?: string; subject?: string; message?: string };
   try {
     body = await req.json();
   } catch {
@@ -28,11 +29,17 @@ export async function POST(req: NextRequest) {
 
   const name = (body.name ?? "").trim().slice(0, 100);
   const email = (body.email ?? "").trim().slice(0, 254);
+  const subject = (body.subject ?? "").trim().slice(0, 200);
   const message = (body.message ?? "").trim().slice(0, 4000);
 
   if (!name || !EMAIL_RE.test(email) || !message) {
     return NextResponse.json({ error: "Please fill in your name, a valid email, and a message." }, { status: 400 });
   }
+
+  // Never trust a client-supplied customer ID — derive it from the verified
+  // JWT (absent for the guest /contact page, present for the account
+  // dashboard's Contact Support tab, which sends the Authorization header).
+  const customerId = await getAuthenticatedCustomerId(getBearerToken(req));
 
   const resendKey = process.env.RESEND_API_KEY;
   if (!resendKey) {
@@ -53,10 +60,12 @@ export async function POST(req: NextRequest) {
         from: "Anvil Compounds Contact Form <noreply@anvilcompounds.shop>",
         to: [SUPPORT_EMAIL],
         reply_to: email,
-        subject: `Contact form: ${name}`,
+        subject: subject ? `Contact form: ${subject}` : `Contact form: ${name}`,
         html: `
           <div style="font-family:monospace;max-width:560px;margin:0 auto;padding:24px;">
             <p><strong>From:</strong> ${escapeHtml(name)} (${escapeHtml(email)})</p>
+            ${customerId ? `<p><strong>Customer ID:</strong> ${customerId}</p>` : ""}
+            ${subject ? `<p><strong>Subject:</strong> ${escapeHtml(subject)}</p>` : ""}
             <p style="white-space:pre-wrap;">${escapeHtml(message)}</p>
           </div>
         `,

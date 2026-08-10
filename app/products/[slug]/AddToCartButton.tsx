@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useCart } from "@/lib/cartContext";
 import PurchaseFooter from "@/components/PurchaseFooter";
@@ -32,6 +32,11 @@ interface Props {
   // owning its own state so this component still works standalone.
   selectedIndex?: number;
   onSelectIndex?: (index: number) => void;
+  // Only set true on the mobile instance in ProductHero — the desktop
+  // instance's whole buy column is already `lg:sticky` there, so it doesn't
+  // need this fixed bottom bar (and the `lg:hidden` on the bar itself would
+  // hide it there anyway; this just skips the scroll listener entirely).
+  stickyBarOnMobile?: boolean;
 }
 
 const QUICK_PICKS = [1, 2, 5, 6, 9];
@@ -48,6 +53,7 @@ export default function AddToCartButton({
   showFooter = true,
   selectedIndex: controlledIndex,
   onSelectIndex,
+  stickyBarOnMobile = false,
 }: Props) {
   const { addItem, openCart, items: cartItems } = useCart();
   const [internalIndex, setInternalIndex] = useState(0);
@@ -55,6 +61,32 @@ export default function AddToCartButton({
   const setSelectedIndex = onSelectIndex ?? setInternalIndex;
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
+  const mainCtaRef = useRef<HTMLButtonElement>(null);
+  const [showStickyBar, setShowStickyBar] = useState(false);
+
+  // Sticky bar appears once the main "Add to Cart" button scrolls out of
+  // view, and disappears again once the page's compliance-footer section
+  // (id="compliance-footer" in ProductPageTemplate) starts entering the
+  // viewport — so it never sits on top of the RUO text at the page bottom.
+  useEffect(() => {
+    if (!stickyBarOnMobile) return;
+    const handleScroll = () => {
+      if (!mainCtaRef.current) return;
+      const ctaPassed = mainCtaRef.current.getBoundingClientRect().bottom < 0;
+      const complianceFooter = document.getElementById("compliance-footer");
+      const complianceVisible = complianceFooter
+        ? complianceFooter.getBoundingClientRect().top < window.innerHeight
+        : false;
+      setShowStickyBar(ctaPassed && !complianceVisible);
+    };
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("resize", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleScroll);
+    };
+  }, [stickyBarOnMobile]);
 
   const basePrice = sizesPrices[selectedIndex] ?? priceNumber;
   const originalBasePrice = sizesOriginalPrices?.[selectedIndex] ?? null;
@@ -339,6 +371,7 @@ export default function AddToCartButton({
 
       {/* Main CTA */}
       <button
+        ref={mainCtaRef}
         onClick={handleAdd}
         className={`block w-full text-center py-4 font-display font-700 text-base rounded-xl transition-all duration-300 ${
           added
@@ -370,6 +403,40 @@ export default function AddToCartButton({
       {showFooter && (
         <div className="pt-1">
           <PurchaseFooter />
+        </div>
+      )}
+
+      {/* Mobile sticky bottom bar — see stickyBarOnMobile prop comment. */}
+      {stickyBarOnMobile && (
+        <div
+          // z-[55]: above BackToTop's z-50 (components/BackToTop.tsx) — that
+          // button also sits bottom-right on mobile and is mounted later in
+          // the DOM (root layout), so without a higher z-index here it would
+          // render on top of this bar's Add to Cart button instead of being
+          // cleanly covered by it.
+          className={`lg:hidden fixed bottom-0 left-0 right-0 z-[55] bg-white border-t border-mock-line shadow-[0_-4px_16px_rgba(0,0,0,0.12)] px-4 py-3 transition-transform duration-300 ${
+            showStickyBar ? "translate-y-0" : "translate-y-full"
+          }`}
+        >
+          <div className="flex items-center justify-between gap-3 max-w-lg mx-auto">
+            <div className="min-w-0">
+              <p className="font-mono text-[10px] text-mock-sub tracking-wide uppercase truncate">
+                {simplifySizeLabel(selectedSize)}
+                {qty > 1 ? ` × ${qty}` : ""}
+              </p>
+              <p className="font-display font-800 text-lg text-mock-navy">
+                ${(qty > 1 ? discountedLineTotal : unitPrice).toFixed(2)}
+              </p>
+            </div>
+            <button
+              onClick={handleAdd}
+              className={`shrink-0 px-6 py-3 rounded-xl font-display font-700 text-sm transition-all duration-300 ${
+                added ? "bg-green-600 text-white" : "bg-mock-cobalt hover:bg-mock-cobaltInk text-white"
+              }`}
+            >
+              {added ? "✓ Added" : "Add to Cart"}
+            </button>
+          </div>
         </div>
       )}
     </div>

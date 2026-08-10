@@ -85,6 +85,7 @@ export default function ProductHero({ product }: { product: ProductPageData }) {
             showFooter={false}
             selectedIndex={selectedIndex}
             onSelectIndex={setSelectedIndex}
+            stickyBarOnMobile
           />
 
           <SdsPreviewButton productName={product.name} fileUrl={product.sdsFile} />
