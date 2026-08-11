@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCart } from "@/lib/cartContext";
 import CartDrawer from "@/components/CartDrawer";
+import AnvilMark from "@/components/AnvilMark";
 import { BOGO_ENABLED } from "@/lib/bogoDiscount";
 
 // pushDown: true on pages that also render a fixed compliance bar above the
@@ -58,8 +59,10 @@ export default function Navbar({ pushDown = false }: { pushDown?: boolean }) {
         <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
           {/* Logo */}
           <a href="/" className="flex items-center group">
-            <span className="font-logo font-700 text-xl tracking-tight text-mock-navy">
-              ANVIL<span className="text-mock-cobalt font-600 text-sm tracking-[0.2em] ml-1">COMPOUNDS</span>
+            <span className="font-logo font-700 text-xl tracking-tight text-mock-navy flex items-center gap-1.5">
+              ANVIL
+              <AnvilMark className="w-4 h-4 text-mock-cobalt shrink-0" />
+              <span className="text-mock-cobalt font-600 text-sm tracking-[0.2em]">COMPOUNDS</span>
             </span>
           </a>
 

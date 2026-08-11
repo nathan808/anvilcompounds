@@ -65,7 +65,7 @@ export default function TrustSection() {
   const headerInView = useInView(headerRef, { once: true, margin: "-80px" });
 
   return (
-    <section id="trust" className="relative bg-mock-page py-[76px] overflow-hidden">
+    <section id="trust" className="relative bg-mock-graphite py-[76px] overflow-hidden">
       <div className="relative z-10 max-w-7xl mx-auto px-6">
         {/* Header */}
         <div ref={headerRef} className="max-w-2xl mb-10">
@@ -75,8 +75,8 @@ export default function TrustSection() {
             transition={{ duration: 0.6 }}
             className="flex items-center gap-3 mb-3"
           >
-            <div className="w-6 h-px bg-mock-cobalt" />
-            <span className="font-mono text-xs text-mock-cobaltInk tracking-[0.25em] uppercase">
+            <div className="w-6 h-px bg-mock-cobaltLight" />
+            <span className="font-mono text-xs text-mock-cobaltLight tracking-[0.25em] uppercase">
               004 / Why Anvil
             </span>
           </motion.div>
@@ -85,15 +85,15 @@ export default function TrustSection() {
             initial={{ opacity: 0, y: 30 }}
             animate={headerInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.7, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-            className="font-heading font-700 text-mock-navy mb-4"
+            className="font-heading font-700 text-[#EAF0FA] mb-4"
             style={{ fontSize: "clamp(2.1rem, 4.4vw, 3.5rem)" }}
           >
             Built Around One
             <br />
-            <span className="font-800 italic text-mock-cobalt">Standard</span>
+            <span className="font-800 italic text-mock-cobaltLight">Standard</span>
           </motion.h2>
 
-          <p className="font-body text-mock-sub text-base">
+          <p className="font-body text-[#AEBBD0] text-base">
             Anyone can print 99% pure on a label. We built our pipeline so you never have to
             take our word for it.
           </p>
@@ -108,12 +108,12 @@ export default function TrustSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-60px" }}
               transition={{ duration: 0.6, delay: i * 0.08 }}
-              className="bg-white border border-mock-line rounded-xl p-4 md:p-5 text-center"
+              className="bg-white/5 border border-white/10 rounded-xl p-4 md:p-5 text-center"
             >
-              <div className="font-display font-900 text-mock-cobalt mb-1" style={{ fontSize: "clamp(1.8rem, 3.6vw, 2.7rem)" }}>
+              <div className="font-display font-900 text-mock-cobaltLight mb-1" style={{ fontSize: "clamp(1.8rem, 3.6vw, 2.7rem)" }}>
                 {"display" in stat ? stat.display : <CountUp end={stat.value} suffix={stat.suffix} />}
               </div>
-              <div className="font-mono text-xs text-mock-sub tracking-wider uppercase leading-snug">
+              <div className="font-mono text-xs text-[#AEBBD0] tracking-wider uppercase leading-snug">
                 {stat.label}
               </div>
             </motion.div>
@@ -129,10 +129,10 @@ export default function TrustSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-60px" }}
               transition={{ duration: 0.6, delay: i * 0.1 }}
-              className="bg-white border border-mock-line rounded-xl p-5"
+              className="bg-white/5 border border-white/10 rounded-xl p-5"
             >
-              <h4 className="font-display font-700 text-mock-navy text-[15px] mb-1.5">{feature.title}</h4>
-              <p className="font-body text-mock-sub text-sm leading-relaxed">{feature.description}</p>
+              <h4 className="font-display font-700 text-[#EAF0FA] text-[15px] mb-1.5">{feature.title}</h4>
+              <p className="font-body text-[#AEBBD0] text-sm leading-relaxed">{feature.description}</p>
             </motion.div>
           ))}
         </div>

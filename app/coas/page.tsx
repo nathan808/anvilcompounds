@@ -35,18 +35,18 @@ export default async function COAsPage() {
   ).filter((p): p is NonNullable<typeof p> => p !== null);
 
   return (
-    <main className="min-h-screen bg-navy-950">
+    <main className="min-h-screen bg-mock-graphite">
       <Navbar />
 
       <div className="max-w-6xl mx-auto px-6 pt-32 pb-24">
         <div className="text-center mb-14">
-          <p className="font-mono text-xs text-blue-400/70 tracking-[0.2em] uppercase mb-3">
+          <p className="font-mono text-xs text-mock-cobaltLight tracking-[0.2em] uppercase mb-3">
             Documentation & Quality
           </p>
-          <h1 className="font-display font-700 text-4xl md:text-5xl text-white mb-4">
-            COA Library
+          <h1 className="font-heading font-700 text-4xl md:text-5xl text-[#EAF0FA] mb-4">
+            COA <span className="font-800 italic text-mock-cobaltLight">Library</span>
           </h1>
-          <p className="font-body text-white/40 text-base max-w-xl mx-auto">
+          <p className="font-body text-[#AEBBD0] text-base max-w-xl mx-auto">
             Certificate of Analysis for every batch, verified by an accredited independent
             third-party laboratory — HPLC purity, mass spectrometry identity, and endotoxin screening.
           </p>

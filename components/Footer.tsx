@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import PaymentMethodsBar from "@/components/PaymentMethodsBar";
+import AnvilMark from "@/components/AnvilMark";
 
 const POLICY_PAGES = [
   { label: "Privacy Policy",  href: "/legal/privacy-policy" },
@@ -54,16 +55,13 @@ export default function Footer() {
           {/* Brand column */}
           <div className="lg:col-span-2">
             <div className="flex items-center gap-3 mb-5">
-              <div className="relative w-8 h-8">
-                <div className="absolute inset-0 rounded bg-mock-cobalt rotate-45" />
-                <div className="absolute inset-[3px] rounded bg-mock-graphite rotate-45" />
-                <div className="absolute inset-[6px] rounded bg-mock-cobalt/80 rotate-45" />
-              </div>
-              <span className="font-display font-700 text-xl text-white tracking-tight">
-                ANVIL<span className="text-mock-cobaltLight font-400 text-sm tracking-[0.2em] ml-1">COMPOUNDS</span>
+              <span className="font-display font-700 text-xl text-white tracking-tight flex items-center gap-1.5">
+                ANVIL
+                <AnvilMark className="w-4 h-4 text-mock-cobaltLight shrink-0" />
+                <span className="text-mock-cobaltLight font-400 text-sm tracking-[0.2em]">COMPOUNDS</span>
               </span>
             </div>
-            <p className="font-body text-white/60 text-sm leading-relaxed mb-6 max-w-xs">
+            <p className="font-body text-[#AEBBD0] text-sm leading-relaxed mb-6 max-w-xs">
               Research-grade compounds independently verified to 99%+ purity through hexa-method
               testing. Based in Southern California.
             </p>
@@ -92,7 +90,7 @@ export default function Footer() {
             </a>
 
             {/* Address */}
-            <div className="flex items-start gap-2 font-mono text-xs text-white/55 tracking-wider leading-relaxed">
+            <div className="flex items-start gap-2 font-mono text-xs text-white/70 tracking-wider leading-relaxed">
               <svg className="w-3.5 h-3.5 text-white/40 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -135,7 +133,7 @@ export default function Footer() {
                 <li key={item.label}>
                   <a
                     href={item.href}
-                    className="font-body text-sm text-white/35 hover:text-white/70 transition-colors animated-underline"
+                    className="font-body text-sm text-white/55 hover:text-white/80 transition-colors animated-underline"
                   >
                     {item.label}
                   </a>
@@ -152,7 +150,7 @@ export default function Footer() {
               <div className="shrink-0 w-5 h-5 rounded-full border border-yellow-500/50 flex items-center justify-center mt-0.5">
                 <span className="text-yellow-400 text-xs font-bold">!</span>
               </div>
-              <p className="font-mono text-xs text-white/55 leading-relaxed tracking-wide">
+              <p className="font-mono text-xs text-white/70 leading-relaxed tracking-wide">
                 All products on this site are for <strong className="text-white">in vitro laboratory and research use only</strong>.
                 They are not intended for use in humans, animals, or for any therapeutic, diagnostic, or clinical application.
                 You must be <strong className="text-white">21 years of age or older</strong> to purchase.
@@ -179,7 +177,7 @@ export default function Footer() {
 
           {/* Bottom bar */}
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="font-mono text-xs text-white/45">
+            <p className="font-mono text-xs text-white/60">
               © {new Date().getFullYear()} Anvil Compounds. All rights reserved. San Diego, CA.
             </p>
             <div className="flex items-center gap-6 flex-wrap justify-center">
@@ -187,7 +185,7 @@ export default function Footer() {
                 <a
                   key={item.label}
                   href={item.href}
-                  className="font-mono text-xs text-white/45 hover:text-white transition-colors"
+                  className="font-mono text-xs text-white/60 hover:text-white transition-colors"
                 >
                   {item.label}
                 </a>

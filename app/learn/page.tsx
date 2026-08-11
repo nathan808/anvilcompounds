@@ -31,8 +31,8 @@ function AccordionItem({
       initial={{ opacity: 0, y: 18 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.55, delay: (globalIndex % 4) * 0.07, ease: [0.16, 1, 0.3, 1] }}
-      className={`glass-card rounded-xl overflow-hidden transition-all duration-300 ${
-        isOpen ? "border-blue-500/40 shadow-lg shadow-blue-600/10" : "hover:border-blue-600/25"
+      className={`bg-white/5 border border-white/10 rounded-xl overflow-hidden transition-all duration-300 ${
+        isOpen ? "border-mock-cobaltLight/40 shadow-lg shadow-mock-cobalt/10" : "hover:border-mock-cobalt/25"
       }`}
     >
       <button
@@ -43,7 +43,7 @@ function AccordionItem({
         <div className="flex items-center gap-4 min-w-0">
           <div
             className={`shrink-0 w-0.5 h-6 rounded-full transition-all duration-300 ${
-              isOpen ? "bg-blue-400" : "bg-blue-600/30 group-hover:bg-blue-600/60"
+              isOpen ? "bg-mock-cobaltLight" : "bg-mock-cobalt/30 group-hover:bg-mock-cobalt/60"
             }`}
           />
           <span
@@ -58,8 +58,8 @@ function AccordionItem({
         <div
           className={`shrink-0 w-7 h-7 rounded-full border flex items-center justify-center transition-all duration-300 ${
             isOpen
-              ? "border-blue-500/50 bg-blue-600/20 rotate-180"
-              : "border-white/15 group-hover:border-blue-600/30"
+              ? "border-mock-cobaltLight/50 bg-mock-cobalt/20 rotate-180"
+              : "border-white/15 group-hover:border-mock-cobalt/30"
           }`}
         >
           <svg
@@ -68,7 +68,7 @@ function AccordionItem({
             stroke="currentColor"
             strokeWidth="1.8"
             className={`w-3 h-3 transition-colors duration-200 ${
-              isOpen ? "text-blue-400" : "text-white/40"
+              isOpen ? "text-mock-cobaltLight" : "text-white/40"
             }`}
           >
             <path d="M2 4l4 4 4-4" strokeLinecap="round" strokeLinejoin="round" />
@@ -87,7 +87,7 @@ function AccordionItem({
             style={{ overflow: "hidden" }}
           >
             <div className="px-6 pb-6 pl-[calc(1.5rem+0.125rem+1rem)]">
-              <p className="font-body text-white/45 text-sm leading-relaxed">{item.a}</p>
+              <p className="font-body text-[#AEBBD0] text-sm leading-relaxed">{item.a}</p>
             </div>
           </motion.div>
         )}
@@ -121,11 +121,11 @@ function CategoryGroup({
         transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
         className="flex items-center gap-4 mb-5"
       >
-        <div className="w-4 h-px bg-blue-600/50" />
-        <span className="font-mono text-xs text-blue-400/70 tracking-[0.22em] uppercase">
+        <div className="w-4 h-px bg-mock-cobalt/50" />
+        <span className="font-mono text-xs text-mock-cobaltLight tracking-[0.22em] uppercase">
           {category}
         </span>
-        <div className="flex-1 h-px bg-blue-600/10" />
+        <div className="flex-1 h-px bg-mock-cobalt/10" />
       </motion.div>
 
       <div className="space-y-3">
@@ -174,14 +174,14 @@ function FaqTab() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-60px" }}
         transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
-        className="mt-8 p-7 rounded-2xl border border-blue-600/20 bg-blue-600/5 text-center"
+        className="mt-8 p-7 rounded-2xl border border-mock-cobalt/20 bg-mock-cobalt/5 text-center"
       >
-        <p className="font-body text-white/50 text-sm mb-4">
+        <p className="font-body text-[#AEBBD0] text-sm mb-4">
           Still have questions? Reach out directly.
         </p>
         <a
           href="mailto:support@anvilcompounds.shop"
-          className="inline-flex items-center gap-2 font-mono text-sm text-blue-400 hover:text-blue-300 transition-colors animated-underline"
+          className="inline-flex items-center gap-2 font-mono text-sm text-mock-cobaltLight hover:text-white transition-colors animated-underline"
         >
           <svg viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
             <path d="M3 4a2 2 0 00-2 2v1.161l8.441 4.221a1.25 1.25 0 001.118 0L19 7.162V6a2 2 0 00-2-2H3z" />
@@ -210,30 +210,30 @@ function JournalPostCard({ post }: { post: PostCardData }) {
   return (
     <Link
       href={`/blog/${post.slug}`}
-      className="group flex flex-col glass-card rounded-2xl overflow-hidden hover:border-blue-500/40 hover:shadow-xl hover:shadow-blue-600/10 hover:-translate-y-1 transition-all duration-500"
+      className="group flex flex-col bg-white/5 border border-white/10 rounded-2xl overflow-hidden hover:border-mock-cobaltLight/40 hover:shadow-xl hover:shadow-mock-cobalt/10 hover:-translate-y-1 transition-all duration-500"
     >
       <div className="flex flex-col flex-grow p-6">
         <div className="flex items-center gap-3 mb-3">
           {post.categories[0] && (
-            <span className="font-mono text-[10px] text-blue-400 tracking-[0.2em] uppercase">
+            <span className="font-mono text-[10px] text-mock-cobaltLight tracking-[0.2em] uppercase">
               {post.categories[0]}
             </span>
           )}
-          <span className="text-white/20 text-xs">·</span>
-          <span className="font-mono text-[10px] text-white/30 tracking-wider">
+          <span className="text-white/30 text-xs">·</span>
+          <span className="font-mono text-[10px] text-white/55 tracking-wider">
             {post.date}
           </span>
         </div>
 
-        <h2 className="font-display font-700 text-white text-lg leading-snug mb-3 group-hover:text-blue-300 transition-colors duration-300 line-clamp-3">
+        <h2 className="font-heading font-700 text-[#EAF0FA] text-lg leading-snug mb-3 group-hover:text-mock-cobaltLight transition-colors duration-300 line-clamp-3">
           {post.title}
         </h2>
 
-        <p className="font-body text-sm text-white/45 leading-relaxed line-clamp-2 flex-grow">
+        <p className="font-body text-sm text-[#AEBBD0] leading-relaxed line-clamp-2 flex-grow">
           {post.excerpt}
         </p>
 
-        <div className="flex items-center gap-2 mt-4 font-mono text-xs text-blue-400/70 group-hover:text-blue-400 transition-colors duration-300">
+        <div className="flex items-center gap-2 mt-4 font-mono text-xs text-mock-cobaltLight/70 group-hover:text-mock-cobaltLight transition-colors duration-300">
           <span>Read more</span>
           <span className="group-hover:translate-x-1 transition-transform duration-200">→</span>
         </div>
@@ -259,7 +259,7 @@ function JournalTab() {
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="glass-card rounded-2xl p-6 h-56 animate-pulse" />
+            <div key={i} className="bg-white/5 border border-white/10 rounded-2xl p-6 h-56 animate-pulse" />
           ))}
         </div>
       ) : posts.length > 0 ? (
@@ -270,11 +270,11 @@ function JournalTab() {
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center py-24 text-center">
-          <div className="w-12 h-px bg-blue-600/40 mb-6 mx-auto" />
-          <p className="font-mono text-xs text-blue-400/60 tracking-[0.25em] uppercase mb-3">
+          <div className="w-12 h-px bg-mock-cobalt/40 mb-6 mx-auto" />
+          <p className="font-mono text-xs text-mock-cobaltLight tracking-[0.25em] uppercase mb-3">
             Coming Soon
           </p>
-          <p className="font-body text-white/30 text-sm max-w-sm">
+          <p className="font-body text-white/55 text-sm max-w-sm">
             Research Journal posts are being prepared. Check back shortly.
           </p>
         </div>
@@ -293,7 +293,7 @@ function LearnContent() {
   const [tab, setTab] = useState<Tab>(initialTab);
 
   return (
-    <main className="bg-navy-950 min-h-screen">
+    <main className="bg-mock-graphite min-h-screen">
       <Navbar />
 
       {/* ── Hero ─────────────────────────────────────────────────────────── */}
@@ -352,9 +352,9 @@ function LearnContent() {
       </section>
 
       {/* ── Tab switcher ─────────────────────────────────────────────────── */}
-      <section className="bg-navy-900 pt-10 md:pt-14">
+      <section className="bg-mock-graphite pt-10 md:pt-14">
         <div className="max-w-xs mx-auto px-6 mb-10 md:mb-14">
-          <div className="flex glass-card rounded-xl p-1">
+          <div className="flex bg-white/5 border border-white/10 rounded-xl p-1">
             {(["journal", "faq"] as const).map((t) => (
               <button
                 key={t}
@@ -362,8 +362,8 @@ function LearnContent() {
                 onClick={() => setTab(t)}
                 className={`flex-1 py-2.5 rounded-lg font-display font-600 text-sm transition-all duration-200 ${
                   tab === t
-                    ? "bg-blue-600 text-white shadow-lg shadow-blue-600/20"
-                    : "text-white/40 hover:text-white/70"
+                    ? "bg-mock-cobalt text-white shadow-lg shadow-mock-cobalt/20"
+                    : "text-white/55 hover:text-white/80"
                 }`}
               >
                 {t === "journal" ? "Journal" : "FAQ"}
@@ -374,11 +374,11 @@ function LearnContent() {
       </section>
 
       {/* ── Tab content ──────────────────────────────────────────────────── */}
-      <section className="bg-navy-900 pb-12 md:pb-20">
+      <section className="bg-mock-graphite pb-12 md:pb-20">
         {tab === "journal" ? <JournalTab /> : <FaqTab />}
 
         <div className="max-w-3xl mx-auto px-6 mt-16 pt-8 border-t border-white/5 text-center">
-          <p className="font-mono text-[9px] text-white/20 tracking-wide leading-relaxed">
+          <p className="font-mono text-[9px] text-white/50 tracking-wide leading-relaxed">
             Anvil Compounds products are intended solely for laboratory and investigational use.
             We do not market, sell, or promote products for human or veterinary consumption,
             therapeutic use, or clinical application. Must be 21+ to purchase.

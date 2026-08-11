@@ -9,13 +9,13 @@ export default function InsideEveryBatchSection() {
   const inView = useInView(ref, { once: true, margin: "-80px" });
 
   return (
-    <section className="relative bg-mock-surface2 border-y border-mock-line py-[76px] overflow-hidden">
+    <section className="relative bg-mock-surface2 border-y border-mock-line py-[76px] lg:py-[64px] overflow-hidden">
       <div ref={ref} className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-8 lg:gap-10 items-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6 }}
-          className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden border border-mock-line"
+          className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden border border-mock-line lg:max-w-[86%] lg:mx-auto"
         >
           <Image
             src="/images/homepage/scientist.jpg"
@@ -40,7 +40,7 @@ export default function InsideEveryBatchSection() {
           </div>
           <h2
             className="font-heading font-700 text-mock-navy mb-4"
-            style={{ fontSize: "clamp(1.9rem, 3.4vw, 2.7rem)" }}
+            style={{ fontSize: "clamp(1.9rem, 3.4vw, 2.35rem)" }}
           >
             Inside <span className="font-800 italic text-mock-cobalt">Every Batch</span>
           </h2>
