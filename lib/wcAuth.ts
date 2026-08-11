@@ -43,16 +43,27 @@ export function toE164(phone: string): string | null {
   return null;
 }
 
+// Every function below is called from inside NextAuth's authorize()
+// callback (lib/authOptions.ts). A thrown exception there — WC unreachable,
+// a network timeout, malformed JSON — surfaces to the user as NextAuth's
+// opaque "There is a problem with the server configuration" page instead of
+// a normal "couldn't sign you in" message. Catching here and returning null
+// keeps that failure mode readable; authorize() already treats null as
+// "not found / didn't verify" and reports it as a clean sign-in failure.
 export async function findWcCustomerByEmail(email: string): Promise<WCCustomer | null> {
   const wcUrl = process.env.WC_URL;
   const auth = wcAuthHeader();
   if (!wcUrl || !auth) return null;
-  const res = await fetch(`${wcUrl}/wp-json/wc/v3/customers?email=${encodeURIComponent(email)}`, {
-    headers: { Authorization: auth },
-  });
-  if (!res.ok) return null;
-  const customers = (await res.json()) as WCCustomer[];
-  return customers[0] ?? null;
+  try {
+    const res = await fetch(`${wcUrl}/wp-json/wc/v3/customers?email=${encodeURIComponent(email)}`, {
+      headers: { Authorization: auth },
+    });
+    if (!res.ok) return null;
+    const customers = (await res.json()) as WCCustomer[];
+    return customers[0] ?? null;
+  } catch {
+    return null;
+  }
 }
 
 // WooCommerce's REST `?search=` filters by name/email/username, not phone —
@@ -71,45 +82,57 @@ export async function findWcCustomerByPhone(phone: string): Promise<WCCustomer |
   const e164 = toE164(phone);
   if (!e164) return null;
 
-  const lookupRes = await fetch(
-    `${wcUrl}/wp-json/anvil/v1/customer-by-phone?phone=${encodeURIComponent(e164)}`,
-    { headers: { "x-anvil-secret": lookupSecret } }
-  );
-  if (!lookupRes.ok) return null;
-  const { id } = (await lookupRes.json()) as { id: number | null };
-  if (!id) return null;
+  try {
+    const lookupRes = await fetch(
+      `${wcUrl}/wp-json/anvil/v1/customer-by-phone?phone=${encodeURIComponent(e164)}`,
+      { headers: { "x-anvil-secret": lookupSecret } }
+    );
+    if (!lookupRes.ok) return null;
+    const { id } = (await lookupRes.json()) as { id: number | null };
+    if (!id) return null;
 
-  const custRes = await fetch(`${wcUrl}/wp-json/wc/v3/customers/${id}`, {
-    headers: { Authorization: auth },
-  });
-  if (!custRes.ok) return null;
-  return (await custRes.json()) as WCCustomer;
+    const custRes = await fetch(`${wcUrl}/wp-json/wc/v3/customers/${id}`, {
+      headers: { Authorization: auth },
+    });
+    if (!custRes.ok) return null;
+    return (await custRes.json()) as WCCustomer;
+  } catch {
+    return null;
+  }
 }
 
 export async function fetchWpJwt(email: string, password: string): Promise<string | null> {
   const wcUrl = process.env.WC_URL;
   if (!wcUrl) return null;
-  const res = await fetch(`${wcUrl}/wp-json/jwt-auth/v1/token`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ username: email, password }),
-  });
-  if (!res.ok) return null;
-  const data = (await res.json()) as { token?: string };
-  return data.token ?? null;
+  try {
+    const res = await fetch(`${wcUrl}/wp-json/jwt-auth/v1/token`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username: email, password }),
+    });
+    if (!res.ok) return null;
+    const data = (await res.json()) as { token?: string };
+    return data.token ?? null;
+  } catch {
+    return null;
+  }
 }
 
 export async function updateWcCustomer(id: number, body: Record<string, unknown>): Promise<WCCustomer | null> {
   const wcUrl = process.env.WC_URL;
   const auth = wcAuthHeader();
   if (!wcUrl || !auth) return null;
-  const res = await fetch(`${wcUrl}/wp-json/wc/v3/customers/${id}`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json", Authorization: auth },
-    body: JSON.stringify(body),
-  });
-  if (!res.ok) return null;
-  return (await res.json()) as WCCustomer;
+  try {
+    const res = await fetch(`${wcUrl}/wp-json/wc/v3/customers/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json", Authorization: auth },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) return null;
+    return (await res.json()) as WCCustomer;
+  } catch {
+    return null;
+  }
 }
 
 export async function createWcCustomer(
@@ -118,13 +141,17 @@ export async function createWcCustomer(
   const wcUrl = process.env.WC_URL;
   const auth = wcAuthHeader();
   if (!wcUrl || !auth) return { customer: null, status: 500 };
-  const res = await fetch(`${wcUrl}/wp-json/wc/v3/customers`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: auth },
-    body: JSON.stringify(body),
-  });
-  if (!res.ok) return { customer: null, status: res.status };
-  return { customer: (await res.json()) as WCCustomer, status: res.status };
+  try {
+    const res = await fetch(`${wcUrl}/wp-json/wc/v3/customers`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: auth },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) return { customer: null, status: res.status };
+    return { customer: (await res.json()) as WCCustomer, status: res.status };
+  } catch {
+    return { customer: null, status: 500 };
+  }
 }
 
 // Derives+sets the customer's WP password from their email+birthday and
