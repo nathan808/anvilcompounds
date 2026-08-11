@@ -6,8 +6,9 @@
 
 export const ISSUE_TYPES: { value: string; label: string }[] = [
   { value: "wrong_item", label: "Wrong item received" },
-  { value: "didnt_arrive", label: "Order didn't arrive" },
-  { value: "damaged", label: "Item arrived damaged" },
+  { value: "didnt_arrive", label: "Where is my order / order status" },
+  { value: "coa_verification", label: "COA verification question" },
+  { value: "damaged", label: "Damaged arrival" },
   { value: "other", label: "Other" },
 ];
 

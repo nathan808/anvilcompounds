@@ -10,8 +10,9 @@ export const MAX_PHOTO_BYTES = 4 * 1024 * 1024; // 4MB decoded — keeps the bas
 
 export const ISSUE_LABELS: Record<string, string> = {
   wrong_item: "Wrong item received",
-  didnt_arrive: "Order didn't arrive",
-  damaged: "Item arrived damaged",
+  didnt_arrive: "Where is my order / order status",
+  coa_verification: "COA verification question",
+  damaged: "Damaged arrival",
   other: "Other",
 };
 
