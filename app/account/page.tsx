@@ -19,9 +19,13 @@ function humanError(code: string | null | undefined, fallback: string): string {
   if (code === "API_READ_ONLY") {
     return "Account creation is temporarily unavailable. Please contact support@anvilcompounds.shop.";
   }
-  if (code === "EMAIL_EXISTS" || code === "REGISTRATION_FAILED") {
+  if (code === "EMAIL_EXISTS") {
     return "An account with that email already exists. Please sign in.";
   }
+  // REGISTRATION_FAILED deliberately falls through to `fallback` (the
+  // server's actual message) instead of a canned "already exists" — that
+  // used to mask the real WC rejection reason for every non-duplicate
+  // registration failure, including a real phone-format bug.
   if (code === "AUTH_FAILED") {
     return "We couldn't verify those details. Check your email/phone and date of birth and try again.";
   }

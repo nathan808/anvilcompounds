@@ -115,6 +115,7 @@ export async function PUT(req: NextRequest) {
     headers: { Authorization: auth },
   });
   if (!currentRes.ok) {
+    console.error(`[account/profile:${customerId}] WC fetch-before-merge failed (${currentRes.status})`);
     return NextResponse.json({ error: "Could not update account details" }, { status: currentRes.status });
   }
   const current = (await currentRes.json()) as WCCustomer;
@@ -130,7 +131,14 @@ export async function PUT(req: NextRequest) {
   });
 
   if (!res.ok) {
-    return NextResponse.json({ error: "Could not update account details" }, { status: res.status });
+    // Surface WC's actual rejection reason instead of a generic message —
+    // this hid a real bug once already (see git history), don't repeat it.
+    const errBody = (await res.json().catch(() => ({}))) as { message?: string; code?: string };
+    console.error(`[account/profile:${customerId}] WC update failed (${res.status}):`, errBody);
+    return NextResponse.json(
+      { error: errBody.message || "Could not update account details" },
+      { status: res.status }
+    );
   }
 
   const customer = (await res.json()) as WCCustomer;

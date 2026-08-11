@@ -288,12 +288,12 @@ function TrackingTab({ token }: { token: string }) {
 const inputClass = "w-full px-4 py-3 bg-white/5 border border-white/10 focus:border-blue-500/50 focus:bg-white/8 rounded-xl text-white placeholder-white/20 font-body text-sm outline-none transition-all duration-300";
 const labelClass = "block font-mono text-xs text-white/40 tracking-widest uppercase mb-2";
 
-function StatusMessage({ status, savedText }: { status: "idle" | "saved" | "error"; savedText: string }) {
+function StatusMessage({ status, savedText, errorText }: { status: "idle" | "saved" | "error"; savedText: string; errorText?: string }) {
   if (status === "saved") {
     return <div className="px-4 py-3 rounded-xl bg-green-500/10 border border-green-500/20 text-green-400 font-body text-sm">{savedText}</div>;
   }
   if (status === "error") {
-    return <div className="px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 font-body text-sm">Something went wrong. Please try again.</div>;
+    return <div className="px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 font-body text-sm">{errorText || "Something went wrong. Please try again."}</div>;
   }
   return null;
 }
@@ -305,6 +305,7 @@ function AccountDetailsTab({ token }: { token: string }) {
   const [form, setForm] = useState<AccountDetails | null>(null);
   const [saving, setSaving] = useState(false);
   const [status, setStatus] = useState<"idle" | "saved" | "error">("idle");
+  const [error, setError] = useState("");
 
   useEffect(() => {
     fetch("/api/account/profile", { headers: { Authorization: `Bearer ${token}` } })
@@ -321,6 +322,7 @@ function AccountDetailsTab({ token }: { token: string }) {
     if (!form || !isValid) return;
     setSaving(true);
     setStatus("idle");
+    setError("");
     try {
       const res = await fetch("/api/account/profile", {
         method: "PUT",
@@ -328,11 +330,16 @@ function AccountDetailsTab({ token }: { token: string }) {
         body: JSON.stringify(form),
       });
       const data = (await res.json()) as AccountDetails & { error?: string };
-      if (!res.ok || data.error) throw new Error();
+      if (!res.ok || data.error) {
+        setError(data.error ?? "Something went wrong. Please try again.");
+        setStatus("error");
+        return;
+      }
       setDetails(data);
       setForm(data);
       setStatus("saved");
     } catch {
+      setError("Something went wrong. Please try again.");
       setStatus("error");
     } finally {
       setSaving(false);
@@ -370,7 +377,7 @@ function AccountDetailsTab({ token }: { token: string }) {
         <input value={form.phone} onChange={(e) => set("phone", e.target.value)} placeholder="(555) 555-5555" className={inputClass} />
       </div>
 
-      <StatusMessage status={status} savedText="Account details updated." />
+      <StatusMessage status={status} savedText="Account details updated." errorText={error} />
 
       <button
         type="submit"

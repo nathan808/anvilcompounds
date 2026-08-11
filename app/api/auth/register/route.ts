@@ -74,15 +74,18 @@ export async function POST(req: NextRequest) {
       const newCustomer = (await createRes.json()) as { id: number };
       wcCustomerId = newCustomer.id;
     } else {
-      const createErr = (await createRes.json().catch(() => ({}))) as { code?: string };
+      const createErr = (await createRes.json().catch(() => ({}))) as { code?: string; message?: string };
       const alreadyExists =
         createRes.status === 409 ||
         createErr.code === "registration-error-email-exists" ||
         createErr.code === "woocommerce_rest_customer_invalid_email";
 
       if (!alreadyExists) {
+        // Surface WC's actual rejection reason instead of a generic message
+        // — this hid a real bug once already (see git history).
+        console.error(`[register] WC customer creation failed (${createRes.status}):`, createErr);
         return NextResponse.json(
-          { error: "REGISTRATION_FAILED", message: "Failed to create account. Please try again." },
+          { error: "REGISTRATION_FAILED", message: createErr.message || "Failed to create account. Please try again." },
           { status: 400 }
         );
       }
