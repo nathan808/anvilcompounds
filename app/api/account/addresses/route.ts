@@ -83,7 +83,7 @@ function validateAddress(a: AddressFields, label: string): string | null {
 }
 
 function toWCAddress(existing: WCAddress | undefined, fields: AddressFields): WCAddress {
-  return {
+  const merged: WCAddress = {
     ...existing,
     first_name: fields.firstName.trim(),
     last_name: fields.lastName.trim(),
@@ -93,6 +93,15 @@ function toWCAddress(existing: WCAddress | undefined, fields: AddressFields): WC
     state: fields.state.trim().toUpperCase(),
     postcode: fields.zip.trim(),
   };
+  // WC's billing.email schema is `format: "email"` — WordPress's REST
+  // validator rejects an empty string against that format, so resending a
+  // blank one verbatim from `existing` fails the WHOLE billing object with
+  // "Invalid parameter(s): billing", even though nothing about the address
+  // fields this route actually manages was wrong. Omit rather than resend
+  // "" — this route never intends to write billing.email anyway. (Same fix
+  // as app/api/account/profile/route.ts, which hit this for real.)
+  if (!merged.email) delete merged.email;
+  return merged;
 }
 
 export async function GET(req: NextRequest) {

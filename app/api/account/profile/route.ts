@@ -120,13 +120,23 @@ export async function PUT(req: NextRequest) {
   }
   const current = (await currentRes.json()) as WCCustomer;
 
+  // WC's billing.email schema is `format: "email"` — WordPress's REST
+  // validator rejects an empty string against that format (not just
+  // malformed input), so resending a blank billing.email verbatim from the
+  // fetch-then-merge above fails the WHOLE billing object with "Invalid
+  // parameter(s): billing", even though phone itself was perfectly valid.
+  // Omit it entirely when blank rather than resending "" — this route
+  // never intends to write billing.email anyway.
+  const mergedBilling = { ...current.billing, phone: e164Phone };
+  if (!mergedBilling.email) delete mergedBilling.email;
+
   const res = await fetch(`${wcUrl}/wp-json/wc/v3/customers/${customerId}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json", Authorization: auth },
     body: JSON.stringify({
       first_name: firstName,
       last_name: lastName,
-      billing: { ...current.billing, phone: e164Phone },
+      billing: mergedBilling,
     }),
   });
 
