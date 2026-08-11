@@ -15,7 +15,15 @@ export async function POST(req: NextRequest) {
 
   const customer = await findWcCustomerByPhone(e164);
   if (customer) {
-    await sendPhoneOtp(e164);
+    const sent = await sendPhoneOtp(e164);
+    if (!sent) {
+      // Client response stays {success:true} regardless (anti-enumeration
+      // — see file comment), so this is server-side only. The real reason
+      // is logged inside sendPhoneOtp itself (lib/twilioVerify.ts).
+      console.error(`[send-phone-otp] Twilio send failed for customer ${customer.id}`);
+    }
+  } else {
+    console.error(`[send-phone-otp] no WC customer found for ${e164}`);
   }
 
   return NextResponse.json({ success: true });
