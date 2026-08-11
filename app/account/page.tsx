@@ -321,7 +321,13 @@ function AccountForm() {
   const handleSendTwoFactor = async () => {
     setTwoFactorError("");
     if (!twoFactorIdentifier) {
-      setTwoFactorError("Please enter your email or phone number.");
+      setTwoFactorError("Please enter your email address.");
+      return;
+    }
+    // Phone one-time codes go through Twilio SMS, which is temporarily
+    // disabled here while delivery is being fixed — email-only for now.
+    if (!twoFactorIdentifier.includes("@")) {
+      setTwoFactorError("One-time codes are available by email only right now. Please enter your email address.");
       return;
     }
     setTwoFactorStep("sending");
@@ -378,7 +384,7 @@ function AccountForm() {
             <p className="font-body text-white/40 text-sm">
               {onCodeStep
                 ? `Enter the 6-digit code sent to ${twoFactorIdentifier}`
-                : "We'll text or email a one-time code to your registered email or phone."}
+                : "We'll email a one-time code to your registered email."}
             </p>
           </div>
 
@@ -386,12 +392,12 @@ function AccountForm() {
             {!onCodeStep && (
               <>
                 <div>
-                  <label className={labelClass}>Email or Phone</label>
+                  <label className={labelClass}>Email</label>
                   <input
-                    type="text"
+                    type="email"
                     value={twoFactorIdentifier}
                     onChange={(e) => setTwoFactorIdentifier(e.target.value)}
-                    placeholder="you@institution.edu or (555) 555-5555"
+                    placeholder="you@institution.edu"
                     className={inputClass}
                     autoFocus
                   />
