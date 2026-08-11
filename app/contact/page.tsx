@@ -3,6 +3,7 @@
 import { useState, FormEvent } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import GuestReportProblem from "@/components/GuestReportProblem";
 
 const SUPPORT_EMAIL = "support@anvilcompounds.shop";
 
@@ -118,6 +119,8 @@ function InfoRow({ icon, label, value, href }: { icon: React.ReactNode; label: s
 }
 
 export default function ContactPage() {
+  const [tab, setTab] = useState<"contact" | "report">("contact");
+
   return (
     <>
       <Navbar pushDown />
@@ -185,7 +188,27 @@ export default function ContactPage() {
               />
             </div>
 
-            <ContactForm />
+            <div>
+              {/* Underline tabs — same pattern as the account dashboard */}
+              <div className="flex items-center gap-6 border-b border-white/10 mb-6">
+                {(["contact", "report"] as const).map((t) => (
+                  <button
+                    key={t}
+                    type="button"
+                    onClick={() => setTab(t)}
+                    className={`pb-3 -mb-px font-display font-600 text-sm border-b-2 transition-colors duration-200 ${
+                      tab === t
+                        ? "border-blue-500 text-white"
+                        : "border-transparent text-white/40 hover:text-white/70"
+                    }`}
+                  >
+                    {t === "contact" ? "Contact Us" : "Report a Problem"}
+                  </button>
+                ))}
+              </div>
+
+              {tab === "contact" ? <ContactForm /> : <GuestReportProblem />}
+            </div>
           </div>
 
           <p className="font-mono text-[9px] text-white/20 tracking-wide leading-relaxed text-center mt-12 pt-6 border-t border-white/5 max-w-2xl mx-auto">
