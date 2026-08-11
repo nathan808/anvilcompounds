@@ -590,7 +590,7 @@ export default function ProductsSection() {
                 className="font-heading font-700 text-mock-navy"
                 style={{ fontSize: "clamp(2.4rem, 5vw, 4rem)" }}
               >
-                <span>Product Catalog</span>
+                <span>Research Catalog</span>
               </motion.h2>
             </div>
 

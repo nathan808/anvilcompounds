@@ -292,7 +292,7 @@ export default function ProductPageTemplate({
       {/* ── SECTION — Related compounds ──────────────────────────────────── */}
       {product.relatedProducts.length > 0 && (
         <Section>
-          <SectionLabel number="06" label="Related Compounds" />
+          <SectionLabel number="06" label="Related Research" />
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {product.relatedProducts.map((rel, i) => (
               <CatalogProductCard key={rel.id} product={rel} index={i} />
@@ -302,8 +302,8 @@ export default function ProductPageTemplate({
       )}
 
       {/* ── Footer compliance ─────────────────────────────────────────────── */}
-      {/* id targeted by AddToCartButton's mobile sticky bar so it un-sticks
-          before covering this text — see stickyBarOnMobile in AddToCartButton.tsx. */}
+      {/* id targeted by AddToCartButton's sticky bar so it un-sticks
+          before covering this text — see stickyBarEnabled in AddToCartButton.tsx. */}
       <section id="compliance-footer" className="bg-mock-page border-t border-mock-line py-8">
         <div className="max-w-5xl mx-auto px-6 text-center">
           <p className="font-mono text-[10px] text-mock-sub tracking-wide leading-relaxed">

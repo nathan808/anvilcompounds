@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedCustomerId, getBearerToken } from "@/lib/verifyJwt";
+import { toE164 } from "@/lib/wcAuth";
 
 // Account Details tab — name + phone only. Addresses (billing/shipping)
 // moved to app/api/account/addresses/route.ts so the two concerns can be
@@ -48,10 +49,6 @@ function toDetails(c: WCCustomer): AccountDetails {
   };
 }
 
-// Loose on purpose — just enough to catch obvious garbage without rejecting
-// real international formats. Digits, spaces, and + - ( ) only, 7-20 chars.
-const PHONE_RE = /^[\d\s()+-]{7,20}$/;
-
 export async function GET(req: NextRequest) {
   const customerId = await getAuthenticatedCustomerId(getBearerToken(req));
   if (!customerId) {
@@ -98,8 +95,16 @@ export async function PUT(req: NextRequest) {
   if (!lastName || lastName.length > 60) {
     return NextResponse.json({ error: "Please enter a valid last name." }, { status: 400 });
   }
-  if (phone && !PHONE_RE.test(phone)) {
-    return NextResponse.json({ error: "Please enter a valid phone number." }, { status: 400 });
+  // Normalized through the same toE164 helper phone sign-in/lookup uses
+  // (lib/wcAuth.ts) — a number that saves here but isn't in the exact form
+  // findWcCustomerByPhone searches for would silently never be found again.
+  let e164Phone = "";
+  if (phone) {
+    const normalized = toE164(phone);
+    if (!normalized) {
+      return NextResponse.json({ error: "Please enter a valid 10-digit US phone number." }, { status: 400 });
+    }
+    e164Phone = normalized;
   }
 
   // Fetch-then-merge rather than PUTting a bare { billing: { phone } } —
@@ -120,7 +125,7 @@ export async function PUT(req: NextRequest) {
     body: JSON.stringify({
       first_name: firstName,
       last_name: lastName,
-      billing: { ...current.billing, phone },
+      billing: { ...current.billing, phone: e164Phone },
     }),
   });
 

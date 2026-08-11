@@ -32,11 +32,15 @@ interface Props {
   // owning its own state so this component still works standalone.
   selectedIndex?: number;
   onSelectIndex?: (index: number) => void;
-  // Only set true on the mobile instance in ProductHero — the desktop
-  // instance's whole buy column is already `lg:sticky` there, so it doesn't
-  // need this fixed bottom bar (and the `lg:hidden` on the bar itself would
-  // hide it there anyway; this just skips the scroll listener entirely).
-  stickyBarOnMobile?: boolean;
+  // Set true on both ProductHero instances. On mobile it's the only ATC
+  // access once you scroll past the hero. On desktop the right column is
+  // also `lg:sticky`, but that column's own content (price, size picker,
+  // qty, volume table, CTA, express checkout, payment icons) is often
+  // taller than the viewport — sticky pins the column's position but can't
+  // shrink its content, so the actual Add to Cart button can sit below the
+  // fold indefinitely even while the column is "stuck". This bar guarantees
+  // the button stays reachable regardless of viewport height.
+  stickyBarEnabled?: boolean;
 }
 
 const QUICK_PICKS = [1, 2, 5, 6, 9];
@@ -53,7 +57,7 @@ export default function AddToCartButton({
   showFooter = true,
   selectedIndex: controlledIndex,
   onSelectIndex,
-  stickyBarOnMobile = false,
+  stickyBarEnabled = false,
 }: Props) {
   const { addItem, openCart, items: cartItems } = useCart();
   const [internalIndex, setInternalIndex] = useState(0);
@@ -64,20 +68,25 @@ export default function AddToCartButton({
   const mainCtaRef = useRef<HTMLButtonElement>(null);
   const [showStickyBar, setShowStickyBar] = useState(false);
 
-  // Sticky bar appears once the main "Add to Cart" button scrolls out of
-  // view, and disappears again once the page's compliance-footer section
-  // (id="compliance-footer" in ProductPageTemplate) starts entering the
-  // viewport — so it never sits on top of the RUO text at the page bottom.
+  // Sticky bar appears whenever the main "Add to Cart" button isn't
+  // actually visible in the viewport — either scrolled past above it
+  // (bottom < 0, the mobile case) or not yet reached below it (top >
+  // viewport height, the desktop case where the sticky column's own
+  // content is taller than the viewport — see stickyBarEnabled comment).
+  // Disappears again once the page's compliance-footer section (id=
+  // "compliance-footer" in ProductPageTemplate) starts entering the
+  // viewport, so it never sits on top of the RUO text at the page bottom.
   useEffect(() => {
-    if (!stickyBarOnMobile) return;
+    if (!stickyBarEnabled) return;
     const handleScroll = () => {
       if (!mainCtaRef.current) return;
-      const ctaPassed = mainCtaRef.current.getBoundingClientRect().bottom < 0;
+      const rect = mainCtaRef.current.getBoundingClientRect();
+      const ctaOutOfView = rect.bottom < 0 || rect.top > window.innerHeight;
       const complianceFooter = document.getElementById("compliance-footer");
       const complianceVisible = complianceFooter
         ? complianceFooter.getBoundingClientRect().top < window.innerHeight
         : false;
-      setShowStickyBar(ctaPassed && !complianceVisible);
+      setShowStickyBar(ctaOutOfView && !complianceVisible);
     };
     handleScroll();
     window.addEventListener("scroll", handleScroll, { passive: true });
@@ -86,7 +95,7 @@ export default function AddToCartButton({
       window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("resize", handleScroll);
     };
-  }, [stickyBarOnMobile]);
+  }, [stickyBarEnabled]);
 
   const basePrice = sizesPrices[selectedIndex] ?? priceNumber;
   const originalBasePrice = sizesOriginalPrices?.[selectedIndex] ?? null;
@@ -406,15 +415,15 @@ export default function AddToCartButton({
         </div>
       )}
 
-      {/* Mobile sticky bottom bar — see stickyBarOnMobile prop comment. */}
-      {stickyBarOnMobile && (
+      {/* Sticky bottom bar — mobile and desktop both, see stickyBarEnabled prop comment. */}
+      {stickyBarEnabled && (
         <div
           // z-[55]: above BackToTop's z-50 (components/BackToTop.tsx) — that
-          // button also sits bottom-right on mobile and is mounted later in
-          // the DOM (root layout), so without a higher z-index here it would
-          // render on top of this bar's Add to Cart button instead of being
+          // button also sits bottom-right and is mounted later in the DOM
+          // (root layout), so without a higher z-index here it would render
+          // on top of this bar's Add to Cart button instead of being
           // cleanly covered by it.
-          className={`lg:hidden fixed bottom-0 left-0 right-0 z-[55] bg-white border-t border-mock-line shadow-[0_-4px_16px_rgba(0,0,0,0.12)] px-4 py-3 transition-transform duration-300 ${
+          className={`fixed bottom-0 left-0 right-0 z-[55] bg-white border-t border-mock-line shadow-[0_-4px_16px_rgba(0,0,0,0.12)] px-4 py-3 transition-transform duration-300 ${
             showStickyBar ? "translate-y-0" : "translate-y-full"
           }`}
         >
