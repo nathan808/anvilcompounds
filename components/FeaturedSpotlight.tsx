@@ -1,8 +1,8 @@
 "use client";
 
 import { useRef } from "react";
-import Image from "next/image";
 import { motion, useInView } from "framer-motion";
+import LoopVideo from "@/components/LoopVideo";
 
 // Split band pairing a single hero product shot with a short trust
 // statement + stat row. Dark graphite section matching the approved mockup.
@@ -13,16 +13,14 @@ export default function FeaturedSpotlight() {
   return (
     <section className="relative overflow-hidden bg-mock-graphite">
       <div ref={ref} className="grid lg:grid-cols-2 items-stretch">
-        {/* Framed card, object-contain so the full photo is always visible, never cropped */}
+        {/* Framed card — object-cover crops the horizontal source video to
+            fill this square frame (sides trimmed, nothing off the top/bottom
+            where the vial sits). */}
         <div className="relative w-full min-h-[400px] sm:min-h-[480px] lg:min-h-[520px] flex items-center justify-center p-8 md:p-10 lg:p-11">
           <div className="relative w-full aspect-square max-w-[560px] lg:max-w-[480px] rounded-2xl overflow-hidden border border-white/10 shadow-2xl shadow-black/30 bg-white/[0.03]">
-            <Image
-              src="/images/homepage/glow-scientist-hand.jpg"
-              alt="Gloved researcher holding an Anvil Compounds GLOW research vial in a laboratory"
-              fill
-              className="object-contain p-5 md:p-6"
-              sizes="(max-width: 1024px) 90vw, 45vw"
-              loading="lazy"
+            <LoopVideo
+              src="/videos/anvil-semax-selank-loop.mp4"
+              className="absolute inset-0 w-full h-full object-cover"
             />
           </div>
         </div>

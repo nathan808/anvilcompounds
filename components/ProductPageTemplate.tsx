@@ -1,4 +1,5 @@
 import ProductHero from "@/components/ProductHero";
+import LoopVideo from "@/components/LoopVideo";
 import InfoBlock from "@/components/InfoBlock";
 import ReconstitutionGuide from "@/components/ReconstitutionGuide";
 import ProductFaqBlock from "@/components/ProductFaqBlock";
@@ -285,6 +286,21 @@ export default function ProductPageTemplate({
               or veterinary injection or therapeutic use. Anvil Compounds is not a
               pharmacy or compounding facility.
             </p>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Lab loop video — full width, native horizontal frame, no crop.
+          Tight top/bottom padding (matches the RUO block above it) rather
+          than the standard Section's py-16, which left too much empty
+          bg-mock-page space above/below the video card. ── */}
+      <section className="bg-mock-page pb-12">
+        <div className="max-w-5xl mx-auto px-6">
+          <div className="rounded-2xl overflow-hidden border border-mock-line">
+            <LoopVideo
+              src="/videos/anvil-semax-selank-loop.mp4"
+              className="w-full h-auto block"
+            />
           </div>
         </div>
       </section>
