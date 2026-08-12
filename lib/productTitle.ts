@@ -15,8 +15,30 @@ const TITLE_OVERRIDES: Record<string, string> = {
   "5-Amino-1MQ":  "5-Amino-1MQ Research Molecule",
 };
 
+// GLP_COMPOUND_NAMES: explicit allowlist rather than a pure "^glp-" prefix
+// test, since the Aug 2026 rename moved these two off GLP-prefixed names
+// entirely (WC product `name` is now literally "AC3R"/"AC2T" — see
+// lib/woocommerce.ts). Old names kept here too in case any cached/stale WC
+// response still has them, matching this codebase's established
+// keep-every-historical-alias convention (see SLUG_MAP, PRODUCT_BADGES, etc.).
+const GLP_COMPOUND_NAMES = new Set(["AC3R", "AC2T", "GLP-RT", "GLP-TRZ"]);
+
 export function isGlpCompound(name: string): boolean {
-  return /^glp-/i.test(name.trim());
+  return GLP_COMPOUND_NAMES.has(name.trim()) || /^glp-/i.test(name.trim());
+}
+
+// The real compound behind a coded product name — shown as a small animated
+// reveal under/next to the product name (see components/CompoundRevealBadge.tsx)
+// so a rename doesn't obscure what's actually in the vial.
+const COMPOUND_REVEAL: Record<string, string> = {
+  "AC3R":    "Retatrutide",
+  "AC2T":    "Tirzepatide",
+  "GLP-RT":  "Retatrutide",
+  "GLP-TRZ": "Tirzepatide",
+};
+
+export function getCompoundReveal(name: string): string | null {
+  return COMPOUND_REVEAL[name] ?? null;
 }
 
 export function getProductDisplayTitle(name: string, category?: string): string {

@@ -9,7 +9,8 @@ import type { ProductCard } from "@/lib/woocommerce";
 import CoaModal from "@/components/CoaModal";
 import { useCart } from "@/lib/cartContext";
 import { useAuth } from "@/lib/authContext";
-import { getProductDisplayTitle, isGlpCompound } from "@/lib/productTitle";
+import { getProductDisplayTitle, isGlpCompound, getCompoundReveal } from "@/lib/productTitle";
+import CompoundRevealBadge from "@/components/CompoundRevealBadge";
 import { simplifySizeLabel } from "@/lib/reconstitution";
 import { BOGO_ENABLED } from "@/lib/bogoDiscount";
 
@@ -56,9 +57,10 @@ export const CATALOG_TRUST_BADGES: { icon: JSX.Element; label: JSX.Element }[] =
 // via a link that set ?catalog=full (Catalog nav, "View Catalog" CTA,
 // Explore Catalog banner button — see Navbar.tsx / HeroSection.tsx). Never
 // hidden under any specific category tab (e.g. Metabolic Research) — only
-// under the default "All Compounds" view. GLP-RT is deliberately NOT in this
-// list — it's the catalog's leading product and should always show first.
-const HOME_HIDDEN_ON_ALL_COMPOUNDS = ["GLP-TRZ"];
+// under the default "All Compounds" view. AC3R (formerly GLP-RT) is
+// deliberately NOT in this list — it's the catalog's leading product and
+// should always show first.
+const HOME_HIDDEN_ON_ALL_COMPOUNDS = ["GLP-TRZ", "AC2T"];
 
 const PRODUCT_IMAGES: Record<string, string> = {
   "BPC-157":                       "/products/bpc157.jpg",
@@ -69,6 +71,8 @@ const PRODUCT_IMAGES: Record<string, string> = {
   "triple agonist (R)":            "/products/glp-rt.jpg",
   "GLP-TRZ":                       "/products/glp-trz.png",
   "GLP-RT":                        "/products/glp-rt.jpg",
+  "AC2T":                          "/products/glp-trz.png",
+  "AC3R":                          "/products/glp-rt.jpg",
   "KLOW":                          "/products/klow.jpg",
   "GHK-Cu":                        "/products/ghkcu.jpg",
   "TB-500":                        "/products/tb500.jpg",
@@ -92,8 +96,10 @@ const SLUG_MAP: Record<string, string> = {
   "triple agonist (R)":                           "r3ta",
   "Triple Agonist (R)":                           "r3ta",
   "Dual Receptor (T)":                            "t1rz",
-  "GLP-TRZ":                                      "glp-trz",
-  "GLP-RT":                                       "glp-rt",
+  "GLP-TRZ":                                      "ac2t",
+  "GLP-RT":                                       "ac3r",
+  "AC2T":                                         "ac2t",
+  "AC3R":                                         "ac3r",
   "KLOW":                                         "klow",
   "GHK-Cu":                                       "ghk-cu",
   "TB-500":                                       "tb-500",
@@ -115,7 +121,9 @@ const SLUG_MAP: Record<string, string> = {
 // not listed here falls through to that normal sort untouched.
 const LEADING_ROW_ORDER: Record<string, number> = {
   "GLP-RT":  0,
+  "AC3R":    0,
   "GLP-TRZ": 1,
+  "AC2T":    1,
   "GLOW":    2,
   "BPC-157": 3,
   "GHK-Cu":  4,
@@ -134,6 +142,8 @@ const POPULARITY_ORDER: Record<string, number> = {
   "Triple Agonist (R)":                           0,
   "GLP-TRZ":                                      4,
   "GLP-RT":                                       0,
+  "AC2T":                                         4,
+  "AC3R":                                         0,
   "KLOW":                                         5,
   "GLOW":                                         6,
   "TB-500":                                       7,
@@ -168,8 +178,8 @@ function slugifyProductName(name: string): string {
 const FALLBACK_PRODUCTS: ProductCard[] = [
   { id: 332, name: "BPC-157", category: "Repair & Recovery Research", description: "Body Protection Compound — a pentadecapeptide with notable tissue healing and regenerative properties under research conditions.", price: "$59", purity: "99.4%", badge: "High Demand", badgeColor: "bg-indigo-600/70 text-indigo-100 border-indigo-500/50", icon: "⬡", permalink: "https://anvilcompounds.shop/product/bpc-157/", image: "/products/bpc157.jpg", hasCoa: true, coaApplicable: true, sizes: [], documentationFile: null, documentationImage: null },
   { id: 447, name: "BPC-157 + TB-500", category: "Repair & Recovery Research", description: "Dual peptide recovery blend combining BPC-157 and TB-500 — studied for synergistic effects in tissue repair and cell migration research models.", price: "$79", originalPrice: "$89", purity: "99%+", badge: "Exclusive Blend", badgeColor: "bg-purple-600/70 text-purple-100 border-purple-500/50", icon: "⬧", permalink: "https://anvilcompounds.shop/product/bpc-157-tb-500/", image: "/products/wolverine.jpg", hasCoa: true, coaApplicable: true, sizes: [], documentationFile: null, documentationImage: null },
-  { id: 333, name: "GLP-TRZ", category: "Metabolic Research", description: "A dual incretin receptor agonist binding both GIP and GLP-1 receptors, under active clinical research.", price: "$79", originalPrice: "$89", purity: "99.1%", badge: "Dual Agonist", badgeColor: "bg-cyan-600/70 text-cyan-100 border-cyan-500/50", icon: "◇", permalink: "https://anvilcompounds.shop/product/glp-trz/", image: "/products/glp-trz.png", hasCoa: false, coaApplicable: true, sizes: [], documentationFile: null, documentationImage: null },
-  { id: 337, name: "GLP-RT", category: "Metabolic Research", description: "A triple receptor agonist targeting GIP, GLP-1, and glucagon receptors — at the frontier of current metabolic research.", price: "$89", originalPrice: "$99", purity: "99.0%", badge: "Triple Agonist", badgeColor: "bg-rose-600/70 text-rose-100 border-rose-500/50", icon: "⬟", permalink: "https://anvilcompounds.shop/product/glp-rt/", image: "/products/glp-rt.jpg", hasCoa: true, coaApplicable: true, sizes: [], documentationFile: null, documentationImage: null },
+  { id: 333, name: "AC2T", category: "Metabolic Research", description: "A dual incretin receptor agonist binding both GIP and GLP-1 receptors, under active clinical research.", price: "$79", originalPrice: "$89", purity: "99.1%", badge: "Dual Agonist", badgeColor: "bg-cyan-600/70 text-cyan-100 border-cyan-500/50", icon: "◇", permalink: "https://anvilcompounds.shop/product/ac2t/", image: "/products/glp-trz.png", hasCoa: false, coaApplicable: true, sizes: [], documentationFile: null, documentationImage: null },
+  { id: 337, name: "AC3R", category: "Metabolic Research", description: "A triple receptor agonist targeting GIP, GLP-1, and glucagon receptors — at the frontier of current metabolic research.", price: "$89", originalPrice: "$99", purity: "99.0%", badge: "Triple Agonist", badgeColor: "bg-rose-600/70 text-rose-100 border-rose-500/50", icon: "⬟", permalink: "https://anvilcompounds.shop/product/ac3r/", image: "/products/glp-rt.jpg", hasCoa: true, coaApplicable: true, sizes: [], documentationFile: null, documentationImage: null },
   { id: 335, name: "KLOW", category: "Longevity & Cosmetic Research", description: "A curated blend of four research-grade peptides, independently tested as a combined formulation.", price: "$109", originalPrice: "$119", purity: "99.3%", badge: "Premium Blend", badgeColor: "bg-fuchsia-600/70 text-fuchsia-100 border-fuchsia-500/50", icon: "✦", permalink: "https://anvilcompounds.shop/product/klow/", image: "/products/klow.jpg", hasCoa: true, coaApplicable: true, sizes: [], documentationFile: null, documentationImage: null },
   { id: 354, name: "TB-500", category: "Repair & Recovery Research", description: "Synthetic analogue of Thymosin Beta-4, studied in cell migration, actin dynamics, and tissue modeling research models.", price: "$69", purity: "99%+", badge: "Recovery Staple", badgeColor: "bg-amber-600/70 text-amber-100 border-amber-500/50", icon: "◉", permalink: "https://anvilcompounds.shop/product/tb-500/", image: "/products/tb500.jpg", hasCoa: true, coaApplicable: true, sizes: [], documentationFile: null, documentationImage: null },
   { id: 336, name: "GHK-Cu", category: "Longevity & Cosmetic Research", description: "A naturally occurring copper complex with extensive research into cellular remodeling and tissue response.", price: "$49", originalPrice: "$59", purity: "99.5%", badge: "Entry Point", badgeColor: "bg-teal-600/70 text-teal-100 border-teal-500/50", icon: "⬢", permalink: "https://anvilcompounds.shop/product/ghk-cu/", image: "/products/ghkcu.jpg", hasCoa: true, coaApplicable: true, sizes: [], documentationFile: null, documentationImage: null },
@@ -307,6 +317,11 @@ export function ProductCard({ product, index }: { product: ProductCard; index: n
             <h3 className="font-display font-700 text-base md:text-xl text-mock-navy mb-0.5 leading-tight">
               {getProductDisplayTitle(product.name, product.category)}
             </h3>
+            {getCompoundReveal(product.name) && (
+              <div className="mb-1">
+                <CompoundRevealBadge compound={getCompoundReveal(product.name)!} />
+              </div>
+            )}
             <span className="font-mono text-[10px] md:text-xs text-mock-cobaltInk/70 tracking-widest uppercase">
               {product.category}
             </span>

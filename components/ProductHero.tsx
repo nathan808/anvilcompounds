@@ -7,6 +7,8 @@ import ProductImageGallery from "@/components/ProductImageGallery";
 import ViewCoaButton from "@/components/ViewCoaButton";
 import SdsPreviewButton from "@/components/SdsPreviewButton";
 import PurchaseFooter from "@/components/PurchaseFooter";
+import CompoundRevealBadge from "@/components/CompoundRevealBadge";
+import { getCompoundReveal } from "@/lib/productTitle";
 import type { ProductPageData } from "@/components/ProductPageTemplate";
 
 // Owns the selected-size index so the product photo and COA button (siblings
@@ -49,6 +51,10 @@ export default function ProductHero({ product }: { product: ProductPageData }) {
           >
             {product.name}
           </h1>
+
+          {getCompoundReveal(product.name) && (
+            <CompoundRevealBadge compound={getCompoundReveal(product.name)!} size="lg" />
+          )}
 
           <p className="font-mono text-xs text-mock-sub tracking-wider">
             {product.subtitle}
@@ -122,6 +128,9 @@ export default function ProductHero({ product }: { product: ProductPageData }) {
               >
                 {product.name}
               </h1>
+              {getCompoundReveal(product.name) && (
+                <CompoundRevealBadge compound={getCompoundReveal(product.name)!} size="lg" />
+              )}
               {/* Image wrapper sized to 80% and centered — shrinks the framed
                   photo without cropping anything (aspect ratio is preserved,
                   it just scales down); shipping banner/SDS button below stay

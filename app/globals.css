@@ -133,6 +133,29 @@ body {
   animation: float 4s ease-in-out infinite;
 }
 
+/* Compound-reveal shimmer — animated gradient sweep across text, used by
+   CompoundRevealBadge to surface the real compound name under a renamed
+   product code (e.g. "AC3R" -> "Retatrutide"). */
+@keyframes compoundShimmer {
+  to { background-position: -200% center; }
+}
+.compound-reveal-shimmer {
+  background: linear-gradient(90deg, #7FA4EC 0%, #1F5AE0 25%, #7FA4EC 50%, #1F5AE0 75%, #7FA4EC 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: compoundShimmer 3s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .compound-reveal-shimmer {
+    animation: none;
+    -webkit-background-clip: unset;
+    background-clip: unset;
+    color: #1F5AE0;
+  }
+}
+
 /* ── Blog post body prose styles ─────────────────────────────────────────── */
 /* Applied to .prose-anvil wrapping WordPress content.rendered HTML          */
 .prose-anvil {

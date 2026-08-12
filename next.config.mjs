@@ -22,15 +22,20 @@ const nextConfig = {
   async redirects() {
     return [
       // WooCommerce product slugs differ from our internal slugs — redirect to canonical
-      { source: "/products/trz",              destination: "/products/glp-trz", permanent: true },
-      { source: "/products/rta",              destination: "/products/glp-rt", permanent: true },
+      { source: "/products/trz",              destination: "/products/ac2t", permanent: true },
+      { source: "/products/rta",              destination: "/products/ac3r", permanent: true },
       // Catch any auto-slugified variants that might appear from old links
-      { source: "/products/dual-receptor-t",  destination: "/products/glp-trz", permanent: true },
-      { source: "/products/triple-agonist-r", destination: "/products/glp-rt", permanent: true },
-      // t1rz/r3ta were the canonical slugs before the GLP-TRZ/GLP-RT rename —
-      // redirect old links/bookmarks straight to the new canonical slugs.
-      { source: "/products/t1rz",             destination: "/products/glp-trz", permanent: true },
-      { source: "/products/r3ta",             destination: "/products/glp-rt", permanent: true },
+      { source: "/products/dual-receptor-t",  destination: "/products/ac2t", permanent: true },
+      { source: "/products/triple-agonist-r", destination: "/products/ac3r", permanent: true },
+      // t1rz/r3ta were the canonical slugs before the GLP-TRZ/GLP-RT rename,
+      // which were themselves superseded by the Aug 2026 AC2T/AC3R rename —
+      // redirect straight to the current canonical slugs rather than
+      // chaining through the intermediate GLP-TRZ/GLP-RT hop.
+      { source: "/products/t1rz",             destination: "/products/ac2t", permanent: true },
+      { source: "/products/r3ta",             destination: "/products/ac3r", permanent: true },
+      // GLP-TRZ/GLP-RT were the canonical slugs before the Aug 2026 AC2T/AC3R rename.
+      { source: "/products/glp-trz",          destination: "/products/ac2t", permanent: true },
+      { source: "/products/glp-rt",           destination: "/products/ac3r", permanent: true },
       // FAQ and the Journal index were merged into a single tabbed /learn hub.
       // Individual /blog/[slug] posts are unaffected (no wildcard here).
       { source: "/faq",                       destination: "/learn?tab=faq", permanent: true },

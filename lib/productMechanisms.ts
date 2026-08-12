@@ -78,7 +78,7 @@ export const PRODUCT_MECHANISMS: Record<string, ProductMechanism | null> = {
       "Proposed pathways investigated in preclinical (animal / in-vitro) models. Schematic only; not a claim of established human effect.",
   },
 
-  "glp-rt": {
+  "ac3r": {
     sectionTitle: "Mechanism",
     intro:
       "Retatrutide extends incretin co-agonism to a third target. Where dual agonists engage the appetite and insulin axes, adding glucagon receptor agonism introduces a direct energy-expenditure and lipolytic signal, a mechanistically different contribution rather than simply more of the same.",
@@ -109,7 +109,7 @@ export const PRODUCT_MECHANISMS: Record<string, ProductMechanism | null> = {
       },
     ],
     diagram: {
-      root: "GLP-RT / single molecule",
+      root: "AC3R / single molecule",
       branches: [
         { node: "GIP receptor", outcome: "Insulin response, adipose signaling" },
         { node: "GLP-1 receptor", outcome: "Appetite, gastric emptying" },
@@ -125,7 +125,7 @@ export const PRODUCT_MECHANISMS: Record<string, ProductMechanism | null> = {
   // no mechanism content to show. Needs a fallback.
   "bac-water": null,
 
-  "glp-trz": {
+  "ac2t": {
     sectionTitle: "Mechanism",
     intro:
       "GIP and GLP-1 are endogenous incretin hormones. Their receptors are expressed in pancreatic tissue and in brain regions relevant to appetite regulation. Tirzepatide co-activates both with a single molecule — the mechanistic feature that separates it from the GLP-1 monotherapy class.",
@@ -156,7 +156,7 @@ export const PRODUCT_MECHANISMS: Record<string, ProductMechanism | null> = {
       },
     ],
     diagram: {
-      root: "GLP-TRZ / single molecule",
+      root: "AC2T / single molecule",
       branches: [
         { node: "GIP receptor", outcome: "Insulin response, adipose signaling" },
         { node: "GLP-1 receptor", outcome: "Appetite, gastric emptying, insulin" },

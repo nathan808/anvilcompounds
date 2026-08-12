@@ -13,8 +13,8 @@ export const metadata: Metadata = {
 // reconstitution solvent, not a tested research compound, so it has no COA.
 const KNOWN_SLUGS = [
   "bpc-157",
-  "glp-trz",
-  "glp-rt",
+  "ac2t",
+  "ac3r",
   "klow",
   "ghk-cu",
   "tb-500",
