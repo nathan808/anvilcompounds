@@ -1,12 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedCustomerId, getBearerToken } from "@/lib/verifyJwt";
 import { wcAuthHeader } from "@/lib/wcAuth";
-import { ISSUE_LABELS, SUPPORT_EMAIL, parsePhoto, sendReportEmail, addReportNote } from "@/lib/reportProblem";
+import {
+  ISSUE_LABELS,
+  SUPPORT_EMAIL,
+  parsePhoto,
+  sendReportEmail,
+  sendAckEmail,
+  addReportNote,
+  buildOrderContext,
+} from "@/lib/reportProblem";
 
 interface WCOrder {
   id: number;
   number: string;
   customer_id: number;
+  status: string;
+  date_created: string;
+  payment_method: string;
+  payment_method_title?: string;
+  shipping?: { city?: string; state?: string };
+  line_items: { name: string; quantity: number; total: string }[];
+  meta_data: { key: string; value: string }[];
 }
 
 export async function POST(req: NextRequest) {
@@ -17,7 +32,6 @@ export async function POST(req: NextRequest) {
 
   let body: {
     orderId?: number;
-    trackingNumber?: string;
     issueType?: string;
     description?: string;
     photoBase64?: string;
@@ -31,7 +45,6 @@ export async function POST(req: NextRequest) {
   }
 
   const orderId = Number(body.orderId);
-  const trackingNumber = (body.trackingNumber ?? "").trim().slice(0, 100);
   const issueType = body.issueType ?? "";
   const description = (body.description ?? "").trim().slice(0, 2000);
 
@@ -70,17 +83,20 @@ export async function POST(req: NextRequest) {
   const customerRes = await fetch(`${wcUrl}/wp-json/wc/v3/customers/${customerId}`, {
     headers: { Authorization: auth },
   });
-  const customer = customerRes.ok ? ((await customerRes.json()) as { email?: string }) : null;
+  const customer = customerRes.ok
+    ? ((await customerRes.json()) as { email?: string; first_name?: string; last_name?: string })
+    : null;
   const customerEmail = customer?.email ?? "";
+  const customerName = [customer?.first_name, customer?.last_name].filter(Boolean).join(" ") || customerEmail || "Customer";
 
   const issueLabel = ISSUE_LABELS[issueType];
 
   const emailSent = await sendReportEmail({
     orderNumber: order.number,
-    identityLine: `${customerEmail} (ID ${customerId})`,
+    customerName,
     issueLabel,
     description,
-    trackingNumber: trackingNumber || undefined,
+    orderContext: buildOrderContext(order),
     replyTo: customerEmail,
     photo,
   });
@@ -92,7 +108,10 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  await addReportNote(wcUrl, auth, orderId, issueLabel, description, trackingNumber || undefined, !!photo);
+  await addReportNote(wcUrl, auth, orderId, issueLabel, description);
+  if (customerEmail) {
+    await sendAckEmail({ toEmail: customerEmail, firstName: customer?.first_name ?? "", orderNumber: order.number });
+  }
 
   return NextResponse.json({ success: true });
 }

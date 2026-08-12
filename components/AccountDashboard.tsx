@@ -619,7 +619,6 @@ function ContactSupportTab({ token, email }: { token: string; email: string }) {
 function ReportProblemTab({ token }: { token: string }) {
   const [orders, setOrders] = useState<OrderSummary[] | null>(null);
   const [orderId, setOrderId] = useState("");
-  const [trackingNumber, setTrackingNumber] = useState("");
   const [issueType, setIssueType] = useState("");
   const [description, setDescription] = useState("");
   const [photo, setPhoto] = useState<File | null>(null);
@@ -636,15 +635,6 @@ function ReportProblemTab({ token }: { token: string }) {
   }, [token]);
 
   const isValid = !!orderId && !!issueType && description.trim().length > 0 && !photoError;
-
-  // Pre-fills from the order's tracking number on file (already fetched via
-  // /api/account/orders) when the customer picks an order that has one —
-  // still editable, since they may be quoting a different/corrected number.
-  const handleOrderChange = (id: string) => {
-    setOrderId(id);
-    const selected = orders?.find((o) => String(o.id) === id);
-    setTrackingNumber(selected?.trackingNumber ?? "");
-  };
 
   const handlePhotoChange = (file: File | null) => {
     setPhotoError("");
@@ -671,7 +661,6 @@ function ReportProblemTab({ token }: { token: string }) {
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({
           orderId: Number(orderId),
-          trackingNumber: trackingNumber.trim() || undefined,
           issueType,
           description,
           ...photoPayload,
@@ -684,7 +673,6 @@ function ReportProblemTab({ token }: { token: string }) {
         return;
       }
       setOrderId("");
-      setTrackingNumber("");
       setIssueType("");
       setDescription("");
       setPhoto(null);
@@ -731,7 +719,7 @@ function ReportProblemTab({ token }: { token: string }) {
     <form onSubmit={handleSubmit} className="glass-card rounded-2xl p-6 md:p-8 space-y-5">
       <div>
         <label className={labelClass}>Order *</label>
-        <select required value={orderId} onChange={(e) => handleOrderChange(e.target.value)} className={inputClass}>
+        <select required value={orderId} onChange={(e) => setOrderId(e.target.value)} className={inputClass}>
           <option value="">Select an order</option>
           {orders.map((o) => (
             <option key={o.id} value={o.id}>
@@ -739,17 +727,6 @@ function ReportProblemTab({ token }: { token: string }) {
             </option>
           ))}
         </select>
-      </div>
-
-      <div>
-        <label className={labelClass}>Tracking Number (optional)</label>
-        <input
-          value={trackingNumber}
-          onChange={(e) => setTrackingNumber(e.target.value)}
-          placeholder="Auto-filled if we have one on file"
-          className={inputClass}
-          maxLength={100}
-        />
       </div>
 
       <div>

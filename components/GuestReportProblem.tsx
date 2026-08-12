@@ -4,13 +4,16 @@ import { useState, FormEvent } from "react";
 import { ISSUE_TYPES, MAX_PHOTO_BYTES, fileToBase64 } from "@/lib/reportProblemClient";
 
 // Guest counterpart to ReportProblemTab (components/AccountDashboard.tsx) —
-// no account required, verified server-side by order number + tracking
-// number instead of a JWT-backed order-ownership check. See
-// app/api/orders/report-problem/route.ts for why tracking number (not
-// email) is the second credential here.
+// no account required, verified server-side by order number + the billing
+// email on file for that order instead of a JWT-backed order-ownership
+// check. See app/api/orders/report-problem/route.ts for the lookup itself;
+// tracking number (if any) is pulled from WC automatically server-side, not
+// collected here.
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 export default function GuestReportProblem() {
   const [orderNumber, setOrderNumber] = useState("");
-  const [trackingNumber, setTrackingNumber] = useState("");
+  const [email, setEmail] = useState("");
   const [issueType, setIssueType] = useState("");
   const [description, setDescription] = useState("");
   const [photo, setPhoto] = useState<File | null>(null);
@@ -22,7 +25,7 @@ export default function GuestReportProblem() {
   const inputClass = "w-full px-4 py-3 bg-white/5 border border-white/10 focus:border-blue-500/50 focus:bg-white/8 rounded-xl text-white placeholder-white/20 font-body text-sm outline-none transition-all duration-300";
   const labelClass = "block font-mono text-xs text-white/40 tracking-widest uppercase mb-2";
 
-  const isValid = !!orderNumber && !!trackingNumber && !!issueType && description.trim().length > 0 && !photoError;
+  const isValid = !!orderNumber && EMAIL_RE.test(email) && !!issueType && description.trim().length > 0 && !photoError;
 
   const handlePhotoChange = (file: File | null) => {
     setPhotoError("");
@@ -47,7 +50,7 @@ export default function GuestReportProblem() {
       const res = await fetch("/api/orders/report-problem", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ orderNumber, trackingNumber, issueType, description, ...photoPayload }),
+        body: JSON.stringify({ orderNumber, email, issueType, description, ...photoPayload }),
       });
       const data = await res.json();
       if (!res.ok || data.error) {
@@ -56,7 +59,7 @@ export default function GuestReportProblem() {
         return;
       }
       setOrderNumber("");
-      setTrackingNumber("");
+      setEmail("");
       setIssueType("");
       setDescription("");
       setPhoto(null);
@@ -95,7 +98,7 @@ export default function GuestReportProblem() {
   return (
     <form onSubmit={handleSubmit} className="glass-card rounded-2xl p-6 md:p-8 space-y-5">
       <p className="font-body text-sm text-white/50">
-        No account needed — enter your order number and the tracking number from your shipping confirmation.
+        No account needed — enter your order number and the email you used at checkout.
       </p>
 
       <div className="grid grid-cols-2 gap-4">
@@ -110,12 +113,13 @@ export default function GuestReportProblem() {
           />
         </div>
         <div>
-          <label className={labelClass}>Tracking Number *</label>
+          <label className={labelClass}>Email *</label>
           <input
             required
-            value={trackingNumber}
-            onChange={(e) => setTrackingNumber(e.target.value)}
-            placeholder="From your shipping email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Used at checkout"
             className={inputClass}
           />
         </div>
