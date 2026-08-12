@@ -66,7 +66,7 @@ export default function CoaLibraryGrid({ products }: { products: CoaProduct[] })
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search compounds…"
-            className="w-full pl-11 pr-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-white/45 font-body text-sm focus:outline-none focus:border-mock-cobaltLight/50 transition-colors"
+            className="w-full pl-11 pr-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-white font-body text-sm focus:outline-none focus:border-mock-cobaltLight/50 transition-colors"
           />
         </div>
       </div>
