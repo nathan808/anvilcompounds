@@ -48,7 +48,7 @@ function AccordionItem({
           />
           <span
             className={`font-body text-sm md:text-base leading-snug transition-colors duration-200 ${
-              isOpen ? "text-white" : "text-white/70 group-hover:text-white/90"
+              isOpen ? "text-white" : "text-white/85 group-hover:text-white/95"
             }`}
           >
             {item.q}

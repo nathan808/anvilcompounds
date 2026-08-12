@@ -123,7 +123,7 @@ function CoaCard({
       }`}
     >
       <div>
-        <p className="font-mono text-[10px] text-white/55 tracking-widest uppercase mb-2">
+        <p className="font-mono text-[10px] text-mock-cobaltLight tracking-widest uppercase mb-2">
           {product.category}
         </p>
         <h2 className="font-heading font-700 text-[#EAF0FA] text-lg mb-1">
