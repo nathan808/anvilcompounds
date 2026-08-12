@@ -133,26 +133,22 @@ body {
   animation: float 4s ease-in-out infinite;
 }
 
-/* Compound-reveal shimmer — animated gradient sweep across text, used by
-   CompoundRevealBadge to surface the real compound name under a renamed
-   product code (e.g. "AC3R" -> "Retatrutide"). */
-@keyframes compoundShimmer {
-  to { background-position: -200% center; }
+/* Compound-reveal pulse — text fades back and forth between plain white and
+   fully bold white, used by CompoundRevealBadge to surface the real
+   compound name under a renamed product code (e.g. "AC3R" -> "Reta / GLP3RT"). */
+@keyframes compoundPulse {
+  0%, 100% { font-weight: 400; opacity: 0.8; }
+  50%      { font-weight: 800; opacity: 1; }
 }
-.compound-reveal-shimmer {
-  background: linear-gradient(90deg, #7FA4EC 0%, #1F5AE0 25%, #7FA4EC 50%, #1F5AE0 75%, #7FA4EC 100%);
-  background-size: 200% auto;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  animation: compoundShimmer 3s linear infinite;
+.compound-reveal-pulse {
+  color: #ffffff;
+  animation: compoundPulse 2.2s ease-in-out infinite;
 }
 @media (prefers-reduced-motion: reduce) {
-  .compound-reveal-shimmer {
+  .compound-reveal-pulse {
     animation: none;
-    -webkit-background-clip: unset;
-    background-clip: unset;
-    color: #1F5AE0;
+    font-weight: 700;
+    opacity: 1;
   }
 }
 
