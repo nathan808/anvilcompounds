@@ -11,7 +11,7 @@ import { CardNetworkLogos } from "@/components/PaymentLogos";
 //     be inaccurate. Add them back here once real payment collection exists.
 const OTHER_METHODS: { icon: string; label: string }[] = [
   { icon: "Ξ", label: "Ethereum · 10% off" },
-  { icon: "⚡", label: "Zelle" },
+  { icon: "⚡", label: "Zelle · 10% off" },
 ];
 
 export default function PaymentMethodsBar() {

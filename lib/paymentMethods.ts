@@ -20,10 +20,10 @@ export interface PaymentMethodMeta {
 
 export const PAYMENT_METHODS: PaymentMethodMeta[] = [
   { id: "bacs",      label: "Pay With Credit Card Via Invoice", group: "card",    discountPercent: 0,  todoNote: "Standard price, no discount.", badge: "SECURE LINK" },
-  { id: "ethereum",  label: "Ethereum",     group: "instant", discountPercent: 10, todoNote: "Bankful hosted checkout — confirms in minutes." },
+  { id: "ethereum",  label: "Ethereum",     group: "instant", discountPercent: 10, todoNote: "Instant, direct payment — 10% off total. Bankful hosted checkout, confirms in minutes." },
   { id: "usdc_usdt", label: "USDC / USDT",  group: "instant", discountPercent: 5,  todoNote: "TODO: trust/instruction copy — USDC/USDT (NOWPayments)", hidden: true },
   { id: "ach",       label: "ACH Transfer", group: "instant", discountPercent: 5,  todoNote: "TODO: trust/instruction copy — ACH (LinkMoney)", hidden: true },
-  { id: "zelle",     label: "Zelle",        group: "manual",  discountPercent: 0,  todoNote: "Details shown after you place your order." },
+  { id: "zelle",     label: "Zelle",        group: "manual",  discountPercent: 10, todoNote: "Instant, direct payment — 10% off total. Details shown after you place your order." },
 ];
 
 export const GROUP_LABELS: Record<PaymentGroup, string> = {
