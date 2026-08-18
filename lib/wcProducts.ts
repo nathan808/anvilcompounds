@@ -6,6 +6,7 @@ interface WcVariation {
   price: string;
   regular_price: string;
   attributes: { name: string; option: string }[];
+  stock_status: string;
 }
 
 interface WcProduct {
@@ -14,6 +15,7 @@ interface WcProduct {
   type: string;
   price: string;
   regular_price: string;
+  stock_status: string;
 }
 
 export interface ResolvedLineItem {
@@ -24,6 +26,10 @@ export interface ResolvedLineItem {
   unitBasePrice: number; // WC's price for this product/variation, before volume discount
   unitPrice: number;     // after this codebase's own volume-discount tiers
   lineTotal: number;
+  // stock_status of whichever WC object (variation, or parent for a simple/
+  // no-size-match product) actually priced this line — e.g. GHK-Cu 50mg vs
+  // 100mg only one of which may be in stock at a time.
+  inStock: boolean;
 }
 
 // Fetches the product (and, for variable products, matches the requested size
@@ -53,6 +59,7 @@ export async function resolveLineItem(
 
   let unitBasePrice = parseFloat(product.price || product.regular_price || "0");
   let variationId: number | null = null;
+  let inStock = product.stock_status !== "outofstock";
 
   if (product.type === "variable") {
     const varRes = await fetch(`${url}/wp-json/wc/v3/products/${productId}/variations?per_page=50`, { headers });
@@ -62,9 +69,10 @@ export async function resolveLineItem(
       if (match) {
         unitBasePrice = parseFloat(match.price || match.regular_price || String(unitBasePrice));
         variationId = match.id;
+        inStock = match.stock_status !== "outofstock";
       }
       // No matching size (e.g. catalog quick-add's "Standard") falls back to
-      // the parent product's own price — same fallback getProductPageData() uses.
+      // the parent product's own price/stock — same fallback getProductPageData() uses.
     }
   }
 
@@ -79,5 +87,6 @@ export async function resolveLineItem(
     unitBasePrice,
     unitPrice,
     lineTotal: roundCurrency(unitPrice * quantity),
+    inStock,
   };
 }

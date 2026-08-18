@@ -16,8 +16,16 @@ import type { ProductPageData } from "@/components/ProductPageTemplate";
 // the shopper picks — e.g. GLP-RT/GLP-TRZ show a different vial photo and a
 // different COA PDF for 10mg vs 20mg. Extracted out of ProductPageTemplate
 // (a server component) specifically to hold this client-side state.
+// First in-stock size, or 0 if every size is out of stock (or none is
+// tracked) — a sold-out size (e.g. GHK-Cu 50mg) should never be the
+// default selection just because it happens to be cheapest/sorted first.
+function firstInStockIndex(sizesStock: (number | null)[]): number {
+  const idx = sizesStock.findIndex((s) => s !== 0);
+  return idx === -1 ? 0 : idx;
+}
+
 export default function ProductHero({ product }: { product: ProductPageData }) {
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [selectedIndex, setSelectedIndex] = useState(() => firstInStockIndex(product.sizesStock));
   const hasCoa = product.hasCoa;
 
   const currentImage = product.sizesImages[selectedIndex] ?? product.image ?? null;

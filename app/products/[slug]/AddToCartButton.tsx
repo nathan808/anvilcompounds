@@ -134,7 +134,13 @@ export default function AddToCartButton({
     setQty(Math.min(MAX_QTY_PER_ITEM, Math.max(1, next)));
   };
 
+  // Belt-and-suspenders: the size chips already can't be clicked into a
+  // sold-out size and the default selection skips one too, but guard the
+  // actual add here as well in case selectedIndex ever lands on one anyway.
+  const selectedSizeSoldOut = sizesStock?.[selectedIndex] === 0;
+
   const handleAdd = () => {
+    if (selectedSizeSoldOut) return;
     addItem(
       { slug, name, size: selectedSize, price: unitPrice, basePrice, wcProductId },
       qty
@@ -279,19 +285,26 @@ export default function AddToCartButton({
           <div className="text-right">
             <p className="font-mono text-xs text-mock-sub tracking-widest uppercase mb-2">Select Size</p>
             <div className="flex flex-wrap gap-2 justify-end">
-              {sizes.map((size, idx) => (
-                <button
-                  key={size}
-                  onClick={() => setSelectedIndex(idx)}
-                  className={`px-4 py-2 rounded-lg border font-mono text-sm font-500 transition-all duration-200 ${
-                    selectedIndex === idx
-                      ? "bg-mock-cobalt border-mock-cobaltInk text-white shadow-lg shadow-mock-cobalt/20"
-                      : "bg-mock-surface2 border-mock-line text-mock-sub hover:border-mock-cobalt/30 hover:text-mock-navy"
-                  }`}
-                >
-                  {simplifySizeLabel(size)}
-                </button>
-              ))}
+              {sizes.map((size, idx) => {
+                const soldOut = sizesStock?.[idx] === 0;
+                return (
+                  <button
+                    key={size}
+                    disabled={soldOut}
+                    onClick={() => !soldOut && setSelectedIndex(idx)}
+                    className={`px-4 py-2 rounded-lg border font-mono text-sm font-500 transition-all duration-200 ${
+                      soldOut
+                        ? "bg-mock-surface2/50 border-mock-line text-mock-sub/40 cursor-not-allowed line-through"
+                        : selectedIndex === idx
+                        ? "bg-mock-cobalt border-mock-cobaltInk text-white shadow-lg shadow-mock-cobalt/20"
+                        : "bg-mock-surface2 border-mock-line text-mock-sub hover:border-mock-cobalt/30 hover:text-mock-navy"
+                    }`}
+                  >
+                    {simplifySizeLabel(size)}
+                    {soldOut && <span className="ml-1.5 text-[10px] no-underline">Sold Out</span>}
+                  </button>
+                );
+              })}
             </div>
           </div>
         ) : sizes.length === 1 ? (
@@ -421,13 +434,18 @@ export default function AddToCartButton({
       <button
         ref={mainCtaRef}
         onClick={handleAdd}
+        disabled={selectedSizeSoldOut}
         className={`block w-full text-center py-4 font-display font-700 text-base rounded-xl transition-all duration-300 ${
-          added
+          selectedSizeSoldOut
+            ? "bg-mock-surface2 text-mock-sub/50 cursor-not-allowed"
+            : added
             ? "bg-green-600 text-white"
             : "bg-mock-cobalt hover:bg-mock-cobaltInk text-white hover:shadow-xl hover:shadow-mock-cobalt/30 hover:-translate-y-0.5"
         }`}
       >
-        {added
+        {selectedSizeSoldOut
+          ? "Sold Out"
+          : added
           ? "✓ Added to Order"
           : qty > 1
           ? `Add ${qty} Vials to Cart · $${discountedLineTotal.toFixed(2)}`

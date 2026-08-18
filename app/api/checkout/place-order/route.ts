@@ -92,6 +92,16 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: `One of the items in your cart is no longer available (product ${item.productId}).` }, { status: 400 });
   }
   const resolvedItems = resolvedResults as ResolvedLineItem[];
+
+  const outOfStockIndex = resolvedItems.findIndex((r) => !r.inStock);
+  if (outOfStockIndex !== -1) {
+    const item = resolvedItems[outOfStockIndex];
+    console.warn(`[place-order:${requestId}] FAIL: product ${item.productId} (variation ${item.variationId}) is out of stock`);
+    return NextResponse.json(
+      { error: `${item.name} is currently out of stock. Please remove it or choose a different size to continue.` },
+      { status: 400 }
+    );
+  }
   const subtotal = roundCurrency(resolvedItems.reduce((s, i) => s + i.lineTotal, 0));
 
   // ── 1b. BOGO launch promo — same-product pairs get their 2nd unit free.
