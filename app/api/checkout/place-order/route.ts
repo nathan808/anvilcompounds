@@ -3,7 +3,7 @@ import { resolveLineItem, ResolvedLineItem } from "@/lib/wcProducts";
 import { fetchShippingOptions } from "@/lib/wcShipping";
 import { validateCoupon } from "@/lib/wcCoupon";
 import { computeCouponDiscount } from "@/lib/couponMath";
-import { computeTax, roundCurrency } from "@/lib/taxMath";
+import { computeTax, roundCurrency, apportionAmount } from "@/lib/taxMath";
 import { fetchTaxRate } from "@/lib/wcTax";
 import { PAYMENT_METHODS, PaymentMethodId } from "@/lib/paymentMethods";
 import { PAYMENT_CONFIG } from "@/lib/paymentConfig";
@@ -162,7 +162,15 @@ export async function POST(req: NextRequest) {
     console.error(`[place-order:${requestId}] FAIL: could not load tax rate`, err);
     return NextResponse.json({ error: "Could not load tax rate" }, { status: 502 });
   }
-  const tax = computeTax(taxRate, postCouponSubtotal, [volumeDiscount, paymentDiscountAmount, bogoDiscount], shippingCost, shippingTaxable);
+  // Coupon discount is apportioned per product line (mirrors WooCommerce's
+  // own behavior) before taxing — each line is then taxed and rounded
+  // independently, not as one combined cart subtotal. See computeTax's
+  // docstring: rounding the combined subtotal once instead of summing each
+  // line's own rounded tax caused the TOTAL_MISMATCH on order #1113 (three
+  // different products in one cart).
+  const couponPerLine = apportionAmount(couponDiscount, resolvedItems.map((i) => i.lineTotal));
+  const productLineAmounts = resolvedItems.map((item, i) => item.lineTotal - couponPerLine[i]);
+  const tax = computeTax(taxRate, productLineAmounts, [volumeDiscount, paymentDiscountAmount, bogoDiscount], shippingCost, shippingTaxable);
   const expectedTotal = roundCurrency(postCouponSubtotal - volumeDiscount - paymentDiscountAmount - bogoDiscount + shippingCost + tax.totalTax);
 
   console.log(`[place-order:${requestId}] Method: ${paymentMethodId} | subtotal:${subtotal} couponDiscount:${couponDiscount} volumeDiscount:${volumeDiscount} bogoDiscount:${bogoDiscount} paymentDiscount:${paymentDiscountAmount} shipping:${shippingCost} taxRate:${taxRate} totalTax:${tax.totalTax} expectedTotal:${expectedTotal}`);

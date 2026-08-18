@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useCart } from "@/lib/cartContext";
 import { useCheckout } from "@/lib/checkoutContext";
 import { computeCouponDiscount } from "@/lib/couponMath";
-import { computeTax } from "@/lib/taxMath";
+import { computeTax, apportionAmount } from "@/lib/taxMath";
 import { computeVolumeDiscount, VOLUME_DISCOUNT_LABEL } from "@/lib/volumeDiscount";
 import { computeBogoDiscount, BOGO_ENABLED, BOGO_LABEL, FREE_GIFT_LABEL } from "@/lib/bogoDiscount";
 import { useFreeShippingProgress } from "@/lib/useFreeShippingProgress";
@@ -80,7 +80,15 @@ export default function OrderSummary({ editableCoupon = true, showShipping = fal
     return () => { cancelled = true; };
   }, [showShipping, step1.state]);
 
-  const tax = computeTax(taxRate, postCouponSubtotal, [volumeDiscount, paymentDiscountAmount, bogoDiscount], shippingCost, shippingTaxable);
+  // Coupon apportioned per line and each product line taxed/rounded
+  // independently, matching WooCommerce's actual behavior (and the
+  // server-side computation in app/api/checkout/place-order) — rounding one
+  // combined subtotal instead caused a real TOTAL_MISMATCH on multi-product
+  // carts (order #1113). Keeping this preview in lockstep avoids showing the
+  // customer a total that then differs from what place-order computes.
+  const couponPerLine = apportionAmount(couponDiscount, items.map((i) => i.price * i.quantity));
+  const productLineAmounts = items.map((i, idx) => i.price * i.quantity - couponPerLine[idx]);
+  const tax = computeTax(taxRate, productLineAmounts, [volumeDiscount, paymentDiscountAmount, bogoDiscount], shippingCost, shippingTaxable);
   const total = postCouponSubtotal - volumeDiscount - paymentDiscountAmount - bogoDiscount + shippingCost + (showShipping ? tax.totalTax : 0);
 
   const applyCoupon = async () => {

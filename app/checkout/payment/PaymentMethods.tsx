@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useCart } from "@/lib/cartContext";
 import { useCheckout } from "@/lib/checkoutContext";
 import { computeCouponDiscount } from "@/lib/couponMath";
-import { computeTax } from "@/lib/taxMath";
+import { computeTax, apportionAmount } from "@/lib/taxMath";
 import { computeVolumeDiscount } from "@/lib/volumeDiscount";
 import { computeBogoDiscount, BOGO_LABEL } from "@/lib/bogoDiscount";
 import { PAYMENT_METHODS, GROUP_LABELS, GROUP_SUBHEADS, GROUP_ORDER } from "@/lib/paymentMethods";
@@ -69,6 +69,12 @@ export default function PaymentMethods() {
   const discountedSubtotal = postCouponSubtotal - volumeDiscount - bogoDiscount;
   const shippingCost = shipping?.cost ?? 0;
 
+  // Coupon apportioned per line and each product line taxed/rounded
+  // independently, matching WooCommerce's real behavior — see the same note
+  // in OrderSummary.tsx / place-order/route.ts (order #1113 TOTAL_MISMATCH).
+  const couponPerLine = apportionAmount(couponDiscount, items.map((i) => i.price * i.quantity));
+  const productLineAmounts = items.map((i, idx) => i.price * i.quantity - couponPerLine[idx]);
+
   return (
     <div className="space-y-8">
       {GROUP_ORDER.map((group) => {
@@ -83,7 +89,7 @@ export default function PaymentMethods() {
             <div className={GROUP_SUBHEADS[group] ? "space-y-3 mt-4" : "space-y-3"}>
               {methods.map((method) => {
                 const discountAmount = bogoActive ? 0 : discountedSubtotal * (method.discountPercent / 100);
-                const tax = computeTax(taxRate, postCouponSubtotal, [volumeDiscount, discountAmount, bogoDiscount], shippingCost, shippingTaxable);
+                const tax = computeTax(taxRate, productLineAmounts, [volumeDiscount, discountAmount, bogoDiscount], shippingCost, shippingTaxable);
                 const methodTotal = discountedSubtotal - discountAmount + shippingCost + tax.totalTax;
                 const isLive = PAYMENT_CONFIG[method.id].status === "live";
                 const overZelleCap = method.id === "zelle" && methodTotal > PAYMENT_CONFIG.zelle.maxOrder;

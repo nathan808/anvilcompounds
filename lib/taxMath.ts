@@ -15,24 +15,33 @@ export interface TaxBreakdown {
 }
 
 // Mirrors WooCommerce's own tax calculation with per-line rounding (this store
-// has woocommerce_tax_round_at_subtotal = "no"): the post-coupon product
-// total, EACH fee line (payment-method discount, volume discount — every
-// negative fee line WC sees on the order, even ones created with
-// tax_status: "none"), and shipping are each taxed and rounded
-// independently as their own WC_Order_Item_Fee, then summed. Verified
-// against live test orders with a single fee line (549-554); with two fee
-// lines simultaneously (volume + payment-method discount), each is still
-// its own independent WC_Order_Item_Fee under the hood, so the same
-// per-line-rounding mechanism applies — re-verify against a real order
-// before trusting this without the CRITICAL total-match check.
+// has woocommerce_tax_round_at_subtotal = "no"): EACH order line — every
+// product line item, EACH fee line (payment-method discount, volume
+// discount, BOGO — every negative fee line WC sees on the order, even ones
+// created with tax_status: "none"), and shipping — is taxed and rounded
+// independently as its own WC_Order_Item, then summed.
+//
+// productLineAmounts must be each PRODUCT line's own taxable subtotal
+// (after that line's share of any coupon discount, before BOGO/volume/
+// payment-method fees, which are handled separately via feeAmounts) — NOT
+// a single combined cart subtotal. Rounding one combined number instead of
+// summing each line's own rounded tax is off by a cent whenever a cart has
+// 2+ product lines whose individual roundings don't sum to the same cent
+// as the combined rounding (confirmed against real order #1113: WC's
+// per-line product tax summed to $23.28, while rounding the $321.00
+// combined subtotal at 7.25% gives $23.27 — the exact TOTAL_MISMATCH this
+// was built to fix. See lib/couponMath.ts's apportionAmount for how a
+// coupon's discount is split across lines before this).
 export function computeTax(
   rate: number,
-  postCouponSubtotal: number,
+  productLineAmounts: number[],
   feeAmounts: number[],
   shippingCost: number,
   shippingTaxable: boolean
 ): TaxBreakdown {
-  const productTax = roundCurrency(postCouponSubtotal * rate);
+  const productTax = roundCurrency(
+    productLineAmounts.reduce((sum, amount) => sum + (amount !== 0 ? roundCurrency(amount * rate) : 0), 0)
+  );
   const feeTax = roundCurrency(
     feeAmounts.reduce((sum, amount) => sum + (amount !== 0 ? roundCurrency(-amount * rate) : 0), 0)
   );
@@ -43,4 +52,29 @@ export function computeTax(
     shippingTax,
     totalTax: roundCurrency(productTax + feeTax + shippingTax),
   };
+}
+
+// Splits `total` proportionally across `weights` (e.g. each product line's
+// share of the cart subtotal), in whole cents, using a largest-remainder
+// method so the parts always sum to exactly `total` — mirrors how
+// WooCommerce apportions a cart-level coupon discount across order line
+// items before taxing each one independently.
+export function apportionAmount(total: number, weights: number[]): number[] {
+  const totalCents = Math.round(total * 100);
+  const weightSum = weights.reduce((s, w) => s + w, 0);
+  if (totalCents === 0 || weightSum === 0) return weights.map(() => 0);
+
+  const raw = weights.map((w) => (w / weightSum) * totalCents);
+  const floors = raw.map((r) => Math.floor(r));
+  const remainder = totalCents - floors.reduce((s, f) => s + f, 0);
+
+  const order = raw
+    .map((r, i) => ({ i, frac: r - floors[i] }))
+    .sort((a, b) => b.frac - a.frac);
+
+  const cents = [...floors];
+  for (let k = 0; k < remainder; k++) {
+    cents[order[k % order.length].i] += 1;
+  }
+  return cents.map((c) => c / 100);
 }
