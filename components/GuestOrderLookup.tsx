@@ -18,7 +18,7 @@ const STATUS_LABELS: Record<string, string> = {
   "on-hold": "Pending Payment",
   pending: "Pending Payment",
   processing: "Processing",
-  completed: "Delivered",
+  completed: "Shipped",
   cancelled: "Cancelled",
   refunded: "Refunded",
   failed: "Failed",

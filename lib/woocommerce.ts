@@ -159,6 +159,8 @@ interface WCProductFull {
   images: { src: string; alt: string }[];
   meta_data: { id: number; key: string; value: string }[];
   attributes: { name: string; options: string[] }[];
+  manage_stock: boolean;
+  stock_quantity: number | null;
 }
 
 interface WCVariation {
@@ -168,6 +170,8 @@ interface WCVariation {
   attributes: { id: number; name: string; option: string }[];
   image?: { src: string } | null;
   meta_data?: { id: number; key: string; value: string }[];
+  manage_stock: boolean;
+  stock_quantity: number | null;
 }
 
 function buildMetaMap(metaData: { key: string; value: string }[]): Record<string, string> {
@@ -245,6 +249,12 @@ export async function getProductPageData(slug: string): Promise<ProductPageData 
     // below, so a product can mix (e.g. one size with a dedicated photo,
     // the other still sharing the base image) without extra plumbing.
     let sizesImagesRaw: (string | null)[] = sortedVars.map((v) => v.image?.src ?? null);
+    // Per-variation stock, same shape as sizesPrices — null means "not
+    // tracking stock for this size" (manage_stock off), which the UI treats
+    // as "don't show a low-stock badge" rather than assuming it's in stock.
+    let sizesStockRaw: (number | null)[] = sortedVars.map((v) =>
+      v.manage_stock ? v.stock_quantity : null
+    );
     let sizesDocFilesRaw: (string | null)[] = sortedVars.map((v) => {
       const vMeta = buildMetaMap(v.meta_data ?? []);
       return vMeta["documentation_file"] || null;
@@ -267,6 +277,8 @@ export async function getProductPageData(slug: string): Promise<ProductPageData 
         sizesOriginalPrices = baseSizeAttr.options.map(() => originalForFallback);
         sizesImagesRaw = baseSizeAttr.options.map(() => null);
         sizesDocFilesRaw = baseSizeAttr.options.map(() => null);
+        const stockForFallback = product.manage_stock ? product.stock_quantity : null;
+        sizesStockRaw = baseSizeAttr.options.map(() => stockForFallback);
       }
     }
 
@@ -305,6 +317,8 @@ export async function getProductPageData(slug: string): Promise<ProductPageData 
     const fallbackDocFile = meta["documentation_file"] ?? null;
     const sizesImages = (sizes.length ? sizesImagesRaw : [null]).map((img) => img ?? fallbackImage);
     const sizesDocumentationFiles = (sizes.length ? sizesDocFilesRaw : [null]).map((f) => f ?? fallbackDocFile);
+    const fallbackStock = product.manage_stock ? product.stock_quantity : null;
+    const sizesStock = (sizes.length ? sizesStockRaw : [fallbackStock]).map((s) => s ?? fallbackStock);
 
     return {
       slug,
@@ -319,6 +333,7 @@ export async function getProductPageData(slug: string): Promise<ProductPageData 
       sizesOriginalPrices: sizesOriginalPrices.length ? sizesOriginalPrices : [originalBasePrice],
       sizesImages,
       sizesDocumentationFiles,
+      sizesStock,
       wcProductId: product.id,
       image:       fallbackImage,
       trustBadges,
@@ -432,6 +447,8 @@ export interface WCProduct {
   attributes: Array<{ name: string; options: string[] }>;
   images: Array<{ src: string; alt: string }>;
   meta_data: Array<{ key: string; value: string }>;
+  manage_stock: boolean;
+  stock_quantity: number | null;
 }
 
 export interface ProductCard {
@@ -458,6 +475,15 @@ export interface ProductCard {
   // carry per-size COA switching, that lives on the product page/COA library.
   documentationFile: string | null;
   documentationImage: string | null;
+  // Product-level manage_stock/stock_quantity only — null/undefined
+  // whenever stock isn't tracked at the product level (e.g. variable
+  // products, which WC only tracks per-variation, or FALLBACK_PRODUCTS
+  // below, which predates this field). The catalog card has no size
+  // selector, so there's no cheap way to resolve a variable product's
+  // per-variation number here without an extra /variations fetch per card;
+  // the product detail page (sizesStock in ProductPageData) is where
+  // that's accurate.
+  stockQuantity?: number | null;
 }
 
 // Products without COA yet (Testing in Progress — no buy UI shown).
@@ -591,6 +617,7 @@ export function mapProduct(product: WCProduct, index: number, originalPriceOverr
     sizes:       getAttributeOptions(product, "Size"),
     documentationFile:  meta["documentation_file"]  ?? null,
     documentationImage: meta["documentation_image"] ?? null,
+    stockQuantity: product.manage_stock ? product.stock_quantity : null,
   };
 }
 

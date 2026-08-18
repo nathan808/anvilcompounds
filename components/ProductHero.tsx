@@ -85,6 +85,7 @@ export default function ProductHero({ product }: { product: ProductPageData }) {
             sizes={product.sizes}
             sizesPrices={product.sizesPrices}
             sizesOriginalPrices={product.sizesOriginalPrices}
+            sizesStock={product.sizesStock}
             priceNumber={product.priceNumber}
             wcProductId={product.wcProductId}
             hasCoa={hasCoa}
@@ -186,6 +187,7 @@ export default function ProductHero({ product }: { product: ProductPageData }) {
               sizes={product.sizes}
               sizesPrices={product.sizesPrices}
               sizesOriginalPrices={product.sizesOriginalPrices}
+              sizesStock={product.sizesStock}
               priceNumber={product.priceNumber}
               wcProductId={product.wcProductId}
               hasCoa={hasCoa}

@@ -27,6 +27,10 @@ export interface ProductPageData {
   // `sizes`, so callers don't need to null-check per index.
   sizesImages: (string | null)[];
   sizesDocumentationFiles: (string | null)[];
+  // Per-size stock_quantity, aligned index-for-index with `sizes` (see
+  // sizesStock in lib/woocommerce.ts). null means stock isn't tracked for
+  // that size — treated as "don't show a low-stock badge".
+  sizesStock: (number | null)[];
   wcProductId: number;
   image?: string | null;
 

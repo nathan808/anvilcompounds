@@ -358,6 +358,11 @@ export function ProductCard({ product, index }: { product: ProductCard; index: n
                   <span className="font-body text-xs md:text-sm text-mock-sub line-through">{product.originalPrice}</span>
                 )}
               </div>
+              {product.stockQuantity != null && product.stockQuantity < 5 && (
+                <span className="font-mono text-[10px] md:text-xs text-amber-600 font-600">
+                  {product.stockQuantity <= 0 ? "Out of stock" : "Limited qty."}
+                </span>
+              )}
             </div>
 
             {/* mg/size options — shown next to the price for every product

@@ -22,6 +22,7 @@ interface Props {
   sizes: string[];
   sizesPrices: number[];
   sizesOriginalPrices?: (number | null)[];
+  sizesStock?: (number | null)[];
   priceNumber: number;
   wcProductId: number;
   hasCoa: boolean;
@@ -51,6 +52,7 @@ export default function AddToCartButton({
   sizes,
   sizesPrices,
   sizesOriginalPrices,
+  sizesStock,
   priceNumber,
   wcProductId,
   hasCoa,
@@ -209,6 +211,15 @@ export default function AddToCartButton({
               </>
             ) : null}
           </div>
+          {(() => {
+            const stockForSize = sizesStock?.[selectedIndex];
+            if (stockForSize === undefined || stockForSize === null || stockForSize >= 5) return null;
+            return (
+              <p className="mt-1 font-mono text-xs text-amber-600 font-600">
+                {stockForSize <= 0 ? "Out of stock" : "Limited qty."}
+              </p>
+            );
+          })()}
           {qty > 1 && (
             <div className="mt-1 space-y-0.5">
               <p className="font-mono text-xs text-mock-sub">
