@@ -2,7 +2,6 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { getDiscountedPrice, MAX_QTY_PER_ITEM } from "@/lib/volumePricing";
-import { BOGO_ENABLED, BOGO_EXCLUDED_PRODUCT_IDS } from "@/lib/bogoDiscount";
 
 export interface CartItem {
   slug: string;
@@ -106,14 +105,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const updateQty = (slug: string, size: string, qty: number) => {
     if (qty <= 0) { removeItem(slug, size); return; }
-    // BOGO-eligible items can't be dropped below 2 via the drawer's -/+
-    // steppers either (2nd vial free is always-on, not opt-in) — only the
-    // explicit "remove" action takes one below that. Matches the same floor
-    // enforced at add-to-cart time in AddToCartButton/ProductsSection.
-    const item = items.find((i) => i.slug === slug && i.size === size);
-    const isBogoExcluded = item ? BOGO_EXCLUDED_PRODUCT_IDS.has(item.wcProductId) : false;
-    const minQty = BOGO_ENABLED && !isBogoExcluded ? 2 : 1;
-    const cappedQty = Math.min(MAX_QTY_PER_ITEM, Math.max(minQty, qty));
+    // BOGO-eligible items default to 2 on first add (AddToCartButton/
+    // ProductsSection), but once in the cart the customer can freely edit
+    // back down to 1 — no floor enforced here.
+    const cappedQty = Math.min(MAX_QTY_PER_ITEM, qty);
     setItems((prev) =>
       prev.map((i) => {
         if (i.slug !== slug || i.size !== size) return i;

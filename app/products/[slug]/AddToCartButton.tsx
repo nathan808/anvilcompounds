@@ -14,7 +14,7 @@ import {
   getVolumeCTAText,
   getActiveTierIndex,
 } from "@/lib/volumePricing";
-import { BOGO_ENABLED, BOGO_LABEL, BOGO_EXCLUDED_PRODUCT_IDS, getBogoLineIndex } from "@/lib/bogoDiscount";
+import { BOGO_ENABLED, BOGO_LABEL, BOGO_EXCLUDED_PRODUCT_IDS, BUNDLE_PRODUCT_IDS, getBogoLineIndex } from "@/lib/bogoDiscount";
 
 interface Props {
   slug: string;
@@ -65,12 +65,14 @@ export default function AddToCartButton({
   const [internalIndex, setInternalIndex] = useState(0);
   const selectedIndex = controlledIndex ?? internalIndex;
   const setSelectedIndex = onSelectIndex ?? setInternalIndex;
-  // BOGO-eligible products always start (and stay) at a minimum of 2 — the
-  // 2nd vial free, applied automatically. Excluded products (bundles, BAC
-  // water — see BOGO_EXCLUDED_PRODUCT_IDS) keep the normal 1-vial minimum.
+  // BOGO-eligible products default to 2 on first load — the 2nd vial free,
+  // applied automatically — but that's only the starting point: the
+  // customer can freely edit back down to 1 (or up past 2) afterward.
+  // Excluded products (bundles, BAC water — see BOGO_EXCLUDED_PRODUCT_IDS)
+  // default to the normal 1 vial.
   const isBogoExcluded = BOGO_EXCLUDED_PRODUCT_IDS.has(wcProductId);
-  const bogoMinQty = BOGO_ENABLED && !isBogoExcluded ? 2 : 1;
-  const [qty, setQty] = useState(bogoMinQty);
+  const bogoDefaultQty = BOGO_ENABLED && !isBogoExcluded ? 2 : 1;
+  const [qty, setQty] = useState(bogoDefaultQty);
   const [added, setAdded] = useState(false);
   const mainCtaRef = useRef<HTMLButtonElement>(null);
   const [showStickyBar, setShowStickyBar] = useState(false);
@@ -129,7 +131,7 @@ export default function AddToCartButton({
   const discountedLineTotal = lineTotal - bogoDiscountForLine;
 
   const handleQtyChange = (next: number) => {
-    setQty(Math.min(MAX_QTY_PER_ITEM, Math.max(bogoMinQty, next)));
+    setQty(Math.min(MAX_QTY_PER_ITEM, Math.max(1, next)));
   };
 
   const handleAdd = () => {
@@ -141,6 +143,28 @@ export default function AddToCartButton({
     setTimeout(() => setAdded(false), 2000);
     openCart();
   };
+
+  // ── Out-of-stock gate — Research Bundles ────────────────────────────────────
+  if (BUNDLE_PRODUCT_IDS.has(wcProductId)) {
+    return (
+      <div className="space-y-4">
+        <div className="p-6 rounded-xl border border-red-500/30 bg-red-500/10">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-2 h-2 rounded-full bg-red-500 shrink-0" />
+            <span className="font-mono text-xs text-red-700 tracking-[0.2em] uppercase">
+              Out of Stock
+            </span>
+          </div>
+          <p className="font-body text-sm text-mock-sub leading-relaxed">
+            This bundle is currently unavailable. Check back later, or browse individual compounds in the catalog.
+          </p>
+        </div>
+        <p className="text-center font-mono text-[10px] text-mock-sub tracking-wide">
+          RUO only · Not for human or veterinary use · 21+ required
+        </p>
+      </div>
+    );
+  }
 
   // ── Testing-in-progress gate ────────────────────────────────────────────────
   if (!hasCoa) {
@@ -210,7 +234,7 @@ export default function AddToCartButton({
                   ${originalBasePrice.toFixed(2)}
                 </span>
                 <span className="font-mono text-xs text-green-700 bg-green-500/10 border border-green-500/30 rounded-full px-2 py-0.5">
-                  Launch Price
+                  Limited Price
                 </span>
               </>
             ) : null}
@@ -296,10 +320,10 @@ export default function AddToCartButton({
           </button>
           <input
             type="number"
-            min={bogoMinQty}
+            min={1}
             max={MAX_QTY_PER_ITEM}
             value={qty}
-            onChange={(e) => handleQtyChange(parseInt(e.target.value) || bogoMinQty)}
+            onChange={(e) => handleQtyChange(parseInt(e.target.value) || 1)}
             className="w-16 text-center bg-white border border-mock-line rounded-lg font-mono text-sm text-mock-navy py-2 outline-none focus:border-mock-cobalt/50"
           />
           <button
@@ -308,11 +332,10 @@ export default function AddToCartButton({
           >
             +
           </button>
-          {/* Quick pick buttons — "1" dropped whenever BOGO enforces a
-              2-vial minimum, since it's not a selectable quantity. */}
+          {/* Quick pick buttons */}
           <div className="flex items-center gap-1.5 ml-1">
             <span className="font-mono text-[9px] text-mock-sub tracking-widest uppercase mr-1">Quick</span>
-            {QUICK_PICKS.filter((q) => q >= bogoMinQty).map((q) => (
+            {QUICK_PICKS.map((q) => (
               <button
                 key={q}
                 onClick={() => handleQtyChange(q)}

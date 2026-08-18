@@ -12,7 +12,7 @@ import { useAuth } from "@/lib/authContext";
 import { getProductDisplayTitle, isLoginGatedCompound, getCompoundReveal } from "@/lib/productTitle";
 import CompoundRevealBadge from "@/components/CompoundRevealBadge";
 import { simplifySizeLabel } from "@/lib/reconstitution";
-import { BOGO_ENABLED, BOGO_EXCLUDED_PRODUCT_IDS } from "@/lib/bogoDiscount";
+import { BOGO_ENABLED, BOGO_EXCLUDED_PRODUCT_IDS, BUNDLE_PRODUCT_IDS } from "@/lib/bogoDiscount";
 
 // Small credibility pills above the catalog header — same idea as a
 // competitor's "tested by / sold to / verified" badge row, adapted to what
@@ -214,6 +214,11 @@ export function ProductCard({ product, index }: { product: ProductCard; index: n
   const glpGated = isLoginGatedCompound(product.name) && !isAuthenticated;
   const loginHref = `/account?redirect=${encodeURIComponent(`/products/${slugifyProductName(product.name)}`)}`;
 
+  // Research Bundles are marked out of stock — display and functionally
+  // blocked from purchase (see BUNDLE_PRODUCT_IDS in lib/bogoDiscount.ts;
+  // also enforced server-side in app/api/checkout/place-order).
+  const isBundleOOS = BUNDLE_PRODUCT_IDS.has(product.id);
+
   // BOGO-eligible cards show the effective per-vial price (current price
   // halved, since the 2nd vial is free) instead of the single-vial price —
   // matches the always-qty-2 behavior in handleAddToCart below. Bundles/BAC
@@ -317,6 +322,12 @@ export function ProductCard({ product, index }: { product: ProductCard; index: n
                 Sign Up to Inquire
               </span>
             </div>
+          ) : isBundleOOS ? (
+            <div className="absolute inset-0 z-10 backdrop-blur-sm bg-mock-graphite/80 flex flex-col items-center justify-center gap-2">
+              <span className="font-mono text-[10px] text-red-300 tracking-[0.18em] uppercase text-center px-2">
+                Out of Stock
+              </span>
+            </div>
           ) : null}
         </div>
 
@@ -376,7 +387,11 @@ export function ProductCard({ product, index }: { product: ProductCard; index: n
                   <span className="font-body text-xs md:text-sm text-mock-sub line-through">{product.originalPrice}</span>
                 )}
               </div>
-              {product.stockQuantity != null && product.stockQuantity < 5 && (
+              {isBundleOOS ? (
+                <span className="font-mono text-[10px] md:text-xs text-red-600 font-600">
+                  Out of stock
+                </span>
+              ) : product.stockQuantity != null && product.stockQuantity < 5 && (
                 <span className="font-mono text-[10px] md:text-xs text-amber-600 font-600">
                   {product.stockQuantity <= 0 ? "Out of stock" : "Limited qty."}
                 </span>
@@ -423,6 +438,10 @@ export function ProductCard({ product, index }: { product: ProductCard; index: n
               >
                 Sign Up to Inquire
               </button>
+            ) : isBundleOOS ? (
+              <span className="flex-1 text-center px-2 md:px-3 py-1.5 md:py-2 border border-red-500/30 bg-red-500/10 text-red-700 text-[10px] md:text-xs font-mono rounded-lg cursor-default">
+                Out of Stock
+              </span>
             ) : product.hasCoa ? (
               <button
                 onClick={handleAddToCart}

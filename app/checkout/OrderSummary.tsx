@@ -160,7 +160,7 @@ export default function OrderSummary({ editableCoupon = true, showShipping = fal
         <div className="border-t border-white/8 pt-4 mb-4">
           {bogoActive ? (
             <p className="font-mono text-[10px] text-white/30 leading-relaxed">
-              Coupons aren&apos;t available during our Buy 1 Get 1 Free launch deal.
+              Coupons aren&apos;t available during our Buy 1 Get 1 Free limited deal.
             </p>
           ) : coupon ? (
             <div className="flex items-center justify-between gap-3 px-3 py-2 rounded-lg bg-blue-600/10 border border-blue-500/20">

@@ -9,7 +9,7 @@ import { PAYMENT_METHODS, PaymentMethodId } from "@/lib/paymentMethods";
 import { PAYMENT_CONFIG } from "@/lib/paymentConfig";
 import { computeVolumeDiscount, VOLUME_DISCOUNT_LABEL } from "@/lib/volumeDiscount";
 import { MAX_QTY_PER_ITEM } from "@/lib/volumePricing";
-import { computeBogoDiscount, BOGO_ENABLED, BOGO_LABEL, FREE_GIFT_PRODUCT_ID, FREE_GIFT_VARIATION_ID } from "@/lib/bogoDiscount";
+import { computeBogoDiscount, BOGO_ENABLED, BOGO_LABEL, FREE_GIFT_PRODUCT_ID, FREE_GIFT_VARIATION_ID, BUNDLE_PRODUCT_IDS } from "@/lib/bogoDiscount";
 
 // The client sends ONLY identifiers and selections — never a price, total,
 // discount amount, or tax figure. Every money value below is derived
@@ -49,6 +49,14 @@ export async function POST(req: NextRequest) {
   }
   if (!items?.length) {
     return NextResponse.json({ error: "Cart is empty" }, { status: 400 });
+  }
+  const bundleItem = items.find((i) => BUNDLE_PRODUCT_IDS.has(i.productId));
+  if (bundleItem) {
+    console.warn(`[place-order:${requestId}] FAIL: bundle product ${bundleItem.productId} is out of stock`);
+    return NextResponse.json(
+      { error: "One of the bundles in your cart is currently out of stock. Please remove it to continue." },
+      { status: 400 }
+    );
   }
   const overLimit = items.find((i) => i.quantity < 1 || i.quantity > MAX_QTY_PER_ITEM);
   if (overLimit) {

@@ -23,6 +23,13 @@ export const BOGO_LABEL = "Buy 1 Get 1 Free";
 //   store owner — bundles don't participate in BOGO).
 export const BOGO_EXCLUDED_PRODUCT_IDS = new Set<number>([349, 1041, 1043, 1045, 1047, 1049]);
 
+// Research Bundles are marked out of stock (display + functionally blocked
+// from purchase, both catalog UI and app/api/checkout/place-order) — same 5
+// IDs as the bundle portion of BOGO_EXCLUDED_PRODUCT_IDS above, pulled out
+// on its own since this isn't a BOGO concept and 349 (Bacteriostatic Water)
+// isn't a bundle.
+export const BUNDLE_PRODUCT_IDS = new Set<number>([1041, 1043, 1045, 1047, 1049]);
+
 export interface BogoLineItem {
   quantity: number;
   unitPrice: number;
