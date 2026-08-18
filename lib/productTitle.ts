@@ -27,6 +27,16 @@ export function isGlpCompound(name: string): boolean {
   return GLP_COMPOUND_NAMES.has(name.trim()) || /^glp-/i.test(name.trim());
 }
 
+// Login-inquiry-gating (guests can't view/add-to-cart/see the COA until
+// signed in) used to apply to every GLP compound — in practice that meant
+// only AC3R and AC2T, the sole live members of GLP_COMPOUND_NAMES. Gate
+// removed by request; kept as its own function (rather than folded into
+// isGlpCompound, which still drives the title suffix and the compound-reveal
+// badge) so gating a specific compound again later doesn't affect those.
+export function isLoginGatedCompound(_name: string): boolean {
+  return false;
+}
+
 // The real compound behind a coded product name — shown as a small animated
 // reveal under/next to the product name (see components/CompoundRevealBadge.tsx)
 // so a rename doesn't obscure what's actually in the vial.

@@ -9,10 +9,10 @@ import type { ProductCard } from "@/lib/woocommerce";
 import CoaModal from "@/components/CoaModal";
 import { useCart } from "@/lib/cartContext";
 import { useAuth } from "@/lib/authContext";
-import { getProductDisplayTitle, isGlpCompound, getCompoundReveal } from "@/lib/productTitle";
+import { getProductDisplayTitle, isLoginGatedCompound, getCompoundReveal } from "@/lib/productTitle";
 import CompoundRevealBadge from "@/components/CompoundRevealBadge";
 import { simplifySizeLabel } from "@/lib/reconstitution";
-import { BOGO_ENABLED } from "@/lib/bogoDiscount";
+import { BOGO_ENABLED, BOGO_EXCLUDED_PRODUCT_IDS } from "@/lib/bogoDiscount";
 
 // Small credibility pills above the catalog header — same idea as a
 // competitor's "tested by / sold to / verified" badge row, adapted to what
@@ -211,19 +211,31 @@ export function ProductCard({ product, index }: { product: ProductCard; index: n
   // GLP compounds are inquiry-gated: guests can't view, add to cart, or
   // check the COA from the catalog card until they log in. Same
   // /account?redirect= pattern used for the GLP COA gate elsewhere.
-  const glpGated = isGlpCompound(product.name) && !isAuthenticated;
+  const glpGated = isLoginGatedCompound(product.name) && !isAuthenticated;
   const loginHref = `/account?redirect=${encodeURIComponent(`/products/${slugifyProductName(product.name)}`)}`;
+
+  // BOGO-eligible cards show the effective per-vial price (current price
+  // halved, since the 2nd vial is free) instead of the single-vial price —
+  // matches the always-qty-2 behavior in handleAddToCart below. Bundles/BAC
+  // water (BOGO_EXCLUDED_PRODUCT_IDS) keep showing their real price.
+  const isBogoEligible = BOGO_ENABLED && !BOGO_EXCLUDED_PRODUCT_IDS.has(product.id);
+  const rawPriceNum = parseFloat(product.price.replace(/[^0-9.]/g, "")) || 0;
+  const bogoUnitPrice = rawPriceNum > 0 ? `$${(rawPriceNum / 2).toFixed(2)}` : product.price;
 
   const handleAddToCart = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
     const priceNum = parseFloat(product.price.replace(/[^0-9.]/g, "")) || 0;
+    // BOGO-eligible products always add as a pair — 2nd vial free, applied
+    // automatically at checkout (see lib/bogoDiscount.ts) — so there's no
+    // "buy just 1" path from the catalog card's one-click add either.
+    const bogoQty = BOGO_ENABLED && !BOGO_EXCLUDED_PRODUCT_IDS.has(product.id) ? 2 : 1;
     addItem({
       slug: slugifyProductName(product.name),
       name: product.name,
       size: "Standard",
       price: priceNum,
       wcProductId: product.id,
-    });
+    }, bogoQty);
     openCart();
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
@@ -353,8 +365,14 @@ export function ProductCard({ product, index }: { product: ProductCard; index: n
             <div>
               <span className="font-mono text-[9px] md:text-xs text-mock-sub block tracking-wider">From</span>
               <div className="flex items-baseline gap-1.5 flex-wrap">
-                <span className="font-display font-800 text-lg md:text-2xl text-mock-navy">{product.price}</span>
-                {product.originalPrice && (
+                <span className="font-display font-800 text-lg md:text-2xl text-mock-navy">
+                  {isBogoEligible ? bogoUnitPrice : product.price}
+                </span>
+                {isBogoEligible ? (
+                  <span className="font-mono text-[10px] md:text-xs text-green-700 bg-green-500/10 border border-green-500/30 rounded-full px-2 py-0.5 whitespace-nowrap">
+                    with B1G1
+                  </span>
+                ) : product.originalPrice && (
                   <span className="font-body text-xs md:text-sm text-mock-sub line-through">{product.originalPrice}</span>
                 )}
               </div>
@@ -503,9 +521,9 @@ export default function ProductsSection() {
 
   // "Live" = has a COA and isn't login-gated. This is a catalog-merchandising
   // property (independent of whether the *current viewer* happens to be
-  // logged in), so gating is checked statically via isGlpCompound rather
-  // than the glpGated/isAuthenticated flag used for card-level UI.
-  const isLive = (p: ProductCard) => p.hasCoa && !isGlpCompound(p.name);
+  // logged in), so gating is checked statically via isLoginGatedCompound
+  // rather than the glpGated/isAuthenticated flag used for card-level UI.
+  const isLive = (p: ProductCard) => p.hasCoa && !isLoginGatedCompound(p.name);
 
   const byPopularity = (a: ProductCard, b: ProductCard) => {
     // Bundles always sort after every individual compound, regardless of

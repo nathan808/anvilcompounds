@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/lib/authContext";
-import { isGlpCompound } from "@/lib/productTitle";
+import { isLoginGatedCompound } from "@/lib/productTitle";
 
 const FREEDOM_DIAGNOSTICS_URL =
   "https://freedomdiagnosticstesting.com/search-for-your-coa-based-on-the-unique-accession-number/";
@@ -36,7 +36,7 @@ export default function InlineCoaViewer({ productName, imageUrl, fileUrl }: Inli
   }
 
   const handleToggle = () => {
-    if (!open && isGlpCompound(productName) && !isAuthenticated) {
+    if (!open && isLoginGatedCompound(productName) && !isAuthenticated) {
       router.push(`/account?redirect=${encodeURIComponent(pathname)}`);
       return;
     }

@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import CoaModal from "@/components/CoaModal";
 import { useAuth } from "@/lib/authContext";
-import { getProductDisplayTitle, isGlpCompound } from "@/lib/productTitle";
+import { getProductDisplayTitle, isLoginGatedCompound } from "@/lib/productTitle";
 import { simplifySizeLabel } from "@/lib/reconstitution";
 
 interface CoaProduct {
@@ -33,7 +33,7 @@ export default function CoaLibraryGrid({ products }: { products: CoaProduct[] })
     // GLP compounds' COAs are gated behind login; everything else stays
     // open to guests. Checkout is already gated the same way, so this
     // never asks a guest to log in twice for the same reason.
-    if (isGlpCompound(product.name) && !isAuthenticated) {
+    if (isLoginGatedCompound(product.name) && !isAuthenticated) {
       router.push("/account?redirect=/coas");
       return;
     }

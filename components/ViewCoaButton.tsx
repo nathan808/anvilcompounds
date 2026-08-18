@@ -4,7 +4,7 @@ import { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import CoaModal from "@/components/CoaModal";
 import { useAuth } from "@/lib/authContext";
-import { isGlpCompound } from "@/lib/productTitle";
+import { isLoginGatedCompound } from "@/lib/productTitle";
 
 interface ViewCoaButtonProps {
   productName: string;
@@ -22,7 +22,7 @@ export default function ViewCoaButton({ productName, imageUrl, fileUrl }: ViewCo
     // GLP compounds' COAs are gated behind login; every other compound's
     // COA stays open to guests. Same gate checkout already applies, so
     // there's no conflicting login prompt for the same reason.
-    if (isGlpCompound(productName) && !isAuthenticated) {
+    if (isLoginGatedCompound(productName) && !isAuthenticated) {
       router.push(`/account?redirect=${encodeURIComponent(pathname)}`);
       return;
     }

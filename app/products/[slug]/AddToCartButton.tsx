@@ -65,7 +65,12 @@ export default function AddToCartButton({
   const [internalIndex, setInternalIndex] = useState(0);
   const selectedIndex = controlledIndex ?? internalIndex;
   const setSelectedIndex = onSelectIndex ?? setInternalIndex;
-  const [qty, setQty] = useState(1);
+  // BOGO-eligible products always start (and stay) at a minimum of 2 — the
+  // 2nd vial free, applied automatically. Excluded products (bundles, BAC
+  // water — see BOGO_EXCLUDED_PRODUCT_IDS) keep the normal 1-vial minimum.
+  const isBogoExcluded = BOGO_EXCLUDED_PRODUCT_IDS.has(wcProductId);
+  const bogoMinQty = BOGO_ENABLED && !isBogoExcluded ? 2 : 1;
+  const [qty, setQty] = useState(bogoMinQty);
   const [added, setAdded] = useState(false);
   const mainCtaRef = useRef<HTMLButtonElement>(null);
   const [showStickyBar, setShowStickyBar] = useState(false);
@@ -113,7 +118,6 @@ export default function AddToCartButton({
   // whatever's already in the cart. Keeps this page's shown total honest:
   // it only shows a discount when the cart would actually give one, e.g.
   // not when another line already claimed the order's one free unit.
-  const isBogoExcluded = BOGO_EXCLUDED_PRODUCT_IDS.has(wcProductId);
   const bogoPreviewItems = [
     ...cartItems.map((i) => ({ quantity: i.quantity, unitPrice: i.price, productId: i.wcProductId })),
     { quantity: qty, unitPrice, productId: wcProductId },
@@ -125,7 +129,7 @@ export default function AddToCartButton({
   const discountedLineTotal = lineTotal - bogoDiscountForLine;
 
   const handleQtyChange = (next: number) => {
-    setQty(Math.min(MAX_QTY_PER_ITEM, Math.max(1, next)));
+    setQty(Math.min(MAX_QTY_PER_ITEM, Math.max(bogoMinQty, next)));
   };
 
   const handleAdd = () => {
@@ -178,7 +182,7 @@ export default function AddToCartButton({
           <span className="font-body text-xs text-mock-sub">
             {bogoUsedElsewhere
               ? "— already applied to another item in your cart. One BOGO discount per order."
-              : "— add 2 to unlock, applied automatically. Limited to one per order. + Free Bacteriostatic Water with every order."}
+              : "— applied automatically, 2nd vial free. Limited to one per order. + Free Bacteriostatic Water with every order."}
           </span>
         </div>
       )}
@@ -292,10 +296,10 @@ export default function AddToCartButton({
           </button>
           <input
             type="number"
-            min={1}
+            min={bogoMinQty}
             max={MAX_QTY_PER_ITEM}
             value={qty}
-            onChange={(e) => handleQtyChange(parseInt(e.target.value) || 1)}
+            onChange={(e) => handleQtyChange(parseInt(e.target.value) || bogoMinQty)}
             className="w-16 text-center bg-white border border-mock-line rounded-lg font-mono text-sm text-mock-navy py-2 outline-none focus:border-mock-cobalt/50"
           />
           <button
@@ -304,10 +308,11 @@ export default function AddToCartButton({
           >
             +
           </button>
-          {/* Quick pick buttons */}
+          {/* Quick pick buttons — "1" dropped whenever BOGO enforces a
+              2-vial minimum, since it's not a selectable quantity. */}
           <div className="flex items-center gap-1.5 ml-1">
             <span className="font-mono text-[9px] text-mock-sub tracking-widest uppercase mr-1">Quick</span>
-            {QUICK_PICKS.map((q) => (
+            {QUICK_PICKS.filter((q) => q >= bogoMinQty).map((q) => (
               <button
                 key={q}
                 onClick={() => handleQtyChange(q)}
