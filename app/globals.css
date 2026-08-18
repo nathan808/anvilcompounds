@@ -133,16 +133,19 @@ body {
   animation: float 4s ease-in-out infinite;
 }
 
-/* Compound-reveal pulse — text fades back and forth between plain white and
-   fully bold white, used by CompoundRevealBadge to surface the real
-   compound name under a renamed product code (e.g. "AC3R" -> "Reta / GLP3RT"). */
+/* Compound-reveal pulse — bold, fully-visible text pulsing quickly down to
+   a faint (never fully gone) low point and back, used by
+   CompoundRevealBadge to surface the real compound name under a renamed
+   product code (e.g. "AC3R" -> "Retatrutide"). Floor stays at 12% opacity
+   rather than 0 so the text is always at least faintly present and the
+   badge never has an instant of being fully blank. */
 @keyframes compoundPulse {
-  0%, 100% { font-weight: 400; opacity: 0.8; }
-  50%      { font-weight: 800; opacity: 1; }
+  0%, 100% { font-weight: 800; opacity: 1; }
+  50%      { font-weight: 400; opacity: 0.12; }
 }
 .compound-reveal-pulse {
   color: #ffffff;
-  animation: compoundPulse 2.2s ease-in-out infinite;
+  animation: compoundPulse 0.8s ease-in-out infinite;
 }
 @media (prefers-reduced-motion: reduce) {
   .compound-reveal-pulse {

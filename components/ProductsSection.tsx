@@ -342,7 +342,7 @@ export function ProductCard({ product, index }: { product: ProductCard; index: n
             </h3>
             {getCompoundReveal(product.name) && (
               <div className="mb-1">
-                <CompoundRevealBadge compound={getCompoundReveal(product.name)!} />
+                <CompoundRevealBadge compound={getCompoundReveal(product.name)!} size="md" />
               </div>
             )}
             <span className="font-mono text-[10px] md:text-xs text-mock-cobaltInk/70 tracking-widest uppercase">

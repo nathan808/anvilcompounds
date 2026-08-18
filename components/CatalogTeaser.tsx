@@ -4,8 +4,9 @@ import { useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, useInView } from "framer-motion";
-import { getProductDisplayTitle } from "@/lib/productTitle";
+import { getProductDisplayTitle, getCompoundReveal } from "@/lib/productTitle";
 import type { ProductCard } from "@/lib/woocommerce";
+import CompoundRevealBadge from "@/components/CompoundRevealBadge";
 
 // Slugs for the fixed preview list only (see PREVIEW_NAMES in app/page.tsx) —
 // not the full catalog's name->slug map, which lives in ProductsSection.
@@ -58,6 +59,11 @@ function PreviewCard({ product }: { product: ProductCard }) {
         <h3 className="font-display font-700 text-base md:text-xl text-mock-navy leading-tight mb-0.5 line-clamp-1">
           {getProductDisplayTitle(product.name, product.category)}
         </h3>
+        {getCompoundReveal(product.name) && (
+          <div className="mb-1">
+            <CompoundRevealBadge compound={getCompoundReveal(product.name)!} size="md" />
+          </div>
+        )}
         <span className="font-mono text-[9px] md:text-[10px] text-mock-cobaltInk/70 tracking-widest uppercase block mb-2">
           {product.category}
         </span>

@@ -41,10 +41,10 @@ export function isLoginGatedCompound(_name: string): boolean {
 // reveal under/next to the product name (see components/CompoundRevealBadge.tsx)
 // so a rename doesn't obscure what's actually in the vial.
 const COMPOUND_REVEAL: Record<string, string> = {
-  "AC3R":    "Reta / GLP3RT",
-  "AC2T":    "Tirz / GLP2TZ",
-  "GLP-RT":  "Reta / GLP3RT",
-  "GLP-TRZ": "Tirz / GLP2TZ",
+  "AC3R":    "Retatrutide",
+  "AC2T":    "Tirzepatide",
+  "GLP-RT":  "Retatrutide",
+  "GLP-TRZ": "Tirzepatide",
 };
 
 export function getCompoundReveal(name: string): string | null {
