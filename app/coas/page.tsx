@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import CoaLibraryGrid from "@/components/CoaLibraryGrid";
+import CoaLibraryHero from "@/components/CoaLibraryHero";
 import { getProductPageData } from "@/lib/woocommerce";
 
 export const metadata: Metadata = {
@@ -38,33 +38,18 @@ export default async function COAsPage() {
     <main className="min-h-screen bg-mock-graphite">
       <Navbar />
 
-      <div className="max-w-6xl mx-auto px-6 pt-32 pb-24">
-        <div className="text-center mb-14">
-          <p className="font-mono text-xs text-mock-cobaltLight tracking-[0.2em] uppercase mb-3">
-            Documentation & Quality
-          </p>
-          <h1 className="font-heading font-700 text-4xl md:text-5xl text-[#EAF0FA] mb-4">
-            COA <span className="font-800 italic text-mock-cobaltLight">Library</span>
-          </h1>
-          <p className="font-body text-[#AEBBD0] text-base max-w-xl mx-auto">
-            Certificate of Analysis for every batch, verified by an accredited independent
-            third-party laboratory — HPLC purity, mass spectrometry identity, and endotoxin screening.
-          </p>
-        </div>
-
-        <CoaLibraryGrid
-          products={products.map((p) => ({
-            slug: p.slug,
-            name: p.name,
-            category: p.category,
-            documentationImage: p.documentationImage,
-            documentationFile: p.documentationFile,
-            documentationCaption: p.documentationCaption,
-            sizes: p.sizes,
-            sizesDocumentationFiles: p.sizesDocumentationFiles,
-          }))}
-        />
-      </div>
+      <CoaLibraryHero
+        products={products.map((p) => ({
+          slug: p.slug,
+          name: p.name,
+          category: p.category,
+          documentationImage: p.documentationImage,
+          documentationFile: p.documentationFile,
+          documentationCaption: p.documentationCaption,
+          sizes: p.sizes,
+          sizesDocumentationFiles: p.sizesDocumentationFiles,
+        }))}
+      />
 
       <Footer />
     </main>

@@ -25,7 +25,17 @@ export default function CoaGuideViewer({
     initialSizeIndex >= 0 && initialSizeIndex < sizesDocumentationFiles.length ? initialSizeIndex : 0
   );
   const fileUrl = sizesDocumentationFiles[sizeIndex] ?? sizesDocumentationFiles[0] ?? null;
-  const imageUrl = documentationImage ?? null;
+  // Several COAs are scanned/exported as flat .jpg/.png rather than a PDF
+  // (e.g. Selank, Semax, NAD+, GLOW, CJC-1295+Ipamorelin, Tesamorelin,
+  // MOTS-c, AC2T) — those were coming through `fileUrl` and rendering in
+  // the <iframe> below, which shows an image at native pixel size with no
+  // scaling at all (unlike a PDF, an <iframe> doesn't apply any "fit"
+  // behavior to a raw image), reading as badly zoomed in. Route anything
+  // with an image extension through the same <img object-contain> path as
+  // `documentationImage`, regardless of which field it came from.
+  const isImageFile = /\.(jpe?g|png|gif|webp)$/i.test(fileUrl ?? "");
+  const imageUrl = documentationImage ?? (isImageFile ? fileUrl : null);
+  const pdfUrl = isImageFile ? null : fileUrl;
 
   return (
     <div className="bg-white border border-mock-line rounded-2xl overflow-hidden">
@@ -60,8 +70,12 @@ export default function CoaGuideViewer({
             alt={`${title} Certificate of Analysis`}
             className="w-full h-full object-contain"
           />
-        ) : fileUrl ? (
-          <iframe src={fileUrl} title={`${title} COA`} className="w-full h-full" />
+        ) : pdfUrl ? (
+          // #view=Fit forces the browser's native PDF viewer to frame the
+          // whole page in the iframe instead of its own "Automatic Zoom"
+          // default, which was rendering some COAs zoomed in past the
+          // container edges.
+          <iframe src={`${pdfUrl}#toolbar=0&navpanes=0&view=Fit`} title={`${title} COA`} className="w-full h-full" />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-white/30 font-mono text-sm">
             COA not available

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/authContext";
 import { getProductDisplayTitle, isLoginGatedCompound } from "@/lib/productTitle";
@@ -21,49 +21,20 @@ interface CoaProduct {
   sizesDocumentationFiles?: (string | null)[];
 }
 
-export default function CoaLibraryGrid({ products }: { products: CoaProduct[] }) {
-  const [query, setQuery] = useState("");
-
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return products;
-    return products.filter(
-      (p) => p.name.toLowerCase().includes(q) || p.category.toLowerCase().includes(q)
-    );
-  }, [products, query]);
+// Search input lives in CoaLibraryHero (it's part of the light banner now),
+// so this component just renders the already-filtered grid — `query` is
+// only used for the empty-state message.
+export default function CoaLibraryGrid({ products, query = "" }: { products: CoaProduct[]; query?: string }) {
+  if (products.length === 0) {
+    return <p className="text-center font-body text-white/55 text-sm">No compounds match "{query}"</p>;
+  }
 
   return (
-    <>
-      <div className="max-w-md mx-auto mb-10">
-        <div className="relative">
-          <svg
-            className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z" />
-          </svg>
-          <input
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search compounds…"
-            className="w-full pl-11 pr-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-white font-body text-sm focus:outline-none focus:border-mock-cobaltLight/50 transition-colors"
-          />
-        </div>
-      </div>
-
-      {filtered.length === 0 ? (
-        <p className="text-center font-body text-white/55 text-sm">No compounds match "{query}"</p>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {filtered.map((product) => (
-            <CoaCard key={product.slug} product={product} />
-          ))}
-        </div>
-      )}
-    </>
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+      {products.map((product) => (
+        <CoaCard key={product.slug} product={product} />
+      ))}
+    </div>
   );
 }
 

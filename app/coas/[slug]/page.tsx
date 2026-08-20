@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import CoaGuideViewer from "@/components/CoaGuideViewer";
+import CoaBackButton from "@/components/CoaBackButton";
 import SdsPreviewButton from "@/components/SdsPreviewButton";
 import { getProductPageData } from "@/lib/woocommerce";
 import { getProductDisplayTitle } from "@/lib/productTitle";
@@ -41,13 +42,17 @@ export default async function CoaGuidePage({ params, searchParams }: CoaGuidePag
 
       <div className="max-w-4xl mx-auto px-6 pt-32 pb-24 space-y-8">
         <div>
-          <nav className="font-mono text-xs text-[#AEBBD0] mb-4">
+          <CoaBackButton />
+          {/* Plain <div>, not <nav> — a global [data-theme="light"] nav
+              rule (app/globals.css) puts a light background on every <nav>
+              element site-wide, which was bleeding onto this breadcrumb. */}
+          <div className="font-mono text-xs font-700 text-white mb-4">
             <Link href="/coas" className="hover:text-mock-cobaltLight transition-colors">
               COA Library
             </Link>
-            <span className="mx-2 text-white/30">/</span>
-            <span className="text-mock-cobaltLight/80">{product.name}</span>
-          </nav>
+            <span className="mx-2 text-white/40">/</span>
+            <span>{product.name}</span>
+          </div>
           <p className="font-mono text-xs text-mock-cobaltLight tracking-[0.2em] uppercase mb-3">
             Documentation & Quality
           </p>
