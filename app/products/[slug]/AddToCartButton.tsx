@@ -368,6 +368,37 @@ export default function AddToCartButton({
             </button>
           </div>
         )}
+        {/* 3+ vials — kept out of the way for the common 1-or-2 case, but
+            still reachable. The B1G1 pair (one per order) plus each extra
+            vial at the single price — the breakdown line just below the
+            price header already shows the resulting total for any qty. */}
+        {!isBogoExcluded && (
+          qty > 2 ? (
+            <div className="flex items-center gap-3 mt-3">
+              <button
+                onClick={() => handleQtyChange(qty - 1)}
+                className="w-8 h-8 rounded-lg bg-mock-surface2 border border-mock-line text-mock-sub hover:text-mock-navy hover:border-mock-cobalt/30 transition-all flex items-center justify-center font-display font-700"
+              >
+                −
+              </button>
+              <span className="font-mono text-sm text-mock-navy w-6 text-center">{qty}</span>
+              <button
+                onClick={() => handleQtyChange(qty + 1)}
+                className="w-8 h-8 rounded-lg bg-mock-surface2 border border-mock-line text-mock-sub hover:text-mock-navy hover:border-mock-cobalt/30 transition-all flex items-center justify-center font-display font-700"
+              >
+                +
+              </button>
+              <span className="font-mono text-xs text-mock-sub">vials</span>
+            </div>
+          ) : (
+            <button
+              onClick={() => setQty(3)}
+              className="mt-3 font-mono text-xs text-mock-cobaltInk hover:text-mock-cobalt underline underline-offset-2"
+            >
+              Need 3 or more?
+            </button>
+          )
+        )}
       </div>
 
       {/* Urgency */}
