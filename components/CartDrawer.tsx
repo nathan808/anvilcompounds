@@ -14,18 +14,17 @@ export default function CartDrawer() {
   // exists in checkout's own context, starting at Step 1) — teaser here is
   // always based on the raw cart subtotal.
   const freeShippingProgress = useFreeShippingProgress(subtotal, false, isCartOpen && items.length > 0);
-  // Real dollar amount actually subtracted — this is what the Subtotal
-  // line below must stay mathematically correct against.
   const bogoDiscount = computeBogoDiscount(items.map((i) => ({ quantity: i.quantity, unitPrice: i.price, regularPrice: i.regularPrice, productId: i.wcProductId })));
-  // Displayed "Buy 1 Get 1 Free" figure — sum of each qualifying line's
-  // Base price (the value of that one free vial), not the smaller real
-  // dollar amount above. A marketing framing, not a reconciling number —
-  // confirmed with the store owner it doesn't need to subtract cleanly
-  // against Subtotal for multi-item or 3+-quantity carts.
-  const bogoBaseValueSum = items.reduce((sum, i) => {
-    const eligible = isBogoLineEligible({ quantity: i.quantity, unitPrice: i.price, productId: i.wcProductId });
-    return eligible ? sum + (i.regularPrice ?? i.price) : sum;
-  }, 0);
+  // Full reconciling chain, replacing the earlier non-reconciling "value of
+  // the free vial" framing: baseSubtotal (every unit at Base price) minus
+  // singleVialDiscount (the everyday Base->Single gap, present even
+  // without B1G1) minus bogoDiscount (the extra B1G1 pair savings) equals
+  // exactly `subtotal - bogoDiscount`, the real final total shown below —
+  // singleVialDiscount is defined as baseSubtotal - subtotal so this holds
+  // by construction, at any quantity or item mix.
+  const baseSubtotal = items.reduce((sum, i) => sum + (i.regularPrice ?? i.price) * i.quantity, 0);
+  const singleVialDiscount = baseSubtotal - subtotal;
+  const hasAnyDiscount = singleVialDiscount > 0.001 || bogoDiscount > 0.001;
 
   return (
     <AnimatePresence>
@@ -182,11 +181,23 @@ export default function CartDrawer() {
             {items.length > 0 && (
               <div className="px-6 py-5 border-t border-white/8 space-y-4">
                 <FreeShippingProgress data={freeShippingProgress} subtotal={subtotal} hasCoupon={bogoDiscount > 0} />
-                {bogoDiscount > 0 && (
+                {hasAnyDiscount && (
+                  <div className="flex items-center justify-between">
+                    <span className="font-body text-white/50">Subtotal (Base Price)</span>
+                    <span className="font-mono text-sm text-white/70">${baseSubtotal.toFixed(2)}</span>
+                  </div>
+                )}
+                {singleVialDiscount > 0.001 && (
+                  <div className="flex items-center justify-between">
+                    <span className="font-body text-sm text-blue-400">Discounted Pricing</span>
+                    <span className="font-mono text-sm text-blue-400">-${singleVialDiscount.toFixed(2)}</span>
+                  </div>
+                )}
+                {bogoDiscount > 0.001 && (
                   <div>
                     <div className="flex items-center justify-between">
                       <span className="font-body text-sm text-blue-400">{BOGO_LABEL}</span>
-                      <span className="font-mono text-sm text-blue-400">-${bogoBaseValueSum.toFixed(2)}</span>
+                      <span className="font-mono text-sm text-blue-400">-${bogoDiscount.toFixed(2)}</span>
                     </div>
                     <p className="font-mono text-[10px] text-white/25 mt-0.5">
                       One free vial per compound.
@@ -200,7 +211,7 @@ export default function CartDrawer() {
                   </div>
                 )}
                 <div className="flex items-center justify-between">
-                  <span className="font-body text-white/50">Subtotal</span>
+                  <span className="font-body text-white/50">{hasAnyDiscount ? "Total" : "Subtotal"}</span>
                   <span className="font-display font-700 text-white text-xl">${(subtotal - bogoDiscount).toFixed(2)}</span>
                 </div>
                 <PaymentMethodsBar />

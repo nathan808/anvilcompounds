@@ -6,7 +6,7 @@ import { useCheckout } from "@/lib/checkoutContext";
 import { computeCouponDiscount } from "@/lib/couponMath";
 import { computeTax, apportionAmount } from "@/lib/taxMath";
 import { computeVolumeDiscount, VOLUME_DISCOUNT_LABEL } from "@/lib/volumeDiscount";
-import { computeBogoDiscount, computeBogoLineDiscount, isBogoLineEligible, BOGO_ENABLED, BOGO_LABEL, FREE_GIFT_LABEL } from "@/lib/bogoDiscount";
+import { computeBogoDiscount, computeBogoLineDiscount, BOGO_ENABLED, BOGO_LABEL, FREE_GIFT_LABEL } from "@/lib/bogoDiscount";
 import { useFreeShippingProgress } from "@/lib/useFreeShippingProgress";
 import FreeShippingProgress from "@/components/FreeShippingProgress";
 
@@ -46,15 +46,16 @@ export default function OrderSummary({ editableCoupon = true, showShipping = fal
   // suppresses the coupon, Volume Discount, and payment-method discount below.
   const bogoDiscount = computeBogoDiscount(items.map((i) => ({ quantity: i.quantity, unitPrice: i.price, regularPrice: i.regularPrice, productId: i.wcProductId })));
   const bogoActive = bogoDiscount > 0;
-  // Displayed-only figure (sum of each qualifying line's Base price, the
-  // value of that free vial) — NOT used in the real total math below,
-  // which stays on the real bogoDiscount. Same marketing framing as the
-  // cart drawer, confirmed with the store owner not to need to reconcile
-  // exactly against the shown total for multi-item/3+-quantity carts.
-  const bogoBaseValueSum = items.reduce((sum, i) => {
-    const eligible = isBogoLineEligible({ quantity: i.quantity, unitPrice: i.price, productId: i.wcProductId });
-    return eligible ? sum + (i.regularPrice ?? i.price) : sum;
-  }, 0);
+  // Full reconciling chain, replacing the earlier non-reconciling "value of
+  // the free vial" framing: baseSubtotal (every unit at Base price) minus
+  // singleVialDiscount (the everyday Base->Single gap, present even
+  // without B1G1) minus bogoDiscount (the extra B1G1 pair savings) equals
+  // exactly `subtotal`, the real cart subtotal used everywhere below —
+  // singleVialDiscount is defined as baseSubtotal - subtotal so this holds
+  // by construction, at any quantity or item mix.
+  const baseSubtotal = items.reduce((sum, i) => sum + (i.regularPrice ?? i.price) * i.quantity, 0);
+  const singleVialDiscount = baseSubtotal - subtotal;
+  const hasAnyDiscount = singleVialDiscount > 0.001 || bogoDiscount > 0.001;
 
   const couponDiscount = bogoActive ? 0 : computeCouponDiscount(subtotal, coupon);
   // postCouponSubtotal = coupon only — this is the WC line-item/tax base.
@@ -253,9 +254,15 @@ export default function OrderSummary({ editableCoupon = true, showShipping = fal
       {/* Row order per CHECKOUT_SPEC.md: subtotal → coupon/volume discount → payment discount → shipping → total */}
       <div className="border-t border-white/8 pt-4 space-y-2">
         <div className="flex items-center justify-between">
-          <span className="font-body text-sm text-white/50">Subtotal</span>
-          <span className="font-mono text-sm text-white/70">${subtotal.toFixed(2)}</span>
+          <span className="font-body text-sm text-white/50">{hasAnyDiscount ? "Subtotal (Base Price)" : "Subtotal"}</span>
+          <span className="font-mono text-sm text-white/70">${(hasAnyDiscount ? baseSubtotal : subtotal).toFixed(2)}</span>
         </div>
+        {singleVialDiscount > 0.001 && (
+          <div className="flex items-center justify-between">
+            <span className="font-body text-sm text-blue-400">Discounted Pricing</span>
+            <span className="font-mono text-sm text-blue-400">-${singleVialDiscount.toFixed(2)}</span>
+          </div>
+        )}
         {coupon && !bogoActive && (
           <div className="flex items-center justify-between">
             <span className="font-body text-sm text-white/50">Coupon ({coupon.code})</span>
@@ -268,10 +275,10 @@ export default function OrderSummary({ editableCoupon = true, showShipping = fal
             <span className="font-mono text-sm text-blue-400">-${volumeDiscount.toFixed(2)}</span>
           </div>
         )}
-        {bogoDiscount > 0 && (
+        {bogoDiscount > 0.001 && (
           <div className="flex items-center justify-between">
             <span className="font-body text-sm text-blue-400">{BOGO_LABEL}</span>
-            <span className="font-mono text-sm text-blue-400">-${bogoBaseValueSum.toFixed(2)}</span>
+            <span className="font-mono text-sm text-blue-400">-${bogoDiscount.toFixed(2)}</span>
           </div>
         )}
         {BOGO_ENABLED && (
