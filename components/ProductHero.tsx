@@ -9,6 +9,7 @@ import SdsPreviewButton from "@/components/SdsPreviewButton";
 import PurchaseFooter from "@/components/PurchaseFooter";
 import CompoundRevealBadge from "@/components/CompoundRevealBadge";
 import { getCompoundReveal } from "@/lib/productTitle";
+import { BOGO_ENABLED, BOGO_EXCLUDED_PRODUCT_IDS } from "@/lib/bogoDiscount";
 import type { ProductPageData } from "@/components/ProductPageTemplate";
 
 // Owns the selected-size index so the product photo and COA button (siblings
@@ -26,6 +27,12 @@ function firstInStockIndex(sizesStock: (number | null)[]): number {
 
 export default function ProductHero({ product }: { product: ProductPageData }) {
   const [selectedIndex, setSelectedIndex] = useState(() => firstInStockIndex(product.sizesStock));
+  // Lifted here (not owned inside AddToCartButton) for the same reason as
+  // selectedIndex above — this component renders TWO AddToCartButton
+  // instances at once (mobile + desktop, CSS-hidden not unmounted), so
+  // uncontrolled qty state left them out of sync with each other.
+  const isBogoExcluded = BOGO_EXCLUDED_PRODUCT_IDS.has(product.wcProductId);
+  const [qty, setQty] = useState(BOGO_ENABLED && !isBogoExcluded ? 2 : 1);
   const hasCoa = product.hasCoa;
 
   const currentImage = product.sizesImages[selectedIndex] ?? product.image ?? null;
@@ -100,6 +107,8 @@ export default function ProductHero({ product }: { product: ProductPageData }) {
             showFooter={false}
             selectedIndex={selectedIndex}
             onSelectIndex={setSelectedIndex}
+            qty={qty}
+            onQtyChange={setQty}
             stickyBarEnabled
           />
 

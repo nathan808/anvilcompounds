@@ -6,7 +6,7 @@ import { useCart } from "@/lib/cartContext";
 import { useFreeShippingProgress } from "@/lib/useFreeShippingProgress";
 import FreeShippingProgress from "@/components/FreeShippingProgress";
 import PaymentMethodsBar from "@/components/PaymentMethodsBar";
-import { computeBogoDiscount, isBogoLineEligible, BOGO_ENABLED, BOGO_LABEL, BOGO_EXCLUDED_PRODUCT_IDS, FREE_GIFT_LABEL } from "@/lib/bogoDiscount";
+import { computeBogoDiscount, computeBogoLineDiscount, isBogoLineEligible, BOGO_ENABLED, BOGO_LABEL, BOGO_EXCLUDED_PRODUCT_IDS, FREE_GIFT_LABEL } from "@/lib/bogoDiscount";
 
 export default function CartDrawer() {
   const { items, isCartOpen, closeCart, removeItem, updateQty, itemCount, subtotal } = useCart();
@@ -111,15 +111,25 @@ export default function CartDrawer() {
                           +
                         </button>
                       </div>
-                      <span className="font-display font-700 text-white">
-                        ${(item.price * item.quantity).toFixed(2)}
-                      </span>
+                      {(() => {
+                        const rawTotal = item.price * item.quantity;
+                        const itemDiscount = computeBogoLineDiscount({ quantity: item.quantity, unitPrice: item.price, regularPrice: item.regularPrice, productId: item.wcProductId });
+                        const discountedTotal = rawTotal - itemDiscount;
+                        return itemDiscount > 0 ? (
+                          <span className="font-display font-700 text-white">
+                            <span className="text-white/30 line-through font-500 mr-1.5">${rawTotal.toFixed(2)}</span>
+                            ${discountedTotal.toFixed(2)}
+                          </span>
+                        ) : (
+                          <span className="font-display font-700 text-white">${rawTotal.toFixed(2)}</span>
+                        );
+                      })()}
                     </div>
 
                     {BOGO_ENABLED && !BOGO_EXCLUDED_PRODUCT_IDS.has(item.wcProductId) && (
                       isBogoLineEligible({ quantity: item.quantity, unitPrice: item.price, productId: item.wcProductId }) ? (
                         <p className="font-mono text-[10px] text-blue-400 tracking-wide mt-2">
-                          🎁 {BOGO_LABEL} applied — 1 unit free (one pair per compound)
+                          🎁 {BOGO_LABEL} applied — 1 vial free (-${(item.regularPrice ?? item.price).toFixed(2)} value)
                         </p>
                       ) : item.quantity % 2 === 1 ? (
                         <button
@@ -146,7 +156,7 @@ export default function CartDrawer() {
                       <span className="font-mono text-sm text-blue-400">-${bogoDiscount.toFixed(2)}</span>
                     </div>
                     <p className="font-mono text-[10px] text-white/25 mt-0.5">
-                      Limited to one free unit per order.
+                      One free vial per compound.
                     </p>
                   </div>
                 )}

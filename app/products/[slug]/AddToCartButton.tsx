@@ -26,6 +26,17 @@ interface Props {
   // owning its own state so this component still works standalone.
   selectedIndex?: number;
   onSelectIndex?: (index: number) => void;
+  // Quantity is controlled from ProductHero too, for the same reason: this
+  // component is mounted TWICE at once (mobile + desktop layouts, CSS-
+  // hidden rather than unmounted — see ProductHero.tsx), so uncontrolled
+  // internal qty state left each instance with its own independent value.
+  // Interacting with one (e.g. picking "3+" on the visible mobile layout)
+  // never touched the other, so switching/resizing to the other breakpoint
+  // showed a stale quantity — the reported "works on mobile, not desktop"
+  // bug. Falls back to internal state so this component still works
+  // standalone.
+  qty?: number;
+  onQtyChange?: (qty: number) => void;
   // Set true on both ProductHero instances. On mobile it's the only ATC
   // access once you scroll past the hero. On desktop the right column is
   // also `lg:sticky`, but that column's own content (price, size picker,
@@ -50,6 +61,8 @@ export default function AddToCartButton({
   showFooter = true,
   selectedIndex: controlledIndex,
   onSelectIndex,
+  qty: controlledQty,
+  onQtyChange,
   stickyBarEnabled = false,
 }: Props) {
   const { addItem, openCart } = useCart();
@@ -63,7 +76,9 @@ export default function AddToCartButton({
   // default to the normal 1 vial.
   const isBogoExcluded = BOGO_EXCLUDED_PRODUCT_IDS.has(wcProductId);
   const bogoDefaultQty = BOGO_ENABLED && !isBogoExcluded ? 2 : 1;
-  const [qty, setQty] = useState(bogoDefaultQty);
+  const [internalQty, setInternalQty] = useState(bogoDefaultQty);
+  const qty = controlledQty ?? internalQty;
+  const setQty = onQtyChange ?? setInternalQty;
   const [added, setAdded] = useState(false);
   const mainCtaRef = useRef<HTMLButtonElement>(null);
   const [showStickyBar, setShowStickyBar] = useState(false);
@@ -107,6 +122,12 @@ export default function AddToCartButton({
   const selectedSize = sizes[selectedIndex] ?? "";
   const b1g1UnitPrice = (originalBasePrice ?? unitPrice) / 2;
   const lineTotal = unitPrice * qty;
+  // Base price x qty — the reference point the breakdown line always shows
+  // crossed out, per "always refer to original base price" (not the
+  // already-discounted single price) — e.g. 2 x $99 Base crossed out, next
+  // to the real $99 B1G1 total, or 5 x $99 crossed out next to the real
+  // $321 total.
+  const baseLineTotal = (originalBasePrice ?? unitPrice) * qty;
 
   // Every qualifying SKU gets its own B1G1 pair now (no more shared
   // one-per-order cap), so this line's eligibility no longer depends on
@@ -240,14 +261,14 @@ export default function AddToCartButton({
           {qty > 1 && (
             <div className="mt-1 space-y-0.5">
               <p className="font-mono text-xs text-mock-sub">
-                {qty} × ${unitPrice.toFixed(2)} ={" "}
-                {thisLineGetsBogo ? (
+                {qty} × ${(originalBasePrice ?? unitPrice).toFixed(2)} ={" "}
+                {baseLineTotal > discountedLineTotal + 0.001 ? (
                   <>
-                    <span className="line-through text-mock-sub/50">${lineTotal.toFixed(2)}</span>{" "}
+                    <span className="line-through text-mock-sub/50">${baseLineTotal.toFixed(2)}</span>{" "}
                     <span className="text-mock-navy font-600">${discountedLineTotal.toFixed(2)} total</span>
                   </>
                 ) : (
-                  <span className="text-mock-navy">${lineTotal.toFixed(2)} total</span>
+                  <span className="text-mock-navy">${discountedLineTotal.toFixed(2)} total</span>
                 )}
               </p>
               {thisLineGetsBogo && (
@@ -340,8 +361,13 @@ export default function AddToCartButton({
               }`}
             >
               <span className="block font-display font-700 text-sm">1 vial</span>
-              <span className={`block font-mono text-xs mt-0.5 ${qty === 1 ? "text-white/80" : "text-mock-sub"}`}>
-                ${unitPrice.toFixed(2)}
+              <span className="block font-mono text-xs mt-0.5">
+                {originalBasePrice && (
+                  <span className={`line-through mr-1 ${qty === 1 ? "text-white/50" : "text-mock-sub/60"}`}>
+                    ${originalBasePrice.toFixed(2)}
+                  </span>
+                )}
+                <span className={qty === 1 ? "text-white/80" : "text-mock-sub"}>${unitPrice.toFixed(2)}</span>
               </span>
             </button>
             <button
@@ -353,8 +379,13 @@ export default function AddToCartButton({
               }`}
             >
               <span className="block font-display font-700 text-sm">🎁 2 vials — B1G1</span>
-              <span className={`block font-mono text-xs mt-0.5 ${qty === 2 ? "text-white/80" : "text-mock-sub"}`}>
-                ${b1g1UnitPrice.toFixed(2)}/vial
+              <span className="block font-mono text-xs mt-0.5">
+                {originalBasePrice && (
+                  <span className={`line-through mr-1 ${qty === 2 ? "text-white/50" : "text-mock-sub/60"}`}>
+                    ${originalBasePrice.toFixed(2)}
+                  </span>
+                )}
+                <span className={qty === 2 ? "text-white/80" : "text-mock-sub"}>${b1g1UnitPrice.toFixed(2)}/vial</span>
               </span>
             </button>
           </div>
