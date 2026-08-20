@@ -34,7 +34,7 @@ export default function CartRestoreClient({ items }: { items: RestoreItem[] }) {
     clearCart();
     for (const item of items) {
       addItem(
-        { slug: item.slug, name: item.name, size: item.size, price: item.basePrice, basePrice: item.basePrice, wcProductId: item.wcProductId },
+        { slug: item.slug, name: item.name, size: item.size, price: item.basePrice, wcProductId: item.wcProductId },
         item.quantity
       );
     }

@@ -6,14 +6,7 @@ import { useCart } from "@/lib/cartContext";
 import PurchaseFooter from "@/components/PurchaseFooter";
 import PaymentMethodsBar from "@/components/PaymentMethodsBar";
 import { simplifySizeLabel } from "@/lib/reconstitution";
-import {
-  VOLUME_TIERS,
-  MAX_QTY_PER_ITEM,
-  getVolumeDiscount,
-  getDiscountedPrice,
-  getVolumeCTAText,
-  getActiveTierIndex,
-} from "@/lib/volumePricing";
+import { MAX_QTY_PER_ITEM } from "@/lib/volumePricing";
 import { BOGO_ENABLED, BOGO_LABEL, BOGO_EXCLUDED_PRODUCT_IDS, BUNDLE_PRODUCT_IDS, getBogoLineIndex } from "@/lib/bogoDiscount";
 
 interface Props {
@@ -43,8 +36,6 @@ interface Props {
   // the button stays reachable regardless of viewport height.
   stickyBarEnabled?: boolean;
 }
-
-const QUICK_PICKS = [1, 2, 5, 6, 9];
 
 export default function AddToCartButton({
   slug,
@@ -106,14 +97,16 @@ export default function AddToCartButton({
     };
   }, [stickyBarEnabled]);
 
-  const basePrice = sizesPrices[selectedIndex] ?? priceNumber;
+  // unitPrice = WC's active/Single price (the "1 vial" price). No more
+  // per-quantity volume-tier scaling — price is flat regardless of qty;
+  // only the BOGO fee (below) changes what a 2-vial line actually totals.
+  const unitPrice = sizesPrices[selectedIndex] ?? priceNumber;
+  // originalBasePrice = WC's regular_price, the crossed-out "Base" price —
+  // a B1G1 pair always totals exactly this (lib/bogoDiscount.ts).
   const originalBasePrice = sizesOriginalPrices?.[selectedIndex] ?? null;
   const selectedSize = sizes[selectedIndex] ?? "";
-  const discount = getVolumeDiscount(qty);
-  const unitPrice = getDiscountedPrice(basePrice, qty);
+  const b1g1UnitPrice = (originalBasePrice ?? unitPrice) / 2;
   const lineTotal = unitPrice * qty;
-  const activeTierIdx = getActiveTierIndex(qty);
-  const ctaText = getVolumeCTAText(qty);
 
   // BOGO preview — mirrors the exact one-free-unit-per-checkout cap used at
   // checkout (lib/bogoDiscount.ts) by simulating this selection appended to
@@ -121,14 +114,17 @@ export default function AddToCartButton({
   // it only shows a discount when the cart would actually give one, e.g.
   // not when another line already claimed the order's one free unit.
   const bogoPreviewItems = [
-    ...cartItems.map((i) => ({ quantity: i.quantity, unitPrice: i.price, productId: i.wcProductId })),
-    { quantity: qty, unitPrice, productId: wcProductId },
+    ...cartItems.map((i) => ({ quantity: i.quantity, unitPrice: i.price, regularPrice: i.regularPrice, productId: i.wcProductId })),
+    { quantity: qty, unitPrice, regularPrice: originalBasePrice ?? unitPrice, productId: wcProductId },
   ];
   const bogoLineIndex = BOGO_ENABLED ? getBogoLineIndex(bogoPreviewItems) : -1;
   const thisLineGetsBogo = bogoLineIndex === bogoPreviewItems.length - 1;
   const bogoUsedElsewhere = BOGO_ENABLED && !isBogoExcluded && qty >= 2 && !thisLineGetsBogo;
-  const bogoDiscountForLine = thisLineGetsBogo ? unitPrice : 0;
+  const bogoDiscountForLine = thisLineGetsBogo ? 2 * unitPrice - (originalBasePrice ?? unitPrice) : 0;
   const discountedLineTotal = lineTotal - bogoDiscountForLine;
+  // Headline "/vial" price — shows the B1G1 rate whenever this line will
+  // actually get the discount, otherwise the plain single-vial price.
+  const displayUnitPrice = thisLineGetsBogo ? b1g1UnitPrice : unitPrice;
 
   const handleQtyChange = (next: number) => {
     setQty(Math.min(MAX_QTY_PER_ITEM, Math.max(1, next)));
@@ -142,7 +138,7 @@ export default function AddToCartButton({
   const handleAdd = () => {
     if (selectedSizeSoldOut) return;
     addItem(
-      { slug, name, size: selectedSize, price: unitPrice, basePrice, wcProductId },
+      { slug, name, size: selectedSize, price: unitPrice, regularPrice: originalBasePrice ?? unitPrice, wcProductId },
       qty
     );
     setAdded(true);
@@ -222,25 +218,16 @@ export default function AddToCartButton({
         <div>
           <div className="flex items-baseline gap-3 flex-wrap">
             <span className="font-display font-800 text-3xl text-mock-navy">
-              ${unitPrice.toFixed(2)}
+              ${displayUnitPrice.toFixed(2)}
             </span>
             <span className="font-body text-sm text-mock-sub">/ vial</span>
-            {discount > 0 ? (
-              <>
-                <span className="font-body text-sm text-mock-sub line-through">
-                  ${basePrice.toFixed(2)}
-                </span>
-                <span className="font-mono text-xs text-green-700 bg-green-500/10 border border-green-500/30 rounded-full px-2 py-0.5">
-                  {Math.round(discount * 100)}% off
-                </span>
-              </>
-            ) : originalBasePrice ? (
+            {originalBasePrice ? (
               <>
                 <span className="font-body text-sm text-mock-sub line-through">
                   ${originalBasePrice.toFixed(2)}
                 </span>
                 <span className="font-mono text-xs text-green-700 bg-green-500/10 border border-green-500/30 rounded-full px-2 py-0.5">
-                  Limited Price
+                  {thisLineGetsBogo ? "B1G1" : "Discounted"}
                 </span>
               </>
             ) : null}
@@ -324,98 +311,61 @@ export default function AddToCartButton({
       {/* Quantity selector */}
       <div>
         <p className="font-mono text-xs text-mock-sub tracking-widest uppercase mb-3">Select Quantity</p>
-        <div className="flex items-center gap-3 mb-3">
-          <button
-            onClick={() => handleQtyChange(qty - 1)}
-            className="w-9 h-9 rounded-lg bg-mock-surface2 border border-mock-line text-mock-sub hover:text-mock-navy hover:border-mock-cobalt/30 transition-all flex items-center justify-center font-display font-700 text-lg"
-          >
-            −
-          </button>
-          <input
-            type="number"
-            min={1}
-            max={MAX_QTY_PER_ITEM}
-            value={qty}
-            onChange={(e) => handleQtyChange(parseInt(e.target.value) || 1)}
-            className="w-16 text-center bg-white border border-mock-line rounded-lg font-mono text-sm text-mock-navy py-2 outline-none focus:border-mock-cobalt/50"
-          />
-          <button
-            onClick={() => handleQtyChange(qty + 1)}
-            className="w-9 h-9 rounded-lg bg-mock-surface2 border border-mock-line text-mock-sub hover:text-mock-navy hover:border-mock-cobalt/30 transition-all flex items-center justify-center font-display font-700 text-lg"
-          >
-            +
-          </button>
-          {/* Quick pick buttons */}
-          <div className="flex items-center gap-1.5 ml-1">
-            <span className="font-mono text-[9px] text-mock-sub tracking-widest uppercase mr-1">Quick</span>
-            {QUICK_PICKS.map((q) => (
-              <button
-                key={q}
-                onClick={() => handleQtyChange(q)}
-                className={`w-8 h-8 rounded-lg border font-mono text-xs transition-all duration-200 ${
-                  qty === q
-                    ? "bg-mock-cobalt border-mock-cobaltInk text-white"
-                    : "bg-mock-surface2 border-mock-line text-mock-sub hover:text-mock-navy hover:border-mock-cobalt/30"
-                }`}
-              >
-                {q}
-              </button>
-            ))}
+        {isBogoExcluded ? (
+          // Flat pricing at any quantity (no more volume-discount tiers) —
+          // a plain stepper is all this needs.
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => handleQtyChange(qty - 1)}
+              className="w-9 h-9 rounded-lg bg-mock-surface2 border border-mock-line text-mock-sub hover:text-mock-navy hover:border-mock-cobalt/30 transition-all flex items-center justify-center font-display font-700 text-lg"
+            >
+              −
+            </button>
+            <input
+              type="number"
+              min={1}
+              max={MAX_QTY_PER_ITEM}
+              value={qty}
+              onChange={(e) => handleQtyChange(parseInt(e.target.value) || 1)}
+              className="w-16 text-center bg-white border border-mock-line rounded-lg font-mono text-sm text-mock-navy py-2 outline-none focus:border-mock-cobalt/50"
+            />
+            <button
+              onClick={() => handleQtyChange(qty + 1)}
+              className="w-9 h-9 rounded-lg bg-mock-surface2 border border-mock-line text-mock-sub hover:text-mock-navy hover:border-mock-cobalt/30 transition-all flex items-center justify-center font-display font-700 text-lg"
+            >
+              +
+            </button>
           </div>
-        </div>
-      </div>
-
-      {/* Volume pricing table */}
-      <div className="rounded-xl border border-mock-line overflow-hidden">
-        <div className="px-4 py-2.5 bg-mock-graphite border-b border-mock-line">
-          <span className="font-mono text-[11px] font-700 text-gray-300 tracking-[0.2em] uppercase">Volume Pricing</span>
-        </div>
-        <div className="divide-y divide-mock-line">
-          {VOLUME_TIERS.map((tier, i) => {
-            const isActive = i === activeTierIdx;
-            // The 2-vial tier is the BOGO launch promo, not a blended
-            // per-unit discount — show the 2nd-vial-free framing and the
-            // resulting average price, not the (unchanged, full) tier price.
-            const isBogoTier = tier.min === 2 && tier.max === 2;
-            const tierPrice = isBogoTier ? basePrice / 2 : getDiscountedPrice(basePrice, tier.min);
-            return (
-              <div
-                key={tier.label}
-                className={`flex items-center justify-between px-4 py-2.5 transition-colors ${
-                  isActive ? "bg-mock-cobalt/10" : "bg-white"
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  {isActive && <div className="w-1.5 h-1.5 rounded-full bg-mock-cobalt shrink-0" />}
-                  {!isActive && <div className="w-1.5 h-1.5 rounded-full bg-transparent shrink-0" />}
-                  <span className={`font-body text-sm ${isActive ? "text-mock-navy" : "text-mock-sub"}`}>
-                    {tier.displayRange}
-                  </span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className={`font-mono text-sm ${isActive ? "text-mock-navy" : "text-mock-sub"}`}>
-                    ${tierPrice.toFixed(2)} ea
-                  </span>
-                  {isBogoTier ? (
-                    <span className={`font-mono text-xs ${isActive ? "text-green-700 font-600" : "text-green-700/70"}`}>
-                      🎁 100% off 2nd
-                    </span>
-                  ) : tier.discount > 0 ? (
-                    <span className={`font-mono text-xs ${isActive ? "text-mock-cobaltInk font-600" : "text-mock-sub"}`}>
-                      {Math.round(tier.discount * 100)}% off
-                    </span>
-                  ) : (
-                    <span className="font-mono text-xs text-mock-sub">Full Price</span>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-        {/* CTA nudge */}
-        {qty < MAX_QTY_PER_ITEM && (
-          <div className="px-4 py-2.5 bg-mock-cobalt/5 border-t border-mock-cobalt/15">
-            <p className="font-mono text-xs text-mock-cobaltInk">{ctaText}</p>
+        ) : (
+          // Simple 2-option toggle: 1 vial at the single price, or 2 vials
+          // at the B1G1 rate (Base price for the pair). No numeric stepper.
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              onClick={() => setQty(1)}
+              className={`text-left px-4 py-3 rounded-xl border transition-all duration-200 ${
+                qty === 1
+                  ? "bg-mock-cobalt border-mock-cobaltInk text-white shadow-lg shadow-mock-cobalt/20"
+                  : "bg-mock-surface2 border-mock-line text-mock-navy hover:border-mock-cobalt/30"
+              }`}
+            >
+              <span className="block font-display font-700 text-sm">1 vial</span>
+              <span className={`block font-mono text-xs mt-0.5 ${qty === 1 ? "text-white/80" : "text-mock-sub"}`}>
+                ${unitPrice.toFixed(2)}
+              </span>
+            </button>
+            <button
+              onClick={() => setQty(2)}
+              className={`text-left px-4 py-3 rounded-xl border transition-all duration-200 ${
+                qty === 2
+                  ? "bg-mock-cobalt border-mock-cobaltInk text-white shadow-lg shadow-mock-cobalt/20"
+                  : "bg-mock-surface2 border-mock-line text-mock-navy hover:border-mock-cobalt/30"
+              }`}
+            >
+              <span className="block font-display font-700 text-sm">🎁 2 vials — B1G1</span>
+              <span className={`block font-mono text-xs mt-0.5 ${qty === 2 ? "text-white/80" : "text-mock-sub"}`}>
+                ${b1g1UnitPrice.toFixed(2)}/vial
+              </span>
+            </button>
           </div>
         )}
       </div>

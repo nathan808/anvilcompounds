@@ -60,7 +60,7 @@ export default function PaymentMethods() {
   // Passing the wrong one into computeTax would double-count the volume discount
   // (taxed once via the fee-line array below, again via a shrunk product base) —
   // see CHECKOUT_SPEC.md's postCouponSubtotal-vs-discountedSubtotal note.
-  const bogoDiscount = computeBogoDiscount(items.map((i) => ({ quantity: i.quantity, unitPrice: i.price, productId: i.wcProductId })));
+  const bogoDiscount = computeBogoDiscount(items.map((i) => ({ quantity: i.quantity, unitPrice: i.price, regularPrice: i.regularPrice, productId: i.wcProductId })));
   const bogoActive = bogoDiscount > 0;
 
   const couponDiscount = bogoActive ? 0 : computeCouponDiscount(subtotal, coupon);

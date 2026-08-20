@@ -1,14 +1,14 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import { getDiscountedPrice, MAX_QTY_PER_ITEM } from "@/lib/volumePricing";
+import { MAX_QTY_PER_ITEM } from "@/lib/volumePricing";
 
 export interface CartItem {
   slug: string;
   name: string;
   size: string;
-  price: number;
-  basePrice?: number;
+  price: number; // WC's active/Single price — constant regardless of quantity (no more volume-tier scaling)
+  regularPrice?: number; // WC's regular_price ("Base") — the B1G1 pair must total exactly this (lib/bogoDiscount.ts)
   wcProductId: number;
   quantity: number;
 }
@@ -68,17 +68,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
       const existing = prev.find((i) => i.slug === item.slug && i.size === item.size);
       if (existing) {
         const newQty = Math.min(MAX_QTY_PER_ITEM, existing.quantity + qty);
-        const base = existing.basePrice ?? existing.price;
         return prev.map((i) =>
-          i.slug === item.slug && i.size === item.size
-            ? { ...i, quantity: newQty, price: getDiscountedPrice(base, newQty), basePrice: base }
-            : i
+          i.slug === item.slug && i.size === item.size ? { ...i, quantity: newQty } : i
         );
       }
       const cappedQty = Math.min(MAX_QTY_PER_ITEM, qty);
-      const base = item.basePrice ?? item.price;
-      const discountedPrice = getDiscountedPrice(base, cappedQty);
-      return [...prev, { ...item, quantity: cappedQty, price: discountedPrice, basePrice: base }];
+      return [...prev, { ...item, quantity: cappedQty }];
     });
 
     // Fire-and-forget Omnisend "Added to Cart" event — never blocks cart
@@ -107,14 +102,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
     if (qty <= 0) { removeItem(slug, size); return; }
     // BOGO-eligible items default to 2 on first add (AddToCartButton/
     // ProductsSection), but once in the cart the customer can freely edit
-    // back down to 1 — no floor enforced here.
+    // back down to 1 — no floor enforced here. Per-unit price no longer
+    // changes with quantity (volume-discount tiers removed) — the BOGO
+    // pair discount is computed separately as a checkout-level fee line.
     const cappedQty = Math.min(MAX_QTY_PER_ITEM, qty);
     setItems((prev) =>
-      prev.map((i) => {
-        if (i.slug !== slug || i.size !== size) return i;
-        const base = i.basePrice ?? i.price;
-        return { ...i, quantity: cappedQty, price: getDiscountedPrice(base, cappedQty), basePrice: base };
-      })
+      prev.map((i) => (i.slug === slug && i.size === size ? { ...i, quantity: cappedQty } : i))
     );
   };
 

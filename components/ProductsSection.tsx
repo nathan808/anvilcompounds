@@ -219,17 +219,21 @@ export function ProductCard({ product, index }: { product: ProductCard; index: n
   // also enforced server-side in app/api/checkout/place-order).
   const isBundleOOS = BUNDLE_PRODUCT_IDS.has(product.id);
 
-  // BOGO-eligible cards show the effective per-vial price (current price
-  // halved, since the 2nd vial is free) instead of the single-vial price —
-  // matches the always-qty-2 behavior in handleAddToCart below. Bundles/BAC
-  // water (BOGO_EXCLUDED_PRODUCT_IDS) keep showing their real price.
+  // BOGO-eligible cards show the effective per-vial price under B1G1 —
+  // Base (regular_price, the crossed-out "was" price) halved, since a B1G1
+  // pair always totals exactly the Base price (lib/bogoDiscount.ts) — NOT
+  // the single/current price halved, which would be a different, smaller
+  // number now that Base and Single are two distinct WC price fields.
+  // Bundles/BAC water (BOGO_EXCLUDED_PRODUCT_IDS) keep showing their real price.
   const isBogoEligible = BOGO_ENABLED && !BOGO_EXCLUDED_PRODUCT_IDS.has(product.id);
-  const rawPriceNum = parseFloat(product.price.replace(/[^0-9.]/g, "")) || 0;
-  const bogoUnitPrice = rawPriceNum > 0 ? `$${(rawPriceNum / 2).toFixed(2)}` : product.price;
+  const priceNum = parseFloat(product.price.replace(/[^0-9.]/g, "")) || 0;
+  const regularPriceNum = product.originalPrice
+    ? parseFloat(product.originalPrice.replace(/[^0-9.]/g, "")) || priceNum
+    : priceNum;
+  const bogoUnitPrice = regularPriceNum > 0 ? `$${(regularPriceNum / 2).toFixed(2)}` : product.price;
 
   const handleAddToCart = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
-    const priceNum = parseFloat(product.price.replace(/[^0-9.]/g, "")) || 0;
     // BOGO-eligible products always add as a pair — 2nd vial free, applied
     // automatically at checkout (see lib/bogoDiscount.ts) — so there's no
     // "buy just 1" path from the catalog card's one-click add either.
@@ -239,12 +243,13 @@ export function ProductCard({ product, index }: { product: ProductCard; index: n
       name: product.name,
       size: "Standard",
       price: priceNum,
+      regularPrice: regularPriceNum,
       wcProductId: product.id,
     }, bogoQty);
     openCart();
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
-  }, [product, addItem, openCart]);
+  }, [product, priceNum, regularPriceNum, addItem, openCart]);
 
   const productHref = glpGated ? loginHref : `/products/${slugifyProductName(product.name)}`;
 

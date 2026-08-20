@@ -1,4 +1,3 @@
-import { getDiscountedPrice } from "@/lib/volumePricing";
 import { roundCurrency } from "@/lib/taxMath";
 
 interface WcVariation {
@@ -23,8 +22,8 @@ export interface ResolvedLineItem {
   variationId: number | null;
   quantity: number;
   name: string;
-  unitBasePrice: number; // WC's price for this product/variation, before volume discount
-  unitPrice: number;     // after this codebase's own volume-discount tiers
+  unitPrice: number;     // WC's active price (regular_price minus any sale_price) — the "Single/non-B1G1" price
+  regularPrice: number;  // WC's regular_price — the crossed-out "Base" price a B1G1 pair totals to (lib/bogoDiscount.ts)
   lineTotal: number;
   // stock_status of whichever WC object (variation, or parent for a simple/
   // no-size-match product) actually priced this line — e.g. GHK-Cu 50mg vs
@@ -57,7 +56,8 @@ export async function resolveLineItem(
   if (!productRes.ok) return null;
   const product: WcProduct = await productRes.json();
 
-  let unitBasePrice = parseFloat(product.price || product.regular_price || "0");
+  let unitPrice = parseFloat(product.price || product.regular_price || "0");
+  let regularPrice = parseFloat(product.regular_price || product.price || "0");
   let variationId: number | null = null;
   let inStock = product.stock_status !== "outofstock";
 
@@ -67,7 +67,8 @@ export async function resolveLineItem(
       const variations: WcVariation[] = await varRes.json();
       const match = variations.find((v) => v.attributes.some((a) => a.name === "Size" && a.option === size));
       if (match) {
-        unitBasePrice = parseFloat(match.price || match.regular_price || String(unitBasePrice));
+        unitPrice = parseFloat(match.price || match.regular_price || String(unitPrice));
+        regularPrice = parseFloat(match.regular_price || match.price || String(regularPrice));
         variationId = match.id;
         inStock = match.stock_status !== "outofstock";
       }
@@ -76,16 +77,15 @@ export async function resolveLineItem(
     }
   }
 
-  if (!unitBasePrice || unitBasePrice <= 0) return null;
+  if (!unitPrice || unitPrice <= 0) return null;
 
-  const unitPrice = getDiscountedPrice(unitBasePrice, quantity);
   return {
     productId,
     variationId,
     quantity,
     name: product.name,
-    unitBasePrice,
     unitPrice,
+    regularPrice,
     lineTotal: roundCurrency(unitPrice * quantity),
     inStock,
   };

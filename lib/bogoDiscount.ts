@@ -1,3 +1,5 @@
+import { roundCurrency } from "@/lib/taxMath";
+
 // Launch promo: "Buy 1 Get 1 Free" — same product/variation only, and capped
 // at ONE free unit per checkout (order-wide, not per line — confirmed with
 // the store owner). The first line item with quantity >= 2 (in cart order)
@@ -33,6 +35,13 @@ export const BUNDLE_PRODUCT_IDS = new Set<number>([1041, 1043, 1045, 1047, 1049]
 export interface BogoLineItem {
   quantity: number;
   unitPrice: number;
+  // WC regular_price for this line's product/variation — the crossed-out
+  // "Base" price. A B1G1 pair must always total exactly this Base price
+  // (e.g. KLOW: 2 vials for $119, the Base, not 2x the discounted single
+  // price) — see the pricing table this was built from. Falls back to
+  // unitPrice when unavailable so an old caller that hasn't been updated
+  // yet degrades to "1 unit free at current price" instead of crashing.
+  regularPrice?: number;
   productId?: number;
 }
 
@@ -48,9 +57,17 @@ export function getBogoLineIndex(items: BogoLineItem[]): number {
   );
 }
 
+// Discount needed so the qualifying line's first pair totals exactly its
+// Base (regular_price), not just "1 unit free at whatever it currently
+// sells for". E.g. unitPrice $94, regularPrice $119: discount = 2x94-119 =
+// $69, leaving $119 for the pair — any units beyond the first pair (qty > 2)
+// still cost unitPrice each, undiscounted (only one pair per checkout).
 export function computeBogoDiscount(items: BogoLineItem[]): number {
   const index = getBogoLineIndex(items);
-  return index === -1 ? 0 : items[index].unitPrice;
+  if (index === -1) return 0;
+  const { unitPrice, regularPrice } = items[index];
+  const base = regularPrice ?? unitPrice;
+  return roundCurrency(2 * unitPrice - base);
 }
 
 // Free gift, bundled with every order (not tied to the BOGO pairing above) —

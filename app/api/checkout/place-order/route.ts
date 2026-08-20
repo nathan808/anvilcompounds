@@ -109,7 +109,7 @@ export async function POST(req: NextRequest) {
   //    Volume Discount, and the payment-method discount below (see
   //    lib/bogoDiscount.ts) ───────────────────────────────────────────────
   const bogoDiscount = roundCurrency(
-    computeBogoDiscount(resolvedItems.map((i) => ({ quantity: i.quantity, unitPrice: i.unitPrice, productId: i.productId })))
+    computeBogoDiscount(resolvedItems.map((i) => ({ quantity: i.quantity, unitPrice: i.unitPrice, regularPrice: i.regularPrice, productId: i.productId })))
   );
   const bogoActive = bogoDiscount > 0;
 
