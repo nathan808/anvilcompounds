@@ -6,7 +6,7 @@ import { useCheckout } from "@/lib/checkoutContext";
 import { computeCouponDiscount } from "@/lib/couponMath";
 import { computeTax, apportionAmount } from "@/lib/taxMath";
 import { computeVolumeDiscount, VOLUME_DISCOUNT_LABEL } from "@/lib/volumeDiscount";
-import { computeBogoDiscount, BOGO_ENABLED, BOGO_LABEL, FREE_GIFT_LABEL } from "@/lib/bogoDiscount";
+import { computeBogoDiscount, isBogoLineEligible, BOGO_ENABLED, BOGO_LABEL, FREE_GIFT_LABEL } from "@/lib/bogoDiscount";
 import { useFreeShippingProgress } from "@/lib/useFreeShippingProgress";
 import FreeShippingProgress from "@/components/FreeShippingProgress";
 
@@ -46,6 +46,15 @@ export default function OrderSummary({ editableCoupon = true, showShipping = fal
   // suppresses the coupon, Volume Discount, and payment-method discount below.
   const bogoDiscount = computeBogoDiscount(items.map((i) => ({ quantity: i.quantity, unitPrice: i.price, regularPrice: i.regularPrice, productId: i.wcProductId })));
   const bogoActive = bogoDiscount > 0;
+  // Displayed-only figure (sum of each qualifying line's Base price, the
+  // value of that free vial) — NOT used in the real total math below,
+  // which stays on the real bogoDiscount. Same marketing framing as the
+  // cart drawer, confirmed with the store owner not to need to reconcile
+  // exactly against the shown total for multi-item/3+-quantity carts.
+  const bogoBaseValueSum = items.reduce((sum, i) => {
+    const eligible = isBogoLineEligible({ quantity: i.quantity, unitPrice: i.price, productId: i.wcProductId });
+    return eligible ? sum + (i.regularPrice ?? i.price) : sum;
+  }, 0);
 
   const couponDiscount = bogoActive ? 0 : computeCouponDiscount(subtotal, coupon);
   // postCouponSubtotal = coupon only — this is the WC line-item/tax base.
@@ -239,7 +248,7 @@ export default function OrderSummary({ editableCoupon = true, showShipping = fal
         {bogoDiscount > 0 && (
           <div className="flex items-center justify-between">
             <span className="font-body text-sm text-blue-400">{BOGO_LABEL}</span>
-            <span className="font-mono text-sm text-blue-400">-${bogoDiscount.toFixed(2)}</span>
+            <span className="font-mono text-sm text-blue-400">-${bogoBaseValueSum.toFixed(2)}</span>
           </div>
         )}
         {BOGO_ENABLED && (

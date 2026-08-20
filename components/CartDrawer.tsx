@@ -14,7 +14,18 @@ export default function CartDrawer() {
   // exists in checkout's own context, starting at Step 1) — teaser here is
   // always based on the raw cart subtotal.
   const freeShippingProgress = useFreeShippingProgress(subtotal, false, isCartOpen && items.length > 0);
+  // Real dollar amount actually subtracted — this is what the Subtotal
+  // line below must stay mathematically correct against.
   const bogoDiscount = computeBogoDiscount(items.map((i) => ({ quantity: i.quantity, unitPrice: i.price, regularPrice: i.regularPrice, productId: i.wcProductId })));
+  // Displayed "Buy 1 Get 1 Free" figure — sum of each qualifying line's
+  // Base price (the value of that one free vial), not the smaller real
+  // dollar amount above. A marketing framing, not a reconciling number —
+  // confirmed with the store owner it doesn't need to subtract cleanly
+  // against Subtotal for multi-item or 3+-quantity carts.
+  const bogoBaseValueSum = items.reduce((sum, i) => {
+    const eligible = isBogoLineEligible({ quantity: i.quantity, unitPrice: i.price, productId: i.wcProductId });
+    return eligible ? sum + (i.regularPrice ?? i.price) : sum;
+  }, 0);
 
   return (
     <AnimatePresence>
@@ -115,13 +126,21 @@ export default function CartDrawer() {
                         const rawTotal = item.price * item.quantity;
                         const itemDiscount = computeBogoLineDiscount({ quantity: item.quantity, unitPrice: item.price, regularPrice: item.regularPrice, productId: item.wcProductId });
                         const discountedTotal = rawTotal - itemDiscount;
-                        return itemDiscount > 0 ? (
+                        // Always cross out qty x Base price (not qty x the
+                        // already-discounted single price) — matches the
+                        // same "always reference Base" fix on the product
+                        // page, and applies at any quantity: qty=1 shows
+                        // Base vs. the single price, qty=2 shows Base x2 vs.
+                        // the B1G1 total, qty=3+ shows Base x qty vs. the
+                        // real (1 pair + extras) total.
+                        const baseTotal = (item.regularPrice ?? item.price) * item.quantity;
+                        return baseTotal > discountedTotal + 0.001 ? (
                           <span className="font-display font-700 text-white">
-                            <span className="text-white/30 line-through font-500 mr-1.5">${rawTotal.toFixed(2)}</span>
+                            <span className="text-white/30 line-through font-500 mr-1.5">${baseTotal.toFixed(2)}</span>
                             ${discountedTotal.toFixed(2)}
                           </span>
                         ) : (
-                          <span className="font-display font-700 text-white">${rawTotal.toFixed(2)}</span>
+                          <span className="font-display font-700 text-white">${discountedTotal.toFixed(2)}</span>
                         );
                       })()}
                     </div>
@@ -153,7 +172,7 @@ export default function CartDrawer() {
                   <div>
                     <div className="flex items-center justify-between">
                       <span className="font-body text-sm text-blue-400">{BOGO_LABEL}</span>
-                      <span className="font-mono text-sm text-blue-400">-${bogoDiscount.toFixed(2)}</span>
+                      <span className="font-mono text-sm text-blue-400">-${bogoBaseValueSum.toFixed(2)}</span>
                     </div>
                     <p className="font-mono text-[10px] text-white/25 mt-0.5">
                       One free vial per compound.
