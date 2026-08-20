@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useCart } from "@/lib/cartContext";
 import { useCheckout } from "@/lib/checkoutContext";
 import { computeCouponDiscount } from "@/lib/couponMath";
-import { computeTax, apportionAmount } from "@/lib/taxMath";
+import { computeTax } from "@/lib/taxMath";
 import { computeVolumeDiscount } from "@/lib/volumeDiscount";
 import { computeBogoDiscount, BOGO_LABEL } from "@/lib/bogoDiscount";
 import { PAYMENT_METHODS, GROUP_LABELS, GROUP_SUBHEADS, GROUP_ORDER } from "@/lib/paymentMethods";
@@ -63,17 +63,22 @@ export default function PaymentMethods() {
   const bogoDiscount = computeBogoDiscount(items.map((i) => ({ quantity: i.quantity, unitPrice: i.price, regularPrice: i.regularPrice, productId: i.wcProductId })));
   const bogoActive = bogoDiscount > 0;
 
-  const couponDiscount = bogoActive ? 0 : computeCouponDiscount(subtotal, coupon);
+  // Coupon (chk10) is allowed to stack with BOGO now, gated by its own
+  // $250 minimum — computed against the post-BOGO total, same as
+  // OrderSummary.tsx / place-order/route.ts.
+  const postBogoSubtotal = subtotal - bogoDiscount;
+  const couponDiscount = computeCouponDiscount(postBogoSubtotal, coupon);
   const postCouponSubtotal = subtotal - couponDiscount;
   const volumeDiscount = bogoActive ? 0 : computeVolumeDiscount(subtotal, !!coupon);
   const discountedSubtotal = postCouponSubtotal - volumeDiscount - bogoDiscount;
   const shippingCost = shipping?.cost ?? 0;
 
-  // Coupon apportioned per line and each product line taxed/rounded
-  // independently, matching WooCommerce's real behavior — see the same note
-  // in OrderSummary.tsx / place-order/route.ts (order #1113 TOTAL_MISMATCH).
-  const couponPerLine = apportionAmount(couponDiscount, items.map((i) => i.price * i.quantity));
-  const productLineAmounts = items.map((i, idx) => i.price * i.quantity - couponPerLine[idx]);
+  // Each product line taxed/rounded independently (not one combined
+  // subtotal — see computeTax's docstring re: the TOTAL_MISMATCH on order
+  // #1113). Coupon is its own fee-tax entry (like BOGO/Volume Discount),
+  // not apportioned across product lines — see the coupon note in
+  // place-order/route.ts.
+  const productLineAmounts = items.map((i) => i.price * i.quantity);
 
   return (
     <div className="space-y-8">
@@ -89,7 +94,7 @@ export default function PaymentMethods() {
             <div className={GROUP_SUBHEADS[group] ? "space-y-3 mt-4" : "space-y-3"}>
               {methods.map((method) => {
                 const discountAmount = bogoActive ? 0 : discountedSubtotal * (method.discountPercent / 100);
-                const tax = computeTax(taxRate, productLineAmounts, [volumeDiscount, discountAmount, bogoDiscount], shippingCost, shippingTaxable);
+                const tax = computeTax(taxRate, productLineAmounts, [volumeDiscount, discountAmount, couponDiscount, bogoDiscount], shippingCost, shippingTaxable);
                 const methodTotal = discountedSubtotal - discountAmount + shippingCost + tax.totalTax;
                 const isLive = PAYMENT_CONFIG[method.id].status === "live";
                 const overZelleCap = method.id === "zelle" && methodTotal > PAYMENT_CONFIG.zelle.maxOrder;

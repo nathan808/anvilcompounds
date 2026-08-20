@@ -3,7 +3,7 @@ import { resolveLineItem, ResolvedLineItem } from "@/lib/wcProducts";
 import { fetchShippingOptions } from "@/lib/wcShipping";
 import { validateCoupon } from "@/lib/wcCoupon";
 import { computeCouponDiscount } from "@/lib/couponMath";
-import { computeTax, roundCurrency, apportionAmount } from "@/lib/taxMath";
+import { computeTax, roundCurrency } from "@/lib/taxMath";
 import { fetchTaxRate } from "@/lib/wcTax";
 import { PAYMENT_METHODS, PaymentMethodId } from "@/lib/paymentMethods";
 import { PAYMENT_CONFIG } from "@/lib/paymentConfig";
@@ -106,10 +106,9 @@ export async function POST(req: NextRequest) {
 
   // ── 1b. BOGO launch promo — every qualifying SKU (qty >= 2) gets its own
   //    2nd-unit-free pair, independently of every other line (one pair per
-  //    SKU, not one per order). When any line qualifies, BOGO is the ONLY
-  //    discount in effect for the whole order: it suppresses coupons,
-  //    Volume Discount, and the payment-method discount below (see
-  //    lib/bogoDiscount.ts) ───────────────────────────────────────────────
+  //    SKU, not one per order). Still suppresses the $200+ Volume Discount
+  //    and the payment-method discount (see lib/bogoDiscount.ts) — coupons
+  //    (below) are the one exception, now allowed to stack ─────────────────
   const bogoLineInputs = resolvedItems.map((i) => ({ quantity: i.quantity, unitPrice: i.unitPrice, regularPrice: i.regularPrice, productId: i.productId }));
   // One entry per qualifying SKU — kept separate (not pre-summed) so each
   // becomes its own fee line, taxed and rounded independently by WC, same
@@ -119,33 +118,37 @@ export async function POST(req: NextRequest) {
     .filter((d) => d.discount > 0);
   const bogoDiscount = roundCurrency(computeBogoDiscount(bogoLineInputs));
   const bogoActive = bogoDiscount > 0;
+  // What the customer's order actually totals after BOGO, before any
+  // coupon — the base chk10's $250 minimum and its own 10% are computed
+  // against (confirmed with the store owner: "10% off this order", where
+  // "this order" already reflects BOGO, not the pre-BOGO Base-price total).
+  const postBogoSubtotal = roundCurrency(subtotal - bogoDiscount);
 
   // ── 2. Coupon — validated against WC, discount computed server-side ───────
+  // NOTE: coupon amount is NOT delegated to WooCommerce's own coupon_lines
+  // processing (see below, no coupon_lines sent) — WC computes a percent
+  // coupon against its own view of the line-item subtotal, which has no
+  // concept of our custom BOGO fee lines, so it would compute 10% of the
+  // pre-BOGO amount instead of 10% of postBogoSubtotal. Instead this is
+  // computed here and sent as our own fee line, same as BOGO/Volume
+  // Discount, so WC's total exactly matches what's shown to the customer.
   let coupon: { code: string; discountType: "percent" | "fixed_cart"; amount: number } | null = null;
-  if (couponCode && !bogoActive) {
-    const result = await validateCoupon(couponCode, subtotal);
+  if (couponCode) {
+    const result = await validateCoupon(couponCode, postBogoSubtotal);
     if (!result.valid) {
       console.warn(`[place-order:${requestId}] FAIL: coupon "${couponCode}" rejected — ${result.reason}`);
       return NextResponse.json({ error: result.reason }, { status: 400 });
     }
     coupon = { code: result.code, discountType: result.discountType, amount: result.amount };
   }
-  const couponDiscount = computeCouponDiscount(subtotal, coupon);
-  // postCouponSubtotal reflects ONLY the real WC coupon — this is what gets
-  // sent as the line_items subtotal/total, and it's what WC computes the
-  // product line's own tax against. Volume discount, like the payment-method
-  // discount, is a fee line — NOT a coupon — so it must NOT reduce this value
-  // (confirmed against a real order: WC taxed the full pre-volume-discount
-  // subtotal on the product line, and taxed the Volume Discount fee line
-  // separately and independently — folding it in here double-counted the
-  // reduction and produced a TOTAL_MISMATCH on order 608).
+  const couponDiscount = roundCurrency(computeCouponDiscount(postBogoSubtotal, coupon));
   const postCouponSubtotal = subtotal - couponDiscount;
 
   // Volume discount occupies the same pipeline slot as a coupon — mutually
   // exclusive with it (computeVolumeDiscount returns 0 whenever a coupon is
-  // present). discountedSubtotal is the "compounding" base confirmed for
-  // both the free-shipping threshold check and the payment-method discount
-  // calculation — it is NOT the WC line-item/tax base (see above).
+  // present), and with BOGO. discountedSubtotal is the "compounding" base
+  // confirmed for both the free-shipping threshold check and the
+  // payment-method discount calculation.
   const volumeDiscount = bogoActive ? 0 : roundCurrency(computeVolumeDiscount(subtotal, !!coupon));
   const discountedSubtotal = postCouponSubtotal - volumeDiscount - bogoDiscount;
 
@@ -179,18 +182,21 @@ export async function POST(req: NextRequest) {
     console.error(`[place-order:${requestId}] FAIL: could not load tax rate`, err);
     return NextResponse.json({ error: "Could not load tax rate" }, { status: 502 });
   }
-  // Coupon discount is apportioned per product line (mirrors WooCommerce's
-  // own behavior) before taxing — each line is then taxed and rounded
-  // independently, not as one combined cart subtotal. See computeTax's
-  // docstring: rounding the combined subtotal once instead of summing each
-  // line's own rounded tax caused the TOTAL_MISMATCH on order #1113 (three
-  // different products in one cart).
-  const couponPerLine = apportionAmount(couponDiscount, resolvedItems.map((i) => i.lineTotal));
-  const productLineAmounts = resolvedItems.map((item, i) => item.lineTotal - couponPerLine[i]);
+  // Product lines are taxed at their raw amount — the coupon is no longer
+  // apportioned across them (see the coupon note above: it's a fee line
+  // now, not routed through WC's own coupon-on-line-items mechanism), so
+  // it's taxed the same way as every other fee (BOGO, Volume Discount,
+  // payment-method): its own entry in feeAmounts, rounded independently.
+  // Mathematically equivalent to reducing the product-line base by the same
+  // amount (verified: base*rate - X*rate either way) — just consistent with
+  // how every other discount here is now modeled. Each product line is
+  // still taxed and rounded independently, not as one combined subtotal —
+  // see computeTax's docstring re: the TOTAL_MISMATCH on order #1113.
+  const productLineAmounts = resolvedItems.map((item) => item.lineTotal);
   const tax = computeTax(
     taxRate,
     productLineAmounts,
-    [volumeDiscount, paymentDiscountAmount, ...bogoLineDiscounts.map((d) => d.discount)],
+    [volumeDiscount, paymentDiscountAmount, couponDiscount, ...bogoLineDiscounts.map((d) => d.discount)],
     shippingCost,
     shippingTaxable
   );
@@ -266,6 +272,15 @@ export async function POST(req: NextRequest) {
       total: (-discount).toFixed(2),
       tax_status: "none",
     })),
+    // Coupon, as its own fee line — see the note above on why this isn't
+    // sent via coupon_lines.
+    ...(coupon && couponDiscount > 0
+      ? [{
+          name: `Coupon (${coupon.code})`,
+          total: (-couponDiscount).toFixed(2),
+          tax_status: "none",
+        }]
+      : []),
     ...(paymentDiscountAmount > 0
       ? [{
           name: `Payment method discount (${methodMeta.label})`,
@@ -274,8 +289,6 @@ export async function POST(req: NextRequest) {
         }]
       : []),
   ];
-
-  const couponLines = coupon ? [{ code: coupon.code }] : [];
 
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0].trim() ?? "unknown";
   const auth = Buffer.from(`${key}:${secret}`).toString("base64");
@@ -314,7 +327,11 @@ export async function POST(req: NextRequest) {
       instance_id: shippingMatch.instanceId,
       total: shippingCost.toFixed(2),
     }],
-    coupon_lines: couponLines,
+    // No coupon_lines — see the coupon note above. WC's own usage_count for
+    // the coupon won't increment as a result (we're not going through its
+    // native coupon-application path); _anvil_coupon_applied meta below is
+    // the substitute record for Ken's own visibility into how often it's
+    // actually used.
     fee_lines: feeLines,
     meta_data: [
       { key: "anvil_payment_method", value: paymentMethodId },
@@ -324,6 +341,7 @@ export async function POST(req: NextRequest) {
       { key: "_headless_customer_ip", value: ip },
       { key: "_ruo_confirmed", value: ruoConfirmed ? "yes" : "no" },
       { key: "_ruo_confirmed_at", value: new Date().toISOString() },
+      ...(coupon ? [{ key: "_anvil_coupon_applied", value: coupon.code }] : []),
       { key: "_ruo_confirmed_ip", value: ip },
     ],
   };

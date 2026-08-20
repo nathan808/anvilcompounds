@@ -1,8 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useCart } from "@/lib/cartContext";
+import { useCheckout } from "@/lib/checkoutContext";
+import { computeCouponDiscount } from "@/lib/couponMath";
 import { useFreeShippingProgress } from "@/lib/useFreeShippingProgress";
 import FreeShippingProgress from "@/components/FreeShippingProgress";
 import PaymentMethodsBar from "@/components/PaymentMethodsBar";
@@ -10,21 +13,70 @@ import { computeBogoDiscount, computeBogoLineDiscount, isBogoLineEligible, BOGO_
 
 export default function CartDrawer() {
   const { items, isCartOpen, closeCart, removeItem, updateQty, itemCount, subtotal } = useCart();
-  // No coupon has been entered yet at this point in the flow (coupon only
-  // exists in checkout's own context, starting at Step 1) — teaser here is
-  // always based on the raw cart subtotal.
+  const { coupon, setCoupon } = useCheckout();
+  const [code, setCode] = useState(coupon?.code ?? "");
+  const [checking, setChecking] = useState(false);
+  const [error, setError] = useState("");
+  // Collapsed by default so the price breakdown doesn't eat into the
+  // (fixed-height, non-scrolling) footer's share of the drawer, leaving
+  // more room for the scrollable product list above it.
+  const [breakdownOpen, setBreakdownOpen] = useState(false);
+
   const freeShippingProgress = useFreeShippingProgress(subtotal, false, isCartOpen && items.length > 0);
   const bogoDiscount = computeBogoDiscount(items.map((i) => ({ quantity: i.quantity, unitPrice: i.price, regularPrice: i.regularPrice, productId: i.wcProductId })));
   // Full reconciling chain, replacing the earlier non-reconciling "value of
   // the free vial" framing: baseSubtotal (every unit at Base price) minus
   // singleVialDiscount (the everyday Base->Single gap, present even
   // without B1G1) minus bogoDiscount (the extra B1G1 pair savings) equals
-  // exactly `subtotal - bogoDiscount`, the real final total shown below —
+  // exactly `subtotal - bogoDiscount`, the real post-BOGO total —
   // singleVialDiscount is defined as baseSubtotal - subtotal so this holds
   // by construction, at any quantity or item mix.
   const baseSubtotal = items.reduce((sum, i) => sum + (i.regularPrice ?? i.price) * i.quantity, 0);
   const singleVialDiscount = baseSubtotal - subtotal;
-  const hasAnyDiscount = singleVialDiscount > 0.001 || bogoDiscount > 0.001;
+  // chk10: allowed to stack with BOGO, gated by its own $250 minimum —
+  // checked and computed against the post-BOGO total ("10% off this
+  // order", where "this order" already reflects BOGO), same as checkout.
+  const postBogoSubtotal = subtotal - bogoDiscount;
+  const couponDiscount = computeCouponDiscount(postBogoSubtotal, coupon);
+  const total = postBogoSubtotal - couponDiscount;
+  const hasAnyDiscount = singleVialDiscount > 0.001 || bogoDiscount > 0.001 || couponDiscount > 0.001;
+
+  const applyCoupon = async () => {
+    const trimmed = code.trim();
+    if (!trimmed) return;
+    setChecking(true);
+    setError("");
+    try {
+      const res = await fetch("/api/checkout/validate-coupon", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: trimmed, subtotal: postBogoSubtotal }),
+      });
+      const data = await res.json();
+      if (!res.ok || data.error) {
+        setError("Could not validate coupon right now. Please try again.");
+        setCoupon(null);
+        return;
+      }
+      if (!data.valid) {
+        setError(data.reason ?? "Invalid coupon code");
+        setCoupon(null);
+        return;
+      }
+      setCoupon({ code: data.code, discountType: data.discountType, amount: data.amount });
+    } catch {
+      setError("Could not validate coupon right now. Please try again.");
+      setCoupon(null);
+    } finally {
+      setChecking(false);
+    }
+  };
+
+  const removeCoupon = () => {
+    setCoupon(null);
+    setCode("");
+    setError("");
+  };
 
   return (
     <AnimatePresence>
@@ -181,27 +233,82 @@ export default function CartDrawer() {
             {items.length > 0 && (
               <div className="px-6 py-5 border-t border-white/8 space-y-4">
                 <FreeShippingProgress data={freeShippingProgress} subtotal={subtotal} hasCoupon={bogoDiscount > 0} />
-                {hasAnyDiscount && (
-                  <div className="flex items-center justify-between">
-                    <span className="font-body text-white/50">Subtotal (Base Price)</span>
-                    <span className="font-mono text-sm text-white/70">${baseSubtotal.toFixed(2)}</span>
-                  </div>
-                )}
-                {singleVialDiscount > 0.001 && (
-                  <div className="flex items-center justify-between">
-                    <span className="font-body text-sm text-blue-400">Discounted Pricing</span>
-                    <span className="font-mono text-sm text-blue-400">-${singleVialDiscount.toFixed(2)}</span>
-                  </div>
-                )}
-                {bogoDiscount > 0.001 && (
-                  <div>
-                    <div className="flex items-center justify-between">
-                      <span className="font-body text-sm text-blue-400">{BOGO_LABEL}</span>
-                      <span className="font-mono text-sm text-blue-400">-${bogoDiscount.toFixed(2)}</span>
+
+                {/* Coupon — always visible (it's an action, not a numeric
+                    detail), collapsible breakdown below is just the numbers. */}
+                {coupon ? (
+                  <div className="flex items-center justify-between gap-3 px-3 py-2 rounded-lg bg-blue-600/10 border border-blue-500/20">
+                    <div>
+                      <p className="font-mono text-xs text-blue-400 tracking-wide uppercase">{coupon.code}</p>
+                      <p className="font-mono text-[10px] text-white/30">
+                        {coupon.discountType === "percent" ? `${coupon.amount}% off` : `$${coupon.amount.toFixed(2)} off`}
+                      </p>
                     </div>
-                    <p className="font-mono text-[10px] text-white/25 mt-0.5">
-                      One free vial per compound.
-                    </p>
+                    <button type="button" onClick={removeCoupon} className="font-mono text-[10px] text-white/30 hover:text-white/60 underline underline-offset-2">
+                      Remove
+                    </button>
+                  </div>
+                ) : (
+                  <div>
+                    <div className="flex gap-2">
+                      <input
+                        value={code}
+                        onChange={(e) => { setCode(e.target.value); setError(""); }}
+                        placeholder="Coupon code"
+                        className="w-full px-3 py-2 bg-white/5 border border-white/10 focus:border-blue-500/50 focus:bg-white/8 rounded-lg text-white placeholder-white/20 font-mono text-xs outline-none transition-all duration-300"
+                      />
+                      <button
+                        type="button"
+                        onClick={applyCoupon}
+                        disabled={checking || !code.trim()}
+                        className="px-3 py-2 bg-white/8 hover:bg-white/12 disabled:opacity-40 disabled:cursor-not-allowed rounded-lg font-mono text-xs text-white/70 uppercase tracking-wide transition-all shrink-0"
+                      >
+                        {checking ? "..." : "Apply"}
+                      </button>
+                    </div>
+                    {error && <p className="font-body text-xs text-red-400 mt-1.5">{error}</p>}
+                  </div>
+                )}
+
+                {hasAnyDiscount && (
+                  <button
+                    type="button"
+                    onClick={() => setBreakdownOpen((v) => !v)}
+                    className="flex items-center gap-1.5 font-mono text-[10px] text-white/40 hover:text-white/70 tracking-widest uppercase transition-colors"
+                  >
+                    <span className={`transition-transform duration-200 ${breakdownOpen ? "rotate-90" : ""}`}>▸</span>
+                    {breakdownOpen ? "Hide" : "Show"} price breakdown
+                  </button>
+                )}
+                {hasAnyDiscount && breakdownOpen && (
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="font-body text-white/50">Subtotal (Base Price)</span>
+                      <span className="font-mono text-sm text-white/70">${baseSubtotal.toFixed(2)}</span>
+                    </div>
+                    {singleVialDiscount > 0.001 && (
+                      <div className="flex items-center justify-between">
+                        <span className="font-body text-sm text-blue-400">Discounted Pricing</span>
+                        <span className="font-mono text-sm text-blue-400">-${singleVialDiscount.toFixed(2)}</span>
+                      </div>
+                    )}
+                    {bogoDiscount > 0.001 && (
+                      <div>
+                        <div className="flex items-center justify-between">
+                          <span className="font-body text-sm text-blue-400">{BOGO_LABEL}</span>
+                          <span className="font-mono text-sm text-blue-400">-${bogoDiscount.toFixed(2)}</span>
+                        </div>
+                        <p className="font-mono text-[10px] text-white/25 mt-0.5">
+                          One free vial per compound.
+                        </p>
+                      </div>
+                    )}
+                    {couponDiscount > 0.001 && (
+                      <div className="flex items-center justify-between">
+                        <span className="font-body text-sm text-blue-400">Coupon ({coupon?.code})</span>
+                        <span className="font-mono text-sm text-blue-400">-${couponDiscount.toFixed(2)}</span>
+                      </div>
+                    )}
                   </div>
                 )}
                 {BOGO_ENABLED && (
@@ -212,7 +319,7 @@ export default function CartDrawer() {
                 )}
                 <div className="flex items-center justify-between">
                   <span className="font-body text-white/50">{hasAnyDiscount ? "Total" : "Subtotal"}</span>
-                  <span className="font-display font-700 text-white text-xl">${(subtotal - bogoDiscount).toFixed(2)}</span>
+                  <span className="font-display font-700 text-white text-xl">${total.toFixed(2)}</span>
                 </div>
                 <PaymentMethodsBar />
                 <p className="font-mono text-[10px] text-white/20 tracking-wide leading-relaxed text-center">

@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useCart } from "@/lib/cartContext";
 import { useCheckout } from "@/lib/checkoutContext";
 import { computeCouponDiscount } from "@/lib/couponMath";
-import { computeTax, apportionAmount } from "@/lib/taxMath";
+import { computeTax } from "@/lib/taxMath";
 import { computeVolumeDiscount, VOLUME_DISCOUNT_LABEL } from "@/lib/volumeDiscount";
 import { computeBogoDiscount, computeBogoLineDiscount, BOGO_ENABLED, BOGO_LABEL, FREE_GIFT_LABEL } from "@/lib/bogoDiscount";
 import { useFreeShippingProgress } from "@/lib/useFreeShippingProgress";
@@ -41,9 +41,10 @@ export default function OrderSummary({ editableCoupon = true, showShipping = fal
   // match, surfacing as a false "Your cart has changed" error.
   const [taxResolved, setTaxResolved] = useState(!showShipping || !step1.state);
 
-  // BOGO launch promo — same-product pairs get their 2nd unit free. When
-  // active it's the ONLY discount in effect (see lib/bogoDiscount.ts), so it
-  // suppresses the coupon, Volume Discount, and payment-method discount below.
+  // BOGO launch promo — same-product pairs get their 2nd unit free. Still
+  // suppresses the $200+ Volume Discount and the payment-method discount
+  // (see lib/bogoDiscount.ts) — a coupon (chk10) is now allowed to stack
+  // with it, gated behind its own $250 minimum-order requirement.
   const bogoDiscount = computeBogoDiscount(items.map((i) => ({ quantity: i.quantity, unitPrice: i.price, regularPrice: i.regularPrice, productId: i.wcProductId })));
   const bogoActive = bogoDiscount > 0;
   // Full reconciling chain, replacing the earlier non-reconciling "value of
@@ -57,16 +58,16 @@ export default function OrderSummary({ editableCoupon = true, showShipping = fal
   const singleVialDiscount = baseSubtotal - subtotal;
   const hasAnyDiscount = singleVialDiscount > 0.001 || bogoDiscount > 0.001;
 
-  const couponDiscount = bogoActive ? 0 : computeCouponDiscount(subtotal, coupon);
-  // postCouponSubtotal = coupon only — this is the WC line-item/tax base.
-  // Volume discount is a fee line (like the payment-method discount), NOT a
-  // coupon, so it must not reduce this value (verified against a real order —
-  // folding it in here double-counts the reduction and mismatches WC's total).
+  // What the order actually totals after BOGO, before any coupon — the
+  // base chk10's $250 minimum and its own 10% are computed against
+  // ("10% off this order", where "this order" already reflects BOGO).
+  const postBogoSubtotal = subtotal - bogoDiscount;
+  const couponDiscount = computeCouponDiscount(postBogoSubtotal, coupon);
   const postCouponSubtotal = subtotal - couponDiscount;
   // Same pipeline slot as the coupon — mutually exclusive with it (see
-  // lib/volumeDiscount.ts), so at most one of couponDiscount/volumeDiscount
-  // is ever nonzero. discountedSubtotal is the "compounding" base used for
-  // the free-shipping threshold and (server-side) the payment-discount calc.
+  // lib/volumeDiscount.ts), and with BOGO. discountedSubtotal is the
+  // "compounding" base used for the free-shipping threshold and
+  // (server-side) the payment-discount calc.
   const volumeDiscount = bogoActive ? 0 : computeVolumeDiscount(subtotal, !!coupon);
   const discountedSubtotal = postCouponSubtotal - volumeDiscount - bogoDiscount;
   const paymentDiscountAmount = bogoActive ? 0 : (paymentDiscount?.amount ?? 0);
@@ -90,15 +91,13 @@ export default function OrderSummary({ editableCoupon = true, showShipping = fal
     return () => { cancelled = true; };
   }, [showShipping, step1.state]);
 
-  // Coupon apportioned per line and each product line taxed/rounded
-  // independently, matching WooCommerce's actual behavior (and the
-  // server-side computation in app/api/checkout/place-order) — rounding one
-  // combined subtotal instead caused a real TOTAL_MISMATCH on multi-product
-  // carts (order #1113). Keeping this preview in lockstep avoids showing the
-  // customer a total that then differs from what place-order computes.
-  const couponPerLine = apportionAmount(couponDiscount, items.map((i) => i.price * i.quantity));
-  const productLineAmounts = items.map((i, idx) => i.price * i.quantity - couponPerLine[idx]);
-  const tax = computeTax(taxRate, productLineAmounts, [volumeDiscount, paymentDiscountAmount, bogoDiscount], shippingCost, shippingTaxable);
+  // Each product line taxed/rounded independently (not one combined
+  // subtotal — see computeTax's docstring re: the TOTAL_MISMATCH on order
+  // #1113), matching the server-side computation in place-order exactly.
+  // Coupon is its own fee-tax entry (like BOGO/Volume Discount), not
+  // apportioned across product lines — see the coupon note in place-order.
+  const productLineAmounts = items.map((i) => i.price * i.quantity);
+  const tax = computeTax(taxRate, productLineAmounts, [volumeDiscount, paymentDiscountAmount, couponDiscount, bogoDiscount], shippingCost, shippingTaxable);
   const total = postCouponSubtotal - volumeDiscount - paymentDiscountAmount - bogoDiscount + shippingCost + (showShipping ? tax.totalTax : 0);
 
   const applyCoupon = async () => {
@@ -110,7 +109,7 @@ export default function OrderSummary({ editableCoupon = true, showShipping = fal
       const res = await fetch("/api/checkout/validate-coupon", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code: trimmed, subtotal }),
+        body: JSON.stringify({ code: trimmed, subtotal: postBogoSubtotal }),
       });
       const data = await res.json();
       if (!res.ok || data.error) {
@@ -199,11 +198,7 @@ export default function OrderSummary({ editableCoupon = true, showShipping = fal
 
       {editableCoupon ? (
         <div className="border-t border-white/8 pt-4 mb-4">
-          {bogoActive ? (
-            <p className="font-mono text-[10px] text-white/30 leading-relaxed">
-              Coupons aren&apos;t available during our Buy 1 Get 1 Free limited deal.
-            </p>
-          ) : coupon ? (
+          {coupon ? (
             <div className="flex items-center justify-between gap-3 px-3 py-2 rounded-lg bg-blue-600/10 border border-blue-500/20">
               <div>
                 <p className="font-mono text-xs text-blue-400 tracking-wide uppercase">{coupon.code}</p>
@@ -263,7 +258,7 @@ export default function OrderSummary({ editableCoupon = true, showShipping = fal
             <span className="font-mono text-sm text-blue-400">-${singleVialDiscount.toFixed(2)}</span>
           </div>
         )}
-        {coupon && !bogoActive && (
+        {coupon && couponDiscount > 0.001 && (
           <div className="flex items-center justify-between">
             <span className="font-body text-sm text-white/50">Coupon ({coupon.code})</span>
             <span className="font-mono text-sm text-blue-400">-${couponDiscount.toFixed(2)}</span>
