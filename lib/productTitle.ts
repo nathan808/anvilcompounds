@@ -45,6 +45,8 @@ const COMPOUND_REVEAL: Record<string, string> = {
   "AC2T":    "Tirzepatide",
   "GLP-RT":  "Retatrutide",
   "GLP-TRZ": "Tirzepatide",
+  "GLOW":    "GHK-Cu + BPC-157 + TB-500",
+  "KLOW":    "GHK-Cu + BPC-157 + TB-500 + KPV",
 };
 
 export function getCompoundReveal(name: string): string | null {
