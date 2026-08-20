@@ -134,13 +134,27 @@ export default function CartDrawer() {
                         // the B1G1 total, qty=3+ shows Base x qty vs. the
                         // real (1 pair + extras) total.
                         const baseTotal = (item.regularPrice ?? item.price) * item.quantity;
-                        return baseTotal > discountedTotal + 0.001 ? (
-                          <span className="font-display font-700 text-white">
-                            <span className="text-white/30 line-through font-500 mr-1.5">${baseTotal.toFixed(2)}</span>
-                            ${discountedTotal.toFixed(2)}
-                          </span>
-                        ) : (
-                          <span className="font-display font-700 text-white">${discountedTotal.toFixed(2)}</span>
+                        const baseUnitPrice = item.regularPrice ?? item.price;
+                        const discountedUnitPrice = discountedTotal / item.quantity;
+                        const hasDiscount = baseTotal > discountedTotal + 0.001;
+                        return (
+                          <div className="text-right">
+                            <div className="font-display font-700 text-white">
+                              {hasDiscount && (
+                                <span className="text-white/30 line-through font-500 mr-1.5">${baseTotal.toFixed(2)}</span>
+                              )}
+                              ${discountedTotal.toFixed(2)}
+                            </div>
+                            {/* Per-vial price — the same Base-vs-discounted
+                                framing as the total above, but per unit, so
+                                the savings read clearly even at a glance. */}
+                            <div className="font-mono text-[10px] text-white/40 mt-0.5">
+                              {hasDiscount && (
+                                <span className="line-through mr-1">${baseUnitPrice.toFixed(2)}</span>
+                              )}
+                              ${discountedUnitPrice.toFixed(2)}/vial
+                            </div>
+                          </div>
                         );
                       })()}
                     </div>

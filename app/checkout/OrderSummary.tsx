@@ -6,7 +6,7 @@ import { useCheckout } from "@/lib/checkoutContext";
 import { computeCouponDiscount } from "@/lib/couponMath";
 import { computeTax, apportionAmount } from "@/lib/taxMath";
 import { computeVolumeDiscount, VOLUME_DISCOUNT_LABEL } from "@/lib/volumeDiscount";
-import { computeBogoDiscount, isBogoLineEligible, BOGO_ENABLED, BOGO_LABEL, FREE_GIFT_LABEL } from "@/lib/bogoDiscount";
+import { computeBogoDiscount, computeBogoLineDiscount, isBogoLineEligible, BOGO_ENABLED, BOGO_LABEL, FREE_GIFT_LABEL } from "@/lib/bogoDiscount";
 import { useFreeShippingProgress } from "@/lib/useFreeShippingProgress";
 import FreeShippingProgress from "@/components/FreeShippingProgress";
 
@@ -154,17 +154,40 @@ export default function OrderSummary({ editableCoupon = true, showShipping = fal
       <h3 className="font-display font-700 text-white mb-4">Order Summary</h3>
 
       <div className="space-y-3 mb-5">
-        {items.map((item) => (
-          <div key={`${item.slug}-${item.size}`} className="flex items-start justify-between gap-3">
-            <div className="flex-1 min-w-0">
-              <p className="font-body text-sm text-white/70">{item.name}</p>
-              <p className="font-mono text-xs text-blue-400/50 tracking-wider">{item.size} · qty {item.quantity}</p>
+        {items.map((item) => {
+          const rawTotal = item.price * item.quantity;
+          const itemDiscount = computeBogoLineDiscount({ quantity: item.quantity, unitPrice: item.price, regularPrice: item.regularPrice, productId: item.wcProductId });
+          const discountedTotal = rawTotal - itemDiscount;
+          // Always reference Base price (qty x Base, and Base per vial),
+          // not the already-discounted single price — same framing as the
+          // product page and cart drawer, applies at any quantity.
+          const baseTotal = (item.regularPrice ?? item.price) * item.quantity;
+          const baseUnitPrice = item.regularPrice ?? item.price;
+          const discountedUnitPrice = discountedTotal / item.quantity;
+          const hasDiscount = baseTotal > discountedTotal + 0.001;
+          return (
+            <div key={`${item.slug}-${item.size}`} className="flex items-start justify-between gap-3">
+              <div className="flex-1 min-w-0">
+                <p className="font-body text-sm text-white/70">{item.name}</p>
+                <p className="font-mono text-xs text-blue-400/50 tracking-wider">{item.size} · qty {item.quantity}</p>
+              </div>
+              <div className="text-right shrink-0">
+                <div className="font-mono text-sm text-white/70">
+                  {hasDiscount && (
+                    <span className="text-white/30 line-through mr-1.5">${baseTotal.toFixed(2)}</span>
+                  )}
+                  ${discountedTotal.toFixed(2)}
+                </div>
+                <div className="font-mono text-[10px] text-white/35 mt-0.5">
+                  {hasDiscount && (
+                    <span className="line-through mr-1">${baseUnitPrice.toFixed(2)}</span>
+                  )}
+                  ${discountedUnitPrice.toFixed(2)}/vial
+                </div>
+              </div>
             </div>
-            <span className="font-mono text-sm text-white/70 shrink-0">
-              ${(item.price * item.quantity).toFixed(2)}
-            </span>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {showFreeShippingProgress && (
