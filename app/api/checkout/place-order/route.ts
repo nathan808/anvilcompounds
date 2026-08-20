@@ -9,7 +9,7 @@ import { PAYMENT_METHODS, PaymentMethodId } from "@/lib/paymentMethods";
 import { PAYMENT_CONFIG } from "@/lib/paymentConfig";
 import { computeVolumeDiscount, VOLUME_DISCOUNT_LABEL } from "@/lib/volumeDiscount";
 import { MAX_QTY_PER_ITEM } from "@/lib/volumePricing";
-import { computeBogoDiscount, BOGO_ENABLED, BOGO_LABEL, FREE_GIFT_PRODUCT_ID, FREE_GIFT_VARIATION_ID, BUNDLE_PRODUCT_IDS } from "@/lib/bogoDiscount";
+import { computeBogoDiscount, computeBogoLineDiscount, BOGO_ENABLED, BOGO_LABEL, FREE_GIFT_PRODUCT_ID, FREE_GIFT_VARIATION_ID, BUNDLE_PRODUCT_IDS } from "@/lib/bogoDiscount";
 
 // The client sends ONLY identifiers and selections — never a price, total,
 // discount amount, or tax figure. Every money value below is derived
@@ -104,13 +104,20 @@ export async function POST(req: NextRequest) {
   }
   const subtotal = roundCurrency(resolvedItems.reduce((s, i) => s + i.lineTotal, 0));
 
-  // ── 1b. BOGO launch promo — same-product pairs get their 2nd unit free.
-  //    When active it is the ONLY discount in effect: it suppresses coupons,
+  // ── 1b. BOGO launch promo — every qualifying SKU (qty >= 2) gets its own
+  //    2nd-unit-free pair, independently of every other line (one pair per
+  //    SKU, not one per order). When any line qualifies, BOGO is the ONLY
+  //    discount in effect for the whole order: it suppresses coupons,
   //    Volume Discount, and the payment-method discount below (see
   //    lib/bogoDiscount.ts) ───────────────────────────────────────────────
-  const bogoDiscount = roundCurrency(
-    computeBogoDiscount(resolvedItems.map((i) => ({ quantity: i.quantity, unitPrice: i.unitPrice, regularPrice: i.regularPrice, productId: i.productId })))
-  );
+  const bogoLineInputs = resolvedItems.map((i) => ({ quantity: i.quantity, unitPrice: i.unitPrice, regularPrice: i.regularPrice, productId: i.productId }));
+  // One entry per qualifying SKU — kept separate (not pre-summed) so each
+  // becomes its own fee line, taxed and rounded independently by WC, same
+  // principle as the per-product-line tax fix (see computeTax's docstring).
+  const bogoLineDiscounts = resolvedItems
+    .map((item, i) => ({ item, discount: computeBogoLineDiscount(bogoLineInputs[i]) }))
+    .filter((d) => d.discount > 0);
+  const bogoDiscount = roundCurrency(computeBogoDiscount(bogoLineInputs));
   const bogoActive = bogoDiscount > 0;
 
   // ── 2. Coupon — validated against WC, discount computed server-side ───────
@@ -180,7 +187,13 @@ export async function POST(req: NextRequest) {
   // different products in one cart).
   const couponPerLine = apportionAmount(couponDiscount, resolvedItems.map((i) => i.lineTotal));
   const productLineAmounts = resolvedItems.map((item, i) => item.lineTotal - couponPerLine[i]);
-  const tax = computeTax(taxRate, productLineAmounts, [volumeDiscount, paymentDiscountAmount, bogoDiscount], shippingCost, shippingTaxable);
+  const tax = computeTax(
+    taxRate,
+    productLineAmounts,
+    [volumeDiscount, paymentDiscountAmount, ...bogoLineDiscounts.map((d) => d.discount)],
+    shippingCost,
+    shippingTaxable
+  );
   const expectedTotal = roundCurrency(postCouponSubtotal - volumeDiscount - paymentDiscountAmount - bogoDiscount + shippingCost + tax.totalTax);
 
   console.log(`[place-order:${requestId}] Method: ${paymentMethodId} | subtotal:${subtotal} couponDiscount:${couponDiscount} volumeDiscount:${volumeDiscount} bogoDiscount:${bogoDiscount} paymentDiscount:${paymentDiscountAmount} shipping:${shippingCost} taxRate:${taxRate} totalTax:${tax.totalTax} expectedTotal:${expectedTotal}`);
@@ -246,13 +259,13 @@ export async function POST(req: NextRequest) {
           tax_status: "none",
         }]
       : []),
-    ...(bogoDiscount > 0
-      ? [{
-          name: BOGO_LABEL,
-          total: (-bogoDiscount).toFixed(2),
-          tax_status: "none",
-        }]
-      : []),
+    // One fee line per qualifying SKU (not one combined line) — matches
+    // how WooCommerce actually taxes/rounds each fee independently.
+    ...bogoLineDiscounts.map(({ item, discount }) => ({
+      name: `${BOGO_LABEL} — ${item.name}`,
+      total: (-discount).toFixed(2),
+      tax_status: "none",
+    })),
     ...(paymentDiscountAmount > 0
       ? [{
           name: `Payment method discount (${methodMeta.label})`,

@@ -1,10 +1,9 @@
 import { roundCurrency } from "@/lib/taxMath";
 
-// Launch promo: "Buy 1 Get 1 Free" — same product/variation only, and capped
-// at ONE free unit per checkout (order-wide, not per line — confirmed with
-// the store owner). The first line item with quantity >= 2 (in cart order)
-// is the one that earns the free unit; additional pairs, whether on that
-// same line or any other, don't stack further discount. When active on an
+// Launch promo: "Buy 1 Get 1 Free" — same product/variation only, capped at
+// ONE free unit per SKU per order (not order-wide anymore — every distinct
+// qualifying compound/dose gets its own pair discount, but buying 4 of the
+// same one still only discounts one pair of those 4). When active on an
 // order it is the ONLY discount in effect: it suppresses coupons, the $200+
 // Volume Discount, and the payment-method (crypto/ACH) discount entirely
 // (confirmed with the store owner — exactly one discount mechanism at a time).
@@ -45,29 +44,32 @@ export interface BogoLineItem {
   productId?: number;
 }
 
-// Index of the single line item (cart order) that carries the one-per-
-// checkout free unit, or -1 if no line qualifies (every line has qty < 2,
-// or the only qualifying lines are BOGO-excluded products). Exported
-// separately from computeBogoDiscount so per-line UI (cart drawer) can show
-// the "applied" state on the correct line and nowhere else.
-export function getBogoLineIndex(items: BogoLineItem[]): number {
-  if (!BOGO_ENABLED) return -1;
-  return items.findIndex(
-    (item) => item.quantity >= 2 && !BOGO_EXCLUDED_PRODUCT_IDS.has(item.productId ?? -1)
-  );
+// Whether this line qualifies for its own B1G1 pair discount — every
+// distinct SKU with quantity >= 2 gets one, independently of every other
+// line in the cart (no shared per-order cap anymore).
+export function isBogoLineEligible(item: BogoLineItem): boolean {
+  return BOGO_ENABLED && item.quantity >= 2 && !BOGO_EXCLUDED_PRODUCT_IDS.has(item.productId ?? -1);
 }
 
-// Discount needed so the qualifying line's first pair totals exactly its
-// Base (regular_price), not just "1 unit free at whatever it currently
-// sells for". E.g. unitPrice $94, regularPrice $119: discount = 2x94-119 =
-// $69, leaving $119 for the pair — any units beyond the first pair (qty > 2)
-// still cost unitPrice each, undiscounted (only one pair per checkout).
+// Discount needed so this line's first pair totals exactly its Base
+// (regular_price), not just "1 unit free at whatever it currently sells
+// for". E.g. unitPrice $94, regularPrice $119: discount = 2x94-119 = $69,
+// leaving $119 for the pair — any units beyond the first pair on this same
+// line (qty > 2) still cost unitPrice each, undiscounted (only one pair per
+// SKU). Returns 0 for an ineligible line.
+export function computeBogoLineDiscount(item: BogoLineItem): number {
+  if (!isBogoLineEligible(item)) return 0;
+  const base = item.regularPrice ?? item.unitPrice;
+  return roundCurrency(2 * item.unitPrice - base);
+}
+
+// Total BOGO discount across every qualifying line in the cart — the sum
+// of computeBogoLineDiscount over all lines. Callers that need to build one
+// fee line per SKU (so WooCommerce/computeTax round each independently,
+// same as any other per-line amount) should use computeBogoLineDiscount
+// directly instead of this aggregate.
 export function computeBogoDiscount(items: BogoLineItem[]): number {
-  const index = getBogoLineIndex(items);
-  if (index === -1) return 0;
-  const { unitPrice, regularPrice } = items[index];
-  const base = regularPrice ?? unitPrice;
-  return roundCurrency(2 * unitPrice - base);
+  return roundCurrency(items.reduce((sum, item) => sum + computeBogoLineDiscount(item), 0));
 }
 
 // Free gift, bundled with every order (not tied to the BOGO pairing above) —

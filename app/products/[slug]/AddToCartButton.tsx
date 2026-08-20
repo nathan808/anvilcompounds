@@ -7,7 +7,7 @@ import PurchaseFooter from "@/components/PurchaseFooter";
 import PaymentMethodsBar from "@/components/PaymentMethodsBar";
 import { simplifySizeLabel } from "@/lib/reconstitution";
 import { MAX_QTY_PER_ITEM } from "@/lib/volumePricing";
-import { BOGO_ENABLED, BOGO_LABEL, BOGO_EXCLUDED_PRODUCT_IDS, BUNDLE_PRODUCT_IDS, getBogoLineIndex } from "@/lib/bogoDiscount";
+import { BOGO_ENABLED, BOGO_LABEL, BOGO_EXCLUDED_PRODUCT_IDS, BUNDLE_PRODUCT_IDS } from "@/lib/bogoDiscount";
 
 interface Props {
   slug: string;
@@ -52,7 +52,7 @@ export default function AddToCartButton({
   onSelectIndex,
   stickyBarEnabled = false,
 }: Props) {
-  const { addItem, openCart, items: cartItems } = useCart();
+  const { addItem, openCart } = useCart();
   const [internalIndex, setInternalIndex] = useState(0);
   const selectedIndex = controlledIndex ?? internalIndex;
   const setSelectedIndex = onSelectIndex ?? setInternalIndex;
@@ -108,18 +108,10 @@ export default function AddToCartButton({
   const b1g1UnitPrice = (originalBasePrice ?? unitPrice) / 2;
   const lineTotal = unitPrice * qty;
 
-  // BOGO preview — mirrors the exact one-free-unit-per-checkout cap used at
-  // checkout (lib/bogoDiscount.ts) by simulating this selection appended to
-  // whatever's already in the cart. Keeps this page's shown total honest:
-  // it only shows a discount when the cart would actually give one, e.g.
-  // not when another line already claimed the order's one free unit.
-  const bogoPreviewItems = [
-    ...cartItems.map((i) => ({ quantity: i.quantity, unitPrice: i.price, regularPrice: i.regularPrice, productId: i.wcProductId })),
-    { quantity: qty, unitPrice, regularPrice: originalBasePrice ?? unitPrice, productId: wcProductId },
-  ];
-  const bogoLineIndex = BOGO_ENABLED ? getBogoLineIndex(bogoPreviewItems) : -1;
-  const thisLineGetsBogo = bogoLineIndex === bogoPreviewItems.length - 1;
-  const bogoUsedElsewhere = BOGO_ENABLED && !isBogoExcluded && qty >= 2 && !thisLineGetsBogo;
+  // Every qualifying SKU gets its own B1G1 pair now (no more shared
+  // one-per-order cap), so this line's eligibility no longer depends on
+  // what else is in the cart — just its own quantity and exclusion status.
+  const thisLineGetsBogo = BOGO_ENABLED && !isBogoExcluded && qty >= 2;
   const bogoDiscountForLine = thisLineGetsBogo ? 2 * unitPrice - (originalBasePrice ?? unitPrice) : 0;
   const discountedLineTotal = lineTotal - bogoDiscountForLine;
   // Headline "/vial" price — shows the B1G1 rate whenever this line will
@@ -206,9 +198,7 @@ export default function AddToCartButton({
             🎁 {BOGO_LABEL}
           </span>
           <span className="font-body text-xs text-mock-sub">
-            {bogoUsedElsewhere
-              ? "— already applied to another item in your cart. One BOGO discount per order."
-              : "— applied automatically, 2nd vial free. Limited to one per order. + Free Bacteriostatic Water with every order."}
+            — applied automatically, 2nd vial free. One B1G1 pair per compound. + Free Bacteriostatic Water with every order.
           </span>
         </div>
       )}
@@ -256,12 +246,7 @@ export default function AddToCartButton({
               </p>
               {thisLineGetsBogo && (
                 <p className="font-mono text-[11px] text-green-700">
-                  🎁 1 vial free — Buy 1 Get 1 Free applied (one per order)
-                </p>
-              )}
-              {bogoUsedElsewhere && (
-                <p className="font-mono text-[11px] text-mock-sub">
-                  Buy 1 Get 1 Free already used on another item in your cart — one discount per order.
+                  🎁 1 vial free — Buy 1 Get 1 Free applied (one pair per compound)
                 </p>
               )}
             </div>
@@ -369,7 +354,7 @@ export default function AddToCartButton({
           </div>
         )}
         {/* 3+ vials — kept out of the way for the common 1-or-2 case, but
-            still reachable. The B1G1 pair (one per order) plus each extra
+            still reachable. One B1G1 pair for this compound plus each extra
             vial at the single price — the breakdown line just below the
             price header already shows the resulting total for any qty. */}
         {!isBogoExcluded && (
