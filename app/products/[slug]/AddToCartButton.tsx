@@ -114,9 +114,15 @@ export default function AddToCartButton({
   const thisLineGetsBogo = BOGO_ENABLED && !isBogoExcluded && qty >= 2;
   const bogoDiscountForLine = thisLineGetsBogo ? 2 * unitPrice - (originalBasePrice ?? unitPrice) : 0;
   const discountedLineTotal = lineTotal - bogoDiscountForLine;
-  // Headline "/vial" price — shows the B1G1 rate whenever this line will
-  // actually get the discount, otherwise the plain single-vial price.
-  const displayUnitPrice = thisLineGetsBogo ? b1g1UnitPrice : unitPrice;
+  // Headline "/vial" price — the true blended rate (what the customer
+  // actually pays per vial at this quantity), not just the qty=2 B1G1 rate.
+  // Only one pair ever gets discounted, so at qty=5 e.g. that's (1 pair at
+  // Base + 3 more at the single price) / 5 vials, not Base/2 — showing
+  // Base/2 there was wrong (order total $321 was showing as "$49.50/vial",
+  // which doesn't reconcile: 5 x $49.50 = $247.50, not $321). Matches
+  // b1g1UnitPrice exactly at qty=2 and unitPrice exactly at qty=1, so this
+  // replaces displayUnitPrice everywhere without changing those two cases.
+  const displayUnitPrice = qty > 0 ? discountedLineTotal / qty : unitPrice;
 
   const handleQtyChange = (next: number) => {
     setQty(Math.min(MAX_QTY_PER_ITEM, Math.max(1, next)));
