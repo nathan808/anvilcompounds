@@ -6,7 +6,6 @@ import { motion, useInView } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import type { ProductCard } from "@/lib/woocommerce";
-import CoaModal from "@/components/CoaModal";
 import { useCart } from "@/lib/cartContext";
 import { useAuth } from "@/lib/authContext";
 import { getProductDisplayTitle, isLoginGatedCompound, getCompoundReveal } from "@/lib/productTitle";
@@ -206,7 +205,6 @@ export function ProductCard({ product, index }: { product: ProductCard; index: n
   const { isAuthenticated } = useAuth();
   const router = useRouter();
   const [added, setAdded] = useState(false);
-  const [coaOpen, setCoaOpen] = useState(false);
 
   // GLP compounds are inquiry-gated: guests can't view, add to cart, or
   // check the COA from the catalog card until they log in. Same
@@ -429,7 +427,7 @@ export function ProductCard({ product, index }: { product: ProductCard; index: n
                 onClick={(e) => {
                   e.stopPropagation();
                   if (glpGated) { router.push(loginHref); return; }
-                  setCoaOpen(true);
+                  router.push(`/coas/${slugifyProductName(product.name)}`);
                 }}
                 className="flex-1 text-center px-2 md:px-3 py-1.5 md:py-2 bg-mock-surface2 hover:bg-mock-line/60 border border-mock-line hover:border-mock-cobalt/30 text-mock-sub hover:text-mock-navy text-xs md:text-sm font-display font-600 rounded-lg transition-all duration-300"
               >
@@ -466,14 +464,6 @@ export function ProductCard({ product, index }: { product: ProductCard; index: n
           </div>
         </div>
       </div>
-
-      <CoaModal
-        open={coaOpen}
-        onClose={() => setCoaOpen(false)}
-        title={product.name}
-        imageUrl={product.documentationImage}
-        fileUrl={product.documentationFile}
-      />
     </motion.div>
   );
 }

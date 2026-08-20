@@ -88,6 +88,7 @@ export default function ProductHero({ product }: { product: ProductPageData }) {
 
           {product.coaApplicable && (
             <ViewCoaButton
+              slug={product.slug}
               productName={product.name}
               imageUrl={product.documentationImage}
               fileUrl={currentDocFile}
@@ -159,6 +160,16 @@ export default function ProductHero({ product }: { product: ProductPageData }) {
                 coaImage={product.documentationImage}
                 variant="bleed"
               />
+              {/* RUO pill + subtitle — moved here from the buy column so
+                  they sit directly under the product image on desktop. */}
+              <div className="inline-block">
+                <span className="font-mono text-[10px] text-mock-sub tracking-[0.18em] uppercase border border-mock-line rounded-full px-3 py-1">
+                  For laboratory and research use only
+                </span>
+              </div>
+              <p className="font-mono text-xs text-mock-sub tracking-wider">
+                {product.subtitle}
+              </p>
             </div>
             <ShippingBanner theme="light" />
             <SdsPreviewButton productName={product.name} fileUrl={product.sdsFile} />
@@ -176,21 +187,10 @@ export default function ProductHero({ product }: { product: ProductPageData }) {
               <span className="text-mock-cobaltInk/80">{product.category}</span>
             </nav>
 
-            {/* RUO pill */}
-            <div className="inline-block">
-              <span className="font-mono text-[10px] text-mock-sub tracking-[0.18em] uppercase border border-mock-line rounded-full px-3 py-1">
-                For laboratory and research use only
-              </span>
-            </div>
-
-            {/* Subtitle */}
-            <p className="font-mono text-xs text-mock-sub tracking-wider">
-              {product.subtitle}
-            </p>
-
             {/* View COA — above Add to Cart */}
             {product.coaApplicable && (
               <ViewCoaButton
+                slug={product.slug}
                 productName={product.name}
                 imageUrl={product.documentationImage}
                 fileUrl={currentDocFile}

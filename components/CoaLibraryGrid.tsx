@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import CoaModal from "@/components/CoaModal";
 import { useAuth } from "@/lib/authContext";
 import { getProductDisplayTitle, isLoginGatedCompound } from "@/lib/productTitle";
 import { simplifySizeLabel } from "@/lib/reconstitution";
@@ -23,23 +22,7 @@ interface CoaProduct {
 }
 
 export default function CoaLibraryGrid({ products }: { products: CoaProduct[] }) {
-  const router = useRouter();
-  const { isAuthenticated } = useAuth();
   const [query, setQuery] = useState("");
-  const [active, setActive] = useState<CoaProduct | null>(null);
-  const [activeSizeIndex, setActiveSizeIndex] = useState(0);
-
-  const handleView = (product: CoaProduct, sizeIndex: number) => {
-    // GLP compounds' COAs are gated behind login; everything else stays
-    // open to guests. Checkout is already gated the same way, so this
-    // never asks a guest to log in twice for the same reason.
-    if (isLoginGatedCompound(product.name) && !isAuthenticated) {
-      router.push("/account?redirect=/coas");
-      return;
-    }
-    setActiveSizeIndex(sizeIndex);
-    setActive(product);
-  };
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -76,21 +59,10 @@ export default function CoaLibraryGrid({ products }: { products: CoaProduct[] })
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {filtered.map((product) => (
-            <CoaCard key={product.slug} product={product} onView={handleView} />
+            <CoaCard key={product.slug} product={product} />
           ))}
         </div>
       )}
-
-      <CoaModal
-        open={active !== null}
-        onClose={() => setActive(null)}
-        title={active?.name ?? ""}
-        imageUrl={active?.documentationImage}
-        fileUrl={active?.sizesDocumentationFiles?.[activeSizeIndex] ?? active?.documentationFile}
-        sizes={active && (active.sizes?.length ?? 0) > 1 ? active.sizes : undefined}
-        selectedSizeIndex={activeSizeIndex}
-        onSelectSize={setActiveSizeIndex}
-      />
     </>
   );
 }
@@ -100,14 +72,11 @@ export default function CoaLibraryGrid({ products }: { products: CoaProduct[] })
 // products), and a <button> nested inside a <button> is invalid HTML (same
 // class of bug fixed on the catalog cards — see ProductsSection.tsx). Each
 // card owns its own selected-size state so picking a size here doesn't
-// require opening the COA popup first, matching how the product page works.
-function CoaCard({
-  product,
-  onView,
-}: {
-  product: CoaProduct;
-  onView: (product: CoaProduct, sizeIndex: number) => void;
-}) {
+// require leaving the card, matching how the product page works; the chosen
+// index is passed to the COA guide page via a ?size= query param.
+function CoaCard({ product }: { product: CoaProduct }) {
+  const router = useRouter();
+  const { isAuthenticated } = useAuth();
   const [sizeIndex, setSizeIndex] = useState(0);
   const hasCoa = Boolean(
     product.documentationImage ||
@@ -115,6 +84,18 @@ function CoaCard({
     product.sizesDocumentationFiles?.some(Boolean)
   );
   const hasSizes = (product.sizes?.length ?? 0) > 1;
+  const guideHref = `/coas/${product.slug}${hasSizes ? `?size=${sizeIndex}` : ""}`;
+
+  const handleView = () => {
+    // GLP compounds' COAs are gated behind login; everything else stays
+    // open to guests. Checkout is already gated the same way, so this
+    // never asks a guest to log in twice for the same reason.
+    if (isLoginGatedCompound(product.name) && !isAuthenticated) {
+      router.push("/account?redirect=/coas");
+      return;
+    }
+    router.push(guideHref);
+  };
 
   return (
     <div
@@ -157,7 +138,7 @@ function CoaCard({
       <div className="mt-6">
         {hasCoa ? (
           <button
-            onClick={() => onView(product, sizeIndex)}
+            onClick={handleView}
             className="w-full inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-mock-cobalt group-hover:bg-mock-cobaltInk text-white font-display font-700 text-sm transition-all duration-200"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
