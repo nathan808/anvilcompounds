@@ -13,6 +13,7 @@ const archivo = Archivo({
   subsets: ["latin"],
   variable: "--font-archivo",
   weight: ["400", "500", "600", "700", "800", "900"],
+  style: ["normal", "italic"],
   display: "swap",
 });
 

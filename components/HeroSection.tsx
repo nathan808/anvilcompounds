@@ -58,14 +58,17 @@ export default function HeroSection() {
           >
 
             {/* Vial graphic — mobile/tablet only; sits above the headline. Desktop shows
-                the vial in the side column instead (see below) and keeps this hidden. */}
-            <motion.div variants={item} className="lg:hidden relative w-[256px] max-w-[66vw] aspect-square mb-2">
+                the vial in the side column instead (see below) and keeps this hidden.
+                aspect-[1200/1039] matches this cutout's real proportions (three vials
+                side by side, slightly wider than tall). Sized ~5% down from the
+                original 300px per request. */}
+            <motion.div variants={item} className="lg:hidden relative w-[285px] max-w-[74vw] aspect-[1200/1039] mb-2">
               <Image
-                src="/images/homepage/hero-vial-callouts.png"
-                alt="Anvil Compounds BPC-157 research vial with 99%+ purity, lot-verified, and USA-based facility callouts"
+                src="/images/homepage/hero-vials-trio.png"
+                alt="Three Anvil Compounds research vials — 3rd Party Verified, 99.9%+ Purity, SoCal Facility"
                 fill
                 className="object-contain"
-                sizes="256px"
+                sizes="285px"
                 priority
               />
             </motion.div>
@@ -94,10 +97,10 @@ export default function HeroSection() {
               className="font-heading font-700 leading-[0.95] mb-2 max-w-3xl"
               style={{ fontSize: "clamp(1.584rem, 3.6vw, 3.2rem)", textShadow: "0 1px 12px rgba(255,255,255,0.95), 0 0px 2px rgba(255,255,255,0.7)" }}
             >
-              <span className="block text-mock-ink">Research Peptides with</span>
+              <span className="block font-display font-700 italic text-mock-ink">Research Peptides with</span>
               <span className="block">
                 <span className="font-800 italic text-mock-cobalt">Conviction</span>{" "}
-                <span className="text-mock-ink">and</span>{" "}
+                <span className="font-display font-700 italic text-mock-ink">and</span>{" "}
                 <span className="font-800 italic text-mock-cobalt">Verification</span>
               </span>
             </motion.h1>
@@ -150,15 +153,18 @@ export default function HeroSection() {
 
           </motion.div>
 
-          {/* Vial graphic — desktop side column, proportional to the text block, never overlapping it */}
+          {/* Vial graphic — desktop side column, proportional to the text block, never
+              overlapping it (contained within its own grid column, see the
+              lg:grid-cols-[1.15fr_0.85fr] split above). aspect-[1200/1039] matches this
+              cutout's real proportions; sized ~5% down from the original 480px. */}
           <div className="hidden lg:flex items-center justify-center">
-            <div className="relative w-full max-w-[422px] aspect-square">
+            <div className="relative w-full max-w-[456px] aspect-[1200/1039]">
               <Image
-                src="/images/homepage/hero-vial-callouts.png"
-                alt="Anvil Compounds BPC-157 research vial with 99%+ purity, lot-verified, and USA-based facility callouts"
+                src="/images/homepage/hero-vials-trio.png"
+                alt="Three Anvil Compounds research vials — 3rd Party Verified, 99.9%+ Purity, SoCal Facility"
                 fill
                 className="object-contain"
-                sizes="422px"
+                sizes="456px"
                 priority
               />
             </div>

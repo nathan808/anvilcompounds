@@ -72,8 +72,8 @@ export default function OperationsSection() {
           className="relative w-full max-w-[90%] lg:max-w-[78%] mx-auto aspect-square rounded-2xl overflow-hidden border border-mock-line"
         >
           <Image
-            src="/images/homepage/shipping-box.jpg"
-            alt="Three Anvil Compounds vials packed in a protective shipping box with label"
+            src="/images/homepage/shipping-info.jpg"
+            alt="A gloved hand placing an Anvil Compounds vial into a shipping box with three labeled vials — Same-Day Dispatch, Cold Chain Storage, Free Shipping Orders $100+ — and a shipping label"
             fill
             className="object-cover"
             sizes="(max-width: 1024px) 90vw, 45vw"
