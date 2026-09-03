@@ -41,16 +41,23 @@ function verifySignature(rawBody: string, signatureHeader: string | null, secret
 }
 
 export async function POST(req: NextRequest) {
-  const secret = process.env.WC_WEBHOOK_SECRET;
+  // Trimmed defensively — a stray trailing newline from pasting into an env
+  // var textarea (Vercel's Value field, unlike a single-line admin input,
+  // doesn't strip it) silently breaks the HMAC comparison with no visible
+  // symptom other than every delivery failing signature verification.
+  const secret = process.env.WC_WEBHOOK_SECRET?.trim();
   if (!secret) {
     console.error("[wc-order-status webhook] FAIL: WC_WEBHOOK_SECRET not configured");
     return NextResponse.json({ error: "Not configured" }, { status: 500 });
   }
 
   const rawBody = await req.text();
-  const signature = req.headers.get("x-wc-webhook-signature");
+  const signature = req.headers.get("x-wc-webhook-signature")?.trim() ?? null;
   if (!verifySignature(rawBody, signature, secret)) {
-    console.warn("[wc-order-status webhook] FAIL: invalid or missing signature");
+    // Lengths only — never log the secret or the raw signature value.
+    console.warn(
+      `[wc-order-status webhook] FAIL: signature mismatch (header present: ${!!signature}, header length: ${signature?.length ?? 0}, secret length: ${secret.length}, body length: ${rawBody.length})`
+    );
     return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
   }
 
