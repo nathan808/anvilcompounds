@@ -1,15 +1,23 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
 import { BOGO_ENABLED } from "@/lib/bogoDiscount";
 
-const SHOW_AFTER_MS = 5000;
+const SHOW_AFTER_MS = 12000;
 // sessionStorage (not localStorage) — the popup should reappear once per
 // browser session (new tab/window or after the browser fully closes), not
 // stay dismissed forever after the first time a visitor ever sees it.
 const SEEN_KEY = "anvil_bogo_popup_seen";
+
+// Only fires on Home, the COA library (+ its guide pages), and Learn — not
+// cart/checkout/account/product pages, where a BOGO interruption is more
+// likely to distract from a task the visitor's already mid-way through.
+function isAllowedPath(pathname: string): boolean {
+  return pathname === "/" || pathname === "/learn" || pathname === "/coas" || pathname.startsWith("/coas/");
+}
 
 // AgeGate.tsx sits at z-[999] and blocks the whole page until dismissed —
 // replicates its own storage check so the 5s countdown only starts once
@@ -32,11 +40,13 @@ function isAgeGateBlocking(): boolean {
 
 export default function BogoPopup() {
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     if (!BOGO_ENABLED) return;
     if (typeof window === "undefined") return;
     if (sessionStorage.getItem(SEEN_KEY)) return;
+    if (!isAllowedPath(pathname)) return;
 
     let cancelled = false;
     let showTimer: ReturnType<typeof setTimeout> | undefined;
@@ -68,7 +78,7 @@ export default function BogoPopup() {
       clearInterval(poll);
       if (showTimer) clearTimeout(showTimer);
     };
-  }, []);
+  }, [pathname]);
 
   const close = () => setOpen(false);
 
@@ -98,7 +108,7 @@ export default function BogoPopup() {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.94, y: 10 }}
             transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-            className="relative w-full max-w-xl rounded-2xl overflow-hidden shadow-2xl"
+            className="relative w-full max-w-[490px] rounded-2xl overflow-hidden shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Close button */}
@@ -113,37 +123,23 @@ export default function BogoPopup() {
             </button>
 
             <div className="bg-white">
-              {/* Desktop art */}
-              <div className="hidden md:block relative w-full" style={{ aspectRatio: "2400 / 1339" }}>
+              {/* Single banner art — the "Shop now" call to action is baked into
+                  the artwork itself, so the whole image is one link rather than
+                  pairing it with a separate coded button underneath. */}
+              <a
+                href="/catalog?catalog=full"
+                onClick={close}
+                className="relative block w-full"
+                style={{ aspectRatio: "1320 / 1656" }}
+              >
                 <Image
-                  src="/images/homepage/banner-b1g1-desktop.jpg"
-                  alt="Buy one vial, get the second free — every 2nd matching vial free, automatic at checkout, plus free bacteriostatic water with every pair"
+                  src="/images/homepage/banner-b1g1.jpg"
+                  alt="Buy one, get one free — plus a free 3ml bacteriostatic water with every order, free USA shipping, ships same day. Shop now."
                   fill
                   className="object-contain"
-                  sizes="(min-width: 768px) 576px"
+                  sizes="(min-width: 768px) 490px, 90vw"
                 />
-              </div>
-
-              {/* Mobile art */}
-              <div className="md:hidden relative w-full" style={{ aspectRatio: "1080 / 1395" }}>
-                <Image
-                  src="/images/homepage/banner-b1g1-mobile.jpg"
-                  alt="Buy one vial, get the second free — every 2nd matching vial free, automatic at checkout, plus free bacteriostatic water with every pair"
-                  fill
-                  className="object-contain"
-                  sizes="90vw"
-                />
-              </div>
-
-              <div className="p-4">
-                <a
-                  href="/catalog?catalog=full"
-                  onClick={close}
-                  className="block w-full text-center py-3.5 bg-mock-cobalt hover:bg-mock-cobaltInk text-white font-display font-700 text-base rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-mock-cobalt/30"
-                >
-                  Shop Now →
-                </a>
-              </div>
+              </a>
             </div>
           </motion.div>
         </motion.div>
