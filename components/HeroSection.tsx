@@ -47,7 +47,7 @@ export default function HeroSection() {
             spacer, content at the very top of the flow renders underneath
             the taller navbar+promo stack instead of below it. */}
         {BOGO_ENABLED && <div className="h-9" />}
-        <div className="max-w-7xl mx-auto px-2 sm:px-6 md:px-10 pt-14 pb-10 md:pt-12 md:pb-12">
+        <div className="max-w-7xl mx-auto px-2 sm:px-6 md:px-10 pt-16 pb-10 md:pt-14 md:pb-12">
           <div className="grid lg:grid-cols-[1.15fr_0.85fr] gap-3 lg:gap-6 items-center">
           <motion.div
             variants={container}

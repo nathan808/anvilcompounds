@@ -2,12 +2,15 @@ import ProductHero from "@/components/ProductHero";
 import LoopVideo from "@/components/LoopVideo";
 import ViewContentPixel from "@/components/ViewContentPixel";
 import InfoBlock from "@/components/InfoBlock";
-import ReconstitutionGuide from "@/components/ReconstitutionGuide";
 import ProductFaqBlock from "@/components/ProductFaqBlock";
 import { ProductCard as CatalogProductCard } from "@/components/ProductsSection";
 import { PRODUCT_MECHANISMS } from "@/lib/productMechanisms";
-import { parseReconVials } from "@/lib/reconstitution";
 import type { ProductCard } from "@/lib/woocommerce";
+
+// AC3R/AC2T's SDS-derived mechanism narrative reads as redundant next to
+// their Properties table on those two specific product pages — everywhere
+// else the Mechanisms block still renders normally.
+const HIDE_MECHANISMS_SLUGS = new Set(["ac3r", "ac2t"]);
 
 // ─── Data interface ────────────────────────────────────────────────────────────
 
@@ -159,12 +162,12 @@ function MechanismDiagram({
 // handful of products (multi-peptide blends, reconstitution solvent) whose
 // SDS has no unified mechanism narrative to draw from — see
 // lib/productMechanisms.ts for exactly which products and why.
-function MechanismsBlock({ product }: { product: ProductPageData }) {
+function MechanismsBlock({ product, number }: { product: ProductPageData; number: string }) {
   const mechanism = PRODUCT_MECHANISMS[product.slug];
 
   if (mechanism) {
     return (
-      <InfoBlock number="02" label={mechanism.sectionTitle}>
+      <InfoBlock number={number} label={mechanism.sectionTitle}>
         <div className="bg-white border border-mock-line rounded-2xl p-8 space-y-6">
           <p className="font-body text-mock-sub leading-relaxed">{mechanism.intro}</p>
 
@@ -189,7 +192,7 @@ function MechanismsBlock({ product }: { product: ProductPageData }) {
   }
 
   return (
-    <InfoBlock number="02" label="Research Applications">
+    <InfoBlock number={number} label="Research Applications">
       <div className="bg-white border border-mock-line rounded-2xl p-8">
         <ol className="space-y-5">
           {product.researchApplications.map((item, i) => (
@@ -213,12 +216,23 @@ export default function ProductPageTemplate({
 }: {
   product: ProductPageData;
 }) {
+  // Section numbers are assigned in render order rather than hardcoded, so
+  // skipping Mechanisms (AC3R/AC2T) never leaves a numbering gap.
+  let sectionCount = 0;
+  const nextNumber = () => String(++sectionCount).padStart(2, "0");
+  const showMechanisms = !HIDE_MECHANISMS_SLUGS.has(product.slug);
+
+  const whatItIsNumber = nextNumber();
+  const mechanismsNumber = showMechanisms ? nextNumber() : null;
+  const faqNumber = nextNumber();
+  const relatedNumber = product.relatedProducts.length > 0 ? nextNumber() : null;
+
   return (
     <>
       <ViewContentPixel wcProductId={product.wcProductId} name={product.name} price={product.priceNumber} />
       <ProductHero product={product} />
 
-      {/* ── SECTIONS 1-4 — Combined info block ────────────────────────────
+      {/* ── SECTIONS — Combined info block ────────────────────────────────
           One continuous section instead of stacked ones: every block
           shares the same bg-mock-page. Each block is now a collapsed-by-
           default accordion row (see InfoBlock), so a tight space-y reads as
@@ -227,55 +241,49 @@ export default function ProductPageTemplate({
       <section className="bg-mock-page py-12">
         <div className="max-w-5xl mx-auto px-6 space-y-4">
 
-          <InfoBlock number="01" label="What it is">
-            <WithMoleculeVisual
-              image={!product.compositionBody ? product.moleculeImage : null}
-              productName={product.name}
-            >
-              <div className="bg-white border border-mock-line rounded-2xl p-8">
-                <p className="font-display font-700 text-mock-navy text-xl mb-4">
-                  {product.whatItIsSubtitle}
-                </p>
-                <p className="font-body text-mock-sub leading-relaxed">
-                  {product.whatItIsBody}
-                </p>
+          <InfoBlock number={whatItIsNumber} label="What it is">
+            <div className="space-y-4">
+              <WithMoleculeVisual
+                image={!product.compositionBody ? product.moleculeImage : null}
+                productName={product.name}
+              >
+                <div className="bg-white border border-mock-line rounded-2xl p-8">
+                  <p className="font-display font-700 text-mock-navy text-xl mb-4">
+                    {product.whatItIsSubtitle}
+                  </p>
+                  <p className="font-body text-mock-sub leading-relaxed">
+                    {product.whatItIsBody}
+                  </p>
+                </div>
+              </WithMoleculeVisual>
+
+              <div className="bg-white border border-mock-line rounded-2xl overflow-hidden">
+                <table className="w-full">
+                  <tbody>
+                    {product.propertiesTable.map((row, i) => (
+                      <tr
+                        key={row.label}
+                        className={`border-b border-mock-line last:border-0 ${
+                          i % 2 === 0 ? "bg-mock-surface2" : ""
+                        }`}
+                      >
+                        <td className="px-6 md:px-8 py-4 font-mono text-xs text-mock-sub tracking-widest uppercase whitespace-nowrap align-top w-48">
+                          {row.label}
+                        </td>
+                        <td className="px-6 md:px-8 py-4 font-body text-sm text-mock-navy leading-relaxed">
+                          {row.value}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
-            </WithMoleculeVisual>
-          </InfoBlock>
-
-          <MechanismsBlock product={product} />
-
-          <InfoBlock number="03" label="Properties">
-            <div className="bg-white border border-mock-line rounded-2xl overflow-hidden">
-              <table className="w-full">
-                <tbody>
-                  {product.propertiesTable.map((row, i) => (
-                    <tr
-                      key={row.label}
-                      className={`border-b border-mock-line last:border-0 ${
-                        i % 2 === 0 ? "bg-mock-surface2" : ""
-                      }`}
-                    >
-                      <td className="px-6 md:px-8 py-4 font-mono text-xs text-mock-sub tracking-widest uppercase whitespace-nowrap align-top w-48">
-                        {row.label}
-                      </td>
-                      <td className="px-6 md:px-8 py-4 font-body text-sm text-mock-navy leading-relaxed">
-                        {row.value}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
             </div>
           </InfoBlock>
 
-          {parseReconVials(product.sizes).length > 0 && (
-            <InfoBlock number="04" label="Reconstitution Guide">
-              <ReconstitutionGuide slug={product.slug} sizes={product.sizes} />
-            </InfoBlock>
-          )}
+          {showMechanisms && <MechanismsBlock product={product} number={mechanismsNumber!} />}
 
-          <InfoBlock number="05" label="FAQ">
+          <InfoBlock number={faqNumber} label="FAQ">
             <ProductFaqBlock />
           </InfoBlock>
 
@@ -314,7 +322,7 @@ export default function ProductPageTemplate({
       {/* ── SECTION — Related compounds ──────────────────────────────────── */}
       {product.relatedProducts.length > 0 && (
         <Section>
-          <SectionLabel number="06" label="Related Research" />
+          <SectionLabel number={relatedNumber!} label="Related Research" />
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {product.relatedProducts.map((rel, i) => (
               <CatalogProductCard key={rel.id} product={rel} index={i} />

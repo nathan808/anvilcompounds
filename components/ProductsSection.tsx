@@ -115,17 +115,21 @@ const SLUG_MAP: Record<string, string> = {
   "Selank":                                       "selank",
 };
 
-// Pinned leading row (Aug 2026) — these five always lead the grid in this
-// exact order, ahead of the live/gated + popularity sort below. Everything
-// not listed here falls through to that normal sort untouched.
+// Pinned leading row (Sep 2026) — these always lead the grid in this exact
+// order, ahead of the live/gated + popularity sort below. Everything not
+// listed here falls through to that normal sort untouched. AC3R/AC2T are
+// pinned right after the 5-wide first row (lg:grid-cols-5) so they lead
+// row 2 instead of dropping into the ordinary popularity sort.
 const LEADING_ROW_ORDER: Record<string, number> = {
-  "GLP-RT":  0,
-  "AC3R":    0,
-  "GLP-TRZ": 1,
-  "AC2T":    1,
+  "BPC-157 + TB-500": 0,
+  "KLOW":    1,
   "GLOW":    2,
   "BPC-157": 3,
   "GHK-Cu":  4,
+  "GLP-RT":  5,
+  "AC3R":    5,
+  "GLP-TRZ": 6,
+  "AC2T":    6,
 };
 
 // Popularity rank — lower = more popular (shown first)

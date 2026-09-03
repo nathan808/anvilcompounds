@@ -14,8 +14,7 @@ const PREVIEW_SLUGS: Record<string, string> = {
   "BPC-157": "bpc-157",
   "GHK-Cu": "ghk-cu",
   "TB-500": "tb-500",
-  "GLP-RT": "ac3r",
-  "AC3R": "ac3r",
+  "BPC-157 + TB-500": "bpc-157-tb-500",
   KLOW: "klow",
 };
 

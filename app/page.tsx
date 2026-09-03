@@ -14,7 +14,7 @@ import { getProducts } from "@/lib/woocommerce";
 // The 5 featured compounds shown unverified as a catalog preview on the
 // homepage. Everything else (pricing, the rest of the catalog) stays
 // behind the gate.
-const PREVIEW_NAMES = ["AC3R", "BPC-157", "GHK-Cu", "TB-500", "KLOW"];
+const PREVIEW_NAMES = ["BPC-157 + TB-500", "BPC-157", "GHK-Cu", "TB-500", "KLOW"];
 const BUNDLE_NAMES = ["Energy Research Bundle", "GHRH Bundle", "Metabolic Research Bundle", "Full Research Bundle", "Cognitive Research Bundle"];
 
 export default async function Home() {
