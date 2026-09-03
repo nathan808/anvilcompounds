@@ -1,5 +1,6 @@
 import ProductHero from "@/components/ProductHero";
 import LoopVideo from "@/components/LoopVideo";
+import ViewContentPixel from "@/components/ViewContentPixel";
 import InfoBlock from "@/components/InfoBlock";
 import ReconstitutionGuide from "@/components/ReconstitutionGuide";
 import ProductFaqBlock from "@/components/ProductFaqBlock";
@@ -214,6 +215,7 @@ export default function ProductPageTemplate({
 }) {
   return (
     <>
+      <ViewContentPixel wcProductId={product.wcProductId} name={product.name} price={product.priceNumber} />
       <ProductHero product={product} />
 
       {/* ── SECTIONS 1-4 — Combined info block ────────────────────────────

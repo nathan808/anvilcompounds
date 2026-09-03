@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/authContext";
 import { useCart } from "@/lib/cartContext";
 import { useCheckout } from "@/lib/checkoutContext";
+import { trackMetaEvent } from "@/lib/metaPixel";
 
 const US_STATES = [
   "AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA",
@@ -24,6 +25,7 @@ export default function Step1Form() {
 
   const capturedEmailRef = useRef<string | null>(null);
   const blurTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const initiateCheckoutFiredRef = useRef(false);
 
   useEffect(() => {
     if (user?.email && !step1.email) {
@@ -76,6 +78,17 @@ export default function Step1Form() {
       setSubmitAttempted(true);
       return;
     }
+    if (!initiateCheckoutFiredRef.current) {
+      initiateCheckoutFiredRef.current = true;
+      trackMetaEvent("InitiateCheckout", {
+        content_ids: items.map((i) => String(i.wcProductId)),
+        content_type: "product",
+        num_items: items.reduce((s, i) => s + i.quantity, 0),
+        value: subtotal,
+        currency: "USD",
+      });
+    }
+
     router.push("/checkout/shipping");
   };
 
