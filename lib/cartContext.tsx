@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { getDiscountedPrice, MAX_QTY_PER_ITEM } from "@/lib/volumePricing";
+import { trackMetaEvent } from "@/lib/metaPixel";
 
 export interface CartItem {
   slug: string;
@@ -79,6 +80,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
       const base = item.basePrice ?? item.price;
       const discountedPrice = getDiscountedPrice(base, cappedQty);
       return [...prev, { ...item, quantity: cappedQty, price: discountedPrice, basePrice: base }];
+    });
+
+    trackMetaEvent("AddToCart", {
+      content_ids: [String(item.wcProductId)],
+      content_type: "product",
+      content_name: item.name,
+      value: item.price * qty,
+      currency: "USD",
     });
 
     // Fire-and-forget Omnisend "Added to Cart" event — never blocks cart
