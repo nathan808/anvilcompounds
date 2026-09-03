@@ -242,6 +242,11 @@ function JournalPostCard({ post }: { post: PostCardData }) {
   );
 }
 
+// Hidden from the Journal listing per the store owner's request — posts
+// tagged "The Science" still exist in WordPress (direct /blog/[slug] links
+// and the sitemap are untouched), they just don't show up on this page.
+const HIDDEN_CATEGORIES = new Set(["The Science"]);
+
 function JournalTab() {
   const [posts, setPosts] = useState<PostCardData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -249,7 +254,10 @@ function JournalTab() {
   useEffect(() => {
     fetch("/api/blog")
       .then((r) => r.json())
-      .then((data) => setPosts(Array.isArray(data.posts) ? data.posts : []))
+      .then((data) => {
+        const all: PostCardData[] = Array.isArray(data.posts) ? data.posts : [];
+        setPosts(all.filter((p) => !p.categories.some((c) => HIDDEN_CATEGORIES.has(c))));
+      })
       .catch(() => setPosts([]))
       .finally(() => setLoading(false));
   }, []);
