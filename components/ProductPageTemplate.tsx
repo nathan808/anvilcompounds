@@ -134,7 +134,7 @@ function MechanismDiagram({
     <div className="rounded-xl border border-mock-line bg-mock-surface2 p-5 md:p-6">
       <div className="flex flex-col md:flex-row gap-4 md:items-center">
         <div className="shrink-0 md:self-stretch flex items-center">
-          <div className="px-4 py-3 rounded-lg bg-mock-graphite border border-mock-cobalt/30 text-center md:min-w-[140px]">
+          <div className="px-4 py-3 rounded-lg bg-mock-cobalt border border-white/10 text-center md:min-w-[140px]">
             <span className="font-display font-700 text-white text-sm leading-tight">{root}</span>
           </div>
         </div>
