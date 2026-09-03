@@ -43,23 +43,26 @@ function verifySignature(rawBody: string, signatureHeader: string | null, secret
 export async function POST(req: NextRequest) {
   const rawBody = await req.text();
 
-  let order: WCOrderWebhookPayload;
+  // WooCommerce's "Save webhook" button in wp-admin fires an UNSIGNED
+  // connectivity ping before any real order data ever flows through this
+  // URL (confirmed via production logs: no X-WC-Webhook-Signature header,
+  // 13-byte body). Its exact shape isn't documented and apparently isn't
+  // even always valid JSON, so anything that doesn't parse into a real
+  // order (id + status) is treated the same way — skipped with a 200,
+  // never a 400/401 — since there's nothing in it worth authenticating or
+  // erroring over. A payload that DOES parse into id + status is a real
+  // order event and is NOT let through without a verified signature below.
+  let order: Partial<WCOrderWebhookPayload> = {};
   try {
     order = JSON.parse(rawBody);
   } catch {
-    return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
+    console.log(`[wc-order-status webhook] non-JSON body, treating as ping (length ${rawBody.length}): ${rawBody.slice(0, 200)}`);
   }
-
-  // WooCommerce's "Save webhook" button in wp-admin fires an UNSIGNED
-  // connectivity ping (a tiny {"test":true}-shaped body, no X-WC-Webhook-
-  // Signature header at all — confirmed via production logs) before any
-  // real order data ever flows through this URL. It carries nothing worth
-  // authenticating, so it's checked and skipped here, before the signature
-  // gate below — real order deliveries always carry id + status and are
-  // NOT let through without a verified signature.
   if (!order?.id || !order.status) {
     return NextResponse.json({ ok: true, skipped: "not_an_order_event" });
   }
+  // Narrowed: id + status just confirmed present, so this is a real order payload.
+  const confirmedOrder = order as WCOrderWebhookPayload;
 
   // Trimmed defensively — a stray trailing newline from pasting into an env
   // var textarea (Vercel's Value field, unlike a single-line admin input,
@@ -75,40 +78,40 @@ export async function POST(req: NextRequest) {
   if (!verifySignature(rawBody, signature, secret)) {
     // Lengths only — never log the secret or the raw signature value.
     console.warn(
-      `[wc-order-status webhook] FAIL: signature mismatch for order ${order.id} (header present: ${!!signature}, header length: ${signature?.length ?? 0}, secret length: ${secret.length}, body length: ${rawBody.length})`
+      `[wc-order-status webhook] FAIL: signature mismatch for order ${confirmedOrder.id} (header present: ${!!signature}, header length: ${signature?.length ?? 0}, secret length: ${secret.length}, body length: ${rawBody.length})`
     );
     return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
   }
 
-  if (!CONFIRMED_STATUSES.has(order.status)) {
-    return NextResponse.json({ ok: true, skipped: `status_${order.status}` });
+  if (!CONFIRMED_STATUSES.has(confirmedOrder.status)) {
+    return NextResponse.json({ ok: true, skipped: `status_${confirmedOrder.status}` });
   }
 
   // Idempotency: WC fires this webhook on every order save (e.g. a later
   // shipping-label update), not just the on-hold -> processing transition,
   // so without this flag a single paid order could fire Purchase repeatedly.
-  const alreadySent = order.meta_data?.some(
+  const alreadySent = confirmedOrder.meta_data?.some(
     (m) => m.key === PURCHASE_SENT_META_KEY && m.value === "yes"
   );
   if (alreadySent) {
     return NextResponse.json({ ok: true, skipped: "already_sent" });
   }
 
-  const contentIds = (order.line_items ?? []).map((li) => String(li.product_id));
+  const contentIds = (confirmedOrder.line_items ?? []).map((li) => String(li.product_id));
 
   const capiResult = await sendMetaCapiPurchase({
-    eventId: `order_${order.id}`,
-    orderTotal: parseFloat(order.total),
-    currency: order.currency || "USD",
+    eventId: `order_${confirmedOrder.id}`,
+    orderTotal: parseFloat(confirmedOrder.total),
+    currency: confirmedOrder.currency || "USD",
     contentIds,
-    email: order.billing?.email,
-    phone: order.billing?.phone,
+    email: confirmedOrder.billing?.email,
+    phone: confirmedOrder.billing?.phone,
     eventSourceUrl: `${SITE_URL}/checkout/confirmation`,
   });
 
   if (!capiResult.ok) {
     console.error(
-      `[wc-order-status webhook] Meta CAPI send failed for order ${order.id}`,
+      `[wc-order-status webhook] Meta CAPI send failed for order ${confirmedOrder.id}`,
       capiResult.status,
       capiResult.body
     );
@@ -121,13 +124,13 @@ export async function POST(req: NextRequest) {
   if (url && key && wcSecret) {
     const auth = Buffer.from(`${key}:${wcSecret}`).toString("base64");
     try {
-      await fetch(`${url}/wp-json/wc/v3/orders/${order.id}`, {
+      await fetch(`${url}/wp-json/wc/v3/orders/${confirmedOrder.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json", Authorization: `Basic ${auth}` },
         body: JSON.stringify({ meta_data: [{ key: PURCHASE_SENT_META_KEY, value: "yes" }] }),
       });
     } catch (err) {
-      console.error(`[wc-order-status webhook] FAIL: could not flag order ${order.id} as sent`, err);
+      console.error(`[wc-order-status webhook] FAIL: could not flag order ${confirmedOrder.id} as sent`, err);
     }
   }
 
