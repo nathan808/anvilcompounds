@@ -41,6 +41,26 @@ function verifySignature(rawBody: string, signatureHeader: string | null, secret
 }
 
 export async function POST(req: NextRequest) {
+  const rawBody = await req.text();
+
+  let order: WCOrderWebhookPayload;
+  try {
+    order = JSON.parse(rawBody);
+  } catch {
+    return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
+  }
+
+  // WooCommerce's "Save webhook" button in wp-admin fires an UNSIGNED
+  // connectivity ping (a tiny {"test":true}-shaped body, no X-WC-Webhook-
+  // Signature header at all — confirmed via production logs) before any
+  // real order data ever flows through this URL. It carries nothing worth
+  // authenticating, so it's checked and skipped here, before the signature
+  // gate below — real order deliveries always carry id + status and are
+  // NOT let through without a verified signature.
+  if (!order?.id || !order.status) {
+    return NextResponse.json({ ok: true, skipped: "not_an_order_event" });
+  }
+
   // Trimmed defensively — a stray trailing newline from pasting into an env
   // var textarea (Vercel's Value field, unlike a single-line admin input,
   // doesn't strip it) silently breaks the HMAC comparison with no visible
@@ -51,27 +71,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Not configured" }, { status: 500 });
   }
 
-  const rawBody = await req.text();
   const signature = req.headers.get("x-wc-webhook-signature")?.trim() ?? null;
   if (!verifySignature(rawBody, signature, secret)) {
     // Lengths only — never log the secret or the raw signature value.
     console.warn(
-      `[wc-order-status webhook] FAIL: signature mismatch (header present: ${!!signature}, header length: ${signature?.length ?? 0}, secret length: ${secret.length}, body length: ${rawBody.length})`
+      `[wc-order-status webhook] FAIL: signature mismatch for order ${order.id} (header present: ${!!signature}, header length: ${signature?.length ?? 0}, secret length: ${secret.length}, body length: ${rawBody.length})`
     );
     return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
-  }
-
-  let order: WCOrderWebhookPayload;
-  try {
-    order = JSON.parse(rawBody);
-  } catch {
-    return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
-  }
-
-  // WooCommerce pings this URL with a near-empty payload when the webhook
-  // is first created/enabled in wp-admin — nothing to process there.
-  if (!order?.id || !order.status) {
-    return NextResponse.json({ ok: true, skipped: "not_an_order_event" });
   }
 
   if (!CONFIRMED_STATUSES.has(order.status)) {
