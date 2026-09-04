@@ -34,6 +34,7 @@ export async function GET(req: NextRequest) {
   const auth = Buffer.from(`${wcKey}:${wcSecret}`).toString("base64");
   const res = await fetch(`${url}/wp-json/wc/v3/orders/${orderId}`, {
     headers: { Authorization: `Basic ${auth}` },
+    cache: "no-store",
   });
 
   if (!res.ok) {

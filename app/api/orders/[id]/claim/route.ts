@@ -38,6 +38,7 @@ export async function POST(
 
   const orderRes = await fetch(`${wcUrl}/wp-json/wc/v3/orders/${params.id}`, {
     headers: { Authorization: auth },
+    cache: "no-store",
   });
   if (!orderRes.ok) {
     return NextResponse.json({ error: "Order not found" }, { status: 404 });

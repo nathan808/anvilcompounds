@@ -71,6 +71,7 @@ export async function POST(req: NextRequest) {
 
   const orderRes = await fetch(`${wcUrl}/wp-json/wc/v3/orders/${orderId}`, {
     headers: { Authorization: auth },
+    cache: "no-store",
   });
   if (!orderRes.ok) {
     return NextResponse.json({ error: "Order not found." }, { status: 404 });
@@ -82,6 +83,7 @@ export async function POST(req: NextRequest) {
 
   const customerRes = await fetch(`${wcUrl}/wp-json/wc/v3/customers/${customerId}`, {
     headers: { Authorization: auth },
+    cache: "no-store",
   });
   const customer = customerRes.ok
     ? ((await customerRes.json()) as { email?: string; first_name?: string; last_name?: string })

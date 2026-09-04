@@ -86,6 +86,7 @@ export async function GET(
 
   const orderRes = await fetch(`${wcUrl}/wp-json/wc/v3/orders/${params.id}`, {
     headers: { Authorization: auth },
+    cache: "no-store",
   });
   if (!orderRes.ok) {
     return NextResponse.json(
@@ -103,6 +104,7 @@ export async function GET(
   try {
     const notesRes = await fetch(`${wcUrl}/wp-json/wc/v3/orders/${params.id}/notes`, {
       headers: { Authorization: auth },
+      cache: "no-store",
     });
     if (notesRes.ok) {
       const notes = (await notesRes.json()) as WCOrderNote[];

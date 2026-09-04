@@ -47,6 +47,7 @@ async function fetchWcOrder(orderId: number): Promise<WcOrderForBankful> {
 
   const auth = Buffer.from(`${key}:${secret}`).toString("base64");
   const res = await fetch(`${url}/wp-json/wc/v3/orders/${orderId}`, {
+    cache: "no-store",
     headers: { Authorization: `Basic ${auth}` },
   });
   if (!res.ok) throw new Error(`WC order fetch failed: ${res.status}`);

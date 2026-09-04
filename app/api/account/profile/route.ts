@@ -63,6 +63,7 @@ export async function GET(req: NextRequest) {
 
   const res = await fetch(`${wcUrl}/wp-json/wc/v3/customers/${customerId}`, {
     headers: { Authorization: auth },
+    cache: "no-store",
   });
   if (!res.ok) {
     return NextResponse.json({ error: "Could not load account details" }, { status: res.status });
@@ -113,6 +114,7 @@ export async function PUT(req: NextRequest) {
   // address set via the Addresses tab.
   const currentRes = await fetch(`${wcUrl}/wp-json/wc/v3/customers/${customerId}`, {
     headers: { Authorization: auth },
+    cache: "no-store",
   });
   if (!currentRes.ok) {
     console.error(`[account/profile:${customerId}] WC fetch-before-merge failed (${currentRes.status})`);

@@ -118,6 +118,7 @@ export async function GET(req: NextRequest) {
 
   const res = await fetch(`${wcUrl}/wp-json/wc/v3/customers/${customerId}`, {
     headers: { Authorization: auth },
+    cache: "no-store",
   });
   if (!res.ok) {
     return NextResponse.json({ error: "Could not load addresses" }, { status: res.status });
@@ -157,6 +158,7 @@ export async function PUT(req: NextRequest) {
   // doesn't own) rather than wiping them.
   const currentRes = await fetch(`${wcUrl}/wp-json/wc/v3/customers/${customerId}`, {
     headers: { Authorization: auth },
+    cache: "no-store",
   });
   if (!currentRes.ok) {
     return NextResponse.json({ error: "Could not update addresses" }, { status: currentRes.status });

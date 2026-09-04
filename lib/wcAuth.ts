@@ -57,6 +57,7 @@ export async function findWcCustomerByEmail(email: string): Promise<WCCustomer |
   try {
     const res = await fetch(`${wcUrl}/wp-json/wc/v3/customers?email=${encodeURIComponent(email)}`, {
       headers: { Authorization: auth },
+      cache: "no-store",
     });
     if (!res.ok) return null;
     const customers = (await res.json()) as WCCustomer[];
@@ -85,7 +86,7 @@ export async function findWcCustomerByPhone(phone: string): Promise<WCCustomer |
   try {
     const lookupRes = await fetch(
       `${wcUrl}/wp-json/anvil/v1/customer-by-phone?phone=${encodeURIComponent(e164)}`,
-      { headers: { "x-anvil-secret": lookupSecret } }
+      { headers: { "x-anvil-secret": lookupSecret }, cache: "no-store" }
     );
     if (!lookupRes.ok) return null;
     const { id } = (await lookupRes.json()) as { id: number | null };
@@ -93,6 +94,7 @@ export async function findWcCustomerByPhone(phone: string): Promise<WCCustomer |
 
     const custRes = await fetch(`${wcUrl}/wp-json/wc/v3/customers/${id}`, {
       headers: { Authorization: auth },
+      cache: "no-store",
     });
     if (!custRes.ok) return null;
     return (await custRes.json()) as WCCustomer;
