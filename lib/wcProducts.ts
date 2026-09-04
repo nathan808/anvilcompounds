@@ -52,7 +52,7 @@ export async function resolveLineItem(
   const auth = Buffer.from(`${key}:${secret}`).toString("base64");
   const headers = { Authorization: `Basic ${auth}` };
 
-  const productRes = await fetch(`${url}/wp-json/wc/v3/products/${productId}`, { headers });
+  const productRes = await fetch(`${url}/wp-json/wc/v3/products/${productId}`, { headers, cache: "no-store" });
   if (!productRes.ok) return null;
   const product: WcProduct = await productRes.json();
 
@@ -62,7 +62,7 @@ export async function resolveLineItem(
   let inStock = product.stock_status !== "outofstock";
 
   if (product.type === "variable") {
-    const varRes = await fetch(`${url}/wp-json/wc/v3/products/${productId}/variations?per_page=50`, { headers });
+    const varRes = await fetch(`${url}/wp-json/wc/v3/products/${productId}/variations?per_page=50`, { headers, cache: "no-store" });
     if (varRes.ok) {
       const variations: WcVariation[] = await varRes.json();
       const match = variations.find((v) => v.attributes.some((a) => a.name === "Size" && a.option === size));

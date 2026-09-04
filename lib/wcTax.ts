@@ -24,6 +24,7 @@ export async function fetchTaxRate(state: string): Promise<TaxRateInfo> {
   const auth = Buffer.from(`${key}:${secret}`).toString("base64");
   const res = await fetch(`${url}/wp-json/wc/v3/taxes?per_page=100`, {
     headers: { Authorization: `Basic ${auth}` },
+    cache: "no-store",
   });
   if (!res.ok) throw new Error(`WC taxes fetch failed: ${res.status}`);
 

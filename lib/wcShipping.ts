@@ -56,13 +56,13 @@ export async function fetchShippingOptions(postCouponSubtotal: number, hasCoupon
   const auth = Buffer.from(`${key}:${secret}`).toString("base64");
   const headers = { Authorization: `Basic ${auth}` };
 
-  const zonesRes = await fetch(`${url}/wp-json/wc/v3/shipping/zones`, { headers });
+  const zonesRes = await fetch(`${url}/wp-json/wc/v3/shipping/zones`, { headers, cache: "no-store" });
   if (!zonesRes.ok) throw new Error(`zones fetch failed: ${zonesRes.status}`);
   const zones = (await zonesRes.json()) as WcZone[];
 
   let usZoneId: number | null = null;
   for (const zone of zones) {
-    const locRes = await fetch(`${url}/wp-json/wc/v3/shipping/zones/${zone.id}/locations`, { headers });
+    const locRes = await fetch(`${url}/wp-json/wc/v3/shipping/zones/${zone.id}/locations`, { headers, cache: "no-store" });
     if (!locRes.ok) continue;
     const locations = (await locRes.json()) as WcZoneLocation[];
     if (locations.some((l) => l.type === "country" && l.code === "US")) {
@@ -73,7 +73,7 @@ export async function fetchShippingOptions(postCouponSubtotal: number, hasCoupon
 
   if (usZoneId === null) throw new Error("No shipping zone configured for US");
 
-  const methodsRes = await fetch(`${url}/wp-json/wc/v3/shipping/zones/${usZoneId}/methods`, { headers });
+  const methodsRes = await fetch(`${url}/wp-json/wc/v3/shipping/zones/${usZoneId}/methods`, { headers, cache: "no-store" });
   if (!methodsRes.ok) throw new Error(`methods fetch failed: ${methodsRes.status}`);
   const methods = (await methodsRes.json()) as WcShippingMethod[];
 

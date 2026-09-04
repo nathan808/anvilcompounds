@@ -29,7 +29,7 @@ export async function validateCoupon(rawCode: string, subtotal: number): Promise
   const auth = Buffer.from(`${key}:${secret}`).toString("base64");
   const res = await fetch(
     `${url}/wp-json/wc/v3/coupons?code=${encodeURIComponent(code)}&per_page=1`,
-    { headers: { Authorization: `Basic ${auth}` } }
+    { headers: { Authorization: `Basic ${auth}` }, cache: "no-store" }
   );
   if (!res.ok) throw new Error(`WC coupons fetch failed: ${res.status}`);
 
