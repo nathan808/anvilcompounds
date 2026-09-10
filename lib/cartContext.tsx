@@ -70,7 +70,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       if (existing) {
         const newQty = Math.min(MAX_QTY_PER_ITEM, existing.quantity + qty);
         return prev.map((i) =>
-          i.slug === item.slug && i.size === item.size ? { ...i, quantity: newQty } : i
+          i.slug === item.slug && i.size === item.size ? { ...i, ...item, quantity: newQty } : i
         );
       }
       const cappedQty = Math.min(MAX_QTY_PER_ITEM, qty);
