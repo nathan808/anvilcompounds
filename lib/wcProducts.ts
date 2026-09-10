@@ -71,9 +71,23 @@ export async function resolveLineItem(
         regularPrice = parseFloat(match.regular_price || match.price || String(regularPrice));
         variationId = match.id;
         inStock = match.stock_status !== "outofstock";
+      } else if (variations.length) {
+        // No matching size (e.g. catalog quick-add's "Standard") — resolve
+        // to the same minimum-price variation getProducts() used to build
+        // the catalog card's displayed price/originalPrice, instead of the
+        // parent product's own price/regular_price. WC only sets
+        // regular_price at the variation level for a variable product, so
+        // the parent's regular_price is empty and that fallback collapsed
+        // unitPrice === regularPrice (no Base/Single gap) — silently
+        // zeroing out the B1G1 discount's Base reference and mismatching
+        // what the client (which read the real per-variation regular_price)
+        // had already computed. See CART_CHANGED investigation, 2026-09-10.
+        const cheapest = [...variations].sort((a, b) => parseFloat(a.price || "0") - parseFloat(b.price || "0"))[0];
+        unitPrice = parseFloat(cheapest.price || cheapest.regular_price || String(unitPrice));
+        regularPrice = parseFloat(cheapest.regular_price || cheapest.price || String(regularPrice));
+        variationId = cheapest.id;
+        inStock = cheapest.stock_status !== "outofstock";
       }
-      // No matching size (e.g. catalog quick-add's "Standard") falls back to
-      // the parent product's own price/stock — same fallback getProductPageData() uses.
     }
   }
 
