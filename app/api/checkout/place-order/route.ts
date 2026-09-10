@@ -10,6 +10,7 @@ import { PAYMENT_CONFIG } from "@/lib/paymentConfig";
 import { computeVolumeDiscount, VOLUME_DISCOUNT_LABEL } from "@/lib/volumeDiscount";
 import { MAX_QTY_PER_ITEM } from "@/lib/volumePricing";
 import { computeBogoDiscount, computeBogoLineDiscount, BOGO_ENABLED, BOGO_LABEL, FREE_GIFT_PRODUCT_ID, FREE_GIFT_VARIATION_ID, BUNDLE_PRODUCT_IDS } from "@/lib/bogoDiscount";
+import jwt from "jsonwebtoken";
 
 // The client sends ONLY identifiers and selections — never a price, total,
 // discount amount, or tax figure. Every money value below is derived
@@ -390,12 +391,51 @@ export async function POST(req: NextRequest) {
     }, { status: 500 });
   }
 
-  console.log(`[place-order:${requestId}] ── END (totals match) ──────────────────`);
+  // ── PAYMENT MIDDLEWARE INTEGRATION ──────────────────────────────────────
+  let redirectUrl: string | undefined;
+
+  if (paymentMethodId === "bacs") {
+    try {
+      const safeSku = `RG-${order.number}`;
+
+      const jobPayload = {
+        woo_order_id: order.id,
+        order_number: order.number,
+        safe_sku: safeSku,
+        amount: wcTotal,
+        customer_email: payload.billing.email,
+        customer_name: `${payload.billing.first_name} ${payload.billing.last_name}`,
+        status: "pending",
+      };
+
+      const jobRes = await fetch(`${url}/wp-json/anvil/v1/payment-jobs`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Basic ${auth}` },
+        body: JSON.stringify(jobPayload),
+      });
+
+      if (jobRes.ok) {
+        const job = await jobRes.json();
+        const token = jwt.sign(
+          { jobId: job.id, orderId: order.id },
+          process.env.PAYMENT_JWT_SECRET!,
+          { expiresIn: "1h" }
+        );
+        redirectUrl = `https://payments.achealthconsult.com/pay?token=${token}`;
+      } else {
+        console.error(`[place-order:${requestId}] Failed to insert payment job:`, await jobRes.text());
+      }
+    } catch (err) {
+      console.error(`[place-order:${requestId}] Payment middleware error:`, err);
+    }
+  }
+  // ── END PAYMENT MIDDLEWARE INTEGRATION ──────────────────────────────────
 
   return NextResponse.json({
     orderId: order.id,
     orderNumber: order.number,
     orderKey: order.order_key,
     total: wcTotal,
+    redirectUrl,
   });
 }
