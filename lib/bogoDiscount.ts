@@ -11,6 +11,11 @@ import { roundCurrency } from "@/lib/taxMath";
 // Single kill switch — flip to false and redeploy to end the promo. No date
 // logic; the store owner will ask for it to be turned off when the launch
 // window ends.
+//
+// Per-line volume tiers (3-5/6-9/10+ vials) live inside this same line
+// discount (see computeBogoLineDiscount below) rather than as a separate
+// order-level mechanism — they apply only to vials past the BOGO pair, so
+// they don't conflict with "exactly one discount mechanism at a time."
 export const BOGO_ENABLED = true;
 export const BOGO_LABEL = "Buy 1 Get 1 Free";
 
@@ -51,16 +56,39 @@ export function isBogoLineEligible(item: BogoLineItem): boolean {
   return BOGO_ENABLED && item.quantity >= 2 && !BOGO_EXCLUDED_PRODUCT_IDS.has(item.productId ?? -1);
 }
 
+// Volume tiers for vials BEYOND the BOGO pair — the 1st and 2nd vial always
+// keep the pair-at-Base-price treatment below, untouched; this only
+// discounts the 3rd vial onward, at a flat rate determined by the line's
+// total quantity: 3-5 vials = 5% off each extra vial, 6-9 = 10%, 10+ = 15%.
+// Percent-off (not a blended average) so a tier's "extra vial" price is a
+// single constant regardless of exactly where in the range the qty falls —
+// see the Volume Pricing table in AddToCartButton.tsx, which shows exactly
+// this number per tier.
+export function tierDiscountPercent(quantity: number): number {
+  if (quantity >= 10) return 0.15;
+  if (quantity >= 6) return 0.10;
+  if (quantity >= 3) return 0.05;
+  return 0;
+}
+
 // Discount needed so this line's first pair totals exactly its Base
 // (regular_price), not just "1 unit free at whatever it currently sells
 // for". E.g. unitPrice $94, regularPrice $119: discount = 2x94-119 = $69,
-// leaving $119 for the pair — any units beyond the first pair on this same
-// line (qty > 2) still cost unitPrice each, undiscounted (only one pair per
-// SKU). Returns 0 for an ineligible line.
+// leaving $119 for the pair — plus, for qty > 2, the tier discount
+// (tierDiscountPercent above) on every vial past that pair. Returns 0 for
+// an ineligible line. This is the single source of truth for "how much is
+// this line discounted below Base" — every caller (product page, cart
+// drawer, order summary, place-order) must go through this function rather
+// than re-deriving the math, so client-displayed and server-recomputed
+// totals always agree (see the CART_CHANGED history this is guarding
+// against).
 export function computeBogoLineDiscount(item: BogoLineItem): number {
   if (!isBogoLineEligible(item)) return 0;
   const base = item.regularPrice ?? item.unitPrice;
-  return roundCurrency(2 * item.unitPrice - base);
+  const pairDiscount = 2 * item.unitPrice - base;
+  const extraUnits = Math.max(0, item.quantity - 2);
+  const tierDiscount = extraUnits * item.unitPrice * tierDiscountPercent(item.quantity);
+  return roundCurrency(pairDiscount + tierDiscount);
 }
 
 // Total BOGO discount across every qualifying line in the cart — the sum

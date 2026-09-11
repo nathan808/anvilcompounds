@@ -10,12 +10,14 @@ export default function InfoBlock({
   number,
   label,
   children,
+  defaultOpen = false,
 }: {
   number: string;
   label: string;
   children: React.ReactNode;
+  defaultOpen?: boolean;
 }) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(defaultOpen);
 
   return (
     <div>

@@ -13,6 +13,7 @@ const WP_SLUG_MAP: Record<string, string> = {
   "cookie-policy":   "cookie-policy",
   "return-policy":   "return-policy",
   "shipping-policy": "shipping-policy",
+  "ruo-policy":      "ruo-policy",
 };
 
 interface WPPage {
@@ -123,6 +124,7 @@ export default async function LegalPage({
               "Cookie Policy":   "cookie-policy",
               "Return Policy":   "return-policy",
               "Shipping Policy": "shipping-policy",
+              "RUO Policy":      "ruo-policy",
             }).map(([label, s]) => (
               <Link
                 key={s}

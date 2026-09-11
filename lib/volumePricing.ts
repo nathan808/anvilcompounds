@@ -1,6 +1,6 @@
-// Per-quantity volume-discount tiers (3-5 vials = 5% off, 6-9 = 10% off)
-// were removed in favor of the simple 2-tier Base/B1G1/Single pricing model
-// (lib/bogoDiscount.ts) — no more per-unit price scaling by quantity. This
-// constant remains as the general cart-line quantity ceiling (used by
-// BOGO-excluded products like bundles, which keep a plain numeric stepper).
-export const MAX_QTY_PER_ITEM = 9;
+// Per-quantity volume-discount tiers (3-5 vials = 5% off, 6-9 = 10% off,
+// 10+ = 15% off) apply only to vials beyond the BOGO pair — see
+// lib/bogoDiscount.ts's computeBogoLineDiscount, the single source of truth
+// for this math. Raised from the old 9-vial ceiling so the 10+ tier is
+// actually reachable.
+export const MAX_QTY_PER_ITEM = 20;

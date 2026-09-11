@@ -9,6 +9,7 @@ const POLICY_PAGES = [
   { label: "Cookie Policy",   href: "/legal/cookie-policy" },
   { label: "Return Policy",   href: "/legal/return-policy" },
   { label: "Shipping Policy", href: "/legal/shipping-policy" },
+  { label: "RUO Policy",      href: "/legal/ruo-policy" },
 ];
 
 export default function Footer() {

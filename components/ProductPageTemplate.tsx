@@ -142,24 +142,8 @@ export default function ProductPageTemplate({
       <section className="bg-mock-page py-12">
         <div className="max-w-5xl mx-auto px-6 space-y-4">
 
-          <InfoBlock number={whatItIsNumber} label="What it is">
-            <div className="space-y-4">
-              {product.whatItIsBody && (
-                <WithMoleculeVisual
-                  image={!product.compositionBody ? product.moleculeImage : null}
-                  productName={product.name}
-                >
-                  <div className="bg-white border border-mock-line rounded-2xl p-8">
-                    <p className="font-display font-700 text-mock-navy text-xl mb-4">
-                      {product.whatItIsSubtitle}
-                    </p>
-                    <p className="font-body text-mock-sub leading-relaxed">
-                      {product.whatItIsBody}
-                    </p>
-                  </div>
-                </WithMoleculeVisual>
-              )}
-
+          <InfoBlock number={whatItIsNumber} label="What it is" defaultOpen>
+            <WithMoleculeVisual image={product.moleculeImage} productName={product.name}>
               <div className="bg-white border border-mock-line rounded-2xl overflow-hidden">
                 <table className="w-full">
                   <tbody>
@@ -181,12 +165,14 @@ export default function ProductPageTemplate({
                   </tbody>
                 </table>
               </div>
-            </div>
+            </WithMoleculeVisual>
           </InfoBlock>
 
-          <InfoBlock number={faqNumber} label="FAQ">
-            <ProductFaqBlock />
-          </InfoBlock>
+          <div id="faq-section">
+            <InfoBlock number={faqNumber} label="FAQ">
+              <ProductFaqBlock />
+            </InfoBlock>
+          </div>
 
         </div>
       </section>

@@ -4,9 +4,16 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useCart } from "@/lib/cartContext";
 import PurchaseFooter from "@/components/PurchaseFooter";
+import ViewCoaButton from "@/components/ViewCoaButton";
 import { simplifySizeLabel } from "@/lib/reconstitution";
 import { MAX_QTY_PER_ITEM } from "@/lib/volumePricing";
-import { BOGO_ENABLED, BOGO_EXCLUDED_PRODUCT_IDS, BUNDLE_PRODUCT_IDS } from "@/lib/bogoDiscount";
+import {
+  BOGO_ENABLED,
+  BOGO_EXCLUDED_PRODUCT_IDS,
+  BUNDLE_PRODUCT_IDS,
+  computeBogoLineDiscount,
+  tierDiscountPercent,
+} from "@/lib/bogoDiscount";
 
 interface Props {
   slug: string;
@@ -18,6 +25,11 @@ interface Props {
   priceNumber: number;
   wcProductId: number;
   hasCoa: boolean;
+  // View COA button, rendered directly under "Proceed to Secure Checkout"
+  // (see ProductHero, which no longer renders ViewCoaButton itself).
+  coaApplicable?: boolean;
+  coaImageUrl?: string | null;
+  coaFileUrl?: string | null;
   showFooter?: boolean;
   // Size selection is controlled from ProductHero when provided, so the
   // product photo and COA button (rendered as siblings, not children, of
@@ -57,6 +69,9 @@ export default function AddToCartButton({
   priceNumber,
   wcProductId,
   hasCoa,
+  coaApplicable = false,
+  coaImageUrl,
+  coaFileUrl,
   showFooter = true,
   selectedIndex: controlledIndex,
   onSelectIndex,
@@ -87,20 +102,18 @@ export default function AddToCartButton({
   // (bottom < 0, the mobile case) or not yet reached below it (top >
   // viewport height, the desktop case where the sticky column's own
   // content is taller than the viewport — see stickyBarEnabled comment).
-  // Disappears again once the page's compliance-footer section (id=
-  // "compliance-footer" in ProductPageTemplate) starts entering the
-  // viewport, so it never sits on top of the RUO text at the page bottom.
+  // Disappears again once the page's FAQ section (id="faq-section" in
+  // ProductPageTemplate) has been scrolled past entirely, so the bar
+  // doesn't keep following the shopper through Related Research/footer.
   useEffect(() => {
     if (!stickyBarEnabled) return;
     const handleScroll = () => {
       if (!mainCtaRef.current) return;
       const rect = mainCtaRef.current.getBoundingClientRect();
       const ctaOutOfView = rect.bottom < 0 || rect.top > window.innerHeight;
-      const complianceFooter = document.getElementById("compliance-footer");
-      const complianceVisible = complianceFooter
-        ? complianceFooter.getBoundingClientRect().top < window.innerHeight
-        : false;
-      setShowStickyBar(ctaOutOfView && !complianceVisible);
+      const faqSection = document.getElementById("faq-section");
+      const scrolledPastFaq = faqSection ? faqSection.getBoundingClientRect().bottom < 0 : false;
+      setShowStickyBar(ctaOutOfView && !scrolledPastFaq);
     };
     handleScroll();
     window.addEventListener("scroll", handleScroll, { passive: true });
@@ -131,8 +144,16 @@ export default function AddToCartButton({
   // Every qualifying SKU gets its own B1G1 pair now (no more shared
   // one-per-order cap), so this line's eligibility no longer depends on
   // what else is in the cart — just its own quantity and exclusion status.
+  // Discount comes from the single shared function (lib/bogoDiscount.ts) —
+  // never re-derive this math here, or this preview can drift from what
+  // cart/checkout actually charge (the CART_CHANGED bug class).
   const thisLineGetsBogo = BOGO_ENABLED && !isBogoExcluded && qty >= 2;
-  const bogoDiscountForLine = thisLineGetsBogo ? 2 * unitPrice - (originalBasePrice ?? unitPrice) : 0;
+  const bogoDiscountForLine = computeBogoLineDiscount({
+    quantity: qty,
+    unitPrice,
+    regularPrice: originalBasePrice ?? undefined,
+    productId: wcProductId,
+  });
   const discountedLineTotal = lineTotal - bogoDiscountForLine;
   // Headline "/vial" price — the true blended rate (what the customer
   // actually pays per vial at this quantity), not just the qty=2 B1G1 rate.
@@ -143,6 +164,12 @@ export default function AddToCartButton({
   // b1g1UnitPrice exactly at qty=2 and unitPrice exactly at qty=1, so this
   // replaces displayUnitPrice everywhere without changing those two cases.
   const displayUnitPrice = qty > 0 ? discountedLineTotal / qty : unitPrice;
+
+  // Volume Pricing table (below) — the current tier's active row, and the
+  // flat per-extra-vial price for each of the 3 tiers. Each tier's price is
+  // a single constant (unitPrice * (1 - tierPct)), not a blended average,
+  // since the tier discount only ever touches vials past the BOGO pair.
+  const activeTierPct = !isBogoExcluded ? tierDiscountPercent(qty) : 0;
 
   const handleQtyChange = (next: number) => {
     setQty(Math.min(MAX_QTY_PER_ITEM, Math.max(1, next)));
@@ -265,6 +292,11 @@ export default function AddToCartButton({
                   🎁 1 vial free — Buy 1 Get 1 Free applied (one pair per compound)
                 </p>
               )}
+              {activeTierPct > 0 && (
+                <p className="font-mono text-[11px] text-green-700">
+                  + {Math.round(activeTierPct * 100)}% off vial 3 onward (Volume Pricing)
+                </p>
+              )}
             </div>
           )}
         </div>
@@ -380,26 +412,81 @@ export default function AddToCartButton({
           </div>
         )}
         {/* 3+ vials — kept out of the way for the common 1-or-2 case, but
-            still reachable. One B1G1 pair for this compound plus each extra
-            vial at the single price — the breakdown line just below the
-            price header already shows the resulting total for any qty. */}
+            still reachable. The BOGO pair (1st + 2nd vial) is untouched;
+            every vial past it is discounted per the Volume Pricing table
+            below — the breakdown line just below the price header shows
+            the resulting blended total for any qty. */}
         {!isBogoExcluded && (
           qty > 2 ? (
-            <div className="flex items-center gap-3 mt-3">
-              <button
-                onClick={() => handleQtyChange(qty - 1)}
-                className="w-8 h-8 rounded-lg bg-mock-surface2 border border-mock-line text-mock-sub hover:text-mock-navy hover:border-mock-cobalt/30 transition-all flex items-center justify-center font-display font-700"
-              >
-                −
-              </button>
-              <span className="font-mono text-sm text-mock-navy w-6 text-center">{qty}</span>
-              <button
-                onClick={() => handleQtyChange(qty + 1)}
-                className="w-8 h-8 rounded-lg bg-mock-surface2 border border-mock-line text-mock-sub hover:text-mock-navy hover:border-mock-cobalt/30 transition-all flex items-center justify-center font-display font-700"
-              >
-                +
-              </button>
-              <span className="font-mono text-xs text-mock-sub">vials</span>
+            <div className="mt-3 space-y-3">
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => handleQtyChange(qty - 1)}
+                  className="w-8 h-8 rounded-lg bg-mock-surface2 border border-mock-line text-mock-sub hover:text-mock-navy hover:border-mock-cobalt/30 transition-all flex items-center justify-center font-display font-700"
+                >
+                  −
+                </button>
+                <span className="font-mono text-sm text-mock-navy w-6 text-center">{qty}</span>
+                <button
+                  onClick={() => handleQtyChange(qty + 1)}
+                  className="w-8 h-8 rounded-lg bg-mock-surface2 border border-mock-line text-mock-sub hover:text-mock-navy hover:border-mock-cobalt/30 transition-all flex items-center justify-center font-display font-700"
+                >
+                  +
+                </button>
+                <span className="font-mono text-xs text-mock-sub">vials</span>
+              </div>
+
+              {/* Volume Pricing — collapsible, only ever mounted once the
+                  shopper has opted into 3+ vials. Each row's price is the
+                  flat per-vial rate for vials past the BOGO pair at that
+                  tier (a constant, not a blended average — see
+                  tierDiscountPercent in lib/bogoDiscount.ts), so it stays
+                  accurate no matter which exact qty in the range is picked. */}
+              <div className="rounded-xl border border-mock-line overflow-hidden">
+                <div className="px-4 py-2.5 bg-mock-graphite border-b border-mock-line">
+                  <span className="font-mono text-[11px] font-700 text-gray-300 tracking-[0.2em] uppercase">
+                    Volume Pricing — vials 3+
+                  </span>
+                </div>
+                <div className="divide-y divide-mock-line">
+                  {[
+                    { min: 3, label: "3–5 vials", pct: 0.05 },
+                    { min: 6, label: "6–9 vials", pct: 0.10 },
+                    { min: 10, label: "10+ vials", pct: 0.15 },
+                  ].map((tier) => {
+                    const isActive = activeTierPct === tier.pct;
+                    const tierPrice = unitPrice * (1 - tier.pct);
+                    return (
+                      <button
+                        type="button"
+                        key={tier.label}
+                        onClick={() => setQty(tier.min)}
+                        className={`w-full flex items-center justify-between px-4 py-2.5 transition-colors ${
+                          isActive ? "bg-mock-cobalt/10" : "bg-white hover:bg-mock-surface2"
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${isActive ? "bg-mock-cobalt" : "bg-transparent"}`} />
+                          <span className={`font-body text-sm ${isActive ? "text-mock-navy" : "text-mock-sub"}`}>
+                            {tier.label}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <span className={`font-mono text-sm ${isActive ? "text-mock-navy" : "text-mock-sub"}`}>
+                            ${tierPrice.toFixed(2)} ea
+                          </span>
+                          <span className={`font-mono text-xs ${isActive ? "text-green-700 font-600" : "text-green-700/70"}`}>
+                            {Math.round(tier.pct * 100)}% off
+                          </span>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+                <p className="px-4 py-2 bg-mock-surface2 font-mono text-[10px] text-mock-sub leading-relaxed">
+                  Your 1st and 2nd vial stay at the Buy 1 Get 1 Free rate — this table's discount applies to vial 3 onward.
+                </p>
+              </div>
             </div>
           ) : (
             <button
@@ -455,6 +542,15 @@ export default function AddToCartButton({
         </svg>
         Proceed to Secure Checkout →
       </Link>
+
+      {coaApplicable && (
+        <ViewCoaButton
+          slug={slug}
+          productName={name}
+          imageUrl={coaImageUrl}
+          fileUrl={coaFileUrl}
+        />
+      )}
 
       {showFooter && (
         <div className="pt-1">

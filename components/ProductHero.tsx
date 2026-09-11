@@ -4,7 +4,6 @@ import { useState } from "react";
 import AddToCartButton from "@/app/products/[slug]/AddToCartButton";
 import ShippingBanner from "@/components/ShippingBanner";
 import ProductImageGallery from "@/components/ProductImageGallery";
-import ViewCoaButton from "@/components/ViewCoaButton";
 import SdsPreviewButton from "@/components/SdsPreviewButton";
 import PurchaseFooter from "@/components/PurchaseFooter";
 import CompoundRevealBadge from "@/components/CompoundRevealBadge";
@@ -86,15 +85,6 @@ export default function ProductHero({ product }: { product: ProductPageData }) {
             />
           </div>
 
-          {product.coaApplicable && (
-            <ViewCoaButton
-              slug={product.slug}
-              productName={product.name}
-              imageUrl={product.documentationImage}
-              fileUrl={currentDocFile}
-            />
-          )}
-
           <AddToCartButton
             slug={product.slug}
             name={product.name}
@@ -105,6 +95,9 @@ export default function ProductHero({ product }: { product: ProductPageData }) {
             priceNumber={product.priceNumber}
             wcProductId={product.wcProductId}
             hasCoa={hasCoa}
+            coaApplicable={product.coaApplicable}
+            coaImageUrl={product.documentationImage}
+            coaFileUrl={currentDocFile}
             showFooter={false}
             selectedIndex={selectedIndex}
             onSelectIndex={setSelectedIndex}
@@ -187,17 +180,7 @@ export default function ProductHero({ product }: { product: ProductPageData }) {
               <span className="text-mock-cobaltInk/80">{product.category}</span>
             </nav>
 
-            {/* View COA — above Add to Cart */}
-            {product.coaApplicable && (
-              <ViewCoaButton
-                slug={product.slug}
-                productName={product.name}
-                imageUrl={product.documentationImage}
-                fileUrl={currentDocFile}
-              />
-            )}
-
-            {/* Add to cart (renders its own payment-methods/RUO footer) */}
+            {/* Add to cart (renders its own View COA / payment-methods / RUO footer) */}
             <AddToCartButton
               slug={product.slug}
               name={product.name}
@@ -208,6 +191,9 @@ export default function ProductHero({ product }: { product: ProductPageData }) {
               priceNumber={product.priceNumber}
               wcProductId={product.wcProductId}
               hasCoa={hasCoa}
+              coaApplicable={product.coaApplicable}
+              coaImageUrl={product.documentationImage}
+              coaFileUrl={currentDocFile}
               selectedIndex={selectedIndex}
               onSelectIndex={setSelectedIndex}
               stickyBarEnabled
