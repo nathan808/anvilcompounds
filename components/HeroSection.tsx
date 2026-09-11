@@ -97,12 +97,8 @@ export default function HeroSection() {
               className="font-heading font-700 leading-[0.95] mb-2 max-w-3xl"
               style={{ fontSize: "clamp(1.584rem, 3.6vw, 3.2rem)", textShadow: "0 1px 12px rgba(255,255,255,0.95), 0 0px 2px rgba(255,255,255,0.7)" }}
             >
-              <span className="block font-display font-700 italic text-mock-ink">Research Peptides with</span>
-              <span className="block">
-                <span className="font-800 italic text-mock-cobalt">Conviction</span>{" "}
-                <span className="font-display font-700 italic text-mock-ink">and</span>{" "}
-                <span className="font-800 italic text-mock-cobalt">Verification</span>
-              </span>
+              <span className="block font-display font-700 italic text-mock-ink">Forged for research.</span>
+              <span className="block font-800 italic text-mock-cobalt">Verified by data.</span>
             </motion.h1>
 
             {/* Subheadline */}

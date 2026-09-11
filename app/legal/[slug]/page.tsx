@@ -27,8 +27,9 @@ async function getPage(slug: string): Promise<WPPage | null> {
   const wpSlug = WP_SLUG_MAP[slug];
   if (!wpSlug) return null;
   try {
+    // Stable Hostinger domain, not the storefront domain — see app/api/blog/route.ts.
     const res = await fetch(
-      `https://anvilcompounds.shop/wp-json/wp/v2/pages?slug=${wpSlug}&_fields=id,slug,title,content,modified`,
+      `https://paleturquoise-crane-581984.hostingersite.com/wp-json/wp/v2/pages?slug=${wpSlug}&_fields=id,slug,title,content,modified`,
       { next: { revalidate: 86400 } }
     );
     if (!res.ok) return null;
@@ -52,7 +53,7 @@ export async function generateMetadata({
   const title = page?.title.rendered ?? "Legal";
   return {
     title: `${title} — Anvil Compounds`,
-    description: `${title} for Anvil Compounds research peptide products.`,
+    description: `${title} for Anvil Compounds research compound products.`,
   };
 }
 

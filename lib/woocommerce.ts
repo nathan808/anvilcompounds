@@ -394,7 +394,7 @@ const PRODUCT_BADGES: Record<string, { label: string; color: string }> = {
   "CJC-1295 + Ipamorelin":                        { label: "GH Blend",          color: "bg-orange-600/70 text-orange-100 border-orange-500/50" },
   "Tesamorelin":                                  { label: "GHRH Research",     color: "bg-yellow-600/70 text-yellow-100 border-yellow-500/50" },
   "5-Amino-1MQ":                                  { label: "Metabolic Support", color: "bg-lime-600/70 text-lime-100 border-lime-500/50" },
-  "Semax":                                        { label: "Neuropeptide",      color: "bg-blue-600/70 text-blue-100 border-blue-500/50" },
+  "Semax":                                        { label: "Neuro Research",    color: "bg-blue-600/70 text-blue-100 border-blue-500/50" },
   "Selank":                                       { label: "Anxiolytic Research", color: "bg-sky-600/70 text-sky-100 border-sky-500/50" },
   "Bacteriostatic Water":                         { label: "Essential Supply",  color: "bg-slate-600/70 text-slate-100 border-slate-500/50" },
   "Reconstitution Solution – for Laboratory Use": { label: "Essential Supply",  color: "bg-slate-600/70 text-slate-100 border-slate-500/50" },

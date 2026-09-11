@@ -115,7 +115,7 @@ export default function CatalogTeaser({
           className="font-heading font-700 text-mock-navy mb-6"
           style={{ fontSize: "clamp(1.9rem, 3.96vw, 3.15rem)" }}
         >
-          <span>Peptide &amp; Research Reagent Catalog</span>
+          <span>Research Reagent Catalog</span>
         </motion.h2>
 
         {previewProducts.length > 0 && (

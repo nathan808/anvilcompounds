@@ -8,23 +8,9 @@ const PRODUCT_SLUGS = [
   "semax", "selank",
 ];
 
-async function getBlogSlugs(): Promise<string[]> {
-  try {
-    const res = await fetch(`${BASE}/api/blog`, { next: { revalidate: 3600 } });
-    if (!res.ok) return [];
-    const posts = await res.json();
-    return Array.isArray(posts) ? posts.map((p: { slug: string }) => p.slug) : [];
-  } catch {
-    return [];
-  }
-}
-
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const blogSlugs = await getBlogSlugs();
-
   const staticRoutes: MetadataRoute.Sitemap = [
-    { url: BASE,          lastModified: new Date(), changeFrequency: "weekly",  priority: 1.0 },
-    { url: `${BASE}/learn`, lastModified: new Date(), changeFrequency: "daily",   priority: 0.8 },
+    { url: BASE, lastModified: new Date(), changeFrequency: "weekly", priority: 1.0 },
   ];
 
   const productRoutes: MetadataRoute.Sitemap = PRODUCT_SLUGS.map((slug) => ({
@@ -34,12 +20,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority:        0.9,
   }));
 
-  const blogRoutes: MetadataRoute.Sitemap = blogSlugs.map((slug) => ({
-    url:             `${BASE}/blog/${slug}`,
-    lastModified:    new Date(),
-    changeFrequency: "monthly" as const,
-    priority:        0.7,
-  }));
-
-  return [...staticRoutes, ...productRoutes, ...blogRoutes];
+  return [...staticRoutes, ...productRoutes];
 }

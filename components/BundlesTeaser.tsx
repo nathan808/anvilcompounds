@@ -57,12 +57,9 @@ function BundleCard({ bundle }: { bundle: ProductCard }) {
       </div>
 
       <div className="p-3 md:p-5">
-        <h3 className="font-display font-700 text-base md:text-xl text-mock-navy leading-tight mb-0.5 line-clamp-1">
+        <h3 className="font-display font-700 text-base md:text-xl text-mock-navy leading-tight mb-2 line-clamp-1">
           {bundle.name}
         </h3>
-        <span className="font-mono text-[9px] md:text-[10px] text-mock-cobaltInk/70 tracking-widest uppercase block mb-2 line-clamp-1">
-          {bundle.description}
-        </span>
         <span className="inline-flex items-center gap-1 font-mono text-[10px] md:text-xs text-mock-sub group-hover:text-mock-cobalt transition-colors duration-300">
           <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />

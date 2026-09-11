@@ -25,7 +25,6 @@ export default function Navbar({ pushDown = false }: { pushDown?: boolean }) {
   const links = [
     { label: "Catalog", href: "/catalog?catalog=full" },
     { label: "COAs", href: "/coas" },
-    { label: "Learn", href: "/learn" },
     { label: "Account", href: "/account" },
     { label: "Contact", href: "/contact" },
   ];
@@ -42,7 +41,6 @@ export default function Navbar({ pushDown = false }: { pushDown?: boolean }) {
         <div className="fixed top-0 left-0 right-0 z-[60] h-9 flex items-center justify-center bg-mock-cobalt text-white overflow-hidden px-4">
           <p className="font-mono text-[11px] md:text-xs font-700 tracking-wide text-center truncate">
             🎁 LIMITED DEAL — BUY 1 GET 1 FREE <span className="font-400 opacity-80">(same item, applied automatically)</span>
-            <span className="hidden sm:inline font-400 opacity-80"> · + Free Bacteriostatic Water on every order</span>
           </p>
         </div>
       )}

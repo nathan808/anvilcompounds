@@ -1,7 +1,6 @@
 "use client";
 
 import { motion } from "framer-motion";
-import PaymentMethodsBar from "@/components/PaymentMethodsBar";
 import AnvilMark from "@/components/AnvilMark";
 
 const POLICY_PAGES = [
@@ -26,7 +25,6 @@ export default function Footer() {
     ],
     Company: [
       { label: "Why Anvil", href: "/#trust" },
-      { label: "Learn",     href: "/learn" },
       { label: "Contact",   href: "/contact" },
     ],
   };
@@ -168,11 +166,6 @@ export default function Footer() {
               prevent any disease. No claim is made that any compound sold here is safe or effective for
               any use in humans or animals.
             </p>
-          </div>
-
-          {/* Accepted payment methods */}
-          <div className="mb-6">
-            <PaymentMethodsBar />
           </div>
 
           {/* Bottom bar */}

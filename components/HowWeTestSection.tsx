@@ -20,8 +20,6 @@ const methods = [
     name: "Endotoxin (LAL)",
     description:
       "Every batch runs a Limulus Amebocyte Lysate assay for bacterial endotoxins, a screen most research suppliers skip to save time and cost. Endotoxin contamination has no smell and leaves no visible trace, which is exactly why we treat this test as mandatory, not optional.",
-    detailLink: "/blog/endotoxin-problem-peptide-market",
-    detailLinkLabel: "The endotoxin problem nobody in the peptide market talks about →",
   },
 ];
 
@@ -79,14 +77,6 @@ export default function HowWeTestSection() {
               <div>
                 <h4 className="font-display font-700 text-[15px] text-mock-navy">{method.name}</h4>
                 <p className="text-[13px] text-mock-sub mt-1 leading-relaxed">{method.description}</p>
-                {method.detailLink && (
-                  <a
-                    href={method.detailLink}
-                    className="inline-block mt-2 font-mono text-xs text-mock-cobaltInk hover:text-mock-cobalt animated-underline"
-                  >
-                    {method.detailLinkLabel}
-                  </a>
-                )}
               </div>
             </div>
           ))}

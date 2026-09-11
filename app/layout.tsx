@@ -7,7 +7,6 @@ import { AuthProvider } from "@/lib/authContext";
 import { CheckoutProvider } from "@/lib/checkoutContext";
 import BackToTop from "@/components/BackToTop";
 import AgeGate from "@/components/AgeGate";
-import BogoPopup from "@/components/BogoPopup";
 
 const archivo = Archivo({
   subsets: ["latin"],
@@ -49,8 +48,8 @@ const playfairDisplay = Playfair_Display({
 export const metadata: Metadata = {
   title: "Anvil Compounds — Independently Verified. Every Batch.",
   description:
-    "Research-grade peptides independently tested to 99%+ purity. Triple verification: HPLC, Mass Spectrometry & Endotoxin Screening. Ships same day from Southern California.",
-  keywords: "research peptides, BPC-157, GLP research compounds, HPLC tested peptides, reference materials",
+    "Research-grade compounds independently tested to 99%+ purity. Triple verification: HPLC, Mass Spectrometry & Endotoxin Screening. Ships same day from Southern California.",
+  keywords: "research compounds, BPC-157, GLP research compounds, HPLC tested compounds, reference materials",
 };
 
 export default function RootLayout({
@@ -65,7 +64,6 @@ export default function RootLayout({
           <CartProvider>
             <CheckoutProvider>
               <AgeGate />
-              <BogoPopup />
               {children}
               <BackToTop />
             </CheckoutProvider>

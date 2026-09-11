@@ -16,16 +16,84 @@ const sdsIcon = (
   </svg>
 );
 
+// One acknowledgment covers the whole browser session (not just the one
+// product) — a researcher paging through several compounds' SDS files
+// shouldn't have to re-click the same disclaimer every time.
+const ACK_KEY = "anvil_sds_ack";
+
 export default function SdsPreviewButton({ productName, fileUrl }: SdsPreviewButtonProps) {
   const [open, setOpen] = useState(false);
+  const [gateOpen, setGateOpen] = useState(false);
 
-  // Real SDS PDF exists for this product — link straight to it.
+  // Real SDS PDF exists for this product — gate it behind a research-use
+  // acknowledgment before opening (same pattern as AgeGate, scoped to SDS
+  // access) rather than linking straight to the PDF.
   if (fileUrl) {
+    const requestAccess = () => {
+      if (typeof window !== "undefined" && sessionStorage.getItem(ACK_KEY)) {
+        window.open(fileUrl, "_blank", "noopener,noreferrer");
+        return;
+      }
+      setGateOpen(true);
+    };
+
+    const acknowledge = () => {
+      sessionStorage.setItem(ACK_KEY, "1");
+      setGateOpen(false);
+      window.open(fileUrl, "_blank", "noopener,noreferrer");
+    };
+
     return (
-      <a href={fileUrl} target="_blank" rel="noopener noreferrer" className={buttonClass}>
-        {sdsIcon}
-        View Safety Data
-      </a>
+      <>
+        <button onClick={requestAccess} className={buttonClass}>
+          {sdsIcon}
+          View Safety Data
+        </button>
+
+        {gateOpen && (
+          <div
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm px-4"
+            onClick={() => setGateOpen(false)}
+          >
+            <div
+              className="bg-white border border-mock-line rounded-2xl w-full max-w-md overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="px-6 py-5 border-b border-mock-line flex items-center justify-between">
+                <div>
+                  <p className="font-mono text-[10px] text-mock-sub tracking-[0.2em] uppercase mb-1">
+                    Research Use Acknowledgment
+                  </p>
+                  <h3 className="font-display font-700 text-mock-navy text-lg">{productName}</h3>
+                </div>
+                <button
+                  onClick={() => setGateOpen(false)}
+                  className="w-8 h-8 rounded-lg bg-mock-surface2 hover:bg-mock-line/60 border border-mock-line flex items-center justify-center text-mock-sub hover:text-mock-navy transition-all shrink-0"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              <div className="px-6 py-5 space-y-4">
+                <p className="font-body text-sm text-mock-sub leading-relaxed">
+                  I acknowledge that this Safety Data Sheet is provided for in vitro laboratory
+                  and research use only, and that I am accessing it in that capacity — not for
+                  human or veterinary use.
+                </p>
+
+                <button
+                  onClick={acknowledge}
+                  className="w-full text-center py-3 bg-mock-cobalt hover:bg-mock-cobaltInk text-white font-display font-700 text-sm rounded-xl transition-all duration-300"
+                >
+                  I Acknowledge — View SDS
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </>
     );
   }
 

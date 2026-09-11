@@ -78,7 +78,7 @@ export const faqs: { category: string; items: FaqItem[] }[] = [
       },
       {
         q: "Can these compounds be used by humans?",
-        a: "No. All Anvil Compounds products are sold strictly for in vitro laboratory research. They are not approved for human or veterinary use by any regulatory authority. Using research peptides in humans carries serious and unpredictable health risks. By completing an order, purchasers confirm they are acquiring compounds for legitimate research purposes only.",
+        a: "No. All Anvil Compounds products are sold strictly for in vitro laboratory research. They are not approved for human or veterinary use by any regulatory authority. Using research compounds in humans carries serious and unpredictable health risks. By completing an order, purchasers confirm they are acquiring compounds for legitimate research purposes only.",
       },
       {
         q: "Do you sell reconstitution supplies?",

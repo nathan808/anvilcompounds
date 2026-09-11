@@ -57,10 +57,10 @@ export default function OperationsSection() {
               Track an Order
             </a>
             <a
-              href="/learn?tab=faq"
+              href="/legal/shipping-policy"
               className="px-5 py-2.5 border border-mock-line hover:border-mock-cobalt text-mock-cobaltInk hover:text-mock-cobalt font-display font-600 text-sm tracking-wide rounded-md transition-all duration-300 bg-white/60 hover:bg-white/90"
             >
-              Shipping FAQ →
+              Shipping Policy →
             </a>
           </div>
         </motion.div>
