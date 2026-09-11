@@ -416,6 +416,7 @@ export async function POST(req: NextRequest) {
 
       if (jobRes.ok) {
         const job = await jobRes.json();
+        console.log(`[place-order:${requestId}] PAYMENT_JWT_SECRET present:`, !!process.env.PAYMENT_JWT_SECRET, 'length:', process.env.PAYMENT_JWT_SECRET?.length || 0);
         const token = jwt.sign(
           { jobId: job.id, orderId: order.id },
           process.env.PAYMENT_JWT_SECRET!,
