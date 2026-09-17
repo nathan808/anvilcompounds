@@ -121,6 +121,10 @@ export default function PaymentPage() {
       }
       clearCart();
       clearCheckout();
+      if (typeof data.redirectUrl === "string" && data.redirectUrl.length > 0) {
+        window.location.href = data.redirectUrl;
+        return;
+      }
       router.push(`/checkout/pay/${paymentMethodId}?order=${data.orderId}&key=${data.orderKey}`);
     } catch {
       setError("Something went wrong. Please try again or contact support@anvilcompounds.shop");
