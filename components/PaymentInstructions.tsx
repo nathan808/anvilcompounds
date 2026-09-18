@@ -25,7 +25,7 @@ export const PAYMENT_INSTRUCTIONS_COPY: Record<PaymentMethodId, PaymentInstructi
     heading: "Pay With Credit Card Via Invoice",
     trustLine: "",
     lines: [
-      "A secure payment link arrives by email within 15 minutes.",
+      "You'll be redirected to a secure payment page in a moment. Click Pay Now to complete your order.",
       "Card details are entered on our processor's page, never on this site.",
       "Card payments are processed at the full posted price — no discount applies to this method.",
     ],
