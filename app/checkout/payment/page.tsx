@@ -192,11 +192,11 @@ export default function PaymentPage() {
       </main>
       <Footer />
       {submitting && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-navy-950/85 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-white/90 backdrop-blur-sm">
           <div className="text-center">
-            <div className="w-12 h-12 mx-auto border-4 border-white/20 border-t-blue-500 rounded-full animate-spin" />
-            <p className="font-display font-700 text-white text-lg mt-4">Securing your order</p>
-            <p className="font-body text-white/60 text-sm mt-2">Please don&apos;t refresh this page.</p>
+            <div className="w-12 h-12 mx-auto border-4 border-slate-200 border-t-blue-600 rounded-full animate-spin" />
+            <p className="font-display font-700 text-slate-900 text-lg mt-4">Securing your order</p>
+            <p className="font-body text-slate-600 text-sm mt-2">Please don&apos;t refresh this page.</p>
           </div>
         </div>
       )}
