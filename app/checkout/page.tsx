@@ -114,9 +114,15 @@ export default function CheckoutPage() {
         setSubmitting(false);
         return;
       }
-      // Navigate first, then clear — clearing first would flash the
-      // empty-cart state below while the pay page loads.
-      router.push(`/checkout/pay/${paymentMethodId}?order=${data.orderId}&key=${data.orderKey}`);
+      // Card orders get a payment-middleware URL (Stripe invoice page) from
+      // place-order — leave the site for it; everything else goes to our own
+      // pay/instructions page. Navigate first, then clear — clearing first
+      // would flash the empty-cart state below while the next page loads.
+      if (typeof data.redirectUrl === "string" && data.redirectUrl.length > 0) {
+        window.location.href = data.redirectUrl;
+      } else {
+        router.push(`/checkout/pay/${paymentMethodId}?order=${data.orderId}&key=${data.orderKey}`);
+      }
       clearCart();
       clearCheckout();
     } catch {
@@ -236,6 +242,15 @@ export default function CheckoutPage() {
         </div>
       </main>
       <Footer />
+      {submitting && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-white/90 backdrop-blur-sm">
+          <div className="text-center">
+            <div className="w-12 h-12 mx-auto border-4 border-slate-200 border-t-blue-600 rounded-full animate-spin" />
+            <p className="font-display font-700 text-slate-900 text-lg mt-4">Securing your order</p>
+            <p className="font-body text-slate-600 text-sm mt-2">Please don&apos;t refresh this page.</p>
+          </div>
+        </div>
+      )}
     </>
   );
 }
