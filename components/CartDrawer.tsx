@@ -8,7 +8,6 @@ import { useCheckout } from "@/lib/checkoutContext";
 import { computeCouponDiscount } from "@/lib/couponMath";
 import { useFreeShippingProgress } from "@/lib/useFreeShippingProgress";
 import FreeShippingProgress from "@/components/FreeShippingProgress";
-import PaymentMethodsBar from "@/components/PaymentMethodsBar";
 import { computeBogoDiscount, computeBogoLineDiscount, isBogoLineEligible, BOGO_ENABLED, BOGO_LABEL, BOGO_EXCLUDED_PRODUCT_IDS, FREE_GIFT_LABEL } from "@/lib/bogoDiscount";
 
 export default function CartDrawer() {
@@ -21,6 +20,7 @@ export default function CartDrawer() {
   // (fixed-height, non-scrolling) footer's share of the drawer, leaving
   // more room for the scrollable product list above it.
   const [breakdownOpen, setBreakdownOpen] = useState(false);
+  const [couponOpen, setCouponOpen] = useState(false);
 
   const freeShippingProgress = useFreeShippingProgress(subtotal, false, isCartOpen && items.length > 0);
   const bogoDiscount = computeBogoDiscount(items.map((i) => ({ quantity: i.quantity, unitPrice: i.price, regularPrice: i.regularPrice, productId: i.wcProductId })));
@@ -231,11 +231,11 @@ export default function CartDrawer() {
 
             {/* Footer */}
             {items.length > 0 && (
-              <div className="px-6 py-5 border-t border-white/8 space-y-4">
-                <FreeShippingProgress data={freeShippingProgress} subtotal={subtotal} hasCoupon={bogoDiscount > 0} />
+              <div className="px-6 py-4 border-t border-white/8 space-y-3">
+                <FreeShippingProgress data={freeShippingProgress} subtotal={subtotal} hasCoupon={bogoDiscount > 0} compact />
 
-                {/* Coupon — always visible (it's an action, not a numeric
-                    detail), collapsible breakdown below is just the numbers. */}
+                {/* Coupon — collapsed behind a link so the item list keeps the
+                    drawer's space; opens itself when a code is applied/errored. */}
                 {coupon ? (
                   <div className="flex items-center justify-between gap-3 px-3 py-2 rounded-lg bg-blue-600/10 border border-blue-500/20">
                     <div>
@@ -248,11 +248,12 @@ export default function CartDrawer() {
                       Remove
                     </button>
                   </div>
-                ) : (
+                ) : couponOpen || error ? (
                   <div>
                     <div className="flex gap-2">
                       <input
                         value={code}
+                        autoFocus
                         onChange={(e) => { setCode(e.target.value); setError(""); }}
                         placeholder="Coupon code"
                         className="w-full px-3 py-2 bg-white/5 border border-white/10 focus:border-blue-500/50 focus:bg-white/8 rounded-lg text-white placeholder-white/20 font-mono text-xs outline-none transition-all duration-300"
@@ -268,22 +269,33 @@ export default function CartDrawer() {
                     </div>
                     {error && <p className="font-body text-xs text-red-400 mt-1.5">{error}</p>}
                   </div>
-                )}
+                ) : null}
 
-                {hasAnyDiscount && (
-                  <button
-                    type="button"
-                    onClick={() => setBreakdownOpen((v) => !v)}
-                    className="flex items-center gap-1.5 font-mono text-[10px] text-white/40 hover:text-white/70 tracking-widest uppercase transition-colors"
-                  >
-                    <span className={`transition-transform duration-200 ${breakdownOpen ? "rotate-90" : ""}`}>▸</span>
-                    {breakdownOpen ? "Hide" : "Show"} price breakdown
-                  </button>
-                )}
+                <div className="flex items-center justify-between gap-3">
+                  {hasAnyDiscount ? (
+                    <button
+                      type="button"
+                      onClick={() => setBreakdownOpen((v) => !v)}
+                      className="flex items-center gap-1.5 font-mono text-[10px] text-white/40 hover:text-white/70 tracking-widest uppercase transition-colors"
+                    >
+                      <span className={`transition-transform duration-200 ${breakdownOpen ? "rotate-90" : ""}`}>▸</span>
+                      Price breakdown
+                    </button>
+                  ) : <span />}
+                  {!coupon && !couponOpen && !error && (
+                    <button
+                      type="button"
+                      onClick={() => setCouponOpen(true)}
+                      className="font-mono text-[10px] text-white/40 hover:text-white/70 tracking-widest uppercase transition-colors"
+                    >
+                      + Coupon code
+                    </button>
+                  )}
+                </div>
                 {hasAnyDiscount && breakdownOpen && (
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="font-body text-white/50">Subtotal (Base Price)</span>
+                      <span className="font-body text-sm text-white/50">Subtotal (Base Price)</span>
                       <span className="font-mono text-sm text-white/70">${baseSubtotal.toFixed(2)}</span>
                     </div>
                     {singleVialDiscount > 0.001 && (
@@ -293,14 +305,9 @@ export default function CartDrawer() {
                       </div>
                     )}
                     {bogoDiscount > 0.001 && (
-                      <div>
-                        <div className="flex items-center justify-between">
-                          <span className="font-body text-sm text-blue-400">{BOGO_LABEL}</span>
-                          <span className="font-mono text-sm text-blue-400">-${bogoDiscount.toFixed(2)}</span>
-                        </div>
-                        <p className="font-mono text-[10px] text-white/25 mt-0.5">
-                          One free vial per compound.
-                        </p>
+                      <div className="flex items-center justify-between">
+                        <span className="font-body text-sm text-blue-400">{BOGO_LABEL}</span>
+                        <span className="font-mono text-sm text-blue-400">-${bogoDiscount.toFixed(2)}</span>
                       </div>
                     )}
                     {couponDiscount > 0.001 && (
@@ -309,22 +316,18 @@ export default function CartDrawer() {
                         <span className="font-mono text-sm text-blue-400">-${couponDiscount.toFixed(2)}</span>
                       </div>
                     )}
-                  </div>
-                )}
-                {BOGO_ENABLED && (
-                  <div className="flex items-center justify-between">
-                    <span className="font-body text-sm text-blue-400">{FREE_GIFT_LABEL}</span>
-                    <span className="font-mono text-sm text-blue-400">$0.00</span>
+                    {BOGO_ENABLED && (
+                      <div className="flex items-center justify-between">
+                        <span className="font-body text-sm text-blue-400">{FREE_GIFT_LABEL}</span>
+                        <span className="font-mono text-sm text-blue-400">$0.00</span>
+                      </div>
+                    )}
                   </div>
                 )}
                 <div className="flex items-center justify-between">
                   <span className="font-body text-white/50">{hasAnyDiscount ? "Total" : "Subtotal"}</span>
                   <span className="font-display font-700 text-white text-xl">${total.toFixed(2)}</span>
                 </div>
-                <PaymentMethodsBar />
-                <p className="font-mono text-[10px] text-white/20 tracking-wide leading-relaxed text-center">
-                  Instructions sent after checkout.
-                </p>
                 <Link
                   href="/checkout"
                   onClick={closeCart}
@@ -334,7 +337,7 @@ export default function CartDrawer() {
                 </Link>
                 <button
                   onClick={closeCart}
-                  className="block w-full text-center py-2 text-white/30 hover:text-white/60 font-body text-sm transition-colors"
+                  className="block w-full text-center py-1 text-white/30 hover:text-white/60 font-body text-sm transition-colors"
                 >
                   Continue Shopping
                 </button>

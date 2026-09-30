@@ -47,6 +47,14 @@ function normalizeTitle(title: string): string {
 // price whatever instance_id the client submits at order-creation time.
 // Never hardcodes a zone id, a rate, or the free-shipping threshold; all of
 // it is read live from WooCommerce.
+// Zone/method config changes rarely, but these are 3+ sequential WC calls
+// (~0.7s each, ~2.9s total measured 2026-09-30), so they were the whole
+// checkout shipping-section load time. Cached 5 min; bust early via
+// /api/revalidate (tag "wc-shipping") after editing shipping in wp-admin.
+// Only the raw WC config is cached; free-shipping eligibility is still
+// computed per call from the caller's subtotal below.
+const SHIPPING_FETCH_OPTS = { next: { revalidate: 300, tags: ["wc-shipping"] } };
+
 export async function fetchShippingOptions(postCouponSubtotal: number, hasCoupon: boolean): Promise<ShippingResult> {
   const url = process.env.WC_URL;
   const key = process.env.WC_CONSUMER_KEY;
@@ -56,13 +64,13 @@ export async function fetchShippingOptions(postCouponSubtotal: number, hasCoupon
   const auth = Buffer.from(`${key}:${secret}`).toString("base64");
   const headers = { Authorization: `Basic ${auth}` };
 
-  const zonesRes = await fetch(`${url}/wp-json/wc/v3/shipping/zones`, { headers, cache: "no-store" });
+  const zonesRes = await fetch(`${url}/wp-json/wc/v3/shipping/zones`, { headers, ...SHIPPING_FETCH_OPTS });
   if (!zonesRes.ok) throw new Error(`zones fetch failed: ${zonesRes.status}`);
   const zones = (await zonesRes.json()) as WcZone[];
 
   let usZoneId: number | null = null;
   for (const zone of zones) {
-    const locRes = await fetch(`${url}/wp-json/wc/v3/shipping/zones/${zone.id}/locations`, { headers, cache: "no-store" });
+    const locRes = await fetch(`${url}/wp-json/wc/v3/shipping/zones/${zone.id}/locations`, { headers, ...SHIPPING_FETCH_OPTS });
     if (!locRes.ok) continue;
     const locations = (await locRes.json()) as WcZoneLocation[];
     if (locations.some((l) => l.type === "country" && l.code === "US")) {
@@ -73,7 +81,7 @@ export async function fetchShippingOptions(postCouponSubtotal: number, hasCoupon
 
   if (usZoneId === null) throw new Error("No shipping zone configured for US");
 
-  const methodsRes = await fetch(`${url}/wp-json/wc/v3/shipping/zones/${usZoneId}/methods`, { headers, cache: "no-store" });
+  const methodsRes = await fetch(`${url}/wp-json/wc/v3/shipping/zones/${usZoneId}/methods`, { headers, ...SHIPPING_FETCH_OPTS });
   if (!methodsRes.ok) throw new Error(`methods fetch failed: ${methodsRes.status}`);
   const methods = (await methodsRes.json()) as WcShippingMethod[];
 

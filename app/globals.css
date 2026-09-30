@@ -301,6 +301,7 @@ body {
 [data-theme="light"] .border-white\/10    { border-color: rgba(4,9,26,0.10) !important; }
 [data-theme="light"] .border-white\/15    { border-color: rgba(4,9,26,0.12) !important; }
 [data-theme="light"] .border-white\/20    { border-color: rgba(4,9,26,0.14) !important; }
+[data-theme="light"] .border-white\/25    { border-color: rgba(4,9,26,0.22) !important; }
 [data-theme="light"] .border-white\/40    { border-color: rgba(4,9,26,0.25) !important; }
 [data-theme="light"] .border-t { border-top-color: rgba(4,9,26,0.08); }
 

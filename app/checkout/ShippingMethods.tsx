@@ -25,9 +25,13 @@ export default function ShippingMethods() {
   const [freeShipping, setFreeShipping] = useState<FreeShippingProgressData | null>(null);
   const [error, setError] = useState("");
 
-  const bogoDiscount = computeBogoDiscount(items.map((i) => ({ quantity: i.quantity, unitPrice: i.price, productId: i.wcProductId })));
+  // Must mirror place-order/route.ts exactly — this subtotal decides free-
+  // Ground eligibility, and the server re-evaluates it with its own math.
+  // (Previously omitted regularPrice and dropped the coupon under BOGO, so
+  // it could disagree with the server once chk10 was allowed to stack.)
+  const bogoDiscount = computeBogoDiscount(items.map((i) => ({ quantity: i.quantity, unitPrice: i.price, regularPrice: i.regularPrice, productId: i.wcProductId })));
   const bogoActive = bogoDiscount > 0;
-  const discount = bogoActive ? 0 : computeCouponDiscount(subtotal, coupon);
+  const discount = computeCouponDiscount(subtotal - bogoDiscount, coupon);
   const postCouponSubtotal = subtotal - discount;
   // Compounding base — matches place-order/route.ts's discountedSubtotal,
   // which is what free-shipping eligibility is actually evaluated against.
@@ -74,7 +78,7 @@ export default function ShippingMethods() {
         // options we just fetched for the CURRENT subtotal. A method whose
         // cost changed (e.g. Ground was free at $200+, isn't at $50) gets its
         // stored cost corrected in place; a method that no longer exists gets
-        // cleared entirely, which re-disables "Continue to Payment" until the
+        // cleared entirely, which re-disables "Place Order" until the
         // customer re-selects — otherwise a stale cost (most often a stale
         // $0 "free shipping") rides through to the payment step and produces
         // a client/server total mismatch ("Your cart has changed").

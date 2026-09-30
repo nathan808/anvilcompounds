@@ -6,6 +6,9 @@ interface Props {
   subtotal: number;
   hasCoupon?: boolean;
   label?: string;
+  // Tighter single-line styling for the cart drawer, where vertical space
+  // goes to the item list.
+  compact?: boolean;
 }
 
 interface Row {
@@ -17,18 +20,19 @@ interface Row {
   pendingLabel: string;
 }
 
-function ProgressRow({ row }: { row: Row }) {
+function ProgressRow({ row, compact }: { row: Row; compact: boolean }) {
+  const text = compact ? "text-xs" : "text-sm";
   if (row.eligible) {
-    return <p className="font-body text-sm text-blue-300">✓ {row.unlockedText}</p>;
+    return <p className={`font-body ${text} text-blue-300`}>✓ {row.unlockedText}</p>;
   }
   const pct = Math.min(100, Math.max(0, ((row.threshold - row.remaining) / row.threshold) * 100));
   return (
-    <div className="space-y-2">
-      <p className="font-body text-sm text-white/60">
+    <div className={compact ? "space-y-1.5" : "space-y-2"}>
+      <p className={`font-body ${text} text-white/60`}>
         Add <span className="text-blue-400 font-600">${row.remaining.toFixed(2)}</span> more to unlock{" "}
         <span className="text-white/80">{row.pendingLabel}</span>
       </p>
-      <div className="h-1.5 rounded-full bg-white/10 overflow-hidden">
+      <div className={`${compact ? "h-1" : "h-1.5"} rounded-full bg-white/10 overflow-hidden`}>
         <div className="h-full bg-blue-500 rounded-full transition-all duration-500" style={{ width: `${pct}%` }} />
       </div>
     </div>
@@ -44,7 +48,7 @@ function ProgressRow({ row }: { row: Row }) {
 // merged bar. The volume-discount row is omitted entirely when a coupon is
 // active, since computeVolumeDiscount() returns 0 in that case regardless
 // of subtotal — nothing to show progress toward.
-export default function FreeShippingProgress({ data, subtotal, hasCoupon = false, label = "free Ground shipping" }: Props) {
+export default function FreeShippingProgress({ data, subtotal, hasCoupon = false, label = "free Ground shipping", compact = false }: Props) {
   const shippingRow: Row | null = data && {
     key: "shipping",
     eligible: data.eligible,
@@ -67,10 +71,10 @@ export default function FreeShippingProgress({ data, subtotal, hasCoupon = false
   if (rows.length === 0) return null;
 
   return (
-    <div className="px-4 py-3 rounded-xl bg-white/5 border border-white/10 space-y-3">
+    <div className={compact ? "px-3 py-2 rounded-lg bg-white/5 border border-white/10 space-y-2" : "px-4 py-3 rounded-xl bg-white/5 border border-white/10 space-y-3"}>
       {rows.map((row, i) => (
-        <div key={row.key} className={i > 0 ? "pt-3 border-t border-white/8" : ""}>
-          <ProgressRow row={row} />
+        <div key={row.key} className={i > 0 ? (compact ? "pt-2 border-t border-white/8" : "pt-3 border-t border-white/8") : ""}>
+          <ProgressRow row={row} compact={compact} />
         </div>
       ))}
     </div>

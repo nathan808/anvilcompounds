@@ -211,7 +211,12 @@ export async function getProductPageData(slug: string): Promise<ProductPageData 
 
   const auth = `Basic ${Buffer.from(`${key}:${secret}`).toString("base64")}`;
   const headers = { Authorization: auth };
-  const opts = { cache: "no-store" as RequestCache };
+  // Same 60s window + tag as getProducts (catalog grid), so product pages
+  // render from cache instead of waiting ~1s on WC every visit. Stale prices
+  // can't be charged: place-order re-reads every price live (lib/wcProducts.ts)
+  // and returns CART_CHANGED on a mismatch. Bust early after a WC price edit
+  // via /api/revalidate (tag "wc-products").
+  const opts = { next: { revalidate: 60, tags: ["wc-products"] } };
 
   try {
     const [productRes, variationsRes] = await Promise.all([
@@ -484,6 +489,13 @@ export interface ProductCard {
   // the product detail page (sizesStock in ProductPageData) is where
   // that's accurate.
   stockQuantity?: number | null;
+  // The size string the catalog card's one-click add puts in the cart —
+  // must be exactly what the product page's default selection
+  // (ProductPageData.sizes[0]) would put there, so adding the same product
+  // from both places merges into one cart line (cartContext matches on
+  // slug + size). A mismatch ("Standard" vs "10mg") split one SKU into two
+  // lines, each earning its own B1G1 pair — order #1276, 2026-09-23.
+  defaultSize?: string;
 }
 
 // Products without COA yet (Testing in Progress — no buy UI shown).
@@ -587,7 +599,7 @@ function extractPurity(product: WCProduct): string | undefined {
   return `${Math.min(...matches)}%`;
 }
 
-export function mapProduct(product: WCProduct, index: number, originalPriceOverride?: string): ProductCard {
+export function mapProduct(product: WCProduct, index: number, originalPriceOverride?: string, minVariationSize?: string): ProductCard {
   const badge = PRODUCT_BADGES[product.name] ?? DEFAULT_BADGE;
   const meta = buildMetaMap(product.meta_data ?? []);
   // Variable products carry no top-level regular_price (WC only sets that
@@ -618,6 +630,10 @@ export function mapProduct(product: WCProduct, index: number, originalPriceOverr
     documentationFile:  meta["documentation_file"]  ?? null,
     documentationImage: meta["documentation_image"] ?? null,
     stockQuantity: product.manage_stock ? product.stock_quantity : null,
+    // Same resolution as getProductPageData's sizes[0]: the min-price
+    // variation's Size for a variable product, else the base product's own
+    // Size attribute, else "Standard".
+    defaultSize: minVariationSize ?? getAttributeOptions(product, "Size")[0] ?? "Standard",
   };
 }
 
@@ -643,27 +659,31 @@ export async function getProducts(): Promise<ProductCard[]> {
   const filtered = products.filter((p) => !LIBRARY_GUIDE_NAME_PATTERN.test(p.name));
 
   // Variable products don't carry a top-level regular_price (WC only sets
-  // that per-variation), so for anything variable + on sale, fetch its
-  // variations to find the min-price one's regular_price — that's the
-  // "was" price shown crossed out next to the catalog card's "From $X".
-  const variableOnSale = filtered.filter((p) => p.type === "variable" && p.on_sale);
+  // that per-variation), so fetch their variations to find the min-price
+  // one's regular_price — that's the "was" price shown crossed out next to
+  // the catalog card's "From $X" (on-sale products only) — and its Size,
+  // the card's defaultSize for one-click add (every variable product).
+  const variableProducts = filtered.filter((p) => p.type === "variable");
   const originalPriceOverrides = new Map<number, string>();
-  if (variableOnSale.length) {
+  const minVariationSizes = new Map<number, string>();
+  if (variableProducts.length) {
     await Promise.all(
-      variableOnSale.map(async (p) => {
+      variableProducts.map(async (p) => {
         const varRes = await fetch(
           `${url}/wp-json/wc/v3/products/${p.id}/variations?consumer_key=${key}&consumer_secret=${secret}&per_page=50`,
           { next: { revalidate: 60, tags: ["wc-products"] } }
         );
         if (!varRes.ok) return;
-        const variations: { price: string; regular_price: string }[] = await varRes.json();
+        const variations: { price: string; regular_price: string; attributes: { name: string; option: string }[] }[] = await varRes.json();
         const minVar = [...variations].sort(
           (a, b) => parseFloat(a.price || "0") - parseFloat(b.price || "0")
         )[0];
-        if (minVar?.regular_price) originalPriceOverrides.set(p.id, minVar.regular_price);
+        if (p.on_sale && minVar?.regular_price) originalPriceOverrides.set(p.id, minVar.regular_price);
+        const minSize = minVar?.attributes.find((a) => a.name === "Size")?.option;
+        if (minSize) minVariationSizes.set(p.id, minSize);
       })
     );
   }
 
-  return filtered.map((p, i) => mapProduct(p, i, originalPriceOverrides.get(p.id)));
+  return filtered.map((p, i) => mapProduct(p, i, originalPriceOverrides.get(p.id), minVariationSizes.get(p.id)));
 }

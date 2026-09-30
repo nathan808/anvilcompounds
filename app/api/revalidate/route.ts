@@ -14,5 +14,6 @@ export async function POST(req: NextRequest) {
 
   revalidateTag("wc-products");
   revalidateTag("wp-posts");
+  revalidateTag("wc-shipping");
   return NextResponse.json({ revalidated: true, now: Date.now() });
 }

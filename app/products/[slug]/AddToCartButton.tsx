@@ -289,7 +289,7 @@ export default function AddToCartButton({
               </p>
               {thisLineGetsBogo && (
                 <p className="font-mono text-[11px] text-green-700">
-                  🎁 1 vial free — Buy 1 Get 1 Free applied (one pair per compound)
+                  Buy 1 Get 1 Free applied (one pair per compound)
                 </p>
               )}
               {activeTierPct > 0 && (

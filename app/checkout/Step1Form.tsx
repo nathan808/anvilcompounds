@@ -1,11 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState, FormEvent } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useRef } from "react";
 import { useAuth } from "@/lib/authContext";
 import { useCart } from "@/lib/cartContext";
-import { useCheckout } from "@/lib/checkoutContext";
-import { trackMetaEvent } from "@/lib/metaPixel";
+import { useCheckout, CheckoutStep1Data } from "@/lib/checkoutContext";
 
 const US_STATES = [
   "AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA",
@@ -17,15 +15,33 @@ const US_STATES = [
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const ZIP_RE = /^\d{5}(-\d{4})?$/;
 
+// Human-readable list of what's still missing — the one-page checkout
+// (app/checkout/page.tsx) shows this next to Place Order and blocks
+// submission until it's empty.
+export function getMissingFields(step1: CheckoutStep1Data): string[] {
+  const missing: string[] = [];
+  if (!EMAIL_RE.test(step1.email.trim())) missing.push("a valid email address");
+  if (step1.phone.trim().length === 0) missing.push("phone number");
+  if (step1.firstName.trim().length === 0) missing.push("first name");
+  if (step1.lastName.trim().length === 0) missing.push("last name");
+  if (step1.address1.trim().length === 0) missing.push("street address");
+  if (step1.city.trim().length === 0) missing.push("city");
+  if (step1.state.trim().length === 0) missing.push("state");
+  if (!ZIP_RE.test(step1.zip.trim())) missing.push("a valid 5-digit ZIP code");
+  if (!step1.ruoConfirmed) missing.push("the research-use confirmation checkbox");
+  return missing;
+}
+
+// Contact + shipping address fields and the RUO confirmation — section 1 of
+// the one-page checkout. No submit of its own; the page's Place Order
+// button validates via getMissingFields above.
 export default function Step1Form() {
-  const router = useRouter();
   const { user } = useAuth();
   const { items, subtotal } = useCart();
   const { step1, setStep1, hydrated } = useCheckout();
 
   const capturedEmailRef = useRef<string | null>(null);
   const blurTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const initiateCheckoutFiredRef = useRef(false);
 
   useEffect(() => {
     if (user?.email && !step1.email) {
@@ -57,48 +73,13 @@ export default function Step1Form() {
     }, 500);
   };
 
-  const [submitAttempted, setSubmitAttempted] = useState(false);
-
-  const missingFields: string[] = [];
-  if (!EMAIL_RE.test(step1.email.trim())) missingFields.push("a valid email address");
-  if (step1.phone.trim().length === 0) missingFields.push("phone number");
-  if (step1.firstName.trim().length === 0) missingFields.push("first name");
-  if (step1.lastName.trim().length === 0) missingFields.push("last name");
-  if (step1.address1.trim().length === 0) missingFields.push("street address");
-  if (step1.city.trim().length === 0) missingFields.push("city");
-  if (step1.state.trim().length === 0) missingFields.push("state");
-  if (!ZIP_RE.test(step1.zip.trim())) missingFields.push("a valid 5-digit ZIP code");
-  if (!step1.ruoConfirmed) missingFields.push("the research-use confirmation checkbox below");
-
-  const isValid = missingFields.length === 0;
-
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    if (!isValid) {
-      setSubmitAttempted(true);
-      return;
-    }
-    if (!initiateCheckoutFiredRef.current) {
-      initiateCheckoutFiredRef.current = true;
-      trackMetaEvent("InitiateCheckout", {
-        content_ids: items.map((i) => String(i.wcProductId)),
-        content_type: "product",
-        num_items: items.reduce((s, i) => s + i.quantity, 0),
-        value: subtotal,
-        currency: "USD",
-      });
-    }
-
-    router.push("/checkout/shipping");
-  };
-
   const inputClass = "w-full px-4 py-3 bg-white/5 border border-white/10 focus:border-blue-500/50 focus:bg-white/8 rounded-xl text-white placeholder-white/20 font-body text-sm outline-none transition-all duration-300";
   const labelClass = "block font-mono text-xs text-white/40 tracking-widest uppercase mb-2";
 
   if (!hydrated) return null;
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8">
+    <div className="space-y-8">
       <div>
         <h3 className="font-display font-700 text-white mb-4">Contact</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -184,18 +165,6 @@ export default function Step1Form() {
         </p>
       </label>
 
-      {submitAttempted && !isValid && (
-        <div className="px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 font-body text-sm">
-          Please complete: {missingFields.join(", ")}.
-        </div>
-      )}
-
-      <button
-        type="submit"
-        className="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white font-display font-700 text-base rounded-xl transition-all duration-300 hover:shadow-xl hover:shadow-blue-600/30 flex items-center justify-center gap-2"
-      >
-        Continue to Shipping →
-      </button>
-    </form>
+    </div>
   );
 }

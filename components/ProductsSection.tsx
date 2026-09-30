@@ -203,7 +203,7 @@ const FALLBACK_PRODUCTS: ProductCard[] = [
   { id: 1049, name: "Cognitive Research Bundle", category: "Research Bundles", description: "Semax 10mg + Selank 10mg, bundled and individually vialed.", price: "$90", purity: "99%+", badge: "Bundle Deal", badgeColor: "bg-green-600/70 text-green-100 border-green-500/50", icon: "✦", permalink: "https://anvilcompounds.shop/product/cognitive-research-bundle/", image: "/products/cognitive-bundle.jpg", hasCoa: true, coaApplicable: true, sizes: [], documentationFile: null, documentationImage: null },
 ];
 
-export function ProductCard({ product, index }: { product: ProductCard; index: number }) {
+export function ProductCard({ product, index, animateIn = true }: { product: ProductCard; index: number; animateIn?: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-80px" });
   const { addItem, openCart } = useCart();
@@ -244,7 +244,7 @@ export function ProductCard({ product, index }: { product: ProductCard; index: n
     addItem({
       slug: slugifyProductName(product.name),
       name: product.name,
-      size: "Standard",
+      size: product.defaultSize ?? "Standard",
       price: priceNum,
       regularPrice: regularPriceNum,
       wcProductId: product.id,
@@ -259,9 +259,9 @@ export function ProductCard({ product, index }: { product: ProductCard; index: n
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y: 40 }}
+      initial={animateIn ? { opacity: 0, y: 40 } : false}
       animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.7, delay: index * 0.08, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ duration: 0.5, delay: Math.min(index, 5) * 0.05, ease: [0.16, 1, 0.3, 1] }}
       className="group relative"
     >
       {/* Outer card is a plain div, NOT a Link/anchor — the card contains
@@ -366,9 +366,9 @@ export function ProductCard({ product, index }: { product: ProductCard; index: n
             </div>
             <div className="h-0.5 md:h-1 w-full bg-mock-line rounded-full overflow-hidden">
               <motion.div
-                initial={{ width: 0 }}
+                initial={animateIn ? { width: 0 } : false}
                 animate={inView ? { width: product.purity } : {}}
-                transition={{ duration: 1.2, delay: index * 0.08 + 0.4, ease: [0.16, 1, 0.3, 1] }}
+                transition={{ duration: 1, delay: Math.min(index, 5) * 0.05 + 0.3, ease: [0.16, 1, 0.3, 1] }}
                 className="h-full bg-gradient-to-r from-mock-cobalt to-mock-cobaltLight rounded-full"
               />
             </div>
@@ -473,6 +473,12 @@ export function ProductCard({ product, index }: { product: ProductCard; index: n
   );
 }
 
+// Last catalog payload, kept for the life of the browser tab so returning
+// to /catalog (e.g. from a product page) renders the grid immediately
+// instead of skeletons → refetch → replayed card animation. Still refreshed
+// in the background on every mount, so it's never more than one visit stale.
+let cachedProducts: ProductCard[] | null = null;
+
 function SkeletonCard() {
   return (
     <div className="bg-white border border-mock-line rounded-xl overflow-hidden animate-pulse">
@@ -492,8 +498,10 @@ function SkeletonCard() {
 export default function ProductsSection() {
   const headerRef = useRef<HTMLDivElement>(null);
   const headerInView = useInView(headerRef, { once: true });
-  const [products, setProducts] = useState<ProductCard[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [products, setProducts] = useState<ProductCard[]>(() => cachedProducts ?? []);
+  const [loading, setLoading] = useState(() => !cachedProducts);
+  // Card entrance animation only on the first catalog visit this tab.
+  const [animateCards] = useState(() => !cachedProducts);
   const [search, setSearch] = useState("");
   const [mobileShowAll, setMobileShowAll] = useState(false);
   const searchParams = useSearchParams();
@@ -520,6 +528,7 @@ export default function ProductsSection() {
       .then((r) => r.json())
       .then((data) => {
         if (Array.isArray(data) && data.length > 0) {
+          cachedProducts = data;
           setProducts(data);
         } else {
           setProducts(FALLBACK_PRODUCTS);
@@ -759,7 +768,7 @@ export default function ProductsSection() {
                     key={product.name}
                     className={i >= 6 && !mobileShowAll ? "hidden md:contents" : "contents"}
                   >
-                    <ProductCard product={product} index={i} />
+                    <ProductCard product={product} index={i} animateIn={animateCards} />
                   </div>
                 ))
               : (
