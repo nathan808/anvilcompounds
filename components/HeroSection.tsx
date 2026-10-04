@@ -1,188 +1,100 @@
-"use client";
+import Link from "next/link";
+import SciIcon, { type SciIconName } from "@/components/SciIcon";
+import { BOGO_ENABLED } from "@/lib/bogoDiscount";
 
-import { useRef } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
-import Image from "next/image";
-import ShippingBanner from "@/components/ShippingBanner";
-import { BOGO_ENABLED, BOGO_LABEL } from "@/lib/bogoDiscount";
-
-const container = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.1, delayChildren: 0.2 } },
-};
-const item = {
-  hidden: { opacity: 0, y: 30 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } },
-};
+// Every value here is a standing property of the catalog (see the lot COAs
+// and HowWeTestSection) — keep it factual; no per-product claims.
+const SPEC_ROWS: { icon: SciIconName; label: string; value: string }[] = [
+  { icon: "chromatogram", label: "Purity threshold", value: "≥ 99% by HPLC-UV" },
+  { icon: "spectrum",     label: "Identity",         value: "Confirmed by LC-MS" },
+  { icon: "droplet",      label: "Endotoxin",        value: "LAL assay, per lot" },
+  { icon: "document",     label: "Documentation",    value: "Lot-specific Certificate of Analysis" },
+  { icon: "box",          label: "Supplied as",      value: "Lyophilized solid, sealed vial" },
+  { icon: "truck",        label: "Dispatch",         value: "Same day for orders before 12 PM PT" },
+];
 
 export default function HeroSection() {
-  const ref = useRef<HTMLElement>(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
-  const y = useTransform(scrollYProgress, [0, 1], ["0%", "20%"]);
-  const opacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
-
   return (
-    <section
-      ref={ref}
-      className="relative flex items-center overflow-hidden"
-      style={{ minHeight: "clamp(344px, 46vh, 528px)" }}
-    >
-      {/* Light background */}
-      <Image
-        src="/images/hero-bg.jpeg"
-        alt=""
-        fill
-        className="object-cover object-center"
-        priority
-        sizes="100vw"
-        quality={90}
+    <section className="relative overflow-hidden bg-mock-page border-b border-mock-line">
+      {/* Faint measurement grid in place of photography. */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 opacity-[0.35] pointer-events-none"
+        style={{
+          backgroundImage:
+            "linear-gradient(to right, #D8E1EE 1px, transparent 1px), linear-gradient(to bottom, #D8E1EE 1px, transparent 1px)",
+          backgroundSize: "48px 48px",
+          maskImage: "linear-gradient(to bottom, black 40%, transparent 100%)",
+        }}
       />
-      <div className="absolute inset-0 bg-white/25" />
 
-      {/* Content */}
-      <motion.div style={{ y, opacity }} className="relative z-10 w-full">
-        {/* Navbar floats transparent over this hero, so its own pt-10/12
-            below is tuned to just clear the plain navbar height. The BOGO
-            promo bar adds another fixed 36px (h-9) above it — without this
-            spacer, content at the very top of the flow renders underneath
-            the taller navbar+promo stack instead of below it. */}
-        {BOGO_ENABLED && <div className="h-9" />}
-        <div className="max-w-7xl mx-auto px-2 sm:px-6 md:px-10 pt-16 pb-10 md:pt-14 md:pb-12">
-          <div className="grid lg:grid-cols-[1.15fr_0.85fr] gap-3 lg:gap-6 items-center">
-          <motion.div
-            variants={container}
-            initial="hidden"
-            animate="show"
-            className="flex flex-col items-center text-center lg:items-start lg:text-left px-2 py-2 md:py-4"
-            style={{ background: "radial-gradient(ellipse 70% 85% at 50% 48%, rgba(255,255,255,0.62) 0%, rgba(255,255,255,0.18) 60%, transparent 100%)" }}
-          >
-
-            {/* Vial graphic — mobile/tablet only; sits above the headline. Desktop shows
-                the vial in the side column instead (see below) and keeps this hidden.
-                aspect-[1200/1039] matches this cutout's real proportions (three vials
-                side by side, slightly wider than tall). Sized ~5% down from the
-                original 300px per request. */}
-            <motion.div variants={item} className="lg:hidden relative w-[285px] max-w-[74vw] aspect-[1200/1039] mb-2">
-              <Image
-                src="/images/homepage/hero-vials-trio.png"
-                alt="Three Anvil Compounds research vials — 3rd Party Verified, 99.9%+ Purity, SoCal Facility"
-                fill
-                className="object-contain"
-                sizes="285px"
-                priority
-              />
-            </motion.div>
-
-            {/* Badge — hidden on mobile to make room for the vial graphic above the text */}
-            <motion.div variants={item} className="hidden md:flex items-center justify-center lg:justify-start mb-2">
-              <div className="flex items-center gap-2 px-2.5 py-1 rounded-full border border-mock-line bg-white/70 backdrop-blur-sm">
-                <span className="w-1.5 h-1.5 rounded-full bg-mock-cobalt inline-block flex-shrink-0" />
-                <span className="text-[10px] md:text-xs font-mono text-mock-cobaltInk tracking-widest uppercase">
-                  Research Grade · 99%+ Purity<span className="hidden sm:inline"> · USA-Based</span>
-                </span>
-              </div>
-            </motion.div>
-
-            {BOGO_ENABLED && (
-              <motion.div variants={item} className="mb-2">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-mock-cobalt text-white font-display font-700 text-xs md:text-sm tracking-wide shadow-lg shadow-mock-cobalt/30">
-                  🎁 {BOGO_LABEL} <span className="font-400 opacity-80">+ Free BAC Water</span>
-                </span>
-              </motion.div>
-            )}
-
-            {/* Headline */}
-            <motion.h1
-              variants={item}
-              className="font-heading font-700 leading-[0.95] mb-2 max-w-3xl"
-              style={{ fontSize: "clamp(1.584rem, 3.6vw, 3.2rem)", textShadow: "0 1px 12px rgba(255,255,255,0.95), 0 0px 2px rgba(255,255,255,0.7)" }}
-            >
-              <span className="block font-display font-700 italic text-mock-ink">Forged for research.</span>
-              <span className="block font-800 italic text-mock-cobalt">Verified by data.</span>
-            </motion.h1>
-
-            {/* Subheadline */}
-            <motion.p
-              variants={item}
-              className="font-body text-mock-sub text-xs md:text-sm leading-relaxed mb-1 max-w-sm md:max-w-md"
-            >
-              &gt;99%+ purity threshold. Independently Verified + Scannable COAs per vial.
-            </motion.p>
-            <motion.p
-              variants={item}
-              className="font-body text-mock-sub text-xs md:text-sm leading-relaxed mb-3 max-w-sm md:max-w-md"
-            >
-              Southern California USA Based Facility
-            </motion.p>
-
-            {/* CTAs — stacked on mobile, row on sm+ */}
-            <motion.div variants={item} className="flex flex-col sm:flex-row flex-wrap justify-center lg:justify-start gap-2 mb-2 w-full sm:w-auto">
-              <a
-                href="/catalog?catalog=full"
-                className="px-5 py-2 bg-mock-cobalt hover:bg-mock-cobaltInk text-white font-display font-700 text-sm tracking-wide rounded-md transition-all duration-300 hover:shadow-lg hover:shadow-mock-cobalt/30 text-center"
-              >
-                Explore Catalog
-              </a>
-              <a
-                href="/coas"
-                className="px-5 py-2 border border-mock-line hover:border-mock-cobalt text-mock-cobaltInk hover:text-mock-cobalt font-display font-600 text-sm tracking-wide rounded-md transition-all duration-300 bg-white/60 hover:bg-white/90 text-center"
-              >
-                View COAs →
-              </a>
-              <a
-                href="#testing"
-                className="px-5 py-2 border border-mock-line hover:border-mock-sub text-mock-sub hover:text-mock-ink font-display font-600 text-sm tracking-wide rounded-md transition-all duration-300 bg-white/60 hover:bg-white/90 text-center"
-              >
-                Our Testing Process →
-              </a>
-            </motion.div>
-
-            {/* Shipping banner — desktop only now; hidden on mobile to make room for the larger vial graphic above */}
-            <motion.div variants={item} className="hidden lg:block mb-2 w-full max-w-sm md:max-w-md">
-              <ShippingBanner theme="light" />
-            </motion.div>
-
-            {/* RUO disclaimer */}
-            <motion.p variants={item} className="font-mono text-[9px] md:text-[10px] text-mock-sub tracking-wide max-w-xs md:max-w-sm text-center lg:text-left">
-              For in vitro laboratory &amp; research use only. Not for human or animal use. 21+ only.
-            </motion.p>
-
-          </motion.div>
-
-          {/* Vial graphic — desktop side column, proportional to the text block, never
-              overlapping it (contained within its own grid column, see the
-              lg:grid-cols-[1.15fr_0.85fr] split above). aspect-[1200/1039] matches this
-              cutout's real proportions; sized ~5% down from the original 480px. */}
-          <div className="hidden lg:flex items-center justify-center">
-            <div className="relative w-full max-w-[456px] aspect-[1200/1039]">
-              <Image
-                src="/images/homepage/hero-vials-trio.png"
-                alt="Three Anvil Compounds research vials — 3rd Party Verified, 99.9%+ Purity, SoCal Facility"
-                fill
-                className="object-contain"
-                sizes="456px"
-                priority
-              />
+      {/* Clears the fixed navbar (and the promo bar above it when shown). */}
+      {BOGO_ENABLED && <div className="h-9" />}
+      <div className="relative max-w-7xl mx-auto px-6 md:px-10 pt-24 pb-14 md:pt-28 md:pb-20">
+        <div className="grid lg:grid-cols-[1.1fr_0.9fr] gap-10 lg:gap-14 items-center">
+          <div>
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-6 h-px bg-mock-cobalt" />
+              <span className="font-mono text-xs text-mock-cobaltInk tracking-[0.2em] uppercase">
+                Research reference materials · Southern California
+              </span>
             </div>
+            <h1
+              className="font-display font-700 text-mock-navy leading-[1.1] tracking-tight mb-5"
+              style={{ fontSize: "clamp(2rem, 4.2vw, 3.25rem)" }}
+            >
+              Research peptides, documented lot by lot.
+            </h1>
+            <p className="font-body text-base md:text-lg text-mock-sub leading-relaxed max-w-xl mb-8">
+              Lyophilized research reagents supplied with lot-specific Certificates of Analysis
+              from independent laboratories — HPLC purity, LC-MS identity and LAL endotoxin
+              screening for every lot.
+            </p>
+            <div className="flex flex-wrap gap-3 mb-8">
+              <Link
+                href="/catalog?catalog=full"
+                className="px-5 py-2.5 rounded-lg bg-mock-cobalt hover:bg-mock-cobaltInk text-white font-display font-600 text-sm transition-colors"
+              >
+                View Catalog
+              </Link>
+              <Link
+                href="/coas"
+                className="px-5 py-2.5 rounded-lg border border-mock-line bg-white hover:border-mock-cobalt/40 text-mock-navy font-display font-600 text-sm transition-colors"
+              >
+                COA Library
+              </Link>
+            </div>
+            <p className="font-mono text-[11px] text-mock-sub tracking-wide">
+              For in vitro laboratory research use only. Not for human or veterinary use. 21+.
+            </p>
           </div>
+
+          <div className="bg-white border border-mock-line rounded-2xl overflow-hidden shadow-sm">
+            <div className="px-5 py-3 border-b border-mock-line bg-mock-surface2 flex items-center justify-between">
+              <span className="font-mono text-[11px] text-mock-sub tracking-[0.2em] uppercase">
+                Catalog Specification
+              </span>
+              <span className="font-mono text-[11px] text-mock-muted">All lots</span>
+            </div>
+            <table className="w-full">
+              <caption className="sr-only">Standing specification for all catalog lots</caption>
+              <tbody>
+                {SPEC_ROWS.map((row) => (
+                  <tr key={row.label} className="border-b border-mock-line last:border-0">
+                    <th scope="row" className="px-5 py-3 text-left align-top w-[44%]">
+                      <span className="inline-flex items-center gap-2.5 font-mono text-[11px] font-400 text-mock-sub tracking-widest uppercase">
+                        <span className="text-mock-cobaltInk/70"><SciIcon name={row.icon} /></span>
+                        {row.label}
+                      </span>
+                    </th>
+                    <td className="px-5 py-3 font-body text-sm text-mock-navy">{row.value}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
-      </motion.div>
-
-      {/* Scroll indicator — desktop only */}
-      <motion.div
-        className="absolute bottom-6 left-1/2 -translate-x-1/2 hidden md:flex flex-col items-center gap-2 pointer-events-none"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.5 }}
-      >
-        <span className="text-[10px] font-mono text-mock-sub tracking-widest uppercase">Scroll</span>
-        <motion.div
-          animate={{ y: [0, 8, 0] }}
-          transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-          className="w-px h-8 bg-gradient-to-b from-mock-line to-transparent"
-        />
-      </motion.div>
+      </div>
     </section>
   );
 }

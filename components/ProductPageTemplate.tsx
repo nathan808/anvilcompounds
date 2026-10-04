@@ -5,6 +5,7 @@ import InfoBlock from "@/components/InfoBlock";
 import ProductFaqBlock from "@/components/ProductFaqBlock";
 import { ProductCard as CatalogProductCard } from "@/components/ProductsSection";
 import type { ProductCard } from "@/lib/woocommerce";
+import SciIcon, { iconForSpecLabel } from "@/components/SciIcon";
 
 // ─── Data interface ────────────────────────────────────────────────────────────
 
@@ -55,6 +56,10 @@ export interface ProductPageData {
   coaApplicable: boolean;
 
   propertiesTable: { label: string; value: string }[];
+  // Shown as the first/last rows of the specification table.
+  catalogCode?: string | null;
+  purity?: string | null;
+  lotId?: string | null;
 
   shippingType: "standard" | "ambient";
 
@@ -112,6 +117,69 @@ function WithMoleculeVisual({
   );
 }
 
+// Specification table: catalog code, the product's WC properties table
+// (CAS, formula, MW, appearance, sequence, storage, ...), then purity, lot
+// and the documentation links — one row each, label + icon on the left.
+function SpecificationTable({ product }: { product: ProductPageData }) {
+  const coaFile = product.sizesDocumentationFiles[0] ?? product.documentationFile ?? null;
+  const rows: { label: string; value: React.ReactNode }[] = [];
+  if (product.catalogCode) rows.push({ label: "Catalog Code", value: <span className="font-mono">{product.catalogCode}</span> });
+  for (const row of product.propertiesTable) rows.push({ label: row.label, value: row.value });
+  if (product.purity) rows.push({ label: "Purity (HPLC)", value: product.purity });
+  if (product.lotId) rows.push({ label: "Current Lot", value: <span className="font-mono">{product.lotId}</span> });
+  if (product.coaApplicable) {
+    rows.push({
+      label: "Certificate of Analysis",
+      value: product.hasCoa && coaFile ? (
+        <a href={coaFile} target="_blank" rel="noopener noreferrer" className="text-mock-cobaltInk underline underline-offset-2 hover:text-mock-cobalt">
+          View lot COA
+        </a>
+      ) : (
+        <span className="text-mock-sub">Pending — testing in progress</span>
+      ),
+    });
+  }
+  if (product.sdsFile) {
+    rows.push({
+      label: "Safety Data Sheet",
+      value: (
+        <a href={product.sdsFile} target="_blank" rel="noopener noreferrer" className="text-mock-cobaltInk underline underline-offset-2 hover:text-mock-cobalt">
+          View SDS (PDF)
+        </a>
+      ),
+    });
+  }
+
+  return (
+    <div className="bg-white border border-mock-line rounded-2xl overflow-hidden">
+      <table className="w-full">
+        <caption className="sr-only">{product.name} specifications</caption>
+        <tbody>
+          {rows.map((row, i) => (
+            <tr
+              key={row.label}
+              className={`border-b border-mock-line last:border-0 ${i % 2 === 0 ? "bg-mock-surface2" : ""}`}
+            >
+              <th
+                scope="row"
+                className="px-5 md:px-8 py-3.5 text-left font-mono text-xs font-400 text-mock-sub tracking-widest uppercase whitespace-nowrap align-top w-56"
+              >
+                <span className="inline-flex items-center gap-2.5">
+                  <span className="text-mock-cobaltInk/70"><SciIcon name={iconForSpecLabel(row.label)} /></span>
+                  {row.label}
+                </span>
+              </th>
+              <td className="px-5 md:px-8 py-3.5 font-body text-sm text-mock-navy leading-relaxed">
+                {row.value}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 // ─── Main template ─────────────────────────────────────────────────────────────
 
 export default function ProductPageTemplate({
@@ -142,29 +210,9 @@ export default function ProductPageTemplate({
       <section className="bg-mock-page py-12">
         <div className="max-w-5xl mx-auto px-6 space-y-4">
 
-          <InfoBlock number={whatItIsNumber} label="What it is" defaultOpen>
+          <InfoBlock number={whatItIsNumber} label="Specifications" defaultOpen>
             <WithMoleculeVisual image={product.moleculeImage} productName={product.name}>
-              <div className="bg-white border border-mock-line rounded-2xl overflow-hidden">
-                <table className="w-full">
-                  <tbody>
-                    {product.propertiesTable.map((row, i) => (
-                      <tr
-                        key={row.label}
-                        className={`border-b border-mock-line last:border-0 ${
-                          i % 2 === 0 ? "bg-mock-surface2" : ""
-                        }`}
-                      >
-                        <td className="px-6 md:px-8 py-4 font-mono text-xs text-mock-sub tracking-widest uppercase whitespace-nowrap align-top w-48">
-                          {row.label}
-                        </td>
-                        <td className="px-6 md:px-8 py-4 font-body text-sm text-mock-navy leading-relaxed">
-                          {row.value}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <SpecificationTable product={product} />
             </WithMoleculeVisual>
           </InfoBlock>
 

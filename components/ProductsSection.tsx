@@ -12,6 +12,7 @@ import { getProductDisplayTitle, isLoginGatedCompound, getCompoundReveal } from 
 import CompoundRevealBadge from "@/components/CompoundRevealBadge";
 import { simplifySizeLabel } from "@/lib/reconstitution";
 import { BOGO_ENABLED, BOGO_EXCLUDED_PRODUCT_IDS } from "@/lib/bogoDiscount";
+import { CATEGORY_ORDER } from "@/lib/catalogLabels";
 
 // Small credibility pills above the catalog header — same idea as a
 // competitor's "tested by / sold to / verified" badge row, adapted to what
@@ -163,40 +164,12 @@ const POPULARITY_ORDER: Record<string, number> = {
   "Reconstitution Solution – for Laboratory Use": 99,
 };
 
-// Canonical category display order
-const CATEGORY_ORDER = [
-  "All Compounds",
-  "Repair & Recovery Research",
-  "Metabolic Research",
-  "Cognitive Research",
-  "Longevity & Cosmetic Research",
-  "Growth Pathway Research",
-  "Research Supplies",
-  "Research Bundles",
-];
+// Canonical category display order lives in lib/catalogLabels.ts.
 
 function slugifyProductName(name: string): string {
   return SLUG_MAP[name] ?? name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
 }
 
-const FALLBACK_PRODUCTS: ProductCard[] = [
-  { id: 332, name: "BPC-157", category: "Repair & Recovery Research", description: "Body Protection Compound — a 15-amino-acid research fragment with notable tissue healing and regenerative properties under research conditions.", price: "$59", purity: "99.4%", badge: "High Demand", badgeColor: "bg-indigo-600/70 text-indigo-100 border-indigo-500/50", icon: "⬡", permalink: "https://anvilcompounds.shop/product/bpc-157/", image: "/products/bpc157.jpg", hasCoa: true, coaApplicable: true, sizes: [], documentationFile: null, documentationImage: null },
-  { id: 447, name: "BPC-157 + TB-500", category: "Repair & Recovery Research", description: "Dual compound recovery blend combining BPC-157 and TB-500 — studied for synergistic effects in tissue repair and cell migration research models.", price: "$79", originalPrice: "$89", purity: "99%+", badge: "Exclusive Blend", badgeColor: "bg-purple-600/70 text-purple-100 border-purple-500/50", icon: "⬧", permalink: "https://anvilcompounds.shop/product/bpc-157-tb-500/", image: "/products/wolverine.jpg", hasCoa: true, coaApplicable: true, sizes: [], documentationFile: null, documentationImage: null },
-  { id: 333, name: "AC2T", category: "Metabolic Research", description: "A dual incretin receptor agonist binding both GIP and GLP-1 receptors, under active clinical research.", price: "$79", originalPrice: "$89", purity: "99.1%", badge: "Dual Agonist", badgeColor: "bg-cyan-600/70 text-cyan-100 border-cyan-500/50", icon: "◇", permalink: "https://anvilcompounds.shop/product/ac2t/", image: "/products/ac2t.png", hasCoa: false, coaApplicable: true, sizes: [], documentationFile: null, documentationImage: null },
-  { id: 337, name: "AC3R", category: "Metabolic Research", description: "A triple receptor agonist targeting GIP, GLP-1, and glucagon receptors — at the frontier of current metabolic research.", price: "$89", originalPrice: "$99", purity: "99.0%", badge: "Triple Agonist", badgeColor: "bg-rose-600/70 text-rose-100 border-rose-500/50", icon: "⬟", permalink: "https://anvilcompounds.shop/product/ac3r/", image: "/products/ac3r.jpg", hasCoa: true, coaApplicable: true, sizes: [], documentationFile: null, documentationImage: null },
-  { id: 335, name: "KLOW", category: "Longevity & Cosmetic Research", description: "A curated blend of four research-grade compounds, independently tested as a combined formulation.", price: "$109", originalPrice: "$119", purity: "99.3%", badge: "Premium Blend", badgeColor: "bg-fuchsia-600/70 text-fuchsia-100 border-fuchsia-500/50", icon: "✦", permalink: "https://anvilcompounds.shop/product/klow/", image: "/products/klow.jpg", hasCoa: true, coaApplicable: true, sizes: [], documentationFile: null, documentationImage: null },
-  { id: 354, name: "TB-500", category: "Repair & Recovery Research", description: "Synthetic analogue of Thymosin Beta-4, studied in cell migration, actin dynamics, and tissue modeling research models.", price: "$69", purity: "99%+", badge: "Recovery Staple", badgeColor: "bg-amber-600/70 text-amber-100 border-amber-500/50", icon: "◉", permalink: "https://anvilcompounds.shop/product/tb-500/", image: "/products/tb500.jpg", hasCoa: true, coaApplicable: true, sizes: [], documentationFile: null, documentationImage: null },
-  { id: 336, name: "GHK-Cu", category: "Longevity & Cosmetic Research", description: "A naturally occurring copper complex with extensive research into cellular remodeling and tissue response.", price: "$49", originalPrice: "$59", purity: "99.5%", badge: "Entry Point", badgeColor: "bg-teal-600/70 text-teal-100 border-teal-500/50", icon: "⬢", permalink: "https://anvilcompounds.shop/product/ghk-cu/", image: "/products/ghkcu.jpg", hasCoa: true, coaApplicable: true, sizes: [], documentationFile: null, documentationImage: null },
-  { id: 346, name: "MOTS-c", category: "Metabolic Research", description: "Mitochondrial-derived compound studied in mitochondrial-nuclear communication, glucose metabolism, and cellular stress response.", price: "$59", purity: "99%+", badge: "Metabolic", badgeColor: "bg-violet-600/70 text-violet-100 border-violet-500/50", icon: "⬥", permalink: "https://anvilcompounds.shop/product/mots-c/", image: "/products/motsc.png", hasCoa: false, coaApplicable: true, sizes: [], documentationFile: null, documentationImage: null },
-  { id: 443, name: "NAD+", category: "Metabolic Research", description: "Coenzyme central to cellular energy metabolism and redox reactions, studied in mitochondrial and aging research models.", price: "$64", purity: "99%+", badge: "Cellular Energy", badgeColor: "bg-emerald-600/70 text-emerald-100 border-emerald-500/50", icon: "◇", permalink: "https://anvilcompounds.shop/product/nad-plus/", image: "/products/nad.png", hasCoa: false, coaApplicable: true, sizes: [], documentationFile: null, documentationImage: null },
-  { id: 446, name: "CJC-1295 + Ipamorelin", category: "Growth Pathway Research", description: "Combined growth-hormone secretagogue blend, studied for synergistic effects on GH pulsatility research models.", price: "$63", originalPrice: "$73", purity: "99%+", badge: "GH Blend", badgeColor: "bg-orange-600/70 text-orange-100 border-orange-500/50", icon: "⬧", permalink: "https://anvilcompounds.shop/product/cjc-1295-ipamorelin/", image: "/products/cjcipa.png", hasCoa: false, coaApplicable: true, sizes: [], documentationFile: null, documentationImage: null },
-  { id: 445, name: "Tesamorelin", category: "Growth Pathway Research", description: "Synthetic GHRH analogue studied in research involving growth hormone axis regulation.", price: "$79", purity: "99%+", badge: "GHRH Research", badgeColor: "bg-yellow-600/70 text-yellow-100 border-yellow-500/50", icon: "⬟", permalink: "https://anvilcompounds.shop/product/tesamorelin/", image: "/products/tesa.png", hasCoa: false, coaApplicable: true, sizes: [], documentationFile: null, documentationImage: null },
-  { id: 450, name: "5-Amino-1MQ", category: "Metabolic Research", description: "Small-molecule NNMT inhibitor studied in research involving cellular metabolism and adipocyte models.", price: "$50", purity: "99%+", badge: "Metabolic Support", badgeColor: "bg-lime-600/70 text-lime-100 border-lime-500/50", icon: "⬥", permalink: "https://anvilcompounds.shop/product/5-amino-1mq/", image: "/products/5amino.png", hasCoa: false, coaApplicable: true, sizes: [], documentationFile: null, documentationImage: null },
-  { id: 449, name: "GLOW", category: "Longevity & Cosmetic Research", description: "A curated cosmetic-research compound blend, independently tested as a combined formulation.", price: "$109", purity: "99%+", badge: "Cosmetic Blend", badgeColor: "bg-pink-600/70 text-pink-100 border-pink-500/50", icon: "✦", permalink: "https://anvilcompounds.shop/product/glow/", image: "/products/glow.jpg", hasCoa: false, coaApplicable: true, sizes: [], documentationFile: null, documentationImage: null },
-  { id: 510, name: "Semax", category: "Cognitive Research", description: "Synthetic 7-amino-acid analogue of ACTH(4-10), studied in research involving neurotrophic factor expression, BDNF signaling, and neuroprotective pathway models.", price: "$54", purity: "99%+", badge: "Neuro Research", badgeColor: "bg-blue-600/70 text-blue-100 border-blue-500/50", icon: "◈", permalink: "https://anvilcompounds.shop/product/semax/", image: "https://paleturquoise-crane-581984.hostingersite.com/wp-content/uploads/2026/07/semaxproductphoto.png", hasCoa: false, coaApplicable: true, sizes: [], documentationFile: null, documentationImage: null },
-  { id: 511, name: "Selank", category: "Cognitive Research", description: "Synthetic 7-amino-acid analogue of tuftsin, studied in research involving GABAergic pathway modulation, neuro-signaling, and anxiety response models.", price: "$54", purity: "99%+", badge: "Anxiolytic Research", badgeColor: "bg-sky-600/70 text-sky-100 border-sky-500/50", icon: "◉", permalink: "https://anvilcompounds.shop/product/selank/", image: "https://paleturquoise-crane-581984.hostingersite.com/wp-content/uploads/2026/07/selankproductphoto.png", hasCoa: false, coaApplicable: true, sizes: [], documentationFile: null, documentationImage: null },
-  { id: 349, name: "Bacteriostatic Water", category: "Research Supplies", description: "0.9% benzyl alcohol sterile water. Standard reconstitution solvent for lyophilized compound research. 3mL multi-use vial.", price: "$9", purity: "Sterility Certified", badge: "Essential Supply", badgeColor: "bg-slate-600/70 text-slate-100 border-slate-500/50", icon: "◎", permalink: "https://anvilcompounds.shop/product/bac-water/", image: null, hasCoa: true, coaApplicable: false, sizes: [], documentationFile: null, documentationImage: null },
-];
 
 export function ProductCard({ product, index, animateIn = true }: { product: ProductCard; index: number; animateIn?: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -471,11 +444,16 @@ function SkeletonCard() {
   );
 }
 
-export default function ProductsSection() {
+export default function ProductsSection({ initialProducts }: { initialProducts?: ProductCard[] }) {
   const headerRef = useRef<HTMLDivElement>(null);
   const headerInView = useInView(headerRef, { once: true });
-  const [products, setProducts] = useState<ProductCard[]>(() => cachedProducts ?? []);
-  const [loading, setLoading] = useState(() => !cachedProducts);
+  // Products normally arrive server-rendered (app/catalog/page.tsx, ISR 60s),
+  // so the grid renders on hydration with no client round-trip to WC.
+  const seed = initialProducts?.length ? initialProducts : cachedProducts;
+  const [products, setProducts] = useState<ProductCard[]>(() => seed ?? []);
+  const [loading, setLoading] = useState(() => !seed);
+  const [loadError, setLoadError] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
   // Card entrance animation only on the first catalog visit this tab.
   const [animateCards] = useState(() => !cachedProducts);
   const [search, setSearch] = useState("");
@@ -500,19 +478,30 @@ export default function ProductsSection() {
   const [revealedViaClick, setRevealedViaClick] = useState(false);
 
   useEffect(() => {
+    if (initialProducts?.length) {
+      cachedProducts = initialProducts;
+      return;
+    }
+    // Client fetch only when the server couldn't supply products. A failure
+    // shows an error with retry rather than a stale hardcoded list.
+    let cancelled = false;
+    setLoading(true);
+    setLoadError(false);
     fetch("/api/products")
-      .then((r) => r.json())
+      .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
       .then((data) => {
+        if (cancelled) return;
         if (Array.isArray(data) && data.length > 0) {
           cachedProducts = data;
           setProducts(data);
         } else {
-          setProducts(FALLBACK_PRODUCTS);
+          setLoadError(true);
         }
       })
-      .catch(() => setProducts(FALLBACK_PRODUCTS))
-      .finally(() => setLoading(false));
-  }, []);
+      .catch(() => { if (!cancelled) setLoadError(true); })
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, [initialProducts, reloadKey]);
 
   // Derive sorted, deduplicated category list from live products
   const categories = useMemo(() => {
@@ -738,6 +727,18 @@ export default function ProductsSection() {
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4">
           {loading
             ? Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)
+            : loadError && products.length === 0
+              ? (
+                <div className="col-span-2 md:col-span-3 lg:col-span-5 text-center py-16 font-body text-mock-sub">
+                  <p className="mb-4">The catalog could not be loaded. Please try again.</p>
+                  <button
+                    onClick={() => setReloadKey((k) => k + 1)}
+                    className="px-4 py-2 border border-mock-cobalt/30 bg-mock-cobalt/10 hover:bg-mock-cobalt hover:text-white text-mock-cobaltInk text-sm font-display font-600 rounded-lg transition-colors"
+                  >
+                    Retry
+                  </button>
+                </div>
+              )
             : filtered.length > 0
               ? filtered.map((product, i) => (
                   <div

@@ -1,3 +1,4 @@
+import { SUPPLIES_CATEGORY } from "@/lib/catalogLabels";
 // Display-only title suffixing — never apply this to the underlying product
 // `name` used for cart items, WC order line items, slug/image/popularity
 // lookups, or anything sent to WooCommerce. Titles only.
@@ -6,7 +7,7 @@
 // "Research Compound" suffix doesn't apply: Research Supplies (e.g.
 // Bacteriostatic Water) and Research Bundles (multiple products co-shipped,
 // already named).
-const NON_COMPOUND_CATEGORIES = new Set(["Research Supplies", "Research Bundles"]);
+const NON_COMPOUND_CATEGORIES = new Set([SUPPLIES_CATEGORY, "Research Supplies"]);
 
 // Products with their own established name get their own suffix instead
 // of the generic "Research Compound".

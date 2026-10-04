@@ -1,3 +1,4 @@
+import { displayCategory } from "@/lib/catalogLabels";
 import type { ProductPageData } from "@/components/ProductPageTemplate";
 
 // ─── Product page data fetching ────────────────────────────────────────────────
@@ -119,25 +120,6 @@ const SLUG_TO_NAME: Record<string, string> = {
   "selank":                "Selank",
 };
 
-const SLUG_TO_CATEGORY: Record<string, string> = {
-  "bpc-157":    "Repair & Recovery Research",
-  "ac2t":       "Metabolic Research",
-  "ac3r":       "Metabolic Research",
-  "klow":       "Longevity & Cosmetic Research",
-  "ghk-cu":     "Longevity & Cosmetic Research",
-  "tb-500":     "Repair & Recovery Research",
-  "mots-c":     "Metabolic Research",
-  "bac-water":  "Research Supplies",
-  "nad-plus":              "Metabolic Research",
-  "tesamorelin":           "Growth Pathway Research",
-  "cjc-1295-ipamorelin":   "Growth Pathway Research",
-  "5-amino-1mq":           "Metabolic Research",
-  "bpc-157-tb-500":        "Repair & Recovery Research",
-  "glow":                  "Longevity & Cosmetic Research",
-  "semax":                 "Cognitive Research",
-  "selank":                "Cognitive Research",
-};
-
 const RELATED_MAP: Record<string, string[]> = {
   "bpc-157":    ["tb-500", "bpc-157-tb-500", "glow"],
   "ac2t":       ["ac3r", "mots-c", "5-amino-1mq"],
@@ -163,6 +145,7 @@ interface WCProductFull {
   id: number;
   name: string;
   slug: string;
+  sku: string;
   type: string;
   price: string;
   regular_price: string;
@@ -341,7 +324,7 @@ export async function getProductPageData(slug: string): Promise<ProductPageData 
     return {
       slug,
       name:        product.name,
-      category:    product.categories[0]?.name ?? "Research Compounds",
+      category:    displayCategory(stripHtml(product.categories[0]?.name ?? "Research Compounds")),
       subtitle:    meta["subtitle"] ?? "",
       price:       `$${basePrice.toFixed(2)}`,
       priceNumber: sizesPrices[0] ?? basePrice,
@@ -369,6 +352,9 @@ export async function getProductPageData(slug: string): Promise<ProductPageData 
       moleculeImage:        SLUG_TO_MOLECULE_IMAGE[slug]        ?? null,
       documentationCaption: meta["documentation_caption"]       ?? "",
       propertiesTable,
+      catalogCode:          product.sku || null,
+      purity:               meta["hplc_purity"] || null,
+      lotId:                meta["current_lot_id"] || null,
       shippingType: (meta["shipping_type"] as "standard" | "ambient") ?? "standard",
       relatedProducts,
     };
@@ -390,32 +376,32 @@ const DEFAULT_BADGE = { label: "Verified", color: "bg-slate-600/70 text-slate-10
 // unrelated rotation — a product's badge should never depend on its
 // position in the WooCommerce response.
 const PRODUCT_BADGES: Record<string, { label: string; color: string }> = {
-  "BPC-157":                                      { label: "High Demand",       color: "bg-indigo-600/70 text-indigo-100 border-indigo-500/50" },
-  "BPC-157 + TB-500":                              { label: "Exclusive Blend",   color: "bg-purple-600/70 text-purple-100 border-purple-500/50" },
-  "TB-500":                                       { label: "Recovery Staple",   color: "bg-amber-600/70 text-amber-100 border-amber-500/50" },
-  "KLOW":                                         { label: "Premium Blend",     color: "bg-fuchsia-600/70 text-fuchsia-100 border-fuchsia-500/50" },
-  "GLOW":                                         { label: "Cosmetic Blend",    color: "bg-pink-600/70 text-pink-100 border-pink-500/50" },
-  "GHK-Cu":                                       { label: "Entry Point",       color: "bg-teal-600/70 text-teal-100 border-teal-500/50" },
-  "T1rz":                                         { label: "Dual Agonist",      color: "bg-cyan-600/70 text-cyan-100 border-cyan-500/50" },
-  "Trz- dual receptor":                           { label: "Dual Agonist",      color: "bg-cyan-600/70 text-cyan-100 border-cyan-500/50" },
-  "Dual Receptor (T)":                            { label: "Dual Agonist",      color: "bg-cyan-600/70 text-cyan-100 border-cyan-500/50" },
-  "GLP-TRZ":                                      { label: "Dual Agonist",      color: "bg-cyan-600/70 text-cyan-100 border-cyan-500/50" },
-  "AC2T":                                         { label: "Dual Agonist",      color: "bg-cyan-600/70 text-cyan-100 border-cyan-500/50" },
-  "R3ta":                                         { label: "Triple Agonist",    color: "bg-rose-600/70 text-rose-100 border-rose-500/50" },
-  "Rta - triple agonist":                         { label: "Triple Agonist",    color: "bg-rose-600/70 text-rose-100 border-rose-500/50" },
-  "triple agonist (R)":                           { label: "Triple Agonist",    color: "bg-rose-600/70 text-rose-100 border-rose-500/50" },
-  "Triple Agonist (R)":                           { label: "Triple Agonist",    color: "bg-rose-600/70 text-rose-100 border-rose-500/50" },
-  "GLP-RT":                                       { label: "Triple Agonist",    color: "bg-rose-600/70 text-rose-100 border-rose-500/50" },
-  "AC3R":                                         { label: "Triple Agonist",    color: "bg-rose-600/70 text-rose-100 border-rose-500/50" },
-  "MOTS-c":                                       { label: "Metabolic",         color: "bg-violet-600/70 text-violet-100 border-violet-500/50" },
-  "NAD+":                                         { label: "Cellular Energy",   color: "bg-emerald-600/70 text-emerald-100 border-emerald-500/50" },
-  "CJC-1295 + Ipamorelin":                        { label: "GH Blend",          color: "bg-orange-600/70 text-orange-100 border-orange-500/50" },
-  "Tesamorelin":                                  { label: "GHRH Research",     color: "bg-yellow-600/70 text-yellow-100 border-yellow-500/50" },
-  "5-Amino-1MQ":                                  { label: "Metabolic Support", color: "bg-lime-600/70 text-lime-100 border-lime-500/50" },
-  "Semax":                                        { label: "Neuro Research",    color: "bg-blue-600/70 text-blue-100 border-blue-500/50" },
-  "Selank":                                       { label: "Anxiolytic Research", color: "bg-sky-600/70 text-sky-100 border-sky-500/50" },
-  "Bacteriostatic Water":                         { label: "Essential Supply",  color: "bg-slate-600/70 text-slate-100 border-slate-500/50" },
-  "Reconstitution Solution – for Laboratory Use": { label: "Essential Supply",  color: "bg-slate-600/70 text-slate-100 border-slate-500/50" },
+  "BPC-157":                                      { label: "Synthetic Peptide",       color: "bg-slate-100 text-slate-700 border-slate-300" },
+  "BPC-157 + TB-500":                              { label: "Peptide Blend",   color: "bg-slate-100 text-slate-700 border-slate-300" },
+  "TB-500":                                       { label: "Synthetic Peptide",   color: "bg-slate-100 text-slate-700 border-slate-300" },
+  "KLOW":                                         { label: "Peptide Blend",     color: "bg-slate-100 text-slate-700 border-slate-300" },
+  "GLOW":                                         { label: "Peptide Blend",    color: "bg-slate-100 text-slate-700 border-slate-300" },
+  "GHK-Cu":                                       { label: "Copper Peptide",       color: "bg-slate-100 text-slate-700 border-slate-300" },
+  "T1rz":                                         { label: "Dual Agonist",      color: "bg-slate-100 text-slate-700 border-slate-300" },
+  "Trz- dual receptor":                           { label: "Dual Agonist",      color: "bg-slate-100 text-slate-700 border-slate-300" },
+  "Dual Receptor (T)":                            { label: "Dual Agonist",      color: "bg-slate-100 text-slate-700 border-slate-300" },
+  "GLP-TRZ":                                      { label: "Dual Agonist",      color: "bg-slate-100 text-slate-700 border-slate-300" },
+  "AC2T":                                         { label: "Dual Agonist",      color: "bg-slate-100 text-slate-700 border-slate-300" },
+  "R3ta":                                         { label: "Triple Agonist",    color: "bg-slate-100 text-slate-700 border-slate-300" },
+  "Rta - triple agonist":                         { label: "Triple Agonist",    color: "bg-slate-100 text-slate-700 border-slate-300" },
+  "triple agonist (R)":                           { label: "Triple Agonist",    color: "bg-slate-100 text-slate-700 border-slate-300" },
+  "Triple Agonist (R)":                           { label: "Triple Agonist",    color: "bg-slate-100 text-slate-700 border-slate-300" },
+  "GLP-RT":                                       { label: "Triple Agonist",    color: "bg-slate-100 text-slate-700 border-slate-300" },
+  "AC3R":                                         { label: "Triple Agonist",    color: "bg-slate-100 text-slate-700 border-slate-300" },
+  "MOTS-c":                                       { label: "Mitochondrial Peptide",         color: "bg-slate-100 text-slate-700 border-slate-300" },
+  "NAD+":                                         { label: "Coenzyme",   color: "bg-slate-100 text-slate-700 border-slate-300" },
+  "CJC-1295 + Ipamorelin":                        { label: "Peptide Blend",          color: "bg-slate-100 text-slate-700 border-slate-300" },
+  "Tesamorelin":                                  { label: "GHRH Analogue",     color: "bg-slate-100 text-slate-700 border-slate-300" },
+  "5-Amino-1MQ":                                  { label: "Small Molecule", color: "bg-slate-100 text-slate-700 border-slate-300" },
+  "Semax":                                        { label: "Peptide Analogue",    color: "bg-slate-100 text-slate-700 border-slate-300" },
+  "Selank":                                       { label: "Peptide Analogue", color: "bg-slate-100 text-slate-700 border-slate-300" },
+  "Bacteriostatic Water":                         { label: "Laboratory Supply",  color: "bg-slate-100 text-slate-700 border-slate-300" },
+  "Reconstitution Solution – for Laboratory Use": { label: "Laboratory Supply",  color: "bg-slate-100 text-slate-700 border-slate-300" },
 };
 
 function stripHtml(html: string): string {
@@ -450,6 +436,7 @@ function getAttributeOptions(product: WCProduct, name: string): string[] {
 export interface WCProduct {
   id: number;
   name: string;
+  sku?: string;
   type: string;
   short_description: string;
   price: string;
@@ -482,6 +469,7 @@ export interface ProductCard {
   // (see NO_COA_REQUIRED_IDS) — hides the "View COA" button entirely rather
   // than opening a modal with nothing in it.
   coaApplicable: boolean;
+  sku?: string | null;
   sizes: string[];
   // Lets the catalog card open the COA directly (see ProductsSection.tsx)
   // instead of routing to /coas. Product-level only — the card doesn't
@@ -490,8 +478,7 @@ export interface ProductCard {
   documentationImage: string | null;
   // Product-level manage_stock/stock_quantity only — null/undefined
   // whenever stock isn't tracked at the product level (e.g. variable
-  // products, which WC only tracks per-variation, or FALLBACK_PRODUCTS
-  // below, which predates this field). The catalog card has no size
+  // products, which WC only tracks per-variation). The catalog card has no size
   // selector, so there's no cheap way to resolve a variable product's
   // per-variation number here without an extra /variations fetch per card;
   // the product detail page (sizesStock in ProductPageData) is where
@@ -612,18 +599,22 @@ export function mapProduct(product: WCProduct, index: number, originalPriceOverr
   return {
     id:          product.id,
     name:        product.name,
-    category:    stripHtml(product.categories[0]?.name ?? "Research Compound"),
+    category:    displayCategory(stripHtml(product.categories[0]?.name ?? "Research Compound")),
     description: stripHtml(product.short_description) || "Research-grade compound with full COA documentation.",
     price:       product.price ? `$${product.price}` : "—",
     originalPrice,
     purity:      getAttribute(product, "Purity") ?? extractPurity(product) ?? "99%+",
-    badge:       getAttribute(product, "Badge")  ?? badge.label,
+    // Code-defined labels take precedence over WC's legacy "Badge" product
+    // attribute (which still holds the old marketing labels); the attribute
+    // only applies to products with no entry in PRODUCT_BADGES.
+    badge:       PRODUCT_BADGES[product.name]?.label ?? getAttribute(product, "Badge") ?? badge.label,
     badgeColor:  badge.color,
     icon:        ICONS[index % ICONS.length],
     permalink:   PRODUCT_PAGE_URLS[product.name] ?? product.permalink,
     image:       LOCAL_PRODUCT_IMAGES[product.name] ?? product.images[0]?.src ?? null,
     hasCoa:      !IDS_WITHOUT_COA.has(product.id),
     coaApplicable: !NO_COA_REQUIRED_IDS.has(product.id),
+    sku:         product.sku || null,
     sizes:       getAttributeOptions(product, "Size"),
     documentationFile:  normalizeDocumentUrl(meta["documentation_file"]),
     documentationImage: meta["documentation_image"] ?? null,
@@ -641,13 +632,16 @@ export function mapProduct(product: WCProduct, index: number, originalPriceOverr
 // rather than by category, since they're deliberately left Uncategorized.
 const LIBRARY_GUIDE_NAME_PATTERN = /Laboratory Research Guide/i;
 
+// Only the fields mapProduct/getProducts read — roughly halves the WC payload.
+const LIST_FIELDS = "id,name,sku,type,short_description,price,regular_price,on_sale,permalink,categories,attributes,images,meta_data,manage_stock,stock_quantity";
+
 export async function getProducts(): Promise<ProductCard[]> {
   const url    = process.env.WC_URL;
   const key    = process.env.WC_CONSUMER_KEY;
   const secret = process.env.WC_CONSUMER_SECRET;
 
   const res = await fetch(
-    `${url}/wp-json/wc/v3/products?consumer_key=${key}&consumer_secret=${secret}&status=publish&per_page=100`,
+    `${url}/wp-json/wc/v3/products?consumer_key=${key}&consumer_secret=${secret}&status=publish&per_page=100&_fields=${LIST_FIELDS}`,
     { next: { revalidate: 60, tags: ["wc-products"] } }
   );
 
@@ -668,7 +662,7 @@ export async function getProducts(): Promise<ProductCard[]> {
     await Promise.all(
       variableProducts.map(async (p) => {
         const varRes = await fetch(
-          `${url}/wp-json/wc/v3/products/${p.id}/variations?consumer_key=${key}&consumer_secret=${secret}&per_page=50`,
+          `${url}/wp-json/wc/v3/products/${p.id}/variations?consumer_key=${key}&consumer_secret=${secret}&per_page=50&_fields=price,regular_price,attributes`,
           { next: { revalidate: 60, tags: ["wc-products"] } }
         );
         if (!varRes.ok) return;

@@ -1,19 +1,17 @@
 "use client";
 
 import { useRef } from "react";
-import Image from "next/image";
 import { motion, useInView } from "framer-motion";
 
-// The "Southern California" callout, promoted to its own full section and
-// paired with a shipping photo — previously a nested card inside
-// TrustSection. See INTEGRATION-BRIEF.md section 06 / Operations.
+// The "Southern California" callout, promoted to its own full section —
+// previously a nested card inside TrustSection. (Shipping photo removed.) See INTEGRATION-BRIEF.md section 06 / Operations.
 export default function OperationsSection() {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-80px" });
 
   return (
     <section className="relative bg-mock-page py-[76px] lg:py-[64px] overflow-hidden">
-      <div ref={ref} className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-8 lg:gap-10 items-center">
+      <div ref={ref} className="max-w-3xl mx-auto px-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
@@ -65,21 +63,6 @@ export default function OperationsSection() {
           </div>
         </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6, delay: 0.1 }}
-          className="relative w-full max-w-[90%] lg:max-w-[78%] mx-auto aspect-square rounded-2xl overflow-hidden border border-mock-line"
-        >
-          <Image
-            src="/images/homepage/shipping-info.jpg"
-            alt="A gloved hand placing an Anvil Compounds vial into a shipping box with three labeled vials — Same-Day Dispatch, Cold Chain Storage, Free Shipping Orders $100+ — and a shipping label"
-            fill
-            className="object-cover"
-            sizes="(max-width: 1024px) 90vw, 45vw"
-            loading="lazy"
-          />
-        </motion.div>
       </div>
     </section>
   );
