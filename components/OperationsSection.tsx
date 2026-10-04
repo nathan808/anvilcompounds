@@ -1,68 +1,60 @@
-"use client";
+import SciIcon, { type SciIconName } from "@/components/SciIcon";
 
-import { useRef } from "react";
-import { motion, useInView } from "framer-motion";
+const SHIPPING: { icon: SciIconName; label: string; detail: string }[] = [
+  { icon: "clock",       label: "Order cutoff", detail: "Orders placed before 12 PM PT ship the same day." },
+  { icon: "truck",       label: "Carrier",      detail: "USPS Priority Mail, usually 2–5 business days within the U.S." },
+  { icon: "tag",         label: "Tracking",     detail: "You'll get a tracking number as soon as your order ships." },
+  { icon: "box",         label: "Packaging",    detail: "Plain, discreet outer packaging on every order." },
+  { icon: "thermometer", label: "On arrival",   detail: "Store vials at 2–8 °C, away from light, until you're ready to use them." },
+  { icon: "shield",      label: "Damaged order", detail: "Email us and we'll ship a replacement within 48 hours." },
+];
 
-// The "Southern California" callout, promoted to its own full section —
-// previously a nested card inside TrustSection. (Shipping photo removed.) See INTEGRATION-BRIEF.md section 06 / Operations.
 export default function OperationsSection() {
-  const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-80px" });
-
   return (
-    <section className="relative bg-mock-page py-[76px] lg:py-[64px] overflow-hidden">
-      <div ref={ref} className="max-w-3xl mx-auto px-6">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
-        >
-          <div className="flex items-center gap-2 mb-2">
-            <span className="w-2 h-2 rounded-full bg-mock-cobalt pulse-ring" />
-            <span className="font-mono text-xs text-mock-cobaltInk tracking-widest uppercase">Southern California</span>
+    <section className="relative bg-mock-page py-16 md:py-20 overflow-hidden">
+      <div className="max-w-6xl mx-auto px-6">
+        <div className="mb-8">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-6 h-px bg-mock-cobalt" />
+            <span className="font-mono text-xs text-mock-cobaltInk tracking-[0.2em] uppercase">
+              Shipping · Southern California
+            </span>
           </div>
-          <h2
-            className="font-heading font-700 text-mock-navy mb-3"
-            style={{ fontSize: "clamp(1.9rem, 3.4vw, 2.35rem)" }}
-          >
-            Domestic. Reliable.
-            <br />
-            <span className="font-800 italic text-mock-cobalt">Accountable.</span>
+          <h2 className="font-display font-700 text-mock-navy text-2xl md:text-3xl mb-3">
+            How your order ships
           </h2>
-          <p className="font-body text-mock-sub text-base leading-relaxed mb-4 max-w-md">
-            Prepared and dispatched from our Southern California facility.
-            USPS Priority, 2–5 business days, tracking at fulfillment,
-            with discreet shipping on every order.
+          <p className="font-body text-mock-sub leading-relaxed max-w-2xl">
+            Every order is packed and shipped from our facility in Southern California. Here&rsquo;s
+            what to expect after you check out.
           </p>
+        </div>
 
-          <div className="flex flex-wrap gap-2.5 mb-5">
-            <div className="px-3.5 py-2 rounded-lg border border-mock-cobalt/20 bg-mock-cobalt/10">
-              <span className="font-mono text-xs text-mock-cobaltInk tracking-wider">USPS Priority</span>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+          {SHIPPING.map((row) => (
+            <div key={row.label} className="bg-white border border-mock-line rounded-xl p-5">
+              <div className="flex items-center gap-2.5 mb-2 text-mock-cobaltInk">
+                <SciIcon name={row.icon} />
+                <span className="font-mono text-[11px] text-mock-sub tracking-[0.15em] uppercase">{row.label}</span>
+              </div>
+              <p className="font-body text-sm text-mock-navy leading-relaxed">{row.detail}</p>
             </div>
-            <div className="px-3.5 py-2 rounded-lg border border-mock-cobalt/20 bg-mock-cobalt/10">
-              <span className="font-mono text-xs text-mock-cobaltInk tracking-wider">2-5 Day Delivery</span>
-            </div>
-            <div className="px-3.5 py-2 rounded-lg border border-mock-cobalt/20 bg-mock-cobalt/10">
-              <span className="font-mono text-xs text-mock-cobaltInk tracking-wider">Order Tracking</span>
-            </div>
-          </div>
+          ))}
+        </div>
 
-          <div className="flex flex-wrap gap-2.5">
-            <a
-              href="/account?tab=tracking"
-              className="px-5 py-2.5 bg-mock-cobalt hover:bg-mock-cobaltInk text-white font-display font-700 text-sm tracking-wide rounded-md transition-all duration-300"
-            >
-              Track an Order
-            </a>
-            <a
-              href="/legal/shipping-policy"
-              className="px-5 py-2.5 border border-mock-line hover:border-mock-cobalt text-mock-cobaltInk hover:text-mock-cobalt font-display font-600 text-sm tracking-wide rounded-md transition-all duration-300 bg-white/60 hover:bg-white/90"
-            >
-              Shipping Policy →
-            </a>
-          </div>
-        </motion.div>
-
+        <div className="flex flex-wrap gap-2.5">
+          <a
+            href="/account?tab=tracking"
+            className="px-5 py-2.5 bg-mock-cobalt hover:bg-mock-cobaltInk text-white font-display font-600 text-sm rounded-lg transition-colors"
+          >
+            Track an Order
+          </a>
+          <a
+            href="/legal/shipping-policy"
+            className="px-5 py-2.5 border border-mock-line hover:border-mock-cobalt text-mock-cobaltInk font-display font-600 text-sm rounded-lg transition-colors bg-white"
+          >
+            Shipping Policy →
+          </a>
+        </div>
       </div>
     </section>
   );

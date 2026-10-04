@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import SciIcon, { type SciIconName } from "@/components/SciIcon";
 import { BOGO_ENABLED } from "@/lib/bogoDiscount";
 
@@ -15,18 +16,18 @@ const SPEC_ROWS: { icon: SciIconName; label: string; value: string }[] = [
 
 export default function HeroSection() {
   return (
-    <section className="relative overflow-hidden bg-mock-page border-b border-mock-line">
-      {/* Faint measurement grid in place of photography. */}
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 opacity-[0.35] pointer-events-none"
-        style={{
-          backgroundImage:
-            "linear-gradient(to right, #D8E1EE 1px, transparent 1px), linear-gradient(to bottom, #D8E1EE 1px, transparent 1px)",
-          backgroundSize: "48px 48px",
-          maskImage: "linear-gradient(to bottom, black 40%, transparent 100%)",
-        }}
+    <section className="relative overflow-hidden border-b border-mock-line">
+      {/* Original light science-pattern background. */}
+      <Image
+        src="/images/hero-bg.jpeg"
+        alt=""
+        fill
+        className="object-cover object-center"
+        priority
+        sizes="100vw"
+        quality={90}
       />
+      <div className="absolute inset-0 bg-white/40" />
 
       {/* Clears the fixed navbar (and the promo bar above it when shown). */}
       {BOGO_ENABLED && <div className="h-9" />}
@@ -40,10 +41,11 @@ export default function HeroSection() {
               </span>
             </div>
             <h1
-              className="font-display font-700 text-mock-navy leading-[1.1] tracking-tight mb-5"
-              style={{ fontSize: "clamp(2rem, 4.2vw, 3.25rem)" }}
+              className="font-heading font-700 leading-[0.95] mb-5"
+              style={{ fontSize: "clamp(2rem, 4.2vw, 3.4rem)", textShadow: "0 1px 12px rgba(255,255,255,0.95)" }}
             >
-              Research peptides, documented lot by lot.
+              <span className="block font-display font-700 italic text-mock-ink">Forged for research.</span>
+              <span className="block font-800 italic text-mock-cobalt">Verified by data.</span>
             </h1>
             <p className="font-body text-base md:text-lg text-mock-sub leading-relaxed max-w-xl mb-8">
               Lyophilized research reagents supplied with lot-specific Certificates of Analysis

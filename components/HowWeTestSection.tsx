@@ -1,121 +1,101 @@
-"use client";
-
 import Image from "next/image";
+import Link from "next/link";
+import SciIcon, { type SciIconName } from "@/components/SciIcon";
 
-const methods = [
+const TESTS: { icon: SciIconName; name: string; checks: string; standard: string }[] = [
   {
-    step: "01",
-    name: "HPLC — Purity",
-    description:
-      "Each lot is run through a stationary phase under pressure, and the resulting chromatogram tells us exactly what's active compound and what's impurity, down to the ppm. Our purity floor is 99%. A batch that tests below it doesn't leave the lab.",
+    icon: "chromatogram",
+    name: "HPLC",
+    checks: "Purity. Separates the sample so you can see how much is the actual compound and how much is impurity.",
+    standard: "99% or higher. A lot that tests below that doesn't ship.",
   },
   {
-    step: "02",
-    name: "Mass Spec — Identity",
-    description:
-      "Ionization and mass-to-charge analysis pins down the exact molecular identity of the compound in the vial. We're not trusting a label, we're measuring a molecule. If the spectrum doesn't match spec, the batch doesn't ship.",
+    icon: "spectrum",
+    name: "Mass spectrometry",
+    checks: "Identity. Measures the molecule itself, so we're not just trusting a label.",
+    standard: "Has to match the expected molecular mass.",
   },
   {
-    step: "03",
+    icon: "droplet",
     name: "Endotoxin (LAL)",
-    description:
-      "Every batch runs a Limulus Amebocyte Lysate assay for bacterial endotoxins, a screen most research suppliers skip to save time and cost. Endotoxin contamination has no smell and leaves no visible trace, which is exactly why we treat this test as mandatory, not optional.",
+    checks: "Bacterial endotoxins. You can't see or smell them, which is why we test every lot.",
+    standard: "Has to pass. Run to the USP <85> method.",
   },
 ];
 
 export default function HowWeTestSection() {
   return (
-    <section id="testing" className="relative bg-mock-surface2 border-y border-mock-line py-[76px]">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="grid lg:grid-cols-[1fr_380px] gap-8 lg:gap-10 items-center mb-12">
-          <div className="max-w-2xl">
+    <section id="testing" className="relative bg-mock-surface2 border-y border-mock-line py-16 md:py-20 scroll-mt-24">
+      <div className="max-w-6xl mx-auto px-6">
+        <div className="grid lg:grid-cols-[1.4fr_1fr] gap-8 lg:gap-12 items-center mb-10">
+          <div>
             <div className="flex items-center gap-3 mb-3">
               <div className="w-6 h-px bg-mock-cobalt" />
-              <span className="font-mono text-xs text-mock-cobaltInk tracking-[0.25em] uppercase">
-                003 / Anvil Standards
+              <span className="font-mono text-xs text-mock-cobaltInk tracking-[0.2em] uppercase">
+                003 / Testing Protocol
               </span>
             </div>
-
-            <h2
-              className="font-heading font-700 text-mock-navy mb-4"
-              style={{ fontSize: "clamp(2.1rem, 4.4vw, 3.5rem)" }}
-            >
-              Testing <span className="font-800 italic text-mock-cobalt">Protocol</span>
+            <h2 className="font-display font-700 text-mock-navy text-2xl md:text-3xl mb-3">
+              How every lot is tested
             </h2>
-
-            <p className="font-body text-mock-sub text-base leading-relaxed">
-              Every lot clears independent assays before it lists. No shortcuts. No batch
-              skips a step. Nothing ships until the data confirms spec.
+            <p className="font-body text-mock-sub leading-relaxed max-w-xl">
+              We don&rsquo;t test our own products in-house. Every lot goes to an independent lab,
+              and it has to pass all three tests below before we list it.
             </p>
           </div>
-
-          <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden border border-mock-line hidden lg:block">
+          <div className="relative aspect-[4/3] rounded-xl overflow-hidden border border-mock-line">
             <Image
               src="/images/homepage/hplc-instrument.jpg"
               alt="HPLC instrument running a purity analysis with chromatogram on screen"
               fill
               className="object-cover"
-              sizes="420px"
+              sizes="(max-width: 1024px) 100vw, 40vw"
               loading="lazy"
             />
           </div>
         </div>
 
-        {/* Proto cards — simple numbered cards matching the mockup */}
-        <div className="grid gap-3">
-          {methods.map((method) => (
-            <div
-              key={method.step}
-              className="bg-white border border-mock-line rounded-xl p-4 md:p-[18px] flex gap-4"
-            >
-              <div
-                className="shrink-0 w-9 h-9 rounded-lg bg-mock-graphite text-mock-cobaltLight font-heading italic font-800 flex items-center justify-center"
-                style={{ fontSize: "15.4px" }}
-              >
-                {method.step}
-              </div>
-              <div>
-                <h4 className="font-display font-700 text-[15px] text-mock-navy">{method.name}</h4>
-                <p className="text-[13px] text-mock-sub mt-1 leading-relaxed">{method.description}</p>
-              </div>
-            </div>
-          ))}
+        <div className="border border-mock-line rounded-xl overflow-x-auto bg-white mb-6">
+          <table className="w-full min-w-[620px] text-left">
+            <thead className="bg-mock-surface2 border-b border-mock-line">
+              <tr className="font-mono text-[11px] text-mock-sub tracking-[0.15em] uppercase">
+                <th scope="col" className="px-5 py-3 font-400">Test</th>
+                <th scope="col" className="px-5 py-3 font-400">What it checks</th>
+                <th scope="col" className="px-5 py-3 font-400">What it has to show</th>
+              </tr>
+            </thead>
+            <tbody>
+              {TESTS.map((t) => (
+                <tr key={t.name} className="border-b border-mock-line last:border-0 align-top">
+                  <th scope="row" className="px-5 py-4 text-left w-[24%]">
+                    <span className="inline-flex items-center gap-2.5 font-display font-600 text-sm text-mock-navy">
+                      <span className="text-mock-cobaltInk/70"><SciIcon name={t.icon} /></span>
+                      {t.name}
+                    </span>
+                  </th>
+                  <td className="px-5 py-4 font-body text-sm text-mock-sub leading-relaxed">{t.checks}</td>
+                  <td className="px-5 py-4 font-body text-sm text-mock-navy leading-relaxed">{t.standard}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
 
-        {/* COA callout */}
-        <a
-          href="/coas"
-          className="mt-8 p-5 md:p-6 rounded-xl border border-mock-line bg-white flex flex-col md:flex-row gap-5 md:items-center hover:border-mock-cobalt/40 hover:shadow-lg hover:shadow-mock-cobalt/5 transition-all duration-300 cursor-pointer"
-        >
-          <div className="flex-grow">
-            <h3 className="font-display font-700 text-mock-navy text-xl mb-2">
-              Certificate of Analysis, Every Batch
-            </h3>
-            <p className="font-body text-mock-sub text-sm leading-relaxed max-w-lg">
-              Every order ships with a full COA covering all three assay results. Scan the QR
-              code to confirm your batch against our independent testing portal.
-            </p>
-          </div>
-          <div className="shrink-0">
-            <div className="w-20 h-20 md:w-24 md:h-24 rounded-xl border-2 border-mock-cobalt/30 bg-mock-surface2 flex items-center justify-center float">
-              <div className="grid grid-cols-3 gap-1.5 p-3">
-                {Array.from({ length: 9 }).map((_, k) => (
-                  <div
-                    key={k}
-                    className="w-4 h-4 rounded-sm"
-                    style={{
-                      backgroundColor: [0, 2, 6, 8].includes(k)
-                        ? "#1F5AE0"
-                        : Math.random() > 0.5
-                        ? "#0A2547"
-                        : "#7FA4EC",
-                    }}
-                  />
-                ))}
-              </div>
-            </div>
-          </div>
-        </a>
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4 justify-between bg-white border border-mock-line rounded-xl px-5 py-4">
+          <p className="inline-flex items-start gap-3 font-body text-sm text-mock-sub leading-relaxed">
+            <span className="text-mock-cobaltInk/70 mt-0.5"><SciIcon name="document" /></span>
+            <span>
+              All three results are on the lot&rsquo;s Certificate of Analysis, which comes with every
+              order. Each COA has a code you can use to look the result up with the testing lab.
+            </span>
+          </p>
+          <Link
+            href="/coas"
+            className="shrink-0 font-display font-600 text-sm text-mock-cobaltInk hover:text-mock-cobalt"
+          >
+            Browse the COA Library →
+          </Link>
+        </div>
       </div>
     </section>
   );
