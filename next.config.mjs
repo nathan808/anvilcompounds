@@ -1,5 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // private/documents/ is read at runtime by app/documents/[...path]/route.ts
+  // via fs, which Next's file tracer can't see — include it explicitly or
+  // the files won't ship in the Vercel function bundle.
+  experimental: {
+    outputFileTracingIncludes: {
+      "/documents/[...path]": ["./private/documents/**/*"],
+    },
+  },
   // AC Research Library is a WordPress plugin living on the same
   // WordPress/WooCommerce install as this store's backend, reachable
   // directly at anvilcompounds.shop -- but that apex domain force-
@@ -36,6 +44,8 @@ const nextConfig = {
       // GLP-TRZ/GLP-RT were the canonical slugs before the Aug 2026 AC2T/AC3R rename.
       { source: "/products/glp-trz",          destination: "/products/ac2t", permanent: true },
       { source: "/products/glp-rt",           destination: "/products/ac3r", permanent: true },
+      // "Return Policy" was renamed "Refund Policy".
+      { source: "/legal/return-policy",     destination: "/legal/refund-policy", permanent: true },
       // FAQ and the Journal index were merged into a single tabbed /learn hub.
       // Individual /blog/[slug] posts are unaffected (no wildcard here).
       { source: "/faq",                       destination: "/learn?tab=faq", permanent: true },

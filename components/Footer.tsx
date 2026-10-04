@@ -2,12 +2,13 @@
 
 import { motion } from "framer-motion";
 import AnvilMark from "@/components/AnvilMark";
+import { LEGAL_ENTITY_NAME } from "@/lib/siteConfig";
 
 const POLICY_PAGES = [
   { label: "Privacy Policy",  href: "/legal/privacy-policy" },
   { label: "Terms of Use",    href: "/legal/terms-of-use" },
   { label: "Cookie Policy",   href: "/legal/cookie-policy" },
-  { label: "Return Policy",   href: "/legal/return-policy" },
+  { label: "Refund Policy",   href: "/legal/refund-policy" },
   { label: "Shipping Policy", href: "/legal/shipping-policy" },
   { label: "RUO Policy",      href: "/legal/ruo-policy" },
 ];
@@ -172,7 +173,7 @@ export default function Footer() {
           {/* Bottom bar */}
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="font-mono text-xs text-white/60">
-              © {new Date().getFullYear()} Anvil Compounds. All rights reserved. San Diego, CA.
+              © {new Date().getFullYear()} {LEGAL_ENTITY_NAME}. All rights reserved. San Diego, CA.
             </p>
             <div className="flex items-center gap-6 flex-wrap justify-center">
               {POLICY_PAGES.slice(0, 3).map((item) => (

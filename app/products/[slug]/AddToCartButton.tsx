@@ -10,7 +10,6 @@ import { MAX_QTY_PER_ITEM } from "@/lib/volumePricing";
 import {
   BOGO_ENABLED,
   BOGO_EXCLUDED_PRODUCT_IDS,
-  BUNDLE_PRODUCT_IDS,
   computeBogoLineDiscount,
   tierDiscountPercent,
 } from "@/lib/bogoDiscount";
@@ -190,28 +189,6 @@ export default function AddToCartButton({
     setTimeout(() => setAdded(false), 2000);
     openCart();
   };
-
-  // ── Out-of-stock gate — Research Bundles ────────────────────────────────────
-  if (BUNDLE_PRODUCT_IDS.has(wcProductId)) {
-    return (
-      <div className="space-y-4">
-        <div className="p-6 rounded-xl border border-red-500/30 bg-red-500/10">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-2 h-2 rounded-full bg-red-500 shrink-0" />
-            <span className="font-mono text-xs text-red-700 tracking-[0.2em] uppercase">
-              Out of Stock
-            </span>
-          </div>
-          <p className="font-body text-sm text-mock-sub leading-relaxed">
-            This bundle is currently unavailable. Check back later, or browse individual compounds in the catalog.
-          </p>
-        </div>
-        <p className="text-center font-mono text-[10px] text-mock-sub tracking-wide">
-          RUO only · Not for human or veterinary use · 21+ required
-        </p>
-      </div>
-    );
-  }
 
   // ── Testing-in-progress gate ────────────────────────────────────────────────
   if (!hasCoa) {

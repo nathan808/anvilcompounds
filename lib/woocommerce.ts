@@ -20,26 +20,54 @@ const SLUG_TO_WC_ID: Record<string, number> = {
   "glow":                  449,
   "semax":                 510,
   "selank":                511,
-  // Research Bundles — Aug 2026. Each is a variable product with one
-  // variation spelling out the mix (same pattern as the existing
-  // BPC-157+TB-500 "Wolverine" bundle, id 447), reusing the real
-  // individually-tested COAs of the component compounds rather than a new
-  // lab test — see scripts/create-bundle-products.js for how these were built.
-  "energy-research-bundle":     1041,
-  "ghrh-bundle":                1043,
-  "metabolic-research-bundle":  1045,
-  "full-research-bundle":       1047,
-  "cognitive-research-bundle":  1049,
 };
 
-// Safety Data Sheets — static files under public/documents/sds/, keyed by
+// COA/SDS files live in private/documents/ (not public/) and are served by
+// app/documents/[...path]/route.ts behind the gate cookie. WC's
+// `documentation_file` meta still holds absolute URLs on the vercel.app host
+// (the apex host can't be stored — see the Hostinger rewrite gotcha) and, for
+// AC2T/AC3R, the pre-rename glp-* filenames. Normalise both at read time:
+// strip the origin so the browser requests the file same-origin (with the
+// gate cookie), and map renamed files to their coded names. COA-named files under
+// /wp-content/uploads are made relative the same way; anything else passes
+// through untouched.
+const RENAMED_DOCUMENTS: Record<string, string> = {
+  "glp-rt-20mg-coa.jpg":  "ac3r-20mg-coa.jpg",
+  "glp-rt-20mg-coa.pdf":  "ac3r-20mg-coa.pdf",
+  "glp-trz-10mg-coa.jpg": "ac2t-10mg-coa.jpg",
+  "glp-trz-10mg-coa.pdf": "ac2t-10mg-coa.pdf",
+  "glp-trz-20mg-coa.jpg": "ac2t-20mg-coa.jpg",
+  "glp-trz-20mg-coa.pdf": "ac2t-20mg-coa.pdf",
+  "sds/glp-rt.pdf":       "sds/ac3r.pdf",
+  "sds/glp-trz.pdf":      "sds/ac2t.pdf",
+};
+
+const WP_COA_UPLOAD = /^\/wp-content\/uploads\/.*coa(?:[^a-z0-9][^/]*)?\.(?:pdf|jpe?g|png)$/i; // keep in sync with middleware.ts WP_COA_FILE
+
+export function normalizeDocumentUrl(url: string | null | undefined): string | null {
+  if (!url) return null;
+  let pathname: string;
+  try {
+    pathname = new URL(url, "https://www.anvilcompounds.shop").pathname;
+  } catch {
+    return url;
+  }
+  // WP-uploaded COAs: keep the path (the /wp-content rewrite proxies it) but
+  // drop the origin so the browser requests it from www with the gate cookie.
+  if (WP_COA_UPLOAD.test(pathname)) return pathname;
+  if (!pathname.startsWith("/documents/")) return url;
+  const rest = pathname.slice("/documents/".length);
+  return `/documents/${RENAMED_DOCUMENTS[rest] ?? rest}`;
+}
+
+// Safety Data Sheets — files under private/documents/sds/, keyed by
 // slug rather than pulled from WC meta. No entry for a slug means no source
 // PDF exists yet (falls back to the "included with every order" notice in
 // SdsPreviewButton) — currently true only for bac-water.
 const SLUG_TO_SDS: Record<string, string> = {
   "bpc-157":              "/documents/sds/bpc-157.pdf",
-  "ac2t":                 "/documents/sds/glp-trz.pdf",
-  "ac3r":                 "/documents/sds/glp-rt.pdf",
+  "ac2t":                 "/documents/sds/ac2t.pdf",
+  "ac3r":                 "/documents/sds/ac3r.pdf",
   "klow":                 "/documents/sds/klow.pdf",
   "ghk-cu":               "/documents/sds/ghk-cu.pdf",
   "tb-500":               "/documents/sds/tb-500.pdf",
@@ -89,11 +117,6 @@ const SLUG_TO_NAME: Record<string, string> = {
   "glow":                  "GLOW",
   "semax":                 "Semax",
   "selank":                "Selank",
-  "energy-research-bundle":     "Energy Research Bundle",
-  "ghrh-bundle":                "GHRH Bundle",
-  "metabolic-research-bundle":  "Metabolic Research Bundle",
-  "full-research-bundle":       "Full Research Bundle",
-  "cognitive-research-bundle":  "Cognitive Research Bundle",
 };
 
 const SLUG_TO_CATEGORY: Record<string, string> = {
@@ -113,11 +136,6 @@ const SLUG_TO_CATEGORY: Record<string, string> = {
   "glow":                  "Longevity & Cosmetic Research",
   "semax":                 "Cognitive Research",
   "selank":                "Cognitive Research",
-  "energy-research-bundle":     "Research Bundles",
-  "ghrh-bundle":                "Research Bundles",
-  "metabolic-research-bundle":  "Research Bundles",
-  "full-research-bundle":       "Research Bundles",
-  "cognitive-research-bundle":  "Research Bundles",
 };
 
 const RELATED_MAP: Record<string, string[]> = {
@@ -137,11 +155,6 @@ const RELATED_MAP: Record<string, string[]> = {
   "glow":                ["klow", "ghk-cu", "bpc-157-tb-500"],
   "semax":               ["selank", "bpc-157", "mots-c"],
   "selank":              ["semax", "bpc-157", "ghk-cu"],
-  "energy-research-bundle":     ["mots-c", "nad-plus", "metabolic-research-bundle"],
-  "ghrh-bundle":                ["ac3r", "cjc-1295-ipamorelin", "full-research-bundle"],
-  "metabolic-research-bundle":  ["mots-c", "ac3r", "energy-research-bundle"],
-  "full-research-bundle":       ["ac3r", "nad-plus", "cjc-1295-ipamorelin"],
-  "cognitive-research-bundle":  ["semax", "selank"],
 };
 
 const FALLBACK_TRUST_BADGES = ["99%+ purity", "Endotoxin screened", "COA verified", "Same-day shipping"];
@@ -262,7 +275,7 @@ export async function getProductPageData(slug: string): Promise<ProductPageData 
     );
     let sizesDocFilesRaw: (string | null)[] = sortedVars.map((v) => {
       const vMeta = buildMetaMap(v.meta_data ?? []);
-      return vMeta["documentation_file"] || null;
+      return normalizeDocumentUrl(vMeta["documentation_file"]);
     });
 
     // Simple (non-variable) products have no /variations rows, but may still
@@ -319,7 +332,7 @@ export async function getProductPageData(slug: string): Promise<ProductPageData 
     const originalBasePrice = regularBasePrice > basePrice ? regularBasePrice : null;
 
     const fallbackImage = LOCAL_PRODUCT_IMAGES[product.name] ?? product.images[0]?.src ?? null;
-    const fallbackDocFile = meta["documentation_file"] ?? null;
+    const fallbackDocFile = normalizeDocumentUrl(meta["documentation_file"]);
     const sizesImages = (sizes.length ? sizesImagesRaw : [null]).map((img) => img ?? fallbackImage);
     const sizesDocumentationFiles = (sizes.length ? sizesDocFilesRaw : [null]).map((f) => f ?? fallbackDocFile);
     const fallbackStock = product.manage_stock ? product.stock_quantity : null;
@@ -348,7 +361,7 @@ export async function getProductPageData(slug: string): Promise<ProductPageData 
       researchApplications,
       documentationHeading: meta["documentation_section_heading"] ?? "Documentation & Quality",
       documentationMetrics,
-      documentationFile:    meta["documentation_file"]          ?? null,
+      documentationFile:    normalizeDocumentUrl(meta["documentation_file"]),
       documentationImage:   meta["documentation_image"]         ?? null,
       hasCoa:               !IDS_WITHOUT_COA.has(wcId),
       coaApplicable:        !NO_COA_REQUIRED_IDS.has(wcId),
@@ -403,11 +416,6 @@ const PRODUCT_BADGES: Record<string, { label: string; color: string }> = {
   "Selank":                                       { label: "Anxiolytic Research", color: "bg-sky-600/70 text-sky-100 border-sky-500/50" },
   "Bacteriostatic Water":                         { label: "Essential Supply",  color: "bg-slate-600/70 text-slate-100 border-slate-500/50" },
   "Reconstitution Solution – for Laboratory Use": { label: "Essential Supply",  color: "bg-slate-600/70 text-slate-100 border-slate-500/50" },
-  "Energy Research Bundle":                       { label: "Bundle Deal",       color: "bg-green-600/70 text-green-100 border-green-500/50" },
-  "GHRH Bundle":                                  { label: "Bundle Deal",       color: "bg-green-600/70 text-green-100 border-green-500/50" },
-  "Metabolic Research Bundle":                    { label: "Bundle Deal",       color: "bg-green-600/70 text-green-100 border-green-500/50" },
-  "Full Research Bundle":                         { label: "Bundle Deal",       color: "bg-green-600/70 text-green-100 border-green-500/50" },
-  "Cognitive Research Bundle":                    { label: "Bundle Deal",       color: "bg-green-600/70 text-green-100 border-green-500/50" },
 };
 
 function stripHtml(html: string): string {
@@ -531,11 +539,6 @@ const PRODUCT_PAGE_URLS: Record<string, string> = {
   "Reconstitution Solution – for Laboratory Use": "https://anvilcompounds.shop/product/bacteriostatic-water/",
   "MOTS-c":                                       "https://anvilcompounds.shop/product/mots-c/",
   "BPC-157 + TB-500":                              "https://anvilcompounds.shop/product/bpc-157-tb-500/",
-  "Energy Research Bundle":                       "https://anvilcompounds.shop/product/energy-research-bundle/",
-  "GHRH Bundle":                                  "https://anvilcompounds.shop/product/ghrh-bundle/",
-  "Metabolic Research Bundle":                    "https://anvilcompounds.shop/product/metabolic-research-bundle/",
-  "Full Research Bundle":                         "https://anvilcompounds.shop/product/full-research-bundle/",
-  "Cognitive Research Bundle":                    "https://anvilcompounds.shop/product/cognitive-research-bundle/",
 };
 
 // Aug 2026 photo refresh — every entry now points at the new vial+COA-card
@@ -547,17 +550,17 @@ const PRODUCT_PAGE_URLS: Record<string, string> = {
 // no-variation-match fallback.
 const LOCAL_PRODUCT_IMAGES: Record<string, string> = {
   "BPC-157":                                      "/products/bpc157.jpg",
-  "T1rz":                                         "/products/glp-trz-10mg.jpg",
-  "Trz- dual receptor":                           "/products/glp-trz-10mg.jpg",
-  "Dual Receptor (T)":                            "/products/glp-trz-10mg.jpg",
-  "R3ta":                                         "/products/glp-rt-10mg.jpg",
-  "Rta - triple agonist":                         "/products/glp-rt-10mg.jpg",
-  "triple agonist (R)":                           "/products/glp-rt-10mg.jpg",
-  "Triple Agonist (R)":                           "/products/glp-rt-10mg.jpg",
-  "GLP-TRZ":                                      "/products/glp-trz-10mg.jpg",
-  "GLP-RT":                                       "/products/glp-rt-10mg.jpg",
-  "AC2T":                                         "/products/glp-trz-10mg.jpg",
-  "AC3R":                                         "/products/glp-rt-10mg.jpg",
+  "T1rz":                                         "/products/ac2t-10mg.jpg",
+  "Trz- dual receptor":                           "/products/ac2t-10mg.jpg",
+  "Dual Receptor (T)":                            "/products/ac2t-10mg.jpg",
+  "R3ta":                                         "/products/ac3r-10mg.jpg",
+  "Rta - triple agonist":                         "/products/ac3r-10mg.jpg",
+  "triple agonist (R)":                           "/products/ac3r-10mg.jpg",
+  "Triple Agonist (R)":                           "/products/ac3r-10mg.jpg",
+  "GLP-TRZ":                                      "/products/ac2t-10mg.jpg",
+  "GLP-RT":                                       "/products/ac3r-10mg.jpg",
+  "AC2T":                                         "/products/ac2t-10mg.jpg",
+  "AC3R":                                         "/products/ac3r-10mg.jpg",
   "KLOW":                                         "/products/klow.jpg",
   "GHK-Cu":                                       "/products/ghkcu.jpg",
   "TB-500":                                       "/products/tb500.jpg",
@@ -572,11 +575,6 @@ const LOCAL_PRODUCT_IMAGES: Record<string, string> = {
   "Selank":                                       "/products/selank.jpg",
   "Bacteriostatic Water":                         "/products/bacwater.jpg",
   "Reconstitution Solution – for Laboratory Use": "/products/bacwater.jpg",
-  "Energy Research Bundle":                       "/products/energy-bundle.jpg",
-  "GHRH Bundle":                                  "/products/ghrh-bundle.jpg",
-  "Metabolic Research Bundle":                    "/products/metabolic-bundle.jpg",
-  "Full Research Bundle":                         "/products/full-bundle.jpg",
-  "Cognitive Research Bundle":                    "/products/cognitive-bundle.jpg",
 };
 
 // Real lab-verified purity, pulled from the same documentation_metrics ACF
@@ -627,7 +625,7 @@ export function mapProduct(product: WCProduct, index: number, originalPriceOverr
     hasCoa:      !IDS_WITHOUT_COA.has(product.id),
     coaApplicable: !NO_COA_REQUIRED_IDS.has(product.id),
     sizes:       getAttributeOptions(product, "Size"),
-    documentationFile:  meta["documentation_file"]  ?? null,
+    documentationFile:  normalizeDocumentUrl(meta["documentation_file"]),
     documentationImage: meta["documentation_image"] ?? null,
     stockQuantity: product.manage_stock ? product.stock_quantity : null,
     // Same resolution as getProductPageData's sizes[0]: the min-price
@@ -687,3 +685,4 @@ export async function getProducts(): Promise<ProductCard[]> {
 
   return filtered.map((p, i) => mapProduct(p, i, originalPriceOverrides.get(p.id), minVariationSizes.get(p.id)));
 }
+

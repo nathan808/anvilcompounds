@@ -104,7 +104,10 @@ export default function CartDrawer() {
               <div>
                 <h2 className="font-display font-700 text-white text-lg">Your Order</h2>
                 <p className="font-mono text-xs text-white/30 tracking-wider mt-0.5">
-                  {itemCount} {itemCount === 1 ? "item" : "items"} · For research use only
+                  {itemCount} {itemCount === 1 ? "item" : "items"}
+                </p>
+                <p className="font-mono text-[10px] text-white/30 tracking-wider mt-0.5">
+                  For laboratory research use only. Not for human or veterinary use.
                 </p>
               </div>
               <button

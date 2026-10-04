@@ -49,7 +49,7 @@ export const metadata: Metadata = {
   title: "Anvil Compounds — Independently Verified. Every Batch.",
   description:
     "Research-grade compounds independently tested to 99%+ purity. Triple verification: HPLC, Mass Spectrometry & Endotoxin Screening. Ships same day from Southern California.",
-  keywords: "research compounds, BPC-157, GLP research compounds, HPLC tested compounds, reference materials",
+  keywords: "research compounds, laboratory research, research use only, HPLC tested compounds, reference materials, certificates of analysis",
 };
 
 export default function RootLayout({

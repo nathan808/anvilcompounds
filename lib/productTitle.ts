@@ -5,7 +5,7 @@
 // Categories whose products aren't a single compound, so the generic
 // "Research Compound" suffix doesn't apply: Research Supplies (e.g.
 // Bacteriostatic Water) and Research Bundles (multiple products co-shipped,
-// already named things like "Energy Research Bundle").
+// already named).
 const NON_COMPOUND_CATEGORIES = new Set(["Research Supplies", "Research Bundles"]);
 
 // Products with their own established name get their own suffix instead

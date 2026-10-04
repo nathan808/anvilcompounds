@@ -3,6 +3,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { LEGAL_ENTITY_NAME, BUSINESS_ADDRESS } from "@/lib/siteConfig";
+import { RUO_POLICY_TITLE, RUO_POLICY_HTML, RUO_POLICY_UPDATED } from "@/lib/ruoPolicy";
 
 export const revalidate = 86400;
 
@@ -11,7 +13,7 @@ const WP_SLUG_MAP: Record<string, string> = {
   "privacy-policy":  "privacy-policy-page",
   "terms-of-use":    "terms-of-use-page",
   "cookie-policy":   "cookie-policy",
-  "return-policy":   "return-policy",
+  "refund-policy":   "return-policy", // WP page is still slugged "return-policy"
   "shipping-policy": "shipping-policy",
   "ruo-policy":      "ruo-policy",
 };
@@ -24,9 +26,31 @@ interface WPPage {
   modified: string;
 }
 
+// Display titles that override the WordPress page title.
+const TITLE_OVERRIDES: Record<string, string> = {
+  "refund-policy": "Refund Policy",
+};
+
 async function getPage(slug: string): Promise<WPPage | null> {
   const wpSlug = WP_SLUG_MAP[slug];
   if (!wpSlug) return null;
+  const page = await getWpPage(wpSlug);
+  if (page) return page;
+  // No ruo-policy page exists in WordPress; serve the in-repo copy. A WP page
+  // with that slug, if one is ever created, takes precedence above.
+  if (slug === "ruo-policy") {
+    return {
+      id: 0,
+      slug,
+      title: { rendered: RUO_POLICY_TITLE },
+      content: { rendered: RUO_POLICY_HTML },
+      modified: RUO_POLICY_UPDATED,
+    };
+  }
+  return null;
+}
+
+async function getWpPage(wpSlug: string): Promise<WPPage | null> {
   try {
     // Stable Hostinger domain, not the storefront domain — see app/api/blog/route.ts.
     const res = await fetch(
@@ -51,7 +75,7 @@ export async function generateMetadata({
   params: { slug: string };
 }): Promise<Metadata> {
   const page = await getPage(params.slug);
-  const title = page?.title.rendered ?? "Legal";
+  const title = TITLE_OVERRIDES[params.slug] ?? page?.title.rendered ?? "Legal";
   return {
     title: `${title} — Anvil Compounds`,
     description: `${title} for Anvil Compounds research compound products.`,
@@ -70,7 +94,7 @@ export default async function LegalPage({
   const page = await getPage(params.slug);
   if (!page) notFound();
 
-  const title = stripHtml(page.title.rendered);
+  const title = TITLE_OVERRIDES[params.slug] ?? stripHtml(page.title.rendered);
   const lastUpdated = new Date(page.modified).toLocaleDateString("en-US", {
     year: "numeric", month: "long", day: "numeric",
   });
@@ -108,6 +132,9 @@ export default async function LegalPage({
             <p className="font-mono text-xs text-white/25 tracking-wider">
               Last updated: {lastUpdated}
             </p>
+            <p className="font-mono text-xs text-white/35 tracking-wider mt-2">
+              {LEGAL_ENTITY_NAME} · {BUSINESS_ADDRESS}
+            </p>
           </div>
 
           {/* Page content from WordPress */}
@@ -122,7 +149,7 @@ export default async function LegalPage({
               "Privacy Policy":  "privacy-policy",
               "Terms of Use":    "terms-of-use",
               "Cookie Policy":   "cookie-policy",
-              "Return Policy":   "return-policy",
+              "Refund Policy":   "refund-policy",
               "Shipping Policy": "shipping-policy",
               "RUO Policy":      "ruo-policy",
             }).map(([label, s]) => (

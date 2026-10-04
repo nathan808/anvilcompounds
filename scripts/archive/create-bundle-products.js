@@ -1,3 +1,5 @@
+// RETIRED: the five Research Bundle products (WC 1041-1049) were discontinued and trashed.
+// Kept for reference only; their COA PDFs and images are in private/archive/.
 #!/usr/bin/env node
 /**
  * Anvil Compounds — Research Bundles creation script
@@ -12,7 +14,7 @@
  * All purity/identity/endotoxin/lot values below are the REAL, currently-
  * live per-compound values pulled from each standalone product's own WC
  * meta_data on 2026-08-09 — not placeholders. COA files are merged PDFs of
- * the real individual COAs (see public/documents/*-bundle-coa.pdf), same
+ * the real individual COAs (see private/archive/bundle-coas/*-bundle-coa.pdf), same
  * pattern as the existing Wolverine bundle's documentation_file.
  */
 

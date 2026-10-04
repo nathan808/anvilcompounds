@@ -11,7 +11,7 @@ import { useAuth } from "@/lib/authContext";
 import { getProductDisplayTitle, isLoginGatedCompound, getCompoundReveal } from "@/lib/productTitle";
 import CompoundRevealBadge from "@/components/CompoundRevealBadge";
 import { simplifySizeLabel } from "@/lib/reconstitution";
-import { BOGO_ENABLED, BOGO_EXCLUDED_PRODUCT_IDS, BUNDLE_PRODUCT_IDS } from "@/lib/bogoDiscount";
+import { BOGO_ENABLED, BOGO_EXCLUDED_PRODUCT_IDS } from "@/lib/bogoDiscount";
 
 // Small credibility pills above the catalog header — same idea as a
 // competitor's "tested by / sold to / verified" badge row, adapted to what
@@ -63,15 +63,15 @@ const HOME_HIDDEN_ON_ALL_COMPOUNDS = ["GLP-TRZ", "AC2T"];
 
 const PRODUCT_IMAGES: Record<string, string> = {
   "BPC-157":                       "/products/bpc157.jpg",
-  "T1rz":                          "/products/glp-trz.png",
-  "Dual Receptor (T)":             "/products/glp-trz.png",
-  "R3ta":                          "/products/glp-rt.jpg",
-  "Triple Agonist (R)":            "/products/glp-rt.jpg",
-  "triple agonist (R)":            "/products/glp-rt.jpg",
-  "GLP-TRZ":                       "/products/glp-trz.png",
-  "GLP-RT":                        "/products/glp-rt.jpg",
-  "AC2T":                          "/products/glp-trz.png",
-  "AC3R":                          "/products/glp-rt.jpg",
+  "T1rz":                          "/products/ac2t.png",
+  "Dual Receptor (T)":             "/products/ac2t.png",
+  "R3ta":                          "/products/ac3r.jpg",
+  "Triple Agonist (R)":            "/products/ac3r.jpg",
+  "triple agonist (R)":            "/products/ac3r.jpg",
+  "GLP-TRZ":                       "/products/ac2t.png",
+  "GLP-RT":                        "/products/ac3r.jpg",
+  "AC2T":                          "/products/ac2t.png",
+  "AC3R":                          "/products/ac3r.jpg",
   "KLOW":                          "/products/klow.jpg",
   "GHK-Cu":                        "/products/ghkcu.jpg",
   "TB-500":                        "/products/tb500.jpg",
@@ -182,8 +182,8 @@ function slugifyProductName(name: string): string {
 const FALLBACK_PRODUCTS: ProductCard[] = [
   { id: 332, name: "BPC-157", category: "Repair & Recovery Research", description: "Body Protection Compound — a 15-amino-acid research fragment with notable tissue healing and regenerative properties under research conditions.", price: "$59", purity: "99.4%", badge: "High Demand", badgeColor: "bg-indigo-600/70 text-indigo-100 border-indigo-500/50", icon: "⬡", permalink: "https://anvilcompounds.shop/product/bpc-157/", image: "/products/bpc157.jpg", hasCoa: true, coaApplicable: true, sizes: [], documentationFile: null, documentationImage: null },
   { id: 447, name: "BPC-157 + TB-500", category: "Repair & Recovery Research", description: "Dual compound recovery blend combining BPC-157 and TB-500 — studied for synergistic effects in tissue repair and cell migration research models.", price: "$79", originalPrice: "$89", purity: "99%+", badge: "Exclusive Blend", badgeColor: "bg-purple-600/70 text-purple-100 border-purple-500/50", icon: "⬧", permalink: "https://anvilcompounds.shop/product/bpc-157-tb-500/", image: "/products/wolverine.jpg", hasCoa: true, coaApplicable: true, sizes: [], documentationFile: null, documentationImage: null },
-  { id: 333, name: "AC2T", category: "Metabolic Research", description: "A dual incretin receptor agonist binding both GIP and GLP-1 receptors, under active clinical research.", price: "$79", originalPrice: "$89", purity: "99.1%", badge: "Dual Agonist", badgeColor: "bg-cyan-600/70 text-cyan-100 border-cyan-500/50", icon: "◇", permalink: "https://anvilcompounds.shop/product/ac2t/", image: "/products/glp-trz.png", hasCoa: false, coaApplicable: true, sizes: [], documentationFile: null, documentationImage: null },
-  { id: 337, name: "AC3R", category: "Metabolic Research", description: "A triple receptor agonist targeting GIP, GLP-1, and glucagon receptors — at the frontier of current metabolic research.", price: "$89", originalPrice: "$99", purity: "99.0%", badge: "Triple Agonist", badgeColor: "bg-rose-600/70 text-rose-100 border-rose-500/50", icon: "⬟", permalink: "https://anvilcompounds.shop/product/ac3r/", image: "/products/glp-rt.jpg", hasCoa: true, coaApplicable: true, sizes: [], documentationFile: null, documentationImage: null },
+  { id: 333, name: "AC2T", category: "Metabolic Research", description: "A dual incretin receptor agonist binding both GIP and GLP-1 receptors, under active clinical research.", price: "$79", originalPrice: "$89", purity: "99.1%", badge: "Dual Agonist", badgeColor: "bg-cyan-600/70 text-cyan-100 border-cyan-500/50", icon: "◇", permalink: "https://anvilcompounds.shop/product/ac2t/", image: "/products/ac2t.png", hasCoa: false, coaApplicable: true, sizes: [], documentationFile: null, documentationImage: null },
+  { id: 337, name: "AC3R", category: "Metabolic Research", description: "A triple receptor agonist targeting GIP, GLP-1, and glucagon receptors — at the frontier of current metabolic research.", price: "$89", originalPrice: "$99", purity: "99.0%", badge: "Triple Agonist", badgeColor: "bg-rose-600/70 text-rose-100 border-rose-500/50", icon: "⬟", permalink: "https://anvilcompounds.shop/product/ac3r/", image: "/products/ac3r.jpg", hasCoa: true, coaApplicable: true, sizes: [], documentationFile: null, documentationImage: null },
   { id: 335, name: "KLOW", category: "Longevity & Cosmetic Research", description: "A curated blend of four research-grade compounds, independently tested as a combined formulation.", price: "$109", originalPrice: "$119", purity: "99.3%", badge: "Premium Blend", badgeColor: "bg-fuchsia-600/70 text-fuchsia-100 border-fuchsia-500/50", icon: "✦", permalink: "https://anvilcompounds.shop/product/klow/", image: "/products/klow.jpg", hasCoa: true, coaApplicable: true, sizes: [], documentationFile: null, documentationImage: null },
   { id: 354, name: "TB-500", category: "Repair & Recovery Research", description: "Synthetic analogue of Thymosin Beta-4, studied in cell migration, actin dynamics, and tissue modeling research models.", price: "$69", purity: "99%+", badge: "Recovery Staple", badgeColor: "bg-amber-600/70 text-amber-100 border-amber-500/50", icon: "◉", permalink: "https://anvilcompounds.shop/product/tb-500/", image: "/products/tb500.jpg", hasCoa: true, coaApplicable: true, sizes: [], documentationFile: null, documentationImage: null },
   { id: 336, name: "GHK-Cu", category: "Longevity & Cosmetic Research", description: "A naturally occurring copper complex with extensive research into cellular remodeling and tissue response.", price: "$49", originalPrice: "$59", purity: "99.5%", badge: "Entry Point", badgeColor: "bg-teal-600/70 text-teal-100 border-teal-500/50", icon: "⬢", permalink: "https://anvilcompounds.shop/product/ghk-cu/", image: "/products/ghkcu.jpg", hasCoa: true, coaApplicable: true, sizes: [], documentationFile: null, documentationImage: null },
@@ -196,11 +196,6 @@ const FALLBACK_PRODUCTS: ProductCard[] = [
   { id: 510, name: "Semax", category: "Cognitive Research", description: "Synthetic 7-amino-acid analogue of ACTH(4-10), studied in research involving neurotrophic factor expression, BDNF signaling, and neuroprotective pathway models.", price: "$54", purity: "99%+", badge: "Neuro Research", badgeColor: "bg-blue-600/70 text-blue-100 border-blue-500/50", icon: "◈", permalink: "https://anvilcompounds.shop/product/semax/", image: "https://paleturquoise-crane-581984.hostingersite.com/wp-content/uploads/2026/07/semaxproductphoto.png", hasCoa: false, coaApplicable: true, sizes: [], documentationFile: null, documentationImage: null },
   { id: 511, name: "Selank", category: "Cognitive Research", description: "Synthetic 7-amino-acid analogue of tuftsin, studied in research involving GABAergic pathway modulation, neuro-signaling, and anxiety response models.", price: "$54", purity: "99%+", badge: "Anxiolytic Research", badgeColor: "bg-sky-600/70 text-sky-100 border-sky-500/50", icon: "◉", permalink: "https://anvilcompounds.shop/product/selank/", image: "https://paleturquoise-crane-581984.hostingersite.com/wp-content/uploads/2026/07/selankproductphoto.png", hasCoa: false, coaApplicable: true, sizes: [], documentationFile: null, documentationImage: null },
   { id: 349, name: "Bacteriostatic Water", category: "Research Supplies", description: "0.9% benzyl alcohol sterile water. Standard reconstitution solvent for lyophilized compound research. 3mL multi-use vial.", price: "$9", purity: "Sterility Certified", badge: "Essential Supply", badgeColor: "bg-slate-600/70 text-slate-100 border-slate-500/50", icon: "◎", permalink: "https://anvilcompounds.shop/product/bac-water/", image: null, hasCoa: true, coaApplicable: false, sizes: [], documentationFile: null, documentationImage: null },
-  { id: 1041, name: "Energy Research Bundle", category: "Research Bundles", description: "MOTS-C 10mg + NAD+ 500mg, bundled and individually vialed.", price: "$105", purity: "99%+", badge: "Bundle Deal", badgeColor: "bg-green-600/70 text-green-100 border-green-500/50", icon: "✦", permalink: "https://anvilcompounds.shop/product/energy-research-bundle/", image: "/products/energy-bundle.jpg", hasCoa: true, coaApplicable: true, sizes: [], documentationFile: null, documentationImage: null },
-  { id: 1043, name: "GHRH Bundle", category: "Research Bundles", description: "Retatrutide 10mg + CJC-1295/Ipamorelin 5+5mg, bundled and individually vialed.", price: "$130", purity: "99%+", badge: "Bundle Deal", badgeColor: "bg-green-600/70 text-green-100 border-green-500/50", icon: "✦", permalink: "https://anvilcompounds.shop/product/ghrh-bundle/", image: "/products/ghrh-bundle.jpg", hasCoa: true, coaApplicable: true, sizes: [], documentationFile: null, documentationImage: null },
-  { id: 1045, name: "Metabolic Research Bundle", category: "Research Bundles", description: "MOTS-C 10mg + Retatrutide 10mg, bundled and individually vialed.", price: "$125", purity: "99%+", badge: "Bundle Deal", badgeColor: "bg-green-600/70 text-green-100 border-green-500/50", icon: "✦", permalink: "https://anvilcompounds.shop/product/metabolic-research-bundle/", image: "/products/metabolic-bundle.jpg", hasCoa: true, coaApplicable: true, sizes: [], documentationFile: null, documentationImage: null },
-  { id: 1047, name: "Full Research Bundle", category: "Research Bundles", description: "Retatrutide + NAD+ + CJC-1295/Ipamorelin + GHK-Cu, bundled and individually vialed.", price: "$240", purity: "99%+", badge: "Bundle Deal", badgeColor: "bg-green-600/70 text-green-100 border-green-500/50", icon: "✦", permalink: "https://anvilcompounds.shop/product/full-research-bundle/", image: "/products/full-bundle.jpg", hasCoa: true, coaApplicable: true, sizes: [], documentationFile: null, documentationImage: null },
-  { id: 1049, name: "Cognitive Research Bundle", category: "Research Bundles", description: "Semax 10mg + Selank 10mg, bundled and individually vialed.", price: "$90", purity: "99%+", badge: "Bundle Deal", badgeColor: "bg-green-600/70 text-green-100 border-green-500/50", icon: "✦", permalink: "https://anvilcompounds.shop/product/cognitive-research-bundle/", image: "/products/cognitive-bundle.jpg", hasCoa: true, coaApplicable: true, sizes: [], documentationFile: null, documentationImage: null },
 ];
 
 export function ProductCard({ product, index, animateIn = true }: { product: ProductCard; index: number; animateIn?: boolean }) {
@@ -216,11 +211,6 @@ export function ProductCard({ product, index, animateIn = true }: { product: Pro
   // /account?redirect= pattern used for the GLP COA gate elsewhere.
   const glpGated = isLoginGatedCompound(product.name) && !isAuthenticated;
   const loginHref = `/account?redirect=${encodeURIComponent(`/products/${slugifyProductName(product.name)}`)}`;
-
-  // Research Bundles are marked out of stock — display and functionally
-  // blocked from purchase (see BUNDLE_PRODUCT_IDS in lib/bogoDiscount.ts;
-  // also enforced server-side in app/api/checkout/place-order).
-  const isBundleOOS = BUNDLE_PRODUCT_IDS.has(product.id);
 
   // BOGO-eligible cards show the effective per-vial price under B1G1 —
   // Base (regular_price, the crossed-out "was" price) halved, since a B1G1
@@ -330,12 +320,6 @@ export function ProductCard({ product, index, animateIn = true }: { product: Pro
                 Sign Up to Inquire
               </span>
             </div>
-          ) : isBundleOOS ? (
-            <div className="absolute inset-0 z-10 backdrop-blur-sm bg-mock-graphite/80 flex flex-col items-center justify-center gap-2">
-              <span className="font-mono text-[10px] text-red-300 tracking-[0.18em] uppercase text-center px-2">
-                Out of Stock
-              </span>
-            </div>
           ) : null}
         </div>
 
@@ -395,11 +379,7 @@ export function ProductCard({ product, index, animateIn = true }: { product: Pro
                   <span className="font-body text-xs md:text-sm text-mock-sub line-through">{product.originalPrice}</span>
                 )}
               </div>
-              {isBundleOOS ? (
-                <span className="font-mono text-[10px] md:text-xs text-red-600 font-600">
-                  Out of stock
-                </span>
-              ) : product.stockQuantity != null && product.stockQuantity < 5 && (
+              {product.stockQuantity != null && product.stockQuantity < 5 && (
                 <span className="font-mono text-[10px] md:text-xs text-amber-600 font-600">
                   {product.stockQuantity <= 0 ? "Out of stock" : "Limited qty."}
                 </span>
@@ -446,10 +426,6 @@ export function ProductCard({ product, index, animateIn = true }: { product: Pro
               >
                 Sign Up to Inquire
               </button>
-            ) : isBundleOOS ? (
-              <span className="flex-1 text-center px-2 md:px-3 py-1.5 md:py-2 border border-red-500/30 bg-red-500/10 text-red-700 text-[10px] md:text-xs font-mono rounded-lg cursor-default">
-                Out of Stock
-              </span>
             ) : product.hasCoa ? (
               <button
                 onClick={handleAddToCart}
@@ -505,7 +481,7 @@ export default function ProductsSection() {
   const [search, setSearch] = useState("");
   const [mobileShowAll, setMobileShowAll] = useState(false);
   const searchParams = useSearchParams();
-  // Deep-link support for e.g. the homepage BundlesTeaser's "Browse All
+  // Deep-link support for e.g. a homepage teaser's "Browse All
   // Bundles" CTA (?category=Research+Bundles) — falls back to "All
   // Compounds" for a plain /catalog visit, same as before.
   const [selectedCategory, setSelectedCategory] = useState(

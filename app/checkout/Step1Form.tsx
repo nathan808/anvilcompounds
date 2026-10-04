@@ -161,7 +161,7 @@ export default function Step1Form() {
           </div>
         </div>
         <p className="font-body text-sm text-white/45 leading-relaxed">
-          I confirm that all products purchased are for <strong className="text-white/70">research use only</strong> and not for human or veterinary consumption. I am 21 years of age or older. *
+          I confirm that all products purchased are for <strong className="text-white/70">research use only</strong> and not for human or veterinary consumption. I am 21 years of age or older, a qualified researcher or affiliated with a research institution, and am purchasing for a legitimate research purpose. *
         </p>
       </label>
 
